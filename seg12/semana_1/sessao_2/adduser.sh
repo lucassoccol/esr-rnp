@@ -8,7 +8,7 @@ usage() {
 
 if [[ $EUID -ne 0 ]]; then
   echo "  [*] Not root!" 1>&2
-	exit 1
+  exit 1
 fi
 
 while getopts ":u:p:" opt; do
@@ -29,8 +29,8 @@ done
 [ -z $pass ] && { echo "  [*] No password?"; usage; }
 
 if egrep "^${user}:" /etc/passwd &> /dev/null; then
-	echo "  [*] User exists!"
-	exit 1
+  echo "  [*] User exists!"
+  exit 1
 fi
 
 lastgid=$( getent group | grep -v 'nogroup' | cut -d':' -f3 | sort -n | tail -n1 )
@@ -49,4 +49,4 @@ hpass="$( mkpasswd -m sha-512 -S $salt -s <<< $pass )"
 echo "$user:$hpass:16842:0:99999:7:::" >> /etc/shadow
 
 cp -r /etc/skel /home/$user
-chown ${user}.${user} /home/$user
+chown -R ${user}.${user} /home/$user
