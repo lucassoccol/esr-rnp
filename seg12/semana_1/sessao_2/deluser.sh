@@ -48,3 +48,6 @@ sed -i "/^$user:/d" /etc/group
 sed -i "/^$user:/d" /etc/gshadow
 sed -i "/^$user:/d" /etc/passwd
 sed -i "/^$user:/d" /etc/shadow
+
+# remove user from secondary groups
+sed -r -i "s/,?${user},?/,/ ; s/:,/:/ ; s/,$//" /etc/group
