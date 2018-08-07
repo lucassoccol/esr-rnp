@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Caderno:  ./compile_pdf.sh -f gabarito_semana1.adoc -o _caderno_semana1.pdf
+# Gabarito: ./compile_pdf.sh -f gabarito_semana1.adoc -o _gabarito_semana1.pdf -g
+
 BIN="asciidoctor-pdf"
 
 
