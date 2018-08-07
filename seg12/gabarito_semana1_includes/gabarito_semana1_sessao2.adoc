@@ -2,7 +2,7 @@
 
 === 1) Criando contas de usuários
 
-Uma das atividades que fazem parte da rotina diária de um administrador de sistemas é o gerenciamento de contas de usuários. Frequentemente, usuários são criados, modificados, desabilitados ou excluídos do sistema
+Uma das atividades que fazem parte da rotina diária de um administrador de sistemas é o gerenciamento de contas de usuários. Frequentemente, usuários são criados, modificados, desabilitados ou excluídos do sistema.
 
 1. Descubra se o sistema faz uso de _shadow passwords_ ou se ainda utiliza o esquema tradicional.
 ifdef::gabarito[]
@@ -99,3 +99,421 @@ marcelo:*:16846:0:99999:7:::
 include::{srcdir}/sessao_2/adduser.sh[]
 ----
 endif::gabarito[]
+
+3. Agora, crie uma conta para o instrutor, utilizando, desta vez, o comando `useradd`. Faça com que a conta criada tenha sete dias de duração e com que o seu diretório de trabalho seja `/NOME`, onde `NOME` é o nome de usuário para o qual a conta deve ser aberta.
+ifdef::gabarito[]
++
+.................
+# mkdir /instrutor
+# useradd instrutor -d /instrutor -e YYYY-MM-DD
+# passwd instrutor
+Digite a nova senha UNIX:
+Redigite a nova senha UNIX:
+passwd: senha atualizada com sucesso
+# chown -R instrutor:instrutor /instrutor
+.................
++
+* *[1]* Consulte as páginas do manual do comando `useradd` e procure as informações necessárias para incluir a data de expiração (_expire date_) e criar o diretório de trabalho (_homedir_) em um local diferente do padrão, que é `/home/NOME`. Não se esqueça de escolher e atribuir uma senha para as contas que obedeça aos padrões de segurança apresentados no texto. Observe, ainda, que o diretório _home_ indicado através da opção `-d` não é criado automaticamente.
++
+* *[2]* Ao usar o comando `useradd`, o shell escolhido pelo sistema é o `/bin/sh`, por padrão. Para alterar o shell do usuário, pode-se editar o arquivo `/etc/passwd` diretamente, ou executar o comando `chsh`, mostrado abaixo:
++
+.................
+# getent passwd | grep '^instrutor:'
+instrutor:x:1002:1002::/home/instrutor:/bin/sh
+
+# chsh instrutor
+Mudando o shell de login para instrutor
+Informe o novo valor ou pressione ENTER para aceitar o padrão
+        Shell de Login [/bin/sh]: /bin/bash
+
+# getent passwd | grep '^instrutor:'
+instrutor:x:1002:1002::/home/instrutor:/bin/bash
+.................
+endif::gabarito[]
+
+4. O comando `useradd` não é uma boa opção para informar a senha do usuário. Por quê?
+ifdef::gabarito[]
++
+Porque a senha criptografada deve ser digitada diretamente na linha de comando, podendo ser lida posteriormente via logs ou histórico do shell.
+endif::gabarito[]
+
+5. Faça um _script_ que simule o comando `newusers`. Para isso, você deve criar um arquivo texto contendo as informações a respeito dos usuários, mantendo o mesmo padrão dos arquivos lidos pelo comando `newusers` (para descobrir o formato, consulte a página de manual: `$ man 8 newusers`). Como este arquivo conterá as senhas dos usuários, é importante removê-lo logo após a criação das contas.
++
+*Dica:* Utilize a variável de sistema `IFS` (_Internal Field Separator_) em seu _script_ para definir o caractere ":" como campo que separa as informações sobre as contas.
+ifdef::gabarito[]
++
+O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
++
+[source,bash]
+----
+include::{srcdir}/sessao_2/newusers.sh[]
+----
++
+Um arquivo de entrada com sintaxe válida para o _script_ acima seria como se segue:
++
+.................
+usuario1:rnpesr:1101:1101::/home/usuario1:/bin/bash
+usuario2:rnpesr:1102:1102::/home/usuario2:/bin/bash
+usuario3:rnpesr:1103:1103::/home/usuario3:/bin/bash
+.................
+endif::gabarito[]
+
+=== 2) Verificando e modificando informações de contas de usuário
+
+Após a criação de uma conta, é fundamental que o administrador verifique se ela foi criada corretamente.
+
+1. Entre no sistema com o usuário criado no item 3 da atividade 1 e execute os comandos indicados para verificação de uma conta.
+ifdef::gabarito[]
++
+.................
+$ ssh instrutor@localhost
+instrutor@localhost's password:
+
+$ id
+uid=1002(instrutor) gid=1002(instrutor) grupos=1002(instrutor)
+$ pwd
+/instrutor
+$ ls -la
+total 8
+drwxr-xr-x  2 instrutor instrutor 4096 Ago  7 14:42 .
+drwxr-xr-x 23 root      root      4096 Ago  7 14:42 ..
+.................
+endif::gabarito[]
+
+2. Seria possível inserir o número de telefone de trabalho desse mesmo usuário, junto com a informação de quem ele é? Faça isso e torne a checar se a sua mudança surtiu efeito.
+ifdef::gabarito[]
++
+.................
+# chfn -w 6198765432 instrutor
+# finger -l instrutor
+Login: instrutor                        Name:
+Directory: /instrutor                   Shell: /bin/sh
+Office Phone: 619-876-5432
+Last login Tue Aug  7 14:44 (-03) on pts/1 from localhost
+No mail.
+No Plan.
+.................
+endif::gabarito[]
+
+=== 3) Criando grupos de usuários
+
+O recurso de grupos de usuários é muito útil para compartilhar informações. No momento em que a conta `instrutor` foi criada, no item 3 da atividade 1 deste roteiro, o grupo primário ficou sendo o seu próprio nome de usuário. Isso ocorre sempre que não é atribuído um valor para o grupo primário, no momento da criação de um novo usuário. Como o usuário criado não faz parte de outro grupo, a não ser do seu próprio, ele somente poderá acessar seus arquivos ou aqueles arquivos para os quais haja permissão de acesso para outros usuários.
+
+1. Use o comando apropriado para criar um grupo chamado `grupoteste`.
+ifdef::gabarito[]
++
+.................
+# addgroup grupoteste
+Adicionando grupo 'grupoteste' (GID 1003) ...
+Concluído.
+.................
+endif::gabarito[]
+
+2. Liste o arquivo `/etc/group` e anote o `GID` que foi atribuído ao grupo criado.
+ifdef::gabarito[]
++
+.................
+# getent group | egrep '^grupoteste:' | cut -d':' -f3
+1003
+.................
+endif::gabarito[]
+
+3. Aproveite para observar, no arquivo `/etc/group`, quais são os outros grupos existentes no sistema. Qual o grupo associado ao usuário `root`?
+ifdef::gabarito[]
++
+.................
+# getent group | grep root
+root:x:0:
+.................
++
+O grupo `root`, que é o grupo primário do superusuário do sistema.
+endif::gabarito[]
+
+4. Altere o grupo primário do usuário `instrutor`, de modo que este passe a ser o grupo criado no item 1 da atividade 3, `grupoteste`.
+ifdef::gabarito[]
++
+.................
+# usermod -g grupoteste instrutor
+# getent passwd | egrep '^instrutor:'
+instrutor:x:1002:1003:,,6198765432,:/instrutor:/bin/sh
+.................
+endif::gabarito[]
+
+5. Se autentique no sistema utilizando a sua conta e inclua seu usuário como administrador do grupo `grupoteste`. Em seguida inclua o usuário `instrutor` no grupo `grupoteste`. Você conseguiu executar as tarefas propostas? Por quê? Como você deve fazer para realizar as tarefas?
+ifdef::gabarito[]
++
+.................
+$ gpasswd -a instrutor grupoteste
+gpasswd : Permissão negada.
+.................
++
+Não, porque somente o usuário `root` pode cadastrar administradores em um grupo. Os comandos para viabilizar essa tarefa seriam:
++
+.................
+# gpasswd -A aluno grupoteste
+# logout
+
+$ whoami
+aluno
+$ gpasswd -a instrutor grupoteste
+Adicionando usuário instrutor ao grupo grupoteste
+.................
+endif::gabarito[]
+
+6. Altere novamente o grupo primário do usuário `instrutor` para o grupo `instrutor`.
+ifdef::gabarito[]
++
+.................
+# usermod -g instrutor instrutor
+# getent passwd | egrep '^instrutor:'
+instrutor:x:1002:1002:,,6198765432,:/instrutor:/bin/sh
+.................
+endif::gabarito[]
+
+=== 4) Incluindo usuários em grupos secundários
+
+1. Editando o arquivo `/etc/group`, inclua, no grupo `grupoteste`, o usuário criado no terceiro item da atividade 1 desse roteiro (`instrutor`). Note que o grupo primário do usuário não deve mudar; continua sendo o nome do usuário.
+ifdef::gabarito[]
++
+Inserir após o último caractere ":" na linha referente ao grupo `grupoteste`, o _username_ do usuário `instrutor`.
++
+.................
+# getent group | egrep '^grupoteste:'
+grupoteste:x:1003:instrutor
+# groups instrutor
+instrutor : instrutor grupoteste
+.................
+endif::gabarito[]
+
+2. Agora, utilize um comando apropriado para inserir nesse mesmo grupo o usuário criado para você no primeiro item da atividade 1.
+ifdef::gabarito[]
++
+.................
+# groups marcelo
+marcelo : marcelo
+
+# usermod -a -G grupoteste marcelo
+# groups marcelo
+marcelo : marcelo grupoteste
+.................
+endif::gabarito[]
+
+=== 5) Bloqueando contas de usuários
+
+No Linux, é possível impedir temporariamente o acesso ao sistema mesmo que o usuário esteja utilizando uma conta com acesso liberado a este.
+
+1. Utilizando um comando apropriado, bloqueie a conta criada para o instrutor e teste se obteve sucesso no bloqueio.
+ifdef::gabarito[]
++
+.................
+# passwd -l instrutor
+passwd: informação de expiração de senha alterada.
+
+# ssh instrutor@localhost
+instrutor@localhost's password:
+Permission denied, please try again.
+.................
+endif::gabarito[]
+
+2. Agora desbloqueie a conta e faça o teste de acesso para verificar se sua alteração surtiu efeito.
+ifdef::gabarito[]
++
+.................
+# passwd -u instrutor
+passwd: informação de expiração de senha alterada.
+
+# ssh instrutor@localhost
+instrutor@localhost's password:
+$ pwd
+/instrutor
+.................
++
+Também pode-se utilizar o comando `# usermod -U USERNAME` para atingir o mesmo objetivo.
+endif::gabarito[]
+
+=== 6) Removendo uma conta de usuário manualmente
+
+No Linux, é possível executar uma mesma tarefa de diversas maneiras. Para um administrador de sistemas, é importante conhecer essas alternativas, porque elas podem ser úteis em situações específicas em que não seja possível utilizar um dado recurso ou ferramenta do sistema.
+
+1. Sem utilizar o comando `userdel`, remova a conta criada para você no segundo item da atividade 1.
+ifdef::gabarito[]
++
+Em ordem, deve-se executar as atividades espelho das que foram feitas anteriormente, quais sejam:
++
+* Remover entradas referente à conta nos arquivos:
++
+** `/etc/group`
+** `/etc/gshadow`
+** `/etc/passwd`
+** `/etc/shadow`
++
+* Remover o diretório _home_ do usuário;
++
+* Remover as configurações de _quota_, caso tenham sido configuradas anteriormente.
++
+* O _script shell_ abaixo mostra uma maneira como os comandos executados manualmente nesta atividade poderiam ser automatizados por um administrador de sistemas:
++
+<<<
++
+[source,bash]
+----
+include::{srcdir}/sessao_2/deluser.sh[]
+----
+endif::gabarito[]
+
+2. Certifique-se de que esse usuário foi realmente excluído do sistema, utilizando um dos comandos que fornecem informações sobre os usuários.
+ifdef::gabarito[]
++
+.................
+# finger marcelo
+finger: marcelo: no such user.
+.................
+endif::gabarito[]
+
+3. Faça um backup de seus dados de modo que o instrutor possa ter sobre eles o mesmo tipo de acesso que você.
+ifdef::gabarito[]
++
+O _script_ apontado no primeiro item desta atividade já faz o backup de arquivos (via opção `-b`). Caso o usuário tenha sido removido sem que seu _home_ tenha sido apagado (por exemplo, via comando `userdel`), pode-se fazer o backup dos dados da seguinte forma:
++
+.................
+# tar czf /instrutor/marcelo.tar.gz /home/marcelo && rm -rf /home/marcelo
+tar: Removendo `/' inicial dos nomes dos membros
+# ls /instrutor/
+marcelo.tar.gz
+.................
+endif::gabarito[]
+
+=== 7) Obtendo informações sobre usuários
+
+Muitas vezes, é necessário obter informações sobre os usuários de um sistema. Dois comandos que fornecem informações sobre usuários são `finger` e `id`.
+
+1. Verifique os parâmetros do usuário criado na atividade 1 utilizando esses comandos, e descreva a diferença entre os dois a partir dos resultados obtidos. Consulte as páginas de manual para verificar as opções disponíveis nestes comandos.
+ifdef::gabarito[]
++
+.................
+$ id instrutor
+uid=1002(instrutor) gid=1002(instrutor) grupos=1002(instrutor),1003(grupoteste)
+
+$ finger instrutor
+Login: instrutor                        Name:
+Directory: /instrutor                   Shell: /bin/sh
+Office Phone: 619-876-5432
+Last login Tue Aug  7 15:45 (-03) on pts/1 from localhost
+No mail.
+No Plan.
+.................
++
+O comando `id` mostra os grupos do usuário e seu UID enquanto o comando `finger` mostra informações como: diretório _home_, shell, _username_, GECOS, terminal utilizado pelo usuário, etc.
+endif::gabarito[]
+
+=== 8) Removendo contas de usuários
+
+1. Utilizando os comandos apropriados, remova a conta criada para o instrutor. Não se esqueça de que um grupo foi especialmente criado para ele e que ele também possui um grupo secundário.
+ifdef::gabarito[]
++
+.................
+# userdel -r instrutor
+# getent passwd | egrep '^instrutor:'
+# getent group  | egrep ',?instrutor,?'
+#
+.................
+endif::gabarito[]
+
+=== 9) Alterando o grupo a que um arquivo pertence
+
+O arquivo `/etc/passwd` contém informações importantes sobre os usuários do sistema. Esse arquivo pertence ao usuário `root` e ao grupo `root`. As permissões de acesso desse arquivo definem que ele só poderá ser modificado pelo usuário `root`.
+
+1. Faça com que esse arquivo pertença ao grupo `grupoteste`, criado na atividade 3. Com isso, os usuários desse grupo, incluindo o usuário criado na atividade 1 poderão acessar esse arquivo por meio das permissões definidas para os usuários do grupo.
+ifdef::gabarito[]
++
+.................
+# chgrp grupoteste /etc/passwd
+# ls -ld /etc/passwd
+-rw-r--r-- 1 root grupoteste 1612 Ago  7 16:12 /etc/passwd
+.................
+endif::gabarito[]
+
+=== 10) Alterando permissões de acesso de arquivos
+
+É muito comum o administrador ter que modificar a permissão de arquivos para possibilitar ou impedir que eles sejam lidos ou modificados por diferentes categorias de usuários. A melhor forma de fazer isso é utilizando o comando `chmod`.
+
+1. O arquivo `/etc/passwd` tem apenas permissão de leitura para os usuários do seu grupo proprietário. Use o comando `chmod` para atribuir permissão de escrita ao grupo proprietário desse arquivo. A permissão de escrita nesse arquivo é inicialmente atribuída apenas ao usuário proprietário do arquivo.
+ifdef::gabarito[]
++
+.................
+# chmod 664 /etc/passwd
+# ls -ld /etc/passwd
+-rw-rw-r-- 1 root grupoteste 1612 Ago  7 16:12 /etc/passwd
+.................
++
+Alternativamente, pode-se usar também o comando `# chmod g+w /etc/passwd` para atingir o mesmo objetivo.
+endif::gabarito[]
+
+2. O setor de controladoria de uma empresa só possuía um funcionário, que pediu demissão. Como não há um diretório específico para armazenar os arquivos do setor, todos os seus arquivos de trabalho estão armazenados em seu diretório _home_. Que passos você deve fazer para disponibilizar estes arquivos para o novo funcionário que será contratado e para que este tipo de problema não volte a ocorrer?
+ifdef::gabarito[]
++
+* Crie o grupo controladoria:
++
+.................
+# addgroup controladoria
+Adicionando grupo 'controladoria' (GID 1002) ...
+Concluído.
+.................
++
+* Crie a conta do novo funcionário e defina o grupo `controladoria` como seu grupo primário:
++
+.................
+# useradd -m -g controladoria funcionario
+# ls -lha /home/ | egrep ' funcionario$'
+drwxr-xr-x  2 funcionario controladoria 4,0K Ago  7 16:22 funcionario
+.................
++
+* Crie o diretório `/home/controladoria`:
++
+.................
+# mkdir /home/controladoria
+# chgrp controladoria /home/controladoria
+# chmod g+w /home/controladoria/
+# ls -lha /home/ | egrep ' controladoria$'
+drwxrwxr-x  2 root        controladoria 4,0K Ago  7 16:24 controladoria
+.................
++
+* Habilite o _sticky bit_ para o diretório `/home/controladoria`, de forma que todos os membros do grupo `controladoria` possam criar arquivos ali, mas apenas o dono de cada arquivo possa apagá-los:
++
+.................
+# chmod +t /home/controladoria/
+# ls -lha /home/ | egrep ' controladoria$'
+drwxrwxr-t  2 root        controladoria 4,0K Ago  7 16:24 controladoria
+.................
++
+* Mova os arquivos do antigo funcionário para o diretório `/home/controladoria`:
++
+.................
+# cp -a /home/antigo_funcionario /home/controladoria
+# ls /home/controladoria
+antigo_funcionario
+.................
++
+Redefina as permissões dos arquivos do antigo funcionário:
++
+.................
+# chown -R root.controladoria /home/controladoria
+.................
++
+* Remova a conta do antigo funcionário:
++
+.................
+# userdel -r antigo_funcionario
+.................
++
+* Oriente o novo funcionário para que ele só armazene os arquivos relacionados ao setor de controladoria no diretório `/home/controladoria`, e seus arquivos pessoais em `/home/funcionario`.
+endif::gabarito[]
+
+*Observação:* Por motivos de segurança, ao final das atividades, retorne a permissão e o grupo do arquivo `/etc/passwd` para os valores originais.
+
+.................
+# chown root.root /etc/passwd
+# chmod 644 /etc/passwd
+# ls -lh /etc/passwd
+-rw-r--r-- 1 root root 1,7K Ago  7 16:22 /etc/passwd
+.................
