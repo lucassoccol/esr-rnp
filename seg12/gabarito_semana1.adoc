@@ -22,3 +22,9 @@ include::gabarito_semana1_includes/gabarito_semana1_sessao1.adoc[]
 <<<
 
 include::gabarito_semana1_includes/gabarito_semana1_sessao2.adoc[]
+
+<<<
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao3.adoc[]
+
+<<<
