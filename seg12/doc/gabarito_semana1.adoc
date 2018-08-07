@@ -1,0 +1,18 @@
+= SEG12 - Atividades - Semana 1
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 06-08-2018
+
+ifdef::basebackend-html[]
+++++
+<link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
+++++
+endif::[]
+
+:icons: font
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao1.adoc[]
