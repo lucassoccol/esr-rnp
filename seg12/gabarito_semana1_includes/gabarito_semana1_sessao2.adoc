@@ -1,0 +1,101 @@
+== Usuários e grupos
+
+=== 1) Criando contas de usuários
+
+Uma das atividades que fazem parte da rotina diária de um administrador de sistemas é o gerenciamento de contas de usuários. Frequentemente, usuários são criados, modificados, desabilitados ou excluídos do sistema
+
+1. Descubra se o sistema faz uso de _shadow passwords_ ou se ainda utiliza o esquema tradicional.
+ifdef::gabarito[]
++
+.................
+$ ls -ld /etc/gshadow /etc/shadow
+-rw-r----- 1 root shadow  666 Ago  5 16:52 /etc/gshadow
+-rw-r----- 1 root shadow 1125 Ago  5 16:51 /etc/shadow
+.................
++
+O aluno deve verificar se os arquivos `/etc/shadow` e `/etc/gshadow` existem.
+endif::gabarito[]
+
+2. Crie uma conta para você no sistema, seguindo os passos descritos na aula teórica e no material didático.
+ifdef::gabarito[]
++
+* Editar o arquivo `/etc/group` e inserir uma nova linha com os parâmetros relativos ao grupo do novo usuário:
++
+** Nome do grupo;
+** Senha ("x");
+** GID;
+** Membros do grupo.
++
+.................
+marcelo:x:1001:
+.................
++
+* Editar o arquivo `/etc/gshadow` e inserir uma nova linha com os parâmetros relativos ao grupo do novo usuário:
++
+** Nome do grupo;
+** Senha criptografada do grupo ("!");
+** Administradores do grupo;
+** Membros do grupo.
++
+.................
+marcelo:!::
+.................
++
+* Editar o arquivo `/etc/passwd` e inserir uma nova linha com os parâmetros relativos à conta do novo usuário:
++
+** Nome do usuário;
+** Senha ("x");
+** UID;
+** GID;
+** GECOS: campo com comentários informativos do usuário;
+** Diretório _home_;
+** Shell de login.
++
+.................
+marcelo:x:1001:1001:,,,:/home/marcelo:/bin/bash
+.................
++
+* Editar o arquivo `/etc/shadow` e inserir uma nova linha os parâmetros relativos à conta do novo usuário:
++
+** Nome do usuário;
+** Senha criptografada: inserir valor "*", que será alterado a seguir;
+** _last_change_: número de dias desde a última alteração de senha;
+** _minimum_: número mínimo de dias até que senha possa ser alterada novamente;
+** _maximum_: número máximo de dias até que a senha deva ser alterada;
+** _warning_: número de dias para aviso de expiração de senha;
+** _inactive_: número de dias após expiração em que a senha será aceita;
+** _expire_: data para expiração da senha.
++
+.................
+marcelo:*:16846:0:99999:7:::
+.................
++
+* Definir uma senha para a nova conta, utilizando o comando `passwd`:
++
+.................
+# passwd marcelo
+.................
++
+* Copiar os arquivos de inicialização contidos no diretório `/etc/skel` para o diretório _home_ do usuário.
++
+.................
+# cp -r /etc/skel /home/marcelo
+.................
++
+* Alterar o usuário e grupo donos dos arquivos na pasta _home_ do novo usuário:
++
+.................
+# chown -R marcelo.marcelo /home/marcelo
+.................
++
+* Configurar a _quota_ de disco para o usuário, se o sistema utilizar _quotas_.
++
+* Testar se a conta foi criada corretamente, fazendo login no sistema e verificando se o diretório corrente é o diretório _home_ do usuário, definido no arquivo `/etc/passwd`.
++
+* O _script shell_ abaixo mostra uma maneira como os comandos executados manualmente nesta atividade poderiam ser automatizados por um administrador de sistemas:
++
+[source,bash]
+----
+include::{srcdir}/sessao_2/adduser.sh[]
+----
+endif::gabarito[]

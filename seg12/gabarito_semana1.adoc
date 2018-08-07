@@ -6,6 +6,7 @@
 :listing-caption: Listing
 :pdf-page-size: A4
 :revdate: 06-08-2018
+:gabarito: true
 
 ifdef::basebackend-html[]
 ++++
@@ -14,5 +15,9 @@ ifdef::basebackend-html[]
 endif::[]
 
 :icons: font
+:srcdir: ../src/semana_1
 
 include::gabarito_semana1_includes/gabarito_semana1_sessao1.adoc[]
+<<<
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao2.adoc[]
