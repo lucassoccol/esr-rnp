@@ -191,25 +191,22 @@ endif::gabarito[]
 
 === 7) Editando arquivos crontab para o agendamento de tarefas
 
-Neste exercício, trabalharemos com o comando `crontab`, utilizado para editar os arquivos `cron` do agendador de tarefas do sistema.Esses arquivos serão verificados pelo _daemon_ `cron` periodicamente em busca de tarefas para serem executadas pelo sistema. Para entender o funcionamento do `crontab`, o primeiro passo é ler as páginas do manual relevantes.
+Neste exercício, trabalharemos com o comando `crontab`, utilizado para editar os arquivos `cron` do agendador de tarefas do sistema. Esses arquivos serão verificados pelo _daemon_ `cron` periodicamente em busca de tarefas para serem executadas pelo sistema.
 
 [NOTE]
 ====
-Para o comando `crontab` em si, consulte a seção 1 do manual:
-====
+Para entender o funcionamento do `crontab`, o primeiro passo é ler as páginas do manual relevantes. Para o comando `crontab` em si, consulte a seção 1 do manual:
 
 .................
 $ man 1 crontab
 .................
 
-[NOTE]
-====
 Para o formato de um arquivo de configuração `crontab`, consulte a seção 5:
-====
 
 .................
 $ man 5 crontab
 .................
+====
 
 1. Existe alguma entrada de `crontab` para o seu usuário?
 ifdef::gabarito[]

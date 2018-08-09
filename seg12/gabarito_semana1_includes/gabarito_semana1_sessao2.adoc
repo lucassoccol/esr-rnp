@@ -101,28 +101,25 @@ include::{srcdir}/sessao_2/adduser.sh[]
 endif::gabarito[]
 
 3. Agora, crie uma conta para o instrutor, utilizando, desta vez, o comando `useradd`. Faça com que a conta criada tenha sete dias de duração e com que o seu diretório de trabalho seja `/NOME`, onde `NOME` é o nome de usuário para o qual a conta deve ser aberta.
++
+[NOTE]
+====
+Consulte a página de manual do comando `useradd` e procure as informações necessárias para incluir a data de expiração (_expire date_) e criar o diretório de trabalho (_homedir_) em um local diferente do padrão, que é `/home/NOME`. Ainda, não se deve esquecer de escolher e atribuir uma senha para as contas que obedeça aos padrões de segurança apresentados no texto. Observe, ainda, que o diretório _home_ não é criado automaticamente pelo comando `useradd`.
+====
 ifdef::gabarito[]
 +
 .................
-# mkdir /instrutor
-# useradd instrutor -d /instrutor -e YYYY-MM-DD
+# useradd instrutor -d /instrutor -m -e 2018-08-07
 # passwd instrutor
 Digite a nova senha UNIX:
 Redigite a nova senha UNIX:
 passwd: senha atualizada com sucesso
-# chown -R instrutor:instrutor /instrutor
 .................
-+
-[NOTE]
-====
-Consulte as páginas do manual do comando `useradd` e procure as informações necessárias para incluir a data de expiração (_expire date_) e criar o diretório de trabalho (_homedir_) em um local diferente do padrão, que é `/home/NOME`. Não se esqueça de escolher e atribuir uma senha para as contas que obedeça aos padrões de segurança apresentados no texto. Observe, ainda, que o diretório _home_ indicado através da opção `-d` não é criado automaticamente.
-====
 +
 [TIP]
 ====
 Ao usar o comando `useradd`, o shell escolhido pelo sistema é o `/bin/sh`, por padrão. Para alterar o shell do usuário, pode-se editar o arquivo `/etc/passwd` diretamente, ou executar o comando `chsh`, mostrado abaixo:
-====
-+
+
 .................
 # getent passwd | grep '^instrutor:'
 instrutor:x:1002:1002::/home/instrutor:/bin/sh
@@ -135,6 +132,7 @@ Informe o novo valor ou pressione ENTER para aceitar o padrão
 # getent passwd | grep '^instrutor:'
 instrutor:x:1002:1002::/home/instrutor:/bin/bash
 .................
+====
 endif::gabarito[]
 
 4. O comando `useradd` não é uma boa opção para informar a senha do usuário. Por quê?
@@ -521,7 +519,6 @@ endif::gabarito[]
 [WARNING]
 ====
 Por motivos de segurança, ao final das atividades, retorne a permissão e o grupo do arquivo `/etc/passwd` para os valores originais.
-====
 
 .................
 # chown root.root /etc/passwd
@@ -529,3 +526,4 @@ Por motivos de segurança, ao final das atividades, retorne a permissão e o gru
 # ls -lh /etc/passwd
 -rw-r--r-- 1 root root 1,7K Ago  7 16:22 /etc/passwd
 .................
+====

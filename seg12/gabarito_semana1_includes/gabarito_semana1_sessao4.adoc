@@ -300,8 +300,7 @@ Feito isso, reinicie o sistema e verifique a montagem do _filesystem_.
 [NOTE]
 ====
 Atualmente, é muito comum sistemas Linux indicarem os _filesystems_ no arquivo `/etc/fstab` através de seu UUID (_Universally Unique Identifier_), em lugar de nome de dispositivo, já que a ordem em que os discos são detectados pelo kernel não é determinística -- em uma instância de _boot_ um disco pode ser detectado como `/dev/sda`, e na próxima, como `/dev/sdb`. Para identificar a partição que acabamos de criar através do seu UUID, siga os passos abaixo:
-====
-+
+
 .................
 # ls -l /dev/disk/by-uuid/ | egrep 'sdb1$' | awk '{print $9}'
 2464c725-9356-4abb-8a9f-a2de3d64e7ac
@@ -311,6 +310,7 @@ Atualmente, é muito comum sistemas Linux indicarem os _filesystems_ no arquivo 
 # egrep ' /dados ' /etc/fstab
 UUID=2464c725-9356-4abb-8a9f-a2de3d64e7ac   /dados   ext4   defaults,errors=remount-ro   0   2
 .................
+====
 endif::gabarito[]
 
 === 4) Trabalhando com o sistema de *_quotas_*
