@@ -1,0 +1,13 @@
+/var/log/cron.log
+{
+  rotate 2
+  monthly
+  missingok
+  notifempty
+  delaycompress
+  compress
+  create 640 root adm
+  postrotate
+    systemctl reload cron.service > /dev/null
+  endscript
+}
