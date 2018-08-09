@@ -1,0 +1,269 @@
+== Registro de eventos
+
+[WARNING]
+====
+Em algumas atividades, você trabalhará com a conta `root`, o que lhe dará todos os direitos sobre os recursos do sistema. Seja cauteloso antes de executar qualquer comando.
+====
+
+=== 1) Registrando os eventos do kernel
+
+Verifique quais são as opções do comando `df` e responda:
+
+1. Configure seu sistema de modo que os eventos gerados pelo kernel sejam registrados em um arquivo chamado `kernel.log`, no diretório `/var/log`.
+ifdef::gabarito[]
++
+.................
+# echo "kern.*        -/var/log/kernel.log" >> /etc/rsyslog.conf
+# systemctl restart rsyslog.service
+
+# cat /var/log/kernel.log
+cat: /var/log/kernel.log: Arquivo ou diretório não encontrado
+.................
++
+Mesmo após reiniciar o _daemon_ `rsyslog`, o arquivo não será criado de imediato. Para testar o funcionamento da diretiva, precisamos gerar alguma mensagem para a _facility_ apropriada:
++
+.................
+# modprobe lp
+# cat /var/log/kernel.log
+Aug  9 11:15:45 cliente kernel: [  447.128333] lp: driver loaded but no devices found
+.................
+endif::gabarito[]
+
+=== 2) Analisando os arquivos de log do sistema
+
+Para esta atividade você terá que ter acesso `ssh` à máquina em que está configurando o sistema de logs para que você possa acompanhar, em tempo real, os registros gravados nos arquivos de log. Cada aluno deve executar os passos abaixo em seu próprio servidor.
+
+1. Crie, em seu servidor, uma conta com senha para acesso via `ssh`.
+ifdef::gabarito[]
++
+.................
+# useradd -m aluno2
+# passwd aluno2
+Digite a nova senha UNIX:
+Redigite a nova senha UNIX:
+passwd: senha atualizada com sucesso
+.................
+endif::gabarito[]
+
+2. A patir de uma máquina remota faça o login no seu servidor utilizando a conta criada no passo anterior. Utilize o comando `tail` com a opção `-f` para verificar em tempo real os registros gerados pelo `syslog` no arquivo `/var/log/auth.log`.
+ifdef::gabarito[]
++
+No servidor, execute:
++
+.................
+# tail -f -n0 /var/log/auth.log
+.................
++
+De outra máquina, faça login via `ssh` no servidor com a conta criada anteriormente:
++
+.................
+$ ssh aluno2@192.168.0.25
+aluno2@192.168.0.25's password:
+
+aluno2@cliente:~$
+.................
++
+Monitore o que aconteceu no arquivo `/var/log/auth.log`:
++
+.................
+# tail -f -n0 /var/log/auth.log
+Aug  9 11:26:24 cliente sshd[1050]: Accepted password for aluno2 from 192.168.0.12 port 50325 ssh2
+Aug  9 11:26:24 cliente sshd[1050]: pam_unix(sshd:session): session opened for user aluno2 by (uid=0)
+.................
+endif::gabarito[]
+
+3. Faça um _script_ que contabilize o número de tentativas de login mal sucedidas através do `ssh`, listando os IPs de origem e quantas tentativas foram feitas por cada IP.
+ifdef::gabarito[]
++
+O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
++
+[source,bash]
+----
+include::{srcdir}/sessao_5/sshd_failure.sh[]
+----
+
+=== 3) Analisando os arquivos de log binários do sistema
+
+Nesta atividade, você irá trabalhar com os arquivos de log binários armazenados no diretório `/var/log`.
+
+1. Verifique quais foram os dois últimos usuários a efetuarem login em seu computador.
+ifdef::gabarito[]
++
+.................
+$ last | head -n2
+aluno2   pts/1        192.168.0.12     Thu Aug  9 11:26 - 11:27  (00:01)
+aluno    pts/0        192.168.0.12     Thu Aug  9 11:10   still logged in
+.................
+endif::gabarito[]
+
+2. Como você poderia verificar as contas existentes em seu computador que nunca efetuaram login?
++
+.................
+$ lastlog | grep '**Nunca logou**' | sort
+avahi-autoipd                              **Nunca logou**
+backup                                     **Nunca logou**
+bin                                        **Nunca logou**
+daemon                                     **Nunca logou**
+Debian-exim                                **Nunca logou**
+funcionario                                **Nunca logou**
+games                                      **Nunca logou**
+gnats                                      **Nunca logou**
+irc                                        **Nunca logou**
+list                                       **Nunca logou**
+lp                                         **Nunca logou**
+mail                                       **Nunca logou**
+man                                        **Nunca logou**
+marcelo                                    **Nunca logou**
+messagebus                                 **Nunca logou**
+news                                       **Nunca logou**
+nobody                                     **Nunca logou**
+pedro                                      **Nunca logou**
+proxy                                      **Nunca logou**
+sshd                                       **Nunca logou**
+statd                                      **Nunca logou**
+sync                                       **Nunca logou**
+sys                                        **Nunca logou**
+systemd-bus-proxy                           **Nunca logou**
+systemd-network                            **Nunca logou**
+systemd-resolve                            **Nunca logou**
+systemd-timesync                           **Nunca logou**
+uucp                                       **Nunca logou**
+www-data                                   **Nunca logou**
+.................
+endif::gabarito[]
+
+3. Qual a maneira mais fácil de identificar um login remoto efetuado em seu computador?
++
+Através do comando `last`. A terceira coluna mostra o _host_ de origem do login, seja ele local ou remoto:
++
+.................
+$ last | head -n20 | grep -v '^reboot'
+aluno2   pts/1        192.168.0.12     Thu Aug  9 11:26 - 11:27  (00:01)
+aluno    pts/0        192.168.0.12     Thu Aug  9 11:10   still logged in
+root     tty1                          Thu Aug  9 03:25 - down   (00:00)
+aluno    pts/0        192.168.0.12     Thu Aug  9 02:32 - 03:25  (00:53)
+aluno    pts/0        192.168.0.12     Thu Aug  9 02:25 - down   (00:05)
+aluno    pts/0        192.168.0.12     Thu Aug  9 01:47 - down   (00:37)
+root     tty1                          Wed Aug  8 19:05 - down   (00:00)
+aluno    pts/0        192.168.0.12     Wed Aug  8 18:19 - 19:05  (00:46)
+root     tty1                          Tue Aug  7 18:18 - down   (00:00)
+aluno    pts/0        192.168.0.12     Tue Aug  7 17:56 - 18:17  (00:21)
+aluno    pts/1        192.168.0.12     Tue Aug  7 17:07 - 17:15  (00:07)
+instruto pts/1        localhost        Tue Aug  7 15:45 - 16:01  (00:15)
+instruto pts/1        localhost        Tue Aug  7 14:44 - 14:46  (00:01)
+instruto pts/1        localhost        Tue Aug  7 14:42 - 14:42  (00:00)
+instruto pts/1        localhost        Tue Aug  7 14:39 - 14:39  (00:00)
+.................
+endif::gabarito[]
+
+4. Faça um _script_ que mostre o tempo total que cada usuário ficou logado no sistema utilizando as informações obtidas com o comando `last`.
++
+O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
++
+[source,bash]
+----
+include::{srcdir}/sessao_5/logtime_sum.sh[]
+----
+
+=== 4) Servidor de log remoto
+
+1. Este exercício deve ser feito utilizando duas máquinas virtuais Linux. Configure na máquina virtual _Server_Linux_ um servidor de logs; posteriormente, configure a máquina virtual _Client_Linux_ para enviar os registros dos eventos gerados para esse servidor de logs.
+ifdef::gabarito[]
++
+Na máquina _Server_Linux_, edite o arquivo `/etc/rsyslog.conf` e descomente as linhas que se seguem. Em seguida, reinicie o serviço do `rsyslog`.
++
+.................
+# grep -A1 'imudp' /etc/rsyslog.conf
+$ModLoad imudp
+$UDPServerRun 514
+
+# systemctl restart rsyslog.service
+.................
++
+Na máquina _Client_Linux_, configure o envio de logs para o servidor remoto editando o arquivo `/etc/rsyslog.conf` e inserindo a linha que se segue ao final do arquivo, substituindo o endereço IP `192.168.0.10` pelo IP da máquina _Server_Linux_. Em seguida, reinicie o serviço do `rsyslog`.
++
+.................
+# tail -n1 /etc/rsyslog.conf
+*.*                     @192.168.0.10
+
+# systemctl restart rsyslog.service
+.................
+endif::gabarito[]
+
+2. Após terminar a configuração, efetue um login na máquina _Client_Linux_ em um terminal qualquer e verifique onde foi registrado esse evento no servidor de logs _Server_Linux_.
+ifdef::gabarito[]
++
+Tendo em vista que o evento gerado na máquina _Client_Linux_ será de login, o registro deverá ser enviado para o arquivo onde eventos de autenticação são enviados, na _facility_ `authpriv`:
++
+.................
+# grep '^auth,authpriv' /etc/rsyslog.conf
+auth,authpriv.*                 /var/log/auth.log
+.................
++
+Sabendo que o arquivo a ser monitorado é o `/var/log/auth.log`, usaremos o comando `tail` para fazê-lo:
++
+.................
+# tail -f -n0 /var/log/auth.log
+.................
++
+Após gerar um evento de login via `ssh` na máquina _Client_Linux_, imediamente a mesma mensagem aparece replicada nos logs da máquina _Server_Linux_:
++
+.................
+# tail -f -n0 /var/log/auth.log
+Aug  9 15:18:07 cliente sshd[3285]: Accepted password for aluno from 192.168.0.12 port 50854 ssh2
+Aug  9 15:18:07 cliente sshd[3285]: pam_unix(sshd:session): session opened for user aluno by (uid=0)
+.................
++
+[TIP]
+====
+Evidentemente, é muito confuso ter todas as mensagens de log de uma máquina remota sendo colocadas nos mesmos arquivos que os logs locais. Para tratar esses logs com mais clareza, é interessante separar os logs de cada _host_ remoto em seus próprios arquivos e pastas para facilitar o processamento e entendimento. A seguinte configuração pode ser útil para atingir esse objetivo.
+
+Primeiro, note que o `rsyslog` inclui arquivos customizados pelo usuário terminados com a extensão `.conf` no diretório `/etc/rsyslog.d`:
+
+.................
+# grep '^\$IncludeConfig' /etc/rsyslog.conf
+$IncludeConfig /etc/rsyslog.d/*.conf
+.................
+
+Vamos criar um arquivo novo nessa pasta indicando que os logs da máquina _Client_Linux_ devem ser enviados para o arquivo `/var/log/client_linux.log`, e nenhum outro arquivo (palavra-chave `stop`). Feito isso, reinicia-se o _daemon_ `rsyslog`:
+
+.................
+# cat /etc/rsyslog.d/client_linux.conf
+if $fromhost-ip == '192.168.0.25'     then /var/log/client_linux.log
+& stop
+
+# systemctl restart rsyslog.service
+.................
+
+Agora, novos eventos gerados pela máquina _Client_Linux_ serão enviados exclusivamente para o arquivo `/var/log/client_linux.log`, sem se misturar com os eventos locais do servidor de logs.
+
+.................
+# tail -f -n0 /var/log/client_linux.log
+Aug  9 15:34:33 cliente sshd[3340]: Accepted password for aluno from 192.168.0.12 port 50902 ssh2
+Aug  9 15:34:33 cliente sshd[3340]: pam_unix(sshd:session): session opened for user aluno by (uid=0)
+.................
+====
+endif::gabarito[]
+
+3. Cite três vantagens obtidas com o uso de um servidor de logs.
+ifdef::gabarito[]
++
+* Facilita o gerenciamento dos arquivos de log, já que estão centralizados em um único servidor.
+* Aumenta a segurança no armazenamento dos arquivos de log, pois o servidor pode estar em outra rede, com regras diferenciadas, dificultando o acesso de possíveis invasores.
+* Facilita o backup dos arquivos de log.
+endif::gabarito[]
+
+=== 5) Utilizando o logger
+
+Nesta atividade, você irá verificar uma funcionalidade importante do comando `logger`.
+
+1. Na máquina _Server_Linux_, inclua uma nova regra no arquivo `/etc/rsyslog.conf`, de modo que qualquer evento gerado pelo daemon `cron` seja registrado no arquivo `/var/log/cron.log`.
+ifdef::gabarito[]
++
+.................
+# tail -n1 /etc/rsyslog.conf
+cron.*                  /var/log/cron.log
+
+# systemctl restart rsyslog.service
+.................
+endif::gabarito[]
