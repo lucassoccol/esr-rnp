@@ -477,8 +477,21 @@ O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
 ----
 include::{srcdir}/sessao_4/edquota_batch.sh[]
 ----
++
+Note, no entanto, que apesar de o _script_ acima ser minimamente funcional, há alguns parâmetros importantes que não sendo testados no momento:
++
+--
+* O usuário passado como parâmetro para o _script_ existe?
+* Está sendo removido o usuário `root` da lista de usuários para aplicação de `quota`?
+* Está sendo removido o próprio usuário passado como parâmetro da lista de usuários para aplicação de `quota`?
+--
++
+A resposta para todos esses itens, evidentemente, é não. Poderíamos estender o script para fazer essas funções, mas no intuito de mostrar uma abordagem diferente para o problema, veja abaixo uma solução equivalente, mais completa, usando a linguagem Python:
++
+[source,python]
+----
+include::{srcdir}/sessao_4/edquota_batch.py[]
+----
++
+O que você achou da solução acima? Mais fácil, mais difícil ou apenas diferente? Lembre-se, ao atuar como um administrador de redes e sistemas não se deve ficar preso a um único tipo de ferramenta ou solução, mas sim utilizar a melhor alternativa possível para resolver o problema.
 endif::gabarito[]
-
-#    - inexistent users
-#    - removal of root user
-#    - removal of argv[1] user
