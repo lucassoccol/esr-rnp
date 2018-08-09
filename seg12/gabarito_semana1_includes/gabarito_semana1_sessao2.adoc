@@ -113,9 +113,15 @@ passwd: senha atualizada com sucesso
 # chown -R instrutor:instrutor /instrutor
 .................
 +
-* *[1]* Consulte as páginas do manual do comando `useradd` e procure as informações necessárias para incluir a data de expiração (_expire date_) e criar o diretório de trabalho (_homedir_) em um local diferente do padrão, que é `/home/NOME`. Não se esqueça de escolher e atribuir uma senha para as contas que obedeça aos padrões de segurança apresentados no texto. Observe, ainda, que o diretório _home_ indicado através da opção `-d` não é criado automaticamente.
+[NOTE]
+====
+Consulte as páginas do manual do comando `useradd` e procure as informações necessárias para incluir a data de expiração (_expire date_) e criar o diretório de trabalho (_homedir_) em um local diferente do padrão, que é `/home/NOME`. Não se esqueça de escolher e atribuir uma senha para as contas que obedeça aos padrões de segurança apresentados no texto. Observe, ainda, que o diretório _home_ indicado através da opção `-d` não é criado automaticamente.
+====
 +
-* *[2]* Ao usar o comando `useradd`, o shell escolhido pelo sistema é o `/bin/sh`, por padrão. Para alterar o shell do usuário, pode-se editar o arquivo `/etc/passwd` diretamente, ou executar o comando `chsh`, mostrado abaixo:
+[TIP]
+====
+Ao usar o comando `useradd`, o shell escolhido pelo sistema é o `/bin/sh`, por padrão. Para alterar o shell do usuário, pode-se editar o arquivo `/etc/passwd` diretamente, ou executar o comando `chsh`, mostrado abaixo:
+====
 +
 .................
 # getent passwd | grep '^instrutor:'
@@ -139,7 +145,10 @@ endif::gabarito[]
 
 5. Faça um _script_ que simule o comando `newusers`. Para isso, você deve criar um arquivo texto contendo as informações a respeito dos usuários, mantendo o mesmo padrão dos arquivos lidos pelo comando `newusers` (para descobrir o formato, consulte a página de manual: `$ man 8 newusers`). Como este arquivo conterá as senhas dos usuários, é importante removê-lo logo após a criação das contas.
 +
-*Dica:* Utilize a variável de sistema `IFS` (_Internal Field Separator_) em seu _script_ para definir o caractere ":" como campo que separa as informações sobre as contas.
+[TIP]
+====
+Utilize a variável de sistema `IFS` (_Internal Field Separator_) em seu _script_ para definir o caractere ":" como campo que separa as informações sobre as contas.
+====
 ifdef::gabarito[]
 +
 O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
@@ -509,7 +518,10 @@ Redefina as permissões dos arquivos do antigo funcionário:
 * Oriente o novo funcionário para que ele só armazene os arquivos relacionados ao setor de controladoria no diretório `/home/controladoria`, e seus arquivos pessoais em `/home/funcionario`.
 endif::gabarito[]
 
-*Observação:* Por motivos de segurança, ao final das atividades, retorne a permissão e o grupo do arquivo `/etc/passwd` para os valores originais.
+[WARNING]
+====
+Por motivos de segurança, ao final das atividades, retorne a permissão e o grupo do arquivo `/etc/passwd` para os valores originais.
+====
 
 .................
 # chown root.root /etc/passwd

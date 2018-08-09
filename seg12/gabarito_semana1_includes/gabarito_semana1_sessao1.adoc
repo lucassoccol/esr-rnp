@@ -228,9 +228,12 @@ endif::gabarito[]
 === 5) Conhecendo algumas limitações do *_hard link_*
 
 1. Crie um arquivo chamado `arqses1ex6`. Em seguida, crie um _hard link_ para esse arquivo com o nome `link-arqses1ex6` no diretório `/tmp`. O que aconteceu? Por quê? Como resolver esse problema?
-ifdef::gabarito[]
 +
-*Observação:* Para que esta atividade tenha efeito, o diretório `/tmp` deverá ter sido criado numa partição diferente da partição onde se encontra o _home_ do usuário. Caso essa situação não ocorra, verifique se existe o diretório `/var/tmp` e veja se ele está em outra partição. Se for o caso, use este último para fazer o exercício.
+[WARNING]
+====
+Para que esta atividade tenha efeito, o diretório `/tmp` deverá ter sido criado numa partição diferente da partição onde se encontra o _home_ do usuário. Caso essa situação não ocorra, verifique se existe o diretório `/var/tmp` e veja se ele está em outra partição. Se for o caso, use este último para fazer o exercício.
+====
+ifdef::gabarito[]
 +
 .................
 $ touch ~/arqses1ex6
