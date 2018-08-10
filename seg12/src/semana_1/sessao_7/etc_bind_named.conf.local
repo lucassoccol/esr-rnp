@@ -1,0 +1,14 @@
+acl internals { 127.0.0.0/8; 192.168.0.0/24; };
+
+zone "empresa.com.br" {
+  type master;
+  file "/etc/bind/db.empresa.com.br";
+};
+
+zone "0.168.192.in-addr.arpa" {
+  type master;
+  file "/etc/bind/db.0.168.192";
+};
+
+include "/etc/bind/zones.rfc1918";
+

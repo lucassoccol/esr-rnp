@@ -1,0 +1,19 @@
+$TTL 86400 ; (1 day)
+$ORIGIN 0.168.192.in-addr.arpa.
+@         IN    SOA           servidor.empresa.com.br. admin.empresa.com.br. (
+                2018080900    ;Serial (YYYYMMDDnn)
+                14400         ;Refresh (4 hours)
+                1800          ;Retry (30 minutes)
+                1209600       ;Expire (2 weeks)
+                3600          ;Negative Cache TTL (1 hour)
+)
+
+@         IN    NS            servidor.empresa.com.br.
+
+@         IN    MX      10    email.empresa.com.br.
+
+10        IN    PTR           servidor.empresa.com.br.
+15        IN    PTR           email.empresa.com.br.
+20        IN    PTR           cliente.empresa.com.br.
+25        IN    PTR           windows.empresa.com.br.
+
