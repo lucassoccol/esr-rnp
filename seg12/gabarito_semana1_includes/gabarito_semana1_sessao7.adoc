@@ -266,3 +266,119 @@ servidor.empresa.com.br. 86400  IN      A       192.168.0.10
 ;; MSG SIZE  rcvd: 121
 .................
 endif::gabarito[]
+
+<<<
+
+=== 3) Configuração de servidor NFS
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Server_Linux_.
+====
+
+Crie e exporte o diretório `/dados` via NFS na máquina _Server_Linux_ (192.168.0.10), para a máquina _Client_Linux_ (192.168.0.20).
+
+ifdef::gabarito[]
+1. Instale os pacotes abaixo no servidor:
++
+.................
+# apt-get nfs-kernel-server
+.................
+
+2. Crie o diretório a ser exportado:
++
+.................
+# mkdir /dados
+.................
+
+3. Edite o arquivo `/etc/exports` para configurar o compartilhamento da pasta:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/etc_exports[]
+----
+
+4. Finalmente, exporte o diretório e reinicie o serviço NFS. Teste se o _mapping_ de pasta está correto.
++
+.................
+# exportfs -a
+
+# systemctl restart nfs-kernel-server.service
+# systemctl restart nfs-common.service
+
+# showmount -e
+Export list for servidor:
+/dados 192.168.0.20
+.................
+endif::gabarito[]
+
+=== 4) Configuração de cliente NFS
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Client_Linux_.
+====
+
+Instale e configure o cliente NFS na máquina _Client_Linux_ (192.168.0.20), monte o diretório remoto `/dados` do servidor no diretório `/mnt/remoto`. Finalmente, realize as configurações necessárias para que sempre que a máquina for reiniciada o diretório `/dados` seja montado automaticamente.
+
+ifdef::gabarito[]
+1. Crie o diretório de montagem:
++
+.................
+# mkdir /mnt/remoto
+.................
+
+2. Execute a montagem temporária do diretório NFS e verifique seu funcionamento:
++
+.................
+# mount -t nfs 192.168.0.10:/dados /mnt/remoto/
+
+# mount | grep '^192.168.0.10:/dados '
+192.168.0.10:/dados on /mnt/remoto type nfs4 (rw,relatime,vers=4.0,rsize=65536,wsize=65536,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.0.20,local_lock=none,addr=192.168.0.10)
+.................
+
+3. Adicione a linha a seguir ao arquivo `/etc/fstab` para que a montagem se torne automática após o _boot_. Reinicie a máquina e verifique seu funcionamento.
++
+.................
+# tail -n1 /etc/fstab
+192.168.0.10:/dados   /mnt/remoto   nfs   defaults   0   0
+.................
+endif::gabarito[]
+
+=== 5) Testando o funcionamento do serviço NFS
+
+Na máquina _Server_Linux_, crie um arquivo de nome `teste` no diretório `/dados` e verifique se este aparece no cliente. Depois, edite o arquivo `teste` a partir da máquina _Client_Linux_ adicionando a data atual ao conteúdo do arquivo. Volte ao servidor e verifique se o arquivo foi alterado.
+
+ifdef::gabarito[]
+1. No servidor, execute:
++
+.................
+# hostname
+servidor
+
+# touch /dados/teste
+# ls /dados/
+teste
+.................
+
+2. No cliente, verifique e edite o arquivo:
++
+.................
+# hostname
+cliente
+
+# ls /mnt/remoto/
+teste
+# echo "$( date )" >> /mnt/remoto/teste
+.................
+
+3. De volta ao servidor, cheque se o arquivo foi editado com sucesso:
++
+.................
+# hostname
+servidor
+
+# cat /dados/teste
+Sex Ago 10 14:35:52 -03 2018
+.................
+endif::gabarito[]
