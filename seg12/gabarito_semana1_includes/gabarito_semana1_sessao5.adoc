@@ -228,15 +228,12 @@ Primeiro, note que o `rsyslog` inclui arquivos customizados pelo usuário termin
 $IncludeConfig /etc/rsyslog.d/*.conf
 .................
 
-Vamos criar um arquivo novo nessa pasta indicando que os logs da máquina _Client_Linux_ devem ser enviados para o arquivo `/var/log/client_linux.log`, e nenhum outro arquivo (palavra-chave `stop`). Feito isso, reinicia-se o _daemon_ `rsyslog`:
+Vamos criar um arquivo novo nessa pasta, `/etc/rsyslog.d/client_linux.conf`, indicando um arquivo específico para envio dos logs da máquina _Client_Linux_, e evitar a escrita desses registros em qualquer outro arquivo local (palavra-chave `stop`). Feito isso, basta reiniciar o _daemon_ `rsyslog`. Veja abaixo o conteúdo desse arquivo:
 
-.................
-# cat /etc/rsyslog.d/client_linux.conf
-if $fromhost-ip == '192.168.0.25'     then /var/log/client_linux.log
-& stop
-
-# systemctl restart rsyslog.service
-.................
+[source,bash]
+----
+include::{srcdir}/sessao_5/etc_rsyslog.d_client_linux.conf[]
+----
 
 Pronto! Agora, novos eventos gerados pela máquina _Client_Linux_ serão enviados exclusivamente para o arquivo `/var/log/client_linux.log`, sem se misturar com os eventos locais do servidor de logs.
 
@@ -299,24 +296,12 @@ include /etc/logrotate.d
 apt  aptitude  dpkg  exim4-base  exim4-paniclog  iptraf  rsyslog
 .................
 +
-Vamos criar um arquivo `/etc/logrotate.d/cron` para configurar os aspectos de rotacionamento de logs desse arquivo de acordo com os parâmetro especificados no exercício.
+Vamos criar um arquivo `/etc/logrotate.d/cron` para configurar os aspectos de rotacionamento de logs desse arquivo de acordo com os parâmetro especificados no exercício, com o seguinte conteúdo:
 +
-.................
-# cat /etc/logrotate.d/cron
-/var/log/cron.log
-{
-  rotate 2
-  monthly
-  missingok
-  notifempty
-  create 640 root adm
-  delaycompress
-  compress
-  postrotate
-    systemctl reload cron.service > /dev/null
-  endscript
-}
-.................
+[source,bash]
+----
+include::{srcdir}/sessao_5/etc_logrotate.d_cron[]
+----
 endif::gabarito[]
 
 === 7) Aplicativos para análise de arquivos de log
@@ -336,22 +321,12 @@ A seguir, vamos copiar o modelo do arquivo de configuração em `/usr/share/logw
 # cp /usr/share/logwatch/default.conf/logwatch.conf /etc/logwatch/conf/
 .................
 +
-Edite o arquivo para que o período e opções de envio fiquem de acordo com o solicitado pela atividade:
+Edite o arquivo para que o período e opções de envio fiquem de acordo com o solicitado pela atividade. Abaixo mostramos o conteúdo do arquivo `/etc/logwatch/conf/logwatch.conf`, excluídas linhas de comentário:
 +
-.................
-# grep -v '^ *#' /etc/logwatch/conf/logwatch.conf  | sed '/^$/d'
-LogDir = /var/log
-TmpDir = /var/cache/logwatch
-Output = mail
-Format = text
-Encode = none
-MailTo = root
-MailFrom = Logwatch
-Range = All
-Detail = Low
-Service = All
-mailer = "/usr/sbin/sendmail -t"
-.................
+[source,bash]
+----
+include::{srcdir}/sessao_5/etc_logwatch_conf_logwatch.conf[]
+----
 +
 Lembre-se de criar o diretório `/var/cache/logwatch`, que ainda não existe:
 +
@@ -392,18 +367,12 @@ Outro ponto de atenção é a tentativa de `su` para o usuário `root` com falha
 Aug  9 16:46:29 servidor su[4175]: FAILED su for root by aluno
 .................
 +
-Sabendo os formatos objetivados, vamos agora elaborar expressões regulares que casem com os padrões acima, extraiam informação relevante, e executem uma ação apropriada -- enviar e-mail de notificação ao usuário `root` em caso de violação desses padrões:
+Sabendo os formatos objetivados, vamos agora elaborar expressões regulares que casem com os padrões acima, extraiam informação relevante, e executem uma ação apropriada -- enviar e-mail de notificação ao usuário `root` em caso de violação desses padrões. Abaixo mostramos o conteúdo do arquivo `/etc/swatch.conf`:
 +
-.................
-# cat /etc/swatch.conf
-watchfor /^(.*sshd\[[0-9]*\]\: Failed password for [A-Za-z0-9]* from ([0-9:.]*).*)/
-  exec "echo '$1' | mail root -s '[swatch][ssh]:\ $2' "
-  echo
-
-watchfor /^(.*su\[[0-9]*\]\: FAILED su for root by ([A-Za-z0-9]*))/
-  exec "echo '$1' | mail root -s '[swatch][su]:\ $2' "
-  echo
-.................
+[source,bash]
+----
+include::{srcdir}/sessao_5/etc_swatch.conf[]
+----
 +
 Vamos rodar o `swatch` manualmente e testar se os padrões estão sendo capturados. Serão realizadas duas ações de violação -- um login `ssh` com senha incorreta e uma tentativa de `su` para `root` com senha incorreta.
 +
@@ -449,23 +418,14 @@ Date: Thu, 09 Aug 2018 17:32:43 -0300
 Aug  9 17:32:43 servidor su[5117]: FAILED su for root by aluno
 .................
 +
-Excelente! Para que o `swatch` não tenha que ser iniciado manualmente, e continue operando mesmo após o reinício do sistema, é necessário que ele possua um _initscript_ correspondente. Infelizmente, a versão instalada pelo apt-get não disponibiliza tal facilidade nem em formato legado (no diretório `/etc/init.d`) nem em arquivo de serviço para o `systemd` (que ficam no diretório `/etc/systemd/system`). Felizmente, é relativamente fácil criar um arquivo de serviço para o `systemd` manualmente:
+Excelente! Para que o `swatch` não tenha que ser iniciado manualmente, e continue operando mesmo após o reinício do sistema, é necessário que ele possua um _initscript_ correspondente. Infelizmente, a versão instalada pelo apt-get não disponibiliza tal facilidade nem em formato legado (no diretório `/etc/init.d`) nem em arquivo de serviço para o `systemd` (que ficam no diretório `/etc/systemd/system`).
 +
-.................
-# cat /etc/systemd/system/swatch.service
-[Unit]
-Description=Swatch Log Monitoring Daemon
-After=syslog.target network.target auditd.service sshd.service
-
-[Service]
-ExecStart=/usr/bin/swatch --config-file=/etc/swatch.conf --tail-file=/var/log/auth.log --pid-file=/var/run/swatch.pid --daemon
-ExecStop=/bin/kill -s KILL $(cat /var/run/swatch.pid)
-Type=forking
-PIDFile=/var/run/swatch.pid
-
-[Install]
-WantedBy=multi-user.target
-.................
+Felizmente, é relativamente fácil criar um arquivo de serviço para o `systemd` manualmente. Abaixo mostramos o conteúdo do arquivo `/etc/systemd/system/swatch.service`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_5/etc_systemd_system_swatch.service[]
+----
 +
 Uma vez criado, deve-se instruir o `systemd` a carregar o arquivo:
 +

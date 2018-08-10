@@ -12,17 +12,13 @@ ifdef::gabarito[]
 .................
 endif::gabarito[]
 
-2. Crie o arquivo abaixo com uma lista de senhas. Caso considere necessário, acrescente palavras que julgue impróprias para uso em senhas.
+2. Crie o arquivo `/root/dicionario.txt` com uma lista de senhas. Caso considere necessário, acrescente palavras que julgue impróprias para uso em senhas. Por exemplo:
 ifdef::gabarito[]
 +
-.................
-# cat dicionario.txt
-123456
-1234
-rnpesr
-senha
-abacate
-.................
+[source,bash]
+----
+include::{srcdir}/sessao_6/dicionario.txt[]
+----
 endif::gabarito[]
 
 3. Rode o _password cracker_ com o comando `# john -wordlist=/root/dicionario.txt -rules /etc/shadow`.

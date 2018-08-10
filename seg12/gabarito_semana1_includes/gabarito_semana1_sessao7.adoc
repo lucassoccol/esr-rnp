@@ -1,0 +1,268 @@
+== DNS e NFS
+
+Nestas atividades, você deve trabalhar com duas máquinas virtuais (_Server_Linux_ e _Client_Linux_). Ambas devem estar na mesma rede. Como regra, o endereço 192.168.0.10 será o da máquina _Server_Linux_, e o endereço 192.168.0.20 será o da máquina _Client_Linux_. Teste o funcionamento da rede através do comando `ping` antes de prosseguir com os exercícios.
+
+=== 1) Servidor de DNS Primário
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Server_Linux_.
+====
+
+Considerando a rede 192.168.0.0/24, cujo domínio é `empresa.com.br`, configure o servidor de DNS Primário de modo que ele tenha as seguintes máquinas registradas, com tipos de registro associados:
+
+.Configuração DNS
+[options="header"]
+|===
+| Nome | Endereço IP | Tipo de registro
+| `servidor.empresa.com.br` | 192.168.0.10 | NS
+| `email.empresa.com.br` | 192.168.0.15 | MX
+| `cliente.empresa.com.br` | 192.168.0.20 | A
+| `windows.empresa.com.br` | 192.168.0.25 | A
+| `www.empresa.com.br` | 192.168.0.10 | CNAME
+| `meusite.empresa.com.br` | 192.168.0.10 | CNAME
+| `pop.empresa.com.br` | 192.168.0.15 | CNAME
+| `smtp.empresa.com.br` | 192.168.0.15 | CNAME
+|===
+
+Não se esqueça de configurar a resolução de nomes reversa.
+
+ifdef::gabarito[]
+1. Instale os seguintes aplicativos:
++
+.................
+# apt-get install bind9 bind9utils
+.................
+
+2. Ajuste os arquivos de configuração da seguinte forma:
++
+* `/etc/bind/named.conf.options` -- opções do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/etc_bind_named.conf.options[]
+----
++
+* `/etc/bind/named.conf.local` -- configurações locais do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/etc_bind_named.conf.local[]
+----
++
+* `/etc/bind/db.empresa.com.br` -- arquivo de zona do domínio `empresa.com.br`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/etc_bind_db.empresa.com.br[]
+----
++
+* `/etc/bind/db.0.168.192` -- arquivo de resolução reversa do domínio `empresa.com.br`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/etc_bind_db.0.168.192[]
+----
++
+* `/etc/resolv.conf` -- configuração de resolução de nomes para o _Server_Linux_:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/etc_resolv.conf[]
+----
+
+3. Reinicie o `bind` e verifique por possíveis erros:
++
+.................
+# systemctl restart bind9.service
+
+# systemctl status bind9.service
+● bind9.service - BIND Domain Name Server
+   Loaded: loaded (/lib/systemd/system/bind9.service; enabled)
+  Drop-In: /run/systemd/generator/bind9.service.d
+           └─50-insserv.conf-$named.conf
+   Active: active (running) since Qui 2018-08-09 21:23:48 -03; 5s ago
+     Docs: man:named(8)
+  Process: 14402 ExecStop=/usr/sbin/rndc stop (code=exited, status=0/SUCCESS)
+ Main PID: 14406 (named)
+   CGroup: /system.slice/bind9.service
+           └─14406 /usr/sbin/named -f -u bind
+
+Ago 09 21:23:48 servidor named[14406]: zone 22.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 16.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 27.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 127.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 26.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 25.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone localhost/IN: loaded serial 2
+Ago 09 21:23:48 servidor named[14406]: zone 28.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: all zones loaded
+Ago 09 21:23:48 servidor named[14406]: running
+.................
+
+4. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
++
+.................
+# nslookup servidor.empresa.com.br
+Server:         127.0.0.1
+Address:        127.0.0.1#53
+
+Name:   servidor.empresa.com.br
+Address: 192.168.0.10
+
+# dig -x 192.168.0.25 +noquestion
+
+; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -x 192.168.0.25 +noquestion
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 5625
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+25.0.168.192.in-addr.arpa. 86400 IN     PTR     windows.empresa.com.br.
+
+;; AUTHORITY SECTION:
+0.168.192.in-addr.arpa. 86400   IN      NS      servidor.empresa.com.br.
+
+;; ADDITIONAL SECTION:
+servidor.empresa.com.br. 86400  IN      A       192.168.0.10
+
+;; Query time: 3 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Thu Aug 09 21:26:41 -03 2018
+;; MSG SIZE  rcvd: 129
+.................
+endif::gabarito[]
+
+=== 2) Servidor de DNS Secundário
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Client_Linux_.
+====
+
+Configure o servidor de DNS Secundário para o domínio `empresa.com.br`. Importante:
+
+--
+* Não se esqueça de informar o endereço IP do servidor secundário no parâmetro `allow-transfer` do servidor primário.
+* Os arquivos de zona que forem transferidos devem ser gravados no diretório `/etc/bind/sec` do servidor secundário já que o _daemon_ executa como usuário `bind`, que não tem permissão de escrita direta no diretório `/etc/bind`.
+--
+
+ifdef::gabarito[]
+1. Antes de mais nada, configure o _Server_Linux_ para permitir transferência de zona a partir do servidor secundário _Client_Linux_:
++
+.................
+# egrep '^ *allow-transfer' /etc/bind/named.conf.options
+  allow-transfer { 192.168.0.20; };
+
+# systemctl restart bind9.service
+.................
+
+2. A seguir, instale o servidor DNS `bind` na máquina _Client_Linux_:
++
+.................
+# apt-get install bind9 bind9utils
+.................
+
+3. Ajuste os arquivos de configuração da seguinte forma:
++
+* `/etc/bind/named.conf.options` -- opções do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/sec_etc_bind_named.conf.options[]
+----
++
+* `/etc/bind/named.conf.local` -- configurações locais do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/sec_etc_bind_named.conf.local[]
+----
++
+* `/etc/resolv.conf` -- configuração de resolução de nomes para o _Client_Linux_:
++
+[source,bash]
+----
+include::{srcdir}/sessao_7/sec_etc_resolv.conf[]
+----
+
+4. Observe que iremos escrever os arquivos transferidos no diretório `/etc/bind/sec`, que ainda não existe. Vamos criá-lo e atribuir permissionamento:
++
+.................
+# mkdir /etc/bind/sec
+# chown bind.root /etc/bind/sec
+.................
+
+5. Reinicie o `bind` e verifique se os arquivos de zona foram transferidos corretamente:
++
+.................
+# systemctl restart bind9.service
+
+# systemctl status bind9.service -l
+● bind9.service - BIND Domain Name Server
+   Loaded: loaded (/lib/systemd/system/bind9.service; enabled)
+  Drop-In: /run/systemd/generator/bind9.service.d
+           └─50-insserv.conf-$named.conf
+   Active: active (running) since Qui 2018-08-09 21:41:27 -03; 2s ago
+     Docs: man:named(8)
+  Process: 5549 ExecStop=/usr/sbin/rndc stop (code=exited, status=0/SUCCESS)
+ Main PID: 5553 (named)
+   CGroup: /system.slice/bind9.service
+           └─5553 /usr/sbin/named -f -u bind
+
+Ago 09 21:41:27 cliente named[5553]: all zones loaded
+Ago 09 21:41:27 cliente named[5553]: running
+Ago 09 21:41:27 cliente named[5553]: zone empresa.com.br/IN: Transfer started.
+Ago 09 21:41:27 cliente named[5553]: transfer of 'empresa.com.br/IN' from 192.168.0.10#53: connected using 192.168.0.20#48366
+Ago 09 21:41:27 cliente named[5553]: zone empresa.com.br/IN: transferred serial 2018080900
+Ago 09 21:41:27 cliente named[5553]: transfer of 'empresa.com.br/IN' from 192.168.0.10#53: Transfer completed: 1 messages, 12 records, 312 bytes, 0.001 secs (312000 bytes/sec)
+Ago 09 21:41:28 cliente named[5553]: zone 0.168.192.in-addr.arpa/IN: Transfer started.
+Ago 09 21:41:28 cliente named[5553]: transfer of '0.168.192.in-addr.arpa/IN' from 192.168.0.10#53: connected using 192.168.0.20#35160
+Ago 09 21:41:28 cliente named[5553]: zone 0.168.192.in-addr.arpa/IN: transferred serial 2018080900
+Ago 09 21:41:28 cliente named[5553]: transfer of '0.168.192.in-addr.arpa/IN' from 192.168.0.10#53: Transfer completed: 1 messages, 8 records, 261 bytes, 0.001 secs (261000 bytes/sec)
+
+# ls -lh /etc/bind/sec/
+total 8,0K
+-rw-r--r-- 1 bind bind 569 Ago  9 21:41 db.0.168.192
+-rw-r--r-- 1 bind bind 720 Ago  9 21:41 db.empresa.com.br
+.................
+
+6. Finalmente, teste a resolução de nomes no servidor secundário:
++
+.................
+# nslookup pop.empresa.com.br 192.168.0.20
+Server:         192.168.0.20
+Address:        192.168.0.20#53
+
+pop.empresa.com.br      canonical name = email.empresa.com.br.
+Name:   email.empresa.com.br
+Address: 192.168.0.15
+
+# dig -x 192.168.0.10 +noquestion @192.168.0.20
+
+; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -x 192.168.0.10 +noquestion @192.168.0.20
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 30045
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+10.0.168.192.in-addr.arpa. 86400 IN     PTR     servidor.empresa.com.br.
+
+;; AUTHORITY SECTION:
+0.168.192.in-addr.arpa. 86400   IN      NS      servidor.empresa.com.br.
+
+;; ADDITIONAL SECTION:
+servidor.empresa.com.br. 86400  IN      A       192.168.0.10
+
+;; Query time: 2 msec
+;; SERVER: 192.168.0.20#53(192.168.0.20)
+;; WHEN: Thu Aug 09 21:52:36 -03 2018
+;; MSG SIZE  rcvd: 121
+.................
+endif::gabarito[]

@@ -1,0 +1,20 @@
+options {
+  directory "/var/cache/bind";
+
+  forwarders {
+    192.168.0.10;
+  };
+
+  dnssec-validation auto;
+  auth-nxdomain no;
+
+  allow-transfer { none; };
+  allow-query { internals; };
+  allow-recursion { internals; };
+ 
+  listen-on { 127.0.0.1; 192.168.0.20; };
+  listen-on-v6 { none; };
+ 
+  version none;
+};
+
