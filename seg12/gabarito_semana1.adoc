@@ -44,3 +44,7 @@ include::gabarito_semana1_includes/gabarito_semana1_sessao6.adoc[]
 include::gabarito_semana1_includes/gabarito_semana1_sessao7.adoc[]
 
 <<<
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao8.adoc[]
+
+<<<
