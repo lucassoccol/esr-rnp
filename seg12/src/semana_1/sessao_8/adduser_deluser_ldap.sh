@@ -1,9 +1,5 @@
 #!/bin/bash
 
-tlocal_user() {
-  egrep "^${1}:" /etc/passwd &> /dev/null && return 1 || return 0
-}
-
 
 tldap_user() {
   qlu=$( ldapsearch -x -LLL -b "dc=empresa,dc=com,dc=br" "(uid=${1})" | grep "^uid:" | awk '{print $2}' )
@@ -13,37 +9,57 @@ tldap_user() {
 
 # $1 ldap_admin, $2 ldap_password, $3: user , $4: pass
 r_adduser() {
-  if ! tlocal_user $3; then
-    echo "  [*] Local user exists!"
-    exit 1
-  elif ! tldap_user $3; then
+  if ! tldap_user $3; then
     echo "  [*] LDAP user exists!"
     exit 1
   fi    
 
-  useradd -m -K UID_MIN=5000 -K GID_MIN=5000 -G esr $3
-  echo "$3:$4" | chpasswd
+  lastuid=$( ldapsearch -x -LLL '(&(objectClass=posixAccount)(uid=*)(!(uid=nobody)))' uidNumber | grep  '^uidNumber:' | awk '{print $2}' | sort -n | tail -n1 )
+  lastgid=$( ldapsearch -x -LLL '(&(objectClass=posixGroup)(cn=*)(!(cn=nogroup)))' gidNumber | grep  '^gidNumber:' | awk '{print $2}' | sort -n | tail -n1 )
 
-  cd /usr/share/migrationtools/
-  ./migrate_passwd.pl /etc/passwd | awk "/dn: uid=$3,ou=People,dc=empresa,dc=com,dc=br/,/^$/" | ldapadd -x -w $2 -D $1
-  ./migrate_group.pl /etc/group | awk "/dn: cn=$3,ou=Group,dc=empresa,dc=com,dc=br/,/^$/" | ldapadd -x -w $2 -D $1
+  ((lastuid++))
+  ((lastgid++))
+
+  ldapadd -x -D $1 -w $2 << EOF
+dn: uid=$3,ou=People,dc=empresa,dc=com,dc=br
+uid: $3
+cn: $3
+objectClass: account
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+shadowMax: 99999
+shadowWarning: 7
+loginShell: /bin/bash
+uidNumber: $lastuid
+gidNumber: $lastgid
+homeDirectory: /home/$3
+gecos: $3,,,
+
+EOF
+
+  ldapadd -x -D $1 -w $2 << EOF
+dn: cn=$3,ou=Group,dc=empresa,dc=com,dc=br
+objectClass: posixGroup
+objectClass: top
+cn: $3
+gidNumber: $lastgid
+
+EOF
+
+  ldappasswd -x -D $1 -w $2 -s $4 "uid=$3,ou=People,dc=empresa,dc=com,dc=br"
 }
 
 
 # $1 ldap_admin, $2 ldap_password, $3: user
 r_deluser() {
-  if tlocal_user $3; then
-    echo "  [*] Local user does not exist!"
-    exit 1
-  elif tldap_user $3; then
+  if tldap_user $3; then
     echo "  [*] LDAP user does not exist!"
     exit 1
   fi    
 
-  deluser --remove-home $3
-
-  ldapdelete -x -w $2 -D $1 "uid=$3,ou=People,dc=empresa,dc=com,dc=br"
-  ldapdelete -x -w $2 -D $1 "cn=$3,ou=Group,dc=empresa,dc=com,dc=br"
+  ldapdelete -x -D $1 -w $2 "uid=$3,ou=People,dc=empresa,dc=com,dc=br"
+  ldapdelete -x -D $1 -w $2 "cn=$3,ou=Group,dc=empresa,dc=com,dc=br"
 }
 
 
