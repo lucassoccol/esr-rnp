@@ -7,7 +7,7 @@ tldap_user() {
 }
 
 
-# $1 ldap_admin, $2 ldap_password, $3: user , $4: pass
+# $1 ldap_admin, $2 ldap_password, $3: user, $4: pass
 r_adduser() {
   if ! tldap_user $3; then
     echo "  [*] LDAP user exists!"
