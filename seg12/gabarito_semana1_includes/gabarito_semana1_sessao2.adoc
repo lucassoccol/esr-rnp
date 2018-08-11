@@ -1,5 +1,10 @@
 == Usuários e grupos
 
+[WARNING]
+====
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+====
+
 === 1) Criando contas de usuários
 
 Uma das atividades que fazem parte da rotina diária de um administrador de sistemas é o gerenciamento de contas de usuários. Frequentemente, usuários são criados, modificados, desabilitados ou excluídos do sistema.

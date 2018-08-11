@@ -1,5 +1,10 @@
 == Processos
 
+[WARNING]
+====
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+====
+
 === 1) Descobrindo o número de processos em execução
 
 1. Quantos processos estão sendo executados na máquina no momento? Use o comando `wc` para contá-los.

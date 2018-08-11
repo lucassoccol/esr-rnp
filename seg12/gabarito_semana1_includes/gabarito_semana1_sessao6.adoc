@@ -1,5 +1,10 @@
 == Segurança básica e procedimentos operacionais
 
+[WARNING]
+====
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+====
+
 === 1) Identificando senhas fracas
 
 Uma das formas de verificar se o seu sistema atende às recomendações básicas de segurança é utilizar os programas "quebradores" de senha, ou _password crackers_. Neste exercício, utilizaremos um desses programas para mostrar seu funcionamento.

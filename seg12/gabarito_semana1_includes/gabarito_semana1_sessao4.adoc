@@ -2,6 +2,11 @@
 
 [WARNING]
 ====
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+====
+
+[WARNING]
+====
 Em algumas atividades, você trabalhará com a conta `root`, o que lhe dará todos os direitos sobre os recursos do sistema. Seja cauteloso antes de executar qualquer comando.
 ====
 

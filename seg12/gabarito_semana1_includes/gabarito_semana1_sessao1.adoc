@@ -1,5 +1,10 @@
 == Introdução ao sistema operacional Linux
 
+[WARNING]
+====
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+====
+
 === 1) Identificando bits de permissão
 
 1. Verifique as permissões do diretório `/tmp`. O que você percebe de diferente em relação às permissões de _outros_?

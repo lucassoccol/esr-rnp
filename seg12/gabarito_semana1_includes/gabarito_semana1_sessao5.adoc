@@ -2,6 +2,11 @@
 
 [WARNING]
 ====
+As atividades 1, 2 e 3 desta sessão serão realizadas na máquina virtual _Client_Linux_. As atividades 4, 5, 6 e 7 serão realizadas em ambas as máquinas _Server_Linux_ e _Client_Linux_, de acordo com o enunciado de cada exercício.
+====
+
+[WARNING]
+====
 Em algumas atividades, você trabalhará com a conta `root`, o que lhe dará todos os direitos sobre os recursos do sistema. Seja cauteloso antes de executar qualquer comando.
 ====
 
@@ -29,9 +34,9 @@ endif::gabarito[]
 
 === 2) Analisando os arquivos de log do sistema
 
-Para esta atividade você terá que ter acesso `ssh` à máquina em que está configurando o sistema de logs para que você possa acompanhar, em tempo real, os registros gravados nos arquivos de log. Cada aluno deve executar os passos abaixo em seu próprio servidor.
+Para esta atividade você terá que ter acesso `ssh` à máquina em que está configurando o sistema de logs para que você possa acompanhar, em tempo real, os registros gravados nos arquivos de log.
 
-1. Crie, em seu servidor, uma conta com senha para acesso via `ssh`.
+1. Crie, em sua máquina, uma conta com senha para acesso via `ssh`.
 ifdef::gabarito[]
 +
 .................
@@ -43,20 +48,20 @@ passwd: senha atualizada com sucesso
 .................
 endif::gabarito[]
 
-2. A partir de uma máquina remota faça o login no seu servidor utilizando a conta criada no passo anterior. Utilize o comando `tail` com a opção `-f` para verificar em tempo real os registros gerados pelo `syslog` no arquivo `/var/log/auth.log`.
+2. A partir de uma máquina remota, faça login via `ssh` utilizando a conta criada no passo anterior. Utilize o comando `tail` com a opção `-f` para verificar em tempo real os registros gerados pelo `syslog` no arquivo `/var/log/auth.log`.
 ifdef::gabarito[]
 +
-No servidor, execute:
+No servidor `ssh`, execute:
 +
 .................
 # tail -f -n0 /var/log/auth.log
 .................
 +
-De outra máquina, faça login via `ssh` no servidor com a conta criada anteriormente:
+De outra máquina, faça login via `ssh` com a conta criada anteriormente:
 +
 .................
-$ ssh aluno2@192.168.0.25
-aluno2@192.168.0.25's password:
+$ ssh aluno2@192.168.0.20
+aluno2@192.168.0.20's password:
 
 aluno2@cliente:~$
 .................
@@ -65,7 +70,7 @@ Monitore o que aconteceu no arquivo `/var/log/auth.log`:
 +
 .................
 # tail -f -n0 /var/log/auth.log
-Aug  9 11:26:24 cliente sshd[1050]: Accepted password for aluno2 from 192.168.0.12 port 50325 ssh2
+Aug  9 11:26:24 cliente sshd[1050]: Accepted password for aluno2 from 192.168.0.254 port 50325 ssh2
 Aug  9 11:26:24 cliente sshd[1050]: pam_unix(sshd:session): session opened for user aluno2 by (uid=0)
 .................
 endif::gabarito[]
@@ -90,8 +95,8 @@ ifdef::gabarito[]
 +
 .................
 $ last | head -n2
-aluno2   pts/1        192.168.0.12     Thu Aug  9 11:26 - 11:27  (00:01)
-aluno    pts/0        192.168.0.12     Thu Aug  9 11:10   still logged in
+aluno2   pts/1        192.168.0.254     Thu Aug  9 11:26 - 11:27  (00:01)
+aluno    pts/0        192.168.0.254     Thu Aug  9 11:10   still logged in
 .................
 endif::gabarito[]
 
@@ -139,17 +144,17 @@ Através do comando `last`. A terceira coluna mostra o _host_ de origem do login
 +
 .................
 $ last | head -n20 | grep -v '^reboot'
-aluno2   pts/1        192.168.0.12     Thu Aug  9 11:26 - 11:27  (00:01)
-aluno    pts/0        192.168.0.12     Thu Aug  9 11:10   still logged in
+aluno2   pts/1        192.168.0.254     Thu Aug  9 11:26 - 11:27  (00:01)
+aluno    pts/0        192.168.0.254     Thu Aug  9 11:10   still logged in
 root     tty1                          Thu Aug  9 03:25 - down   (00:00)
-aluno    pts/0        192.168.0.12     Thu Aug  9 02:32 - 03:25  (00:53)
-aluno    pts/0        192.168.0.12     Thu Aug  9 02:25 - down   (00:05)
-aluno    pts/0        192.168.0.12     Thu Aug  9 01:47 - down   (00:37)
+aluno    pts/0        192.168.0.254     Thu Aug  9 02:32 - 03:25  (00:53)
+aluno    pts/0        192.168.0.254     Thu Aug  9 02:25 - down   (00:05)
+aluno    pts/0        192.168.0.254     Thu Aug  9 01:47 - down   (00:37)
 root     tty1                          Wed Aug  8 19:05 - down   (00:00)
-aluno    pts/0        192.168.0.12     Wed Aug  8 18:19 - 19:05  (00:46)
+aluno    pts/0        192.168.0.254     Wed Aug  8 18:19 - 19:05  (00:46)
 root     tty1                          Tue Aug  7 18:18 - down   (00:00)
-aluno    pts/0        192.168.0.12     Tue Aug  7 17:56 - 18:17  (00:21)
-aluno    pts/1        192.168.0.12     Tue Aug  7 17:07 - 17:15  (00:07)
+aluno    pts/0        192.168.0.254     Tue Aug  7 17:56 - 18:17  (00:21)
+aluno    pts/1        192.168.0.254     Tue Aug  7 17:07 - 17:15  (00:07)
 instruto pts/1        localhost        Tue Aug  7 15:45 - 16:01  (00:15)
 instruto pts/1        localhost        Tue Aug  7 14:44 - 14:46  (00:01)
 instruto pts/1        localhost        Tue Aug  7 14:42 - 14:42  (00:00)
@@ -170,7 +175,7 @@ endif::gabarito[]
 
 === 4) Servidor de log remoto
 
-1. Este exercício deve ser feito utilizando duas máquinas virtuais Linux. Configure na máquina virtual _Server_Linux_ um servidor de logs; posteriormente, configure a máquina virtual _Client_Linux_ para enviar os registros dos eventos gerados para esse servidor de logs.
+1. Este exercício deve ser feito utilizando duas máquinas virtuais Linux. Configure um servidor de logs na máquina virtual _Server_Linux_; posteriormente, configure a máquina virtual _Client_Linux_ para enviar os registros dos eventos gerados para esse servidor de logs.
 ifdef::gabarito[]
 +
 Na máquina _Server_Linux_, edite o arquivo `/etc/rsyslog.conf` e descomente as linhas que se seguem. Em seguida, reinicie o serviço do `rsyslog`.
@@ -213,7 +218,7 @@ Após gerar um evento de login via `ssh` na máquina _Client_Linux_, imediamente
 +
 .................
 # tail -f -n0 /var/log/auth.log
-Aug  9 15:18:07 cliente sshd[3285]: Accepted password for aluno from 192.168.0.12 port 50854 ssh2
+Aug  9 15:18:07 cliente sshd[3285]: Accepted password for aluno from 192.168.0.254 port 50854 ssh2
 Aug  9 15:18:07 cliente sshd[3285]: pam_unix(sshd:session): session opened for user aluno by (uid=0)
 .................
 +
@@ -239,7 +244,7 @@ Pronto! Agora, novos eventos gerados pela máquina _Client_Linux_ serão enviado
 
 .................
 # tail -f -n0 /var/log/client_linux.log
-Aug  9 15:34:33 cliente sshd[3340]: Accepted password for aluno from 192.168.0.12 port 50902 ssh2
+Aug  9 15:34:33 cliente sshd[3340]: Accepted password for aluno from 192.168.0.254 port 50902 ssh2
 Aug  9 15:34:33 cliente sshd[3340]: pam_unix(sshd:session): session opened for user aluno by (uid=0)
 .................
 ====
@@ -283,7 +288,7 @@ endif::gabarito[]
 
 Nesta atividade, você irá configurar o rotacionamento dos arquivos de log de seu computador.
 
-1. Realize o rotacionamento mensal do arquivo recém-criado `/var/log/cron.log`, mantendo uma cópia dos dois últimos arquivos compactados e criando, automaticamente, um novo arquivo vazio após o rotacionamento.
+1. Na máquina _Server_Linux_, realize o rotacionamento mensal do arquivo recém-criado `/var/log/cron.log`, mantendo uma cópia dos dois últimos arquivos compactados e criando, automaticamente, um novo arquivo vazio após o rotacionamento.
 ifdef::gabarito[]
 +
 No arquivo `/etc/logrotate.conf` estão as configurações globais para o rotacionamento dos arquivos de log. Ao configurar o rotacionamento de um arquivo ou um grupo de logs podemos editar diretamente esse arquivo ou, opcionalmente, incluir novas configurações dentro do diretório `/etc/logrotate.d`.
@@ -358,7 +363,7 @@ Primeiro, vamos instalar o `swatch` via `apt-get`:
 A configuração do `swatch` é um tanto quanto arcana, mas a página de manual do programa (`$ man 1p swatch`) nos dá algum direcionamento através da seção _CONFIGURATION EXAMPLE_. Um dos requisitos é criar um arquivo de configuração com a expressão regular que casa com o erro de autenticação do daemon do `sshd`. Primeiro, precisamos conhecer o formato da mensagem:
 +
 .................
-Aug  9 16:39:56 servidor sshd[4113]: Failed password for aluno from 192.168.0.12 port 51230 ssh2
+Aug  9 16:39:56 servidor sshd[4113]: Failed password for aluno from 192.168.0.254 port 51230 ssh2
 .................
 +
 Outro ponto de atenção é a tentativa de `su` para o usuário `root` com falha, possivelmente por senha incorreta. Vamos verificar o formato da mensagem de log:
@@ -381,7 +386,7 @@ Vamos rodar o `swatch` manualmente e testar se os padrões estão sendo capturad
 
 *** swatch version 3.2.3 (pid:5011) started at Qui Ago  9 17:29:51 -03 2018
 
-Aug  9 17:32:35 servidor sshd[5093]: Failed password for aluno from 192.168.0.12 port 51460 ssh2
+Aug  9 17:32:35 servidor sshd[5093]: Failed password for aluno from 192.168.0.254 port 51460 ssh2
 Aug  9 17:32:43 servidor su[5117]: FAILED su for root by aluno
 .................
 +
@@ -391,7 +396,7 @@ Aparentemente, tudo funcionou. Vamos verificar se os e-mails estão sendo de fat
 $ mail
 Mail version 8.1.2 01/15/2001.  Type ? for help.
 "/var/mail/aluno": 2 messages 2 new
->N  1 root@servidor.emp  Thu Aug 09 17:32   16/705   [swatch][ssh]: 192.168.0.12
+>N  1 root@servidor.emp  Thu Aug 09 17:32   16/705   [swatch][ssh]: 192.168.0.254
  N  2 root@servidor.emp  Thu Aug 09 17:32   16/663   [swatch][su]: aluno
 & 1
 Message 1:
@@ -399,11 +404,11 @@ From root@servidor.empresa.com.br Thu Aug 09 17:32:35 2018
 Envelope-to: root@servidor.empresa.com.br
 Delivery-date: Thu, 09 Aug 2018 17:32:35 -0300
 To: root@servidor.empresa.com.br
-Subject: [swatch][ssh]: 192.168.0.12
+Subject: [swatch][ssh]: 192.168.0.254
 From: root <root@servidor.empresa.com.br>
 Date: Thu, 09 Aug 2018 17:32:35 -0300
 
-Aug  9 17:32:35 servidor sshd[5093]: Failed password for aluno from 192.168.0.12 port 51460 ssh2
+Aug  9 17:32:35 servidor sshd[5093]: Failed password for aluno from 192.168.0.254 port 51460 ssh2
 
 & 2
 Message 2:
