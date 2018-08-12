@@ -1,0 +1,34 @@
+# TLS parameters
+smtpd_tls_cert_file=/etc/ssl/certs/smtpd.crt
+smtpd_tls_key_file=/etc/ssl/private/smtpd.key
+
+smtpd_use_tls=yes
+smtpd_tls_auth_only = no
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+
+smtp_use_tls = yes
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+# SASL parameters
+smtpd_sasl_path = smtpd
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_local_domain = empresa.com.br
+
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+myhostname = email.empresa.com.br
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = /etc/mailname
+mydestination = email.empresa.com.br, localhost.empresa.com.br, empresa.com.br, localhost
+relayhost = 
+mynetworks = 127.0.0.0/8, 192.168.0.0/24, 172.16.0.0/24, [::ffff:127.0.0.0]/104, [::1]/128
+mailbox_command = procmail -a "$EXTENSION"
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+inet_protocols = all
