@@ -113,6 +113,8 @@ iface eth0 inet static
     inet 127.0.0.1/8 scope host lo
     inet 192.168.0.20/24 brd 192.168.0.255 scope global eth0
 .................
++
+<<<
 
 3. A máquina _Win7-padrao_ será muito pouco usada neste curso, apenas em uma atividade de configuração do servidor DHCP. Verifique apenas que a configuração IPv4 da interface de rede está ajustada para obter endreço IP e servidor DNS automaticamente, como mostra a imagem a seguir:
 +
@@ -123,7 +125,7 @@ image::Configuracao_DHCP_Win7.png[]
 
 === 4) Configuração de firewall e NAT
 
-O passo final é garantir que as máquinas _Client_Linux_ e _Win7-padrao_ consigam acessar a internet através da máquinas _Server_Linux_, que está atuando como um firewall/roteador na topologia de rede do curso.
+O passo final é garantir que as máquinas _Client_Linux_ e _Win7-padrao_ consigam acessar a internet através da máquina _Server_Linux_, que está atuando como um firewall/roteador na topologia de rede do curso.
 
 1. Na máquina _Server_Linux_, verifique que o firewall de host está limpo e permitindo qualquer tipo de conexão:
 +

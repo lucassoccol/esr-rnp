@@ -338,7 +338,74 @@ openldap:x:117:
 Observe, acima, que tanto o usuário quanto o grupo `openldap` estão disponíveis na máquina local, muito embora não existam nos arquivos `/etc/passwd` e `/etc/group`. Eles estão sendo obtidos, remotamente, no servidor LDAP _Server_Linux_.
 endif::gabarito[]
 
-=== 4) Criação e remoção de usuários e grupos LDAP
+=== 4) Configurança do servidor Linux para uso do LDAP
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Server_Linux_.
+====
+
+Agora que a máquina _Client_Linux_ (192.168.0.20) está configurada para se autenticar na base LDAP remota localizada na máquina _Server_Linux_ (192.168.0.10), faça com que o próprio servidor _Server_Linux_ autentique-se usando sua base LDAP local.
+
+ifdef::gabarito[]
+1. Essencialmente, basta repetir os passos do exercício anterior, desta vez na máquina _Server_Linux_:
++
+.................
+# hostname
+servidor
+
+# cat /etc/libnss-ldap.conf | grep -v '^#' | sed '/^$/d'
+base dc=empresa,dc=com,dc=br
+uri ldap://127.0.0.1
+ldap_version 3
+rootbinddn cn=admin,dc=empresa,dc=com,dc=br
+
+# cat /etc/libnss-ldap.secret
+rnpesr
+
+# cat /etc/pam_ldap.conf | grep -v '^#' | sed '/^$/d'
+base dc=empresa,dc=com,dc=br
+uri ldap://127.0.0.1
+ldap_version 3
+rootbinddn cn=admin,dc=empresa,dc=com,dc=br
+pam_password crypt
+
+# cat /etc/pam_ldap.secret
+rnpesr
+
+# cat /etc/ldap/ldap.conf | grep -v '^#' | sed '/^$/d'
+BASE    dc=empresa,dc=com,dc=br
+URI     ldap://127.0.0.1
+TLS_CACERT      /etc/ssl/certs/ca-certificates.crt
+
+# cat /etc/nsswitch.conf | grep -v '^#'
+
+passwd:         compat ldap
+group:          compat ldap
+shadow:         compat ldap
+gshadow:        files
+
+hosts:          files dns
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
+
+# tail -n1 /etc/pam.d/common-session
+session optional pam_mkhomedir.so skel=/etc/skel/ umask=022
+
+# ls -ld /etc/netgroup
+-rw-r--r-- 1 root root 0 Ago 12 17:20 /etc/netgroup
+
+# systemctl restart nscd
+.................
+endif::gabarito[]
+
+=== 5) Criação e remoção de usuários e grupos LDAP
 
 [WARNING]
 ====
@@ -453,7 +520,7 @@ $ pwd
 .................
 endif::gabarito[]
 
-=== 5) Criação e deleção automática de usuários LDAP
+=== 6) Criação e deleção automática de usuários LDAP
 
 [WARNING]
 ====
