@@ -71,7 +71,13 @@ include::{srcdir}/sessao_7/etc_bind_db.0.168.192[]
 include::{srcdir}/sessao_7/etc_resolv.conf[]
 ----
 
-3. Reinicie o `bind` e verifique por possíveis erros:
+3. Como a interface de rede `eth0` da máquina _Server_Linux_ está configurada para obter endereço via DHCP, o _daemon_ `dhclient` irá sobrescrever as alterações que fizemos ao arquivo `/etc/resolv.conf` no próximo _reboot_. Para prevenir isso, podemos ativar o atributo `immutable` do arquivo, impedindo sua alteração:
++
+.................
+# chattr +i /etc/resolv.conf
+.................
+
+4. Reinicie o `bind` e verifique por possíveis erros:
 +
 .................
 # systemctl restart bind9.service
@@ -100,7 +106,7 @@ Ago 09 21:23:48 servidor named[14406]: all zones loaded
 Ago 09 21:23:48 servidor named[14406]: running
 .................
 
-4. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
+5. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
 +
 .................
 # nslookup servidor.empresa.com.br

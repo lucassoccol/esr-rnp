@@ -1,0 +1,10 @@
+== Servidor Web
+
+[WARNING]
+====
+As atividades desta sessão serão realizadas na máquina virtual _Server_Linux_, com pequenas exceções apontadas pelo enunciado dos exercícios.
+====
+
+=== 1) Instalação do servidor web Apache
+
+O objetivo do serviço _Dynamic Host Configuration Protocol_ (DHCP) é automatizar a distribuição de endereços e configurações do protocolo TCP/IP para quaisquer dispositivos conectados a uma rede, como computadores, impressoras, hubs e switches.

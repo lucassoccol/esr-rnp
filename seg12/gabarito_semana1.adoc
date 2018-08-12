@@ -53,3 +53,11 @@ include::gabarito_semana1_includes/gabarito_semana1_sessao7.adoc[]
 include::gabarito_semana1_includes/gabarito_semana1_sessao8.adoc[]
 
 <<<
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao9.adoc[]
+
+<<<
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao10.adoc[]
+
+<<<
