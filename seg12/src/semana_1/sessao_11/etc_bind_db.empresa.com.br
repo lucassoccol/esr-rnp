@@ -1,0 +1,24 @@
+$TTL 86400 ; (1 day)
+$ORIGIN empresa.com.br.
+@         IN    SOA           email.empresa.com.br. admin.empresa.com.br. (
+                2018081200    ;Serial (YYYYMMDDnn)
+                14400         ;Refresh (4 hours)
+                1800          ;Retry (30 minutes)
+                1209600       ;Expire (2 weeks)
+                3600          ;Negative Cache TTL (1 hour)
+)
+
+@         IN    NS            email.empresa.com.br.
+
+@         IN    MX      10    email.empresa.com.br.
+
+email     IN    A             192.168.0.10
+cliente   IN    A             192.168.0.20
+windows   IN    A             192.168.0.25
+
+meusite   IN    CNAME         email
+pop       IN    CNAME         email
+servidor  IN    CNAME         email
+smtp      IN    CNAME         email
+www       IN    CNAME         email
+
