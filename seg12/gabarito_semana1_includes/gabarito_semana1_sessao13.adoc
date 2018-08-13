@@ -1,0 +1,225 @@
+== *_Proxy_* Squid
+
+Nesta sessão iremos instalar e configurar o Squid, uma solução de _proxy_ web que provê funcionalidades de _cache_ e redirecionamento. O Squid pode ser utilizado para diversos fins: acelerar o acesso web a partir da realização de _cache_ de páginas acessadas com frequência, realizar _cache_ de requisições web, DNS outros tipos de consulta para um grupo de usuários, e filtragem de acesso por domínio, URL e análise de conteúdo de páginas. Normalmente configura-se o Squid para trabalhar com os protocolos HTTP e FTP, mas também é possível filtrar requisições HTTPS através de inspeção SSL/TLS.
+
+=== 1) Instalação e configuração inicial do servidor *_proxy_* Squid
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Server_Linux_.
+====
+
+Motivador
+
+ifdef::gabarito[]
+1. enunciado
++
+.................
+# apt-get install squid3 sarg
+.................
+
+2. enunciado
++
+.................
+# wc -l /etc/squid3/squid.conf
+7655 /etc/squid3/squid.conf
+
+# grep -v '^#' /etc/squid3/squid.conf.orig | sed '/^$/d' | wc -l
+24
+
+# cp /etc/squid3/squid.conf /etc/squid3/squid.conf.orig
+.................
+
+3. enunciado (ordem importante nos blocos `http_access`)
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_squid.conf[]
+----
+
+4. enunciado
++
+.................
+# systemctl stop squid3.service
+# squid3 -z
+(...)
+^C
+.................
+
+5. enunciado
+.................
+# systemctl start squid3.service
+.................
+endif::gabarito[]
+
+=== 2) Configuração do navegador cliente do *_proxy_*
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Win7-padrao_.
+====
+
+Motivador
+
+ifdef::gabarito[]
+<<<
+
+1. Iniciar > Opções da Internet > Aba Conexões > Configurações da LAN: (pode usar 192 ou 172, squid configurado para escutar em todas as portas)
++
+.Configuração de proxy direto
+[#img-proxy-direct]
+[caption="Figura 15: "]
+image::Proxy_direto_config.png[]
++
+<<<
+
+2. enunciado http://www.openbsd.org
+.................
+# tail -f -n0 /var/log/squid3/access.log
+1534200817.622   2157 172.16.0.51 TCP_MISS/200 5495 GET http://www.openbsd.org/ - HIER_DIRECT/129.128.5.194 text/html
+1534200818.683   1260 172.16.0.51 TCP_MISS/200 20896 GET http://www.openbsd.org/images/puffy63.gif - HIER_DIRECT/129.128.5.194 image/gif
+1534200818.977   1323 172.16.0.51 TCP_MISS/200 50729 GET http://www.openbsd.org/images/rack2009-s.png - HIER_DIRECT/129.128.5.194 image/png
+1534200819.749    572 172.16.0.51 TCP_MISS/200 5003 GET http://www.openbsd.org/favicon.ico - HIER_DIRECT/129.128.5.194 image/x-icon
+.................
+endif::gabarito[]
+
+=== 3) Configuração de controles de acesso
+
+[WARNING]
+====
+Esta configuração será realizada nas máquinas virtuais _Server_Linux_ e _Win7-padrao_.
+====
+
+Motivador (não acessar URLs HTTPS, IE antigo e incompatível) http://www.openbsd.org
+
+ifdef::gabarito[]
+1. enunciado `/etc/squid3/acl/mac.conf` (arp spoofing)
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_acl_mac.conf[]
+----
++
+topo do bloco `acl`
++
+.................
+acl block_mac  arp           "/etc/squid3/acl/mac.conf"
+.................
++
+topo do bloco `http_access`
++
+.................
+http_access deny block_mac
+.................
++
+testar na máquina _Win7-padrao_
+
+2. enunciado `/etc/squid3/acl/ip.conf` (troca do lease pelo dhcp)
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_acl_ip.conf[]
+----
++
+topo do bloco `acl`
++
+.................
+acl block_ip   src           "/etc/squid3/acl/ip.conf"
+.................
++
+topo do bloco `http_access`
++
+.................
+http_access deny block_ip
+.................
++
+testar na máquina _Win7-padrao_
+
+3. enunciado `/etc/squid3/acl/time.conf`
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_acl_time.conf[]
+----
++
+topo do bloco `acl`
++
+.................
+acl block_time time          "/etc/squid3/acl/time.conf"
+.................
++
+topo do bloco `http_access`
++
+.................
+http_access deny block_time
+.................
++
+.................
+# date -s 23:00:00
+# hwclock --systohc
+.................
++
+testar na máquina _Win7-padrao_
+
+4. enunciado `/etc/squid3/acl/regex_ext.conf`
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_acl_regex_ext.conf[]
+----
++
+topo do bloco `acl`
++
+.................
+acl block_ext  urlpath_regex "/etc/squid3/acl/regex_ext.conf"
+.................
++
+topo do bloco `http_access`
++
+.................
+http_access deny block_ext
+.................
++
+testar na máquina _Win7-padrao_ (google "site:ftp.openbsd.org filetype:pdf")
+
+5. enunciado `/etc/squid3/acl/regex_word.conf`
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_acl_regex_word.conf[]
+----
++
+topo do bloco `acl`
++
+.................
+acl block_word urlpath_regex "/etc/squid3/acl/regex_word.conf"
+.................
++
+topo do bloco `http_access`
++
+.................
+http_access deny block_word
+.................
++
+testar na máquina _Win7-padrao_ (http://www.openbsd.org/crypto.html)
+
+6. enunciado `/etc/squid3/acl/url.conf`
++
+[source,bash]
+----
+include::{srcdir}/sessao_13/etc_squid3_acl_url.conf[]
+----
++
+topo do bloco `acl`
++
+.................
+acl block_url  dstdomain     "/etc/squid3/acl/url.conf"
+.................
++
+topo do bloco `http_access`
++
+.................
+http_access deny block_url
+.................
++
+testar na máquina _Win7-padrao_ (http://web.whatsapp.com)

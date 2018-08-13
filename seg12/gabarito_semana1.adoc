@@ -7,7 +7,7 @@
 :pdf-page-size: A4
 :revdate: 06-08-2018
 :toc:
-//:gabarito: true
+:gabarito: true
 
 ifdef::basebackend-html[]
 ++++
@@ -70,3 +70,5 @@ include::gabarito_semana1_includes/gabarito_semana1_sessao11.adoc[]
 include::gabarito_semana1_includes/gabarito_semana1_sessao12.adoc[]
 
 <<<
+
+include::gabarito_semana1_includes/gabarito_semana1_sessao13.adoc[]
