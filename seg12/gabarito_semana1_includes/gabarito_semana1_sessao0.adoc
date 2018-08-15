@@ -20,7 +20,7 @@ image::Topologia_SEG12_Semana1.png[]
 | Nome VM | Memória
 | Server_Linux_ | 512 MB
 | Client_Linux_ | 512 MB
-| Win7-padrao | 1024 MB
+| Win7-padrao | 2048 MB
 |===
 
 2. Agora, configure as redes do Virtualbox. Acesso o menu _File_ > _Host Network Manager_ e crie as seguintes redes:
