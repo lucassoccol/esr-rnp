@@ -14,9 +14,9 @@ Instale e configure o servidor _proxy_ Squid na máquina _Server_Linux_, pacotes
 --
 * Autorizar conexões vindas de ambas as redes internas, 192.168.0.0/24 e 172.16.0.0/24.
 * Recusar demais conexões.
-* Diretório de _cache_ de páginas em `/var/spool/squid3`.
-* Log de acessos em `/var/log/squid3/access.log`.
-* Log geral do _proxy_ em ``/var/log/squid3/cache.log`.
+* Diretório de _cache_ de páginas em `/var/spool/squid3`
+* Log de acessos em `/var/log/squid3/access.log`
+* Log geral do _proxy_ em ``/var/log/squid3/cache.log`
 * Porta de acesso 3128/TCP.
 --
 
@@ -108,7 +108,7 @@ Implemente os seguintes controles:
 --
 a. Bloqueio via endereço físico (MAC) -- `acl` com palavra-chave `arp`.
 b. Bloqueio via endereço IP de origem -- `acl` com palavra-chave `src`.
-c. Bloqueio pela hora de acesso -- `acl` com palavra-chave `time`. Utilize os comandos `date -s` e `hwclock --systohc` para forçar um horário proibido no servidor e testar sua configuração.
+c. Bloqueio pela hora de acesso -- `acl` com palavra-chave `time`. Utilize os comandos `date -s` e `hwclock --systohc` para ajustar o relógio do servidor para um horário proibido e testar sua configuração.
 d. Bloqueio por expressão regular de extensão de arquivo -- `acl` com palavra-chave `urlpath_regex`. Faça com que o acesso a qualquer arquivo com as extensões `.avi`, `.mp3` ou `.pdf` seja bloqueado. Use a pesquisa `site:ftp.openbsd.org filetype:pdf` no Google para encontrar um arquivo que se encaixe no bloqueio configurado.
 e. Bloqueio por expressão regular de palavra em URL -- `acl` com palavra-chave `urlpath_regex`. Faça com que qualquer URL que contenha as palavras `crypto`, `playboy`, `sexo`, `torrent` e `virus` seja bloqueada. Acesse a URL http://www.openbsd.org/crypto.html para testar a configuração.
 f. Bloqueio por domínio de destino -- `acl` com palavra-chave `dstdomain`. Faça com que qualquer acesso aos domínios `facebook.com`, `instagram.com`, `twitter.com` e `whatsapp.com` seja negado. Acesse a URL http://web.whatsapp.com para testar sua configuração.
@@ -233,26 +233,26 @@ http_access deny block_word
 +
 Recarregue o Squid e teste o acesso na máquina _Win7-padrao_. A URL http://www.openbsd.org/crypto.html é uma boa candidata para testar a efetividade do bloqueio.
 
-6. Finalmente, vamos para o bloqueio por domínio. Edite `/etc/squid3/acl/url.conf`:
+6. Finalmente, vamos para o bloqueio por domínio. Edite `/etc/squid3/acl/domain.conf`:
 +
 [source,bash]
 ----
-include::{srcdir}/sessao_13/etc_squid3_acl_url.conf[]
+include::{srcdir}/sessao_13/etc_squid3_acl_domain.conf[]
 ----
 +
-topo do bloco `acl`
+No topo do bloco `acl`, inclua:
 +
 .................
-acl block_url  dstdomain     "/etc/squid3/acl/url.conf"
+acl block_domain  dstdomain     "/etc/squid3/acl/domain.conf"
 .................
 +
-topo do bloco `http_access`
+E no topo do bloco `http_access`:
 +
 .................
-http_access deny block_url
+http_access deny block_domain
 .................
 +
-testar na máquina _Win7-padrao_ (http://web.whatsapp.com)
+Recarregue o Squid e teste o acesso na máquina _Win7-padrao_. A URL http://web.whatsapp.com é um bom exemplo do alvo do bloqueio.
 endif::gabarito[]
 
 === 3) Configuração do SARG
@@ -262,10 +262,22 @@ endif::gabarito[]
 Esta configuração será realizada na máquina virtual _Server_Linux_.
 ====
 
-Motivador _Squid Analysis Report Generator_
+Vamos agora configurar o _Squid Analysis Report Generator_, ou simplesmente SARG. O SARG é um gerador de relatórios de acesso do Squid, que analisa os arquivos de log deste para produzir informações relevantes para o administrador de sistemas.
+
+Já instalamos o pacote do SARG na atividade 1 desta sessão. Configure-o da seguinte forma:
+
+--
+* Analisar log do Squid em `/var/log/squid3/access.log`.
+* Produzir relatórios no diretório `/var/www/meusite/squid-reports`.
+* Não resolver endereços IP para nomes.
+* Usar formato de data no padrão europeu (mesmo utilizado no Brasil).
+* Produzir relatórios no _charset_ UTF-8.
+--
+
+Uma vez configurado o programa, rode o comando `sarg` como root e acesse a URL `https://meusite.empresa.com.br/squid-reports/` para visualizar os resultados.
 
 ifdef::gabarito[]
-1. enunciado
+1. Assim como o Squid, o arquivo de configuração do SARG é imenso -- 687 linhas. Dessas, apenas 43 são configurações efetivas.
 +
 .................
 # wc -l /etc/sarg/sarg.conf
@@ -277,13 +289,13 @@ ifdef::gabarito[]
 # cp /etc/sarg/sarg.conf /etc/sarg/sarg.conf.orig
 .................
 
-2. enunciado
+2. Vamos fazer o backup do arquivo original e trabalhar com algo mais gerenciável:
 +
 .................
 # mytemp=$(mktemp) && grep -v '^#' /etc/sarg/sarg.conf | sed '/^$/d' > $mytemp && mv $mytemp /etc/sarg/sarg.conf
 .................
 
-3. enunciado
+3. Das linhas originais, precisamos alterar o valor de apenas seis, que se seguem:
 +
 .................
 access_log /var/log/squid3/access.log
@@ -294,7 +306,7 @@ use_comma no
 charset UTF-8
 .................
 
-4. rode `sarg`, colocar no `cron`
+4. Agora rode o comando `sarg`. Observe que o diretório `/var/www/meusite/squid-reports` foi criado automaticamente. Para tornar a geração de relatórios periódica, pode ser interessante agendar a execução do `sarg` no `cron` do sistema.
 +
 .................
 # sarg
@@ -307,7 +319,7 @@ squid-reports
 +
 <<<
 
-5. Acessar `https://meusite.empresa.com.br/squid-reports/`
+5. Agora, basta acessar a URL `https://meusite.empresa.com.br/squid-reports/` e verificar os relatórios produzidos.
 +
 .Visualização dos relatórios do SARG
 [#img-proxy-sarg]
@@ -324,16 +336,30 @@ endif::gabarito[]
 Esta configuração será realizada nas máquinas virtuais _Server_Linux_ e _Win7-padrao_.
 ====
 
-Motivador
+Pode não ser interessante ter que configurar cada estação cliente para que utilize expressamente o _proxy_. É possível configurar o firewall da rede para redirecionar conexões às portas 80/HTTP e 443/HTTPS de forma automática para o _proxy_, sem editar as configurações de qualquer cliente -- esse tipo de cenário é denominado _proxy_ transparente.
+
+Edite o firewall `iptables` da máquina _Server_Linux_ para que os pacotes passantes com destino à porta 80/HTTP de um servidor externo sejam redirecionados para o Squid local, operando na porta 3128/TCP.
+
+Use o pacote `iptables-persistent` para tornar suas configurações permanentes mesmo após o `reboot` da máquina. Na instalação do pacote, quando perguntado, responda:
+
+.Configurações do iptables-persistent
+[options="header",width="65%"]
+|===
+| Pergunta | Resposta
+| Salvar as regras IPv4 atuais? | Sim
+| Salvar as regras IPv6 atuais? | Sim
+|===
+
+Não se esqueça de configurar o Squid em modo transparente. Finalmente, limpe as configurações de _proxy_ da máquina _Win7-padrao_, e verifique que a _cache_ e bloqueios do Squid permanecem operacionais.
 
 ifdef::gabarito[]
-1. enunciado (Salvar as regras IPv4 atuais? Sim ; Salvar as regras IPv6 atuais? Sim)
+1. As configurações do firewall feitas através do comando `iptables` ficam apenas em memória, e se perdem após o `reboot` da máquina. Instale o `iptables-persistent` para corrigir isso:
 +
 .................
 # apt-get install iptables-persistent
 .................
 
-2. firewall vazio exceto masq
+2. Verifique que as configurações do firewall estão vazias, exceto pelo _masquerading_ que criamos na atividade inicial de configuração do laboratório:
 +
 .................
 # iptables -L -vn
@@ -361,20 +387,23 @@ Chain POSTROUTING (policy ACCEPT 77 packets, 5657 bytes)
   377 27216 MASQUERADE  all  --  *      eth0    0.0.0.0/0            0.0.0.0/0
 .................
 
+3. Faça o `REDIRECT` de pacotes com destino à porta 80/HTTP para a porta 3128/TCP da máquina local. Depois, grave as configurações no arquivo `/etc/iptables/rules.v4`:
++
 .................
 # iptables -t nat -A PREROUTING -p tcp -m tcp --dport 80 -j REDIRECT --to-port 3128
 
 # iptables-save > /etc/iptables/rules.v4
 .................
 
-on `/etc/squid3/squid.conf`
+4. No `/etc/squid3/squid.conf`, configure a porta 3128 em modo transparente:
++
 .................
 http_port 3128 transparent
 .................
 +
 <<<
 
-2. Iniciar > Opções da Internet > Aba Conexões > Configurações da LAN: (pode usar 192 ou 172, squid configurado para escutar em todas as portas)
+5. De volta à máquina _Win7-padrao_, limpe as configurações de _proxy_:
 +
 .Configuração de proxy transparente
 [#img-proxy-transparent]
@@ -383,11 +412,20 @@ image::Proxy_transparente_config.png[]
 +
 <<<
 
-3. Acessar
+6. Finalmente, acesse uma URL na porta 80/HTTP e verifique se o _proxy_ continua operacional.
+endif::gabarito[]
 
-4. Ressalva HTTPS
+[NOTE]
+====
+Observe que todas as configurações desta sessão foram feitas para um _proxy_ HTTP apenas. Embora funcional, muito sites hoje em dia utilizam HTTPS exclusivamente, o que torna nossa implantação apenas parcialmente útil.
 
-mandar emails certmaster
-post geral forum certmaster
-colocar certmaster no relatorio 4
-daniel gravar resolucoes video
+O módulo _Peek and Splice_ do Squid (https://wiki.squid-cache.org/Features/SslPeekAndSplice), disponível a partir da versão 3.5, permite a configuração de _proxy_ para o protocolo HTTPS. O Squid, nesse caso, atua como uma espécie de _man-in-the-middle_ entre a máquina cliente e o servidor remoto, forjando certificados para manter duas conexões criptografadas simultaneamente:
+
+****
+Cliente <= => Squid <= => Servidor Remoto
+****
+
+Assim, os dados passam em claro por dentro do próprio _proxy_.
+
+A configuração desse módulo extrapola o escopo desta sessão, mas deixamos aqui nossa recomendação do mesmo para leitura futura.
+====
