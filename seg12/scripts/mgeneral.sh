@@ -102,7 +102,7 @@ futdate=$( date -d $fdate "+%d de %B de %Y" )
 futweekday=$( date -d $fdate "+%A" )
 
 while read line; do
-  name=$( echo $line | cut -d':' -f1 )
-  email=$( echo $line | cut -d':' -f2 )
+  email=$( echo $line | cut -d':' -f1 )
+  name=$( echo $line | cut -d':' -f2 )
   send_mail $operation $email $name
 done <$ufile
