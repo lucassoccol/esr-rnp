@@ -1,0 +1,25 @@
+= SEG12 - Atividades - Semana 2
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 16-08-2018
+:toc:
+//:gabarito: true
+include::../locale/attributes.adoc[]
+
+ifdef::basebackend-html[]
+++++
+<link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
+++++
+endif::[]
+
+:icons: font
+:imagesdir: ./img
+:srcdir: ../src
+
+include::include/w2_s0.adoc[]
+
+<<<

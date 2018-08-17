@@ -1,44 +1,63 @@
 ifdef::oneof[]
-////
-= SEG12 - Semana 1 - Sessão 0
+= SEG12 - Semana 2 - Sessão 0
 :Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
 :Author Initials: FM & MK & FS
-////
 :doctype: article
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 06-08-2018
+:revdate: 16-08-2018
+:icons: font
 :imagesdir: ../img
 :srcdir: ../src
-:icons: font
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
 == Configuração preliminar das máquinas
 
-=== 1) Topologia geral de rede
+=== 1) Da divisão de grupos
 
-A figura abaixo mostra a topologia de rede que será utilizada durante este curso. Nos tópicos que se seguem, iremos verificar que a importação de máquinas virtuais, configurações de rede e conectividade estão funcionais antes de prosseguir.
+Neste curso, os alunos serão divididos em dois grupos: `A` e `B`. Ao longo da semana, iremos realizar algumas atividades que vão envolver a intercomunicação entre máquinas virtuais dos alunos de cada grupo; para que as configurações de rede de dois alunos envolvidos em uma mesma atividade não conflitem, iremos adotar uma nomenclatura de endereços para cada grupo, como se segue:
+
+.Nomenclatura entre grupos
+[options="header",width="50%"]
+|===
+| Grupo | Sufixo de endereço
+| A | 1
+| B | 2
+|===
+
+O que isso significa, na prática? Em vários momentos, ao ler este material, você irá se deparar com endereços como 172.16.G.20 ou 10.1.G.10 -- que evidentemente são inválidos. Nesse momento, substitua o número do seu grupo pela letra `G` no endereço. Se você for membro do grupo `B`, portanto, os endereços acima seriam 172.16.2.20 e 172.16.2.10.
+
+<<<
+
+=== 2) Topologia geral de rede
+
+A figura abaixo mostra a topologia de rede que será utilizada durante este curso. Nos tópicos que se seguem, iremos verificar que a importação de máquinas virtuais, configurações de rede e conectividade estão funcionais antes de prosseguir. As configurações específicas de cada máquina/interface serão detalhadas na seção a seguir.
 
 .Topologia de rede do curso
 [#img-topologia]
 [caption="Figura 1: "]
-image::Topologia_SEG12_Semana1.png[]
+image::Topologia_SEG12_Semana2.png[]
+
 <<<
 
-=== 2) Configuração do Virtualbox
+=== 3) Configuração do Virtualbox
 
-1. Primeiramente, verifique se todas as máquinas virtuais foram importadas. Você deve ter três VMs, com as seguintes configurações:
+1. Primeiramente, verifique se todas as máquinas virtuais foram importadas. Você deve ter cinco VMs, com as configurações que se seguem.
 +
 .VMs disponíveis no Virtualbox
 [options="header",width="50%"]
 |===
 | Nome VM | Memória
-| Server_Linux_ | 512 MB
-| Client_Linux_ | 512 MB
-| Win7-padrao | 2048 MB
+| FWGW1-G | 2048 MB
+| LinServer-G | 2048 MB
+| WinServer-G | 2048 MB
+| KaliLinux-G | 2048 MB
+| WinClient-G | 2048 MB
 |===
++
+Se a quantidade de RAM de alguma das máquinas for inferior aos valores estipulados, ajuste-a.
 
 2. Agora, configure as redes do Virtualbox. Acesso o menu _File_ > _Host Network Manager_ e crie as seguintes redes:
 +
@@ -46,8 +65,8 @@ image::Topologia_SEG12_Semana1.png[]
 [options="header",width="100%"]
 |===
 | Rede | Endereço IPv4 | Máscara de rede | Servidor DHCP
-| Virtualbox Host-Only Ethernet Adapter | 192.168.0.254 | 255.255.255.0 | Desabilitado
-| Virtualbox Host-Only Ethernet Adapter #2 | 172.16.0.254 | 255.255.255.0 | Desabilitado
+| Virtualbox Host-Only Ethernet Adapter | 172.16.G.254 | 255.255.255.0 | Desabilitado
+| Virtualbox Host-Only Ethernet Adapter #2 | 10.1.G.254 | 255.255.255.0 | Desabilitado
 |===
 
 3. Finalmente, configure as interfaces de rede de cada máquinas virtual. Para cada VM, acesse _Settings_ > _Network_ e faça as configurações que se seguem:
@@ -56,11 +75,30 @@ image::Topologia_SEG12_Semana1.png[]
 [options="header",cols="<.^,<.^,<.^,<.^",width="100%"]
 |===
 | VM Nome | Interface | Conectado a | Nome da rede
-.3+| Server_Linux_ | Adapter 1 | Bridged Adapter | Placa de rede física do _host_
+.3+| FWGW1-G | Adapter 1 | Bridged Adapter | Placa de rede física do _host_
 | Adapter 2 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
 | Adapter 3 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter #2
-| Client_Linux_ | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
-| Win7-padrao | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter #2
+| LinServer-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| WinServer-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| KaliLinux-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| WinClient-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter #2
+|===
+
+=== 4) Detalhamento das configurações de rede
+
+As configurações de rede realizadas internamente em cada máquina virtual foram apresentados de forma sucinta na figura 1. Iremos detalhar as configurações logo abaixo:
+
+.Configurações de rede de cada VM
+[options="header",cols="<.^,<.^,<.^,<.^,<.^,<.^",width="100%"]
+|===
+| VM Nome | Interface | Modo | Endereço | Gateway | Servidores DNS
+.3+| FWGW1-G | eth0 | Estático | DHCP | Automático | Automático
+| eth1 | Estático | 172.16.G.1/24 | n/a | n/a
+| eth2 | Estático | 10.1.G.1/24 | n/a | n/a
+| LinServer-G | eth0 | Estático | 172.16.G.10/24 | 172.16.G.1 | 8.8.8.8 ; 8.8.4.4
+| WinServer-G | eth0 | Estático | 172.16.G.20/24 | 172.16.G.1 | 8.8.8.8 ; 8.8.4.4
+| KaliLinux-G | eth0 | Estático | 172.16.G.30/24 | 172.16.G.1 | 8.8.8.8 ; 8.8.4.4
+| WinClient-G | eth0 | Estático | 10.1.G.10/24 | 10.1.G.1 | 8.8.8.8 ; 8.8.4.4
 |===
 
 === 3) Configuração da máquinas virtuais
@@ -134,11 +172,11 @@ iface eth0 inet static
 <<<
 
 3. Na máquina _Win7-padrao_, verifique que a configuração IPv4 da interface de rede está ajustada para obter endreço IP e servidor DNS automaticamente, como mostra a imagem a seguir:
-+
-.Configuração de rede da máquina Win7-padrao
-[#img-rede-win7]
-[caption="Figura 2: "]
-image::Configuracao_DHCP_Win7.png[]
+//+
+//.Configuração de rede da máquina Win7-padrao
+//[#img-rede-win7]
+//[caption="Figura 2: "]
+//image::Configuracao_DHCP_Win7.png[]
 
 === 4) Configuração de firewall e NAT
 

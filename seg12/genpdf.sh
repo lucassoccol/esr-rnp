@@ -9,6 +9,30 @@ usage() {
 }
 
 
+tgab() {
+  [ "$1" == "gabarito" ] && echo "-a $1" || echo
+}
+
+
+toplevel() {
+  flag="$( tgab $1 )"
+
+  echo "Converting top-level '${1}'..."
+  asciidoctor-pdf -a lang=pt_BR $flag -o pdf/${1}_w${w}_temp.pdf gabarito.adoc
+  gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=pdf/${1}_w${w}.pdf  share/capa_w${w}.pdf pdf/${1}_w${w}_temp.pdf
+  rm -f pdf/${1}_w${w}_temp.pdf
+}
+
+
+oneof() {
+  flag="$( tgab $1 )"
+  s=$( echo $2 | sed 's/.*_s\([0-9]*\).*/\1/' )
+
+  echo "Converting oneof '${1}', session '${s}'..."
+  asciidoctor-pdf -a lang=pt_BR -a oneof $flag -o pdf/_${1}s/${1}_w${w}_s${s}.pdf $2
+}
+
+
 a=0
 while getopts ":w:a" opt; do
   case "$opt" in
@@ -36,13 +60,12 @@ if ! [ -x "$(command -v $BIN)" ]; then
 fi
 
 cd w${w}
-asciidoctor-pdf -a lang=pt_BR             -o pdf/caderno_w${w}.pdf  gabarito.adoc
-asciidoctor-pdf -a lang=pt_BR -a gabarito -o pdf/gabarito_w${w}.pdf gabarito.adoc
+toplevel "caderno"
+toplevel "gabarito"
 
 if [ $a -eq 1 ]; then
   for file in $( ls include/*.adoc ); do
-    s=$( echo $file | sed 's/.*_s\([0-9]*\).*/\1/' )
-    asciidoctor-pdf -a lang=pt_BR -a oneof             -o pdf/_cadernos/caderno_w${w}_s${s}.pdf   $file
-    asciidoctor-pdf -a lang=pt_BR -a oneof -a gabarito -o pdf/_gabaritos/gabarito_w${w}_s${s}.pdf $file
+    oneof "caderno"  $file
+    oneof "gabarito" $file
   done
 fi
