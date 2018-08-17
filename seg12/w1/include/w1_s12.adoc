@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Correio Eletrônico -- POP/IMAP
+== Sessão 12 -- Correio Eletrônico -- POP/IMAP
 
 [WARNING]
 ====

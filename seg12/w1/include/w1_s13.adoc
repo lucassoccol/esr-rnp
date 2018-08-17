@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== *_Proxy_* Squid
+== Sessão 13 -- *_Proxy_* Squid
 
 Nesta sessão iremos instalar e configurar o Squid, uma solução de _proxy_ web que provê funcionalidades de _cache_ e redirecionamento. O Squid pode ser utilizado para diversos fins: acelerar o acesso web a partir da realização de _cache_ de páginas acessadas com frequência, realizar _cache_ de requisições web, DNS outros tipos de consulta para um grupo de usuários, e filtragem de acesso por domínio, URL e análise de conteúdo de páginas. Normalmente configura-se o Squid para trabalhar com os protocolos HTTP e FTP, mas também é possível filtrar requisições HTTPS através de inspeção SSL/TLS.
 

@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== LDAP
+== Sessão 8 -- LDAP
 
 === 1) Instalação do servidor OpenLDAP
 

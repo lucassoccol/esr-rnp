@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Introdução ao sistema operacional Linux
+== Sessão 1 -- Introdução ao sistema operacional Linux
 
 [WARNING]
 ====

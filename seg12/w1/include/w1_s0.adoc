@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Configuração preliminar das máquinas
+== Sessão 0 -- Configuração preliminar das máquinas
 
 === 1) Topologia geral de rede
 

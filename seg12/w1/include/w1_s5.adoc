@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Registro de eventos
+== Sessão 5 -- Registro de eventos
 
 [WARNING]
 ====

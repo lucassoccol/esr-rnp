@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Sistema de arquivos
+== Sessão 4 -- Sistema de arquivos
 
 [WARNING]
 ====

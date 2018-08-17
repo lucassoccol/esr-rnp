@@ -1,15 +1,17 @@
 ifdef::oneof[]
+////
 = SEG12 - Semana 2 - Sessão 0
 :Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
 :Author Initials: FM & MK & FS
+////
 :doctype: article
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
 :revdate: 16-08-2018
-:icons: font
 :imagesdir: ../img
 :srcdir: ../src
+:icons: font
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
@@ -101,11 +103,40 @@ As configurações de rede realizadas internamente em cada máquina virtual fora
 | WinClient-G | eth0 | Estático | 10.1.G.10/24 | 10.1.G.1 | 8.8.8.8 ; 8.8.4.4
 |===
 
-=== 3) Configuração da máquinas virtuais
+[WARNING]
+====
+Para tangibilizar os exemplos deste caderno/gabarito, a partir deste momento iremos assumir que o aluno é membro do grupo `A`, ou seja, tem suas máquinas virtuais nas redes 192.168.1.0/24 e 172.16.1.0/24. Se você for membro do grupo `B`, tenha o cuidado de sempre adaptar os endereços IP dos exemplos para as suas faixas de rede.
+====
+
+=== 5) Configuração da máquinas virtuais
 
 Agora, vamos configurar a rede de cada máquina virtual de acordo com as especificações da topologia de rede apresentada no começo deste capítulo.
 
-1. Primeiramente, ligue a máquina _Server_Linux_ e faça login como usuário `root` e senha `rnpesr`. A seguir, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
+1. Primeiramente, ligue a máquina _FWGW1-G_ e faça login como usuário `root` e senha `rnpesr`. Verifique se o mapa de teclado está correto (teste com os caracteres `/` ou `ç`). Se não estiver, execute o comando:
++
+....
+# dpkg-reconfigure keyboard-configuration
+....
++
+Nas perguntas que se seguem, responda:
++
+.Configurações de teclado
+[options="header"]
+|===
+| Pergunta | Parâmetro
+| Keyboard model | Generic 105-key (Intl) PC
+| Keyboard layout | Other > Portuguese (Brazil) > Portuguese (Brazil)
+| Key to function as AltGr | Right Alt (AltGr)
+| Compose key | Right Logo key
+|===
++
+Finalmente, execute o comando que se segue. Volte a testar o teclado e verifique seu funcionamento.
++
+....
+# systemctl restart keyboard-setup.service
+....
+
+2. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
 +
 .................
 # hostname
@@ -178,7 +209,7 @@ iface eth0 inet static
 //[caption="Figura 2: "]
 //image::Configuracao_DHCP_Win7.png[]
 
-=== 4) Configuração de firewall e NAT
+=== 6) Configuração de firewall e NAT
 
 O passo final é garantir que as máquinas _Client_Linux_ e _Win7-padrao_ consigam acessar a internet através da máquina _Server_Linux_, que está atuando como um firewall/roteador na topologia de rede do curso.
 

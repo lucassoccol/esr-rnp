@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== DHCP, FTP e SSH
+== Sessão 9 -- DHCP, FTP e SSH
 
 === 1) Configuração do servidor DHCP
 

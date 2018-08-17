@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Usuários e grupos
+== Sessão 2 -- Usuários e grupos
 
 [WARNING]
 ====

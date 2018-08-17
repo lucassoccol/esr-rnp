@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Segurança básica e procedimentos operacionais
+== Sessão 6 -- Segurança básica e procedimentos operacionais
 
 [WARNING]
 ====

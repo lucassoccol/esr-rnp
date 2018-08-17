@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== DNS e NFS
+== Sessão 7 -- DNS e NFS
 
 Nestas atividades, você deve trabalhar com duas máquinas virtuais (_Server_Linux_ e _Client_Linux_). Ambas devem estar na mesma rede. Como estabelecido na topologia de rede de curso, o endereço 192.168.0.10 será o da máquina _Server_Linux_, e o endereço 192.168.0.20 será o da máquina _Client_Linux_. Teste o funcionamento da rede através do comando `ping` antes de prosseguir com os exercícios.
 
