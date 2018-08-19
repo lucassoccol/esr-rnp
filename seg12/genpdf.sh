@@ -66,6 +66,8 @@ toplevel "gabarito"
 if [ $a -eq 1 ]; then
   for file in $( ls include/*.adoc ); do
     oneof "caderno"  $file
-    oneof "gabarito" $file
+    if grep 'ifdef::gabarito\[\]' $file > /dev/null; then
+      oneof "gabarito" $file
+    fi
   done
 fi
