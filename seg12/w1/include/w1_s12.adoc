@@ -15,248 +15,395 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 12 -- Correio Eletrônico -- POP/IMAP
+== Sessão 12: Correio Eletrônico -- SMTP
 
 [WARNING]
 ====
-As atividades 1, 2 e 3 desta sessão serão realizadas na máquina virtual _Server_Linux_. A atividade 4 será realizada na máquina _Win7-padrao_.
+As atividades desta sessão serão realizadas na máquina virtual _Server_Linux_.
 ====
 
-Iremos continuar a configuração da sessão anterior, instalando e configurando o MDA (_Mail Delivery Agent_) Courier.
+Neste capítulo iremos realizar a configuração da primeira parte de um serviço de correio eletrônico: o envio e recebimento de emails entre domínios através do protocolo _Simple Mail Transfer Protocol_ (SMTP). Iremos instalar e configurar o Postfix, uma dos servidores SMTP _open source_ mais populares do mundo. Juntamente com o Postfix iremos instalar também o Cyrus SASL, um programa que provê módulos de autenticação plugáveis para verificarmos usuários e senhas via acesso cifrado, com criptografia TLS.
 
-=== 1) Configuração de entrega *_Maildir_*
+=== 1) Instalação do servidor SMTP Postfix
 
-No momento, o Postfix está configurado para entregar mensagens no estilo `mbox`, em que todas as mensagens ficam em um único arquivo no diretório _home_ do usuário. A modalidade de entrega `Maildir`, mais moderna, é preferível porque coloca cada mensagem dentro de um arquivo próprio, e as indexa permitindo controle de duplicidade, tempos de expiração e facilita procedimentos de busca. Além disso, o formato `Maildir` é mais performático que o `mbox`.
+Antes de instalar o Postfix, temos que corrigir alguns aspectos da nossa instalação atual. Como você se recorda da sessão 8 -- DNS e NFS, configuramos a máquina _Server_Linux_ com o nome de domínio `servidor.empresa.com.br`, no IP 192.168.0.10. Da mesma forma, inserimos uma entrada fictícia no DNS para uma máquina `email.empresa.com.br` no IP 192.168.0.15, que não existe em nossa topologia de rede.
 
-Crie, dentro da pasta de cada usuário existente no servidor, um diretório de nome `Maildir` com as seguintes sub-pastas: `new`, `cur`, `tmp`, `.Drafts`, `.Spam` e `.Trash` (observe o caractere "." na frente das últimas três pastas, indicando que são ocultas). Ajuste a permissão do diretório `Maildir` para `700`. A seguir, faça com que todos os usuários criados futuramente já tenham essa estrutura de diretórios criada em suas pastas _home_ automaticamente.
+Já que vamos instalar o Posfix + Cyrus na máquina _Server_Linux_, temos que apontar o nome `email.empresa.com.br` para o IP 192.168.0.10.
 
-Depois, altere o estilo de entrega do Postfix de `mbox` para `Maildir`. Finalmente, envie uma mensagem para um usuário e teste se sua configuração surtiu efeito.
+Contudo, não podemos tomar o caminho mais fácil, que seria criar um registro de _alias_ `CNAME` do nome `email.empresa.com.br` para o nome `servidor.empresa.com.br` -- a RFC 2181, seção 10.3 (https://tools.ietf.org/html/rfc2181) proíbe uso de `CNAME` para apontamentos `MX`, exigindo que esses apontamentos sejam feitos diretamente por registros `A`.
+
+Isso exige uma série de alterações ao registro direto do domínio `empresa.com.br`, no arquivo `/etc/bind/db.empresa.com.br,` que fica como se segue:
+
+[source,bash]
+----
+include::{srcdir}/s12/etc_bind_db.empresa.com.br[]
+----
+
+Da mesma forma, surge um problema também na resolução de registros reversos do domínio. Não é recomendado que haja múltiplos apontamentos `PTR` para o mesmo endereço IP, sob pena de obter respostas diferentes em duas _queries_ DNS distintas. Vamos alterar o registro reverso no arquivo `/etc/bind/db.0.168.192`, deixando-o assim:
+
+[source,bash]
+----
+include::{srcdir}/s12/etc_bind_db.0.168.192[]
+----
+
+Agora, vamos testar. Reinicie o serviço `bind` e verifique se o DNS que responde pelo domínio `empresa.com.br` é, de fato, a máquina `email.empresa.com.br`:
+
+.................
+# systemctl restart bind9.service
+
+# dig -t NS empresa.com.br
+
+; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -t NS empresa.com.br
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 35860
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;empresa.com.br.                        IN      NS
+
+;; ANSWER SECTION:
+empresa.com.br.         86400   IN      NS      email.empresa.com.br.
+
+;; ADDITIONAL SECTION:
+email.empresa.com.br.   86400   IN      A       192.168.0.10
+
+;; Query time: 3 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Sun Aug 12 14:50:45 -03 2018
+;; MSG SIZE  rcvd: 79
+.................
+
+De igual forma, verifique o registro reverso do IP 192.168.0.10, que deve retornar o nome `email.empresa.com.br`. Finalmente, o nome `servidor.empresa.com.br` torna-se agora um _alias_ do `CNAME` `email.empresa.com.br`.
+
+.................
+# nslookup 192.168.0.10
+Server:         127.0.0.1
+Address:        127.0.0.1#53
+
+10.0.168.192.in-addr.arpa       name = email.empresa.com.br.
+
+# nslookup servidor.empresa.com.br
+Server:         127.0.0.1
+Address:        127.0.0.1#53
+
+servidor.empresa.com.br canonical name = email.empresa.com.br.
+Name:   email.empresa.com.br
+Address: 192.168.0.10
+.................
+
+Ainda falta alterar os registros locais de nomes, nos arquivos `/etc/hostname`, `/etc/mailname` e `/etc/hosts`. Altere-os como mostrado a seguir:
+
+.................
+# cat /etc/hostname
+email
+
+# cat /etc/mailname
+email.empresa.com.br
+
+# cat /etc/hosts
+127.0.0.1                         localhost
+127.0.1.1    email.empresa.com.br email
+192.168.0.10 email.empresa.com.br email
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+.................
+
+Finalmente, reinicie a máquina _Server_Linux_. No próximo login, o nome mostrado pelo _prompt_ do shell deve ser `USERNAME@email:~$`.
+
+.................
+# reboot
+
+(...)
+
+$ ssh aluno@192.168.0.10
+You have new mail.
+Last login: Sun Aug 12 18:00:53 2018 from 192.168.0.254
+aluno@email:~$
+.................
+
+Isso feito, podemos começar a atividade. Instale o Postfix + Cyrus SASL na máquina _Server_Linux_ (pacotes `postfix`, `sasl2-bin` e `mailutils`). Em seguida, reconfigure o Postfix (comando `dpkg-reconfigure postfix`) de acordo com as informações da tabela abaixo:
+
+.Configurações do Postfix
+[options="header"]
+|===
+| Parâmetro | Valor
+| Tipo geral de configuração de e-mail | Site da internet
+| Nome de e-mail do sistema | email.empresa.com.br
+| Destinatário das mensagens para root e postmaster | Em branco
+| Outros destinos para os quais deve aceitar mensagens | email.empresa.com.br, localhost.empresa.com.br, empresa.com.br, localhost
+| Forçar atualizações síncronas na fila de mensagem | Não
+| Redes locais | 127.0.0.0/8, 192.168.1.0/24, 172.16.0.0/24, [::ffff:127.0.0.0]/104, [::1]/128
+| Usar procmail para entrega local | Sim
+| Limite de tamanho da caixa postal | 0
+| Caractere de extensão de endereço local | +
+| Protocolos de internet para usar | Todos
+|===
+
+Crie um par de chaves RSA de 4096 bits e validade de dois anos para permitir conexões TLS ao seu servidor, com chave pública em `/etc/ssl/certs/smtpd.crt` e chave privada em `/etc/ssl/private/smtpd.key`. Feito isso, configure o Postfix, editando o arquivo `/etc/postfix/main.cf`, e:
+
+--
+* Habilite criptografia TLS em conexões oriundas dos clientes, de forma opcional;
+* Use as chaves assimétricas criadas acima para implementar a cifragem TLS;
+* Habilite autenticação SASL dos tipos PLAIN e LOGIN, comunicando-se com o _daemon_ `saslauthd` do Cyrus -- deve-se consultar a base de usuários locais via PAM para autenticação.
+--
+
+Atente-se para o fato de que, por padrão, o Postfix opera dentro de um ambiente `chroot`. Será necessário editar opções padrão do `saslauthd` no arquivo `/etc/default/saslauthd` para adaptar-se a esse cenário. Mais além, adicione o usuário do `postfix` ao grupo `sasl` para permitir comunicação entre os dois _daemons_.
+
+Ao final do processo, use o comando `telnet` para testar a configuração realizada, logando no servidor SMTP com usuário `aluno` e senha `rnpesr` pelo método PLAIN.
 
 ifdef::gabarito[]
-1. Para os usuários preexistentes, é necessário criar um diretório de nome `Maildir` com as pastas mencionadas pela atividade. Por exemplo, para o usuário `aluno`:
+1. Instale o servidor SMTP Postfix e o Cyrus SASL:
 +
 .................
-# mkdir -p /home/aluno/Maildir/{cur,new,tmp,.Drafts,.Spam,.Trash}
-# chown -R aluno.aluno /home/aluno/Maildir
-# chmod 700 /home/aluno/Maildir
+# apt-get install postfix sasl2-bin mailutils
 .................
 
-2. Para fazer com que todos os usuários futuros já possuam a pasta `Maildir` e seus subdiretórios criados de forma automática no _home_, basta:
+2. Reconfigure o Postfix de acordo com os dados apontados na tabela acima:
 +
 .................
-# mkdir -p /etc/skel/Maildir/{cur,new,tmp,.Drafts,.Spam,.Trash}
-# chmod 700 /etc/skel/Maildir
+# dpkg-reconfigure postfix
 .................
 
-3. Altere os parâmetros `home_mailbox` e `mailbox_command` do Postfix no arquivo `/etc/postfix/main.cf`, como se segue:
+3.  Gere as chaves assimétricas usando o comando `openssl`. Para gerar um par de chaves com os parâmetros solicitados, basta usar as opções `-days 730` e `-newkey rsa:4096`.
 +
 .................
-# grep '^home_mailbox\|^mailbox_command' /etc/postfix/main.cf
-home_mailbox = Maildir/
-mailbox_command =
+# openssl req -x509 -nodes -days 730 -newkey rsa:4096 -keyout /etc/ssl/private/smtpd.key -out /etc/ssl/certs/smtpd.crt
+Generating a 4096 bit RSA private key
+................++
+................................++
+writing new private key to '/etc/ssl/private/smtpd.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:BR
+State or Province Name (full name) [Some-State]:DF
+Locality Name (eg, city) []:Brasilia
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Empresa
+Organizational Unit Name (eg, section) []:TI
+Common Name (e.g. server FQDN or YOUR name) []:email.empresa.com.br
+Email Address []:postmaster@empresa.com.br
 .................
 
-4. Reinicie o Postfix:
+4. Observe que a permissão da chave privada gerada pelo comando acima é muito leniente -- utilize o comando `chmod 600` para corrigir isso.
 +
 .................
-# systemctl restart postfix.service
+# ls -ld /etc/ssl/private/smtpd.key
+-rw-r--r-- 1 root root 3272 Ago 12 15:31 /etc/ssl/private/smtpd.key
+
+# chmod 600 /etc/ssl/private/smtpd.key
 .................
 
-5. Envie um email para um usuário qualquer, digamos, o usuário `aluno`, usando o comando `mail`. Verifique nos logs do servidor SMTP o estilo da entrega:
+5. Antes de editar o arquivo de configuração do Postfix, faça o _backup_ da versão original em caso de necessidade de _rollback_:
 +
 .................
-# echo 'Teste Maildir' | mail -s 'Teste' aluno@empresa.com.br
-
-# tail -n4 /var/log/mail.log
-Aug 12 21:54:00 email postfix/pickup[1587]: 78FA3A02AF: uid=0 from=<root@email.empresa.com.br>
-Aug 12 21:54:00 email postfix/cleanup[1593]: 78FA3A02AF: message-id=<20180813005400.78FA3A02AF@email.empresa.com.br>
-Aug 12 21:54:00 email postfix/qmgr[1588]: 78FA3A02AF: from=<root@email.empresa.com.br>, size=363, nrcpt=1 (queue active)
-Aug 12 21:54:00 email postfix/local[1595]: 78FA3A02AF: to=<aluno@empresa.com.br>, relay=local, delay=0.01, delays=0.01/0/0/0, dsn=2.0.0, status=sent (delivered to maildir)
-Aug 12 21:54:00 email postfix/qmgr[1588]: 78FA3A02AF: removed
+# cp /etc/postfix/main.cf /etc/postfix/main.cf.orig
 .................
 
-6. Verifique se a mensagem foi enviada corretamente para o diretório `Maildir` do usuário:
+6. Edite o arquivo principal de configuração do Postfix, `/etc/postfix/main.cf`, da seguinte forma:
 +
-.................
-# ls -R /home/aluno/Maildir/
-/home/aluno/Maildir/:
-cur  new  tmp
+[source,bash]
+----
+include::{srcdir}/s12/etc_postfix_main.cf[]
+----
 
-/home/aluno/Maildir/cur:
-
-/home/aluno/Maildir/new:
-1534121640.V801I605d1M501046.email
-
-/home/aluno/Maildir/tmp:
-.................
-endif::gabarito[]
-
-=== 2) Configuração do MDA Courier POP/IMAP
-
-Os protocolos _Post Office Protocol_ (POP) e _Internet Message Access Protocol_ (IMAP) são utilizados pelos clientes de email (MUAs) para recuperar mensagens armazenadas no servidor de e-mail. Nesta atividade iremos configurar os servidores POP e IMAP, e testá-los usando o comando `telnet`.
-
-Instale o Courier-POP e Courier-IMAP, pacotes `courier-imap-ssl`, `courier-pop-ssl`, `libsasl2-modules-ldap` e `gamin`. Passe a opção `--no-install-recommends` para o `apt-get` para que não sejam instalados alguns pacotes adicionais desnecessários à configuração que será feita. Ao ser perguntado se deseja "Criar diretórios para administração via web", responda negativamente.
-
-Teste a conexão com os servidores POP e IMAP. Em caso de sucesso, autentique-se em ambos usando o comando `telnet`.
-
-ifdef::gabarito[]
-1. Primeiro, vamos instalar os pacotes solicitados:
-+
-.................
-# apt-get install --no-install-recommends courier-imap-ssl courier-pop-ssl libsasl2-modules-ldap gamin
-.................
-
-2. Tente a conexão com o servidor POP. Em caso de sucesso, faça login como usuário `aluno` usando os comandos `USER` e `PASS`.
-+
-.................
-# telnet localhost 110
-Trying ::1...
-Connected to localhost.
-Escape character is '^]'.
-Aug 12 22:10:20 email pop3d: Connection, ip=[::1]
-+OK Hello there.
-
-USER aluno
-+OK Password required.
-
-PASS rnpesr
-+OK logged in.
-.................
-
-3. Excelente! Vamos listar as mensagens usando o comando `LIST`. A seguir, exibir uma delas usando o comando `RETR`:
-+
-.................
-Aug 12 22:10:25 email pop3d: LOGIN, user=aluno, ip=[::1], port=[38447]
-
-LIST
-+OK POP3 clients that break here, they violate STD53.
-1 478
-2 478
-.
-
-RETR 1
-+OK 478 octets follow.
-Return-Path: <root@email.empresa.com.br>
-X-Original-To: aluno@empresa.com.br
-Delivered-To: aluno@empresa.com.br
-Received: by email.empresa.com.br (Postfix, from userid 0)
-        id 78FA3A02AF; Sun, 12 Aug 2018 21:54:00 -0300 (-03)
-Subject: Teste
-To: <aluno@empresa.com.br>
-X-Mailer: mail (GNU Mailutils 2.99.98)
-Message-Id: <20180813005400.78FA3A02AF@email.empresa.com.br>
-Date: Sun, 12 Aug 2018 21:54:00 -0300 (-03)
-From: root@email.empresa.com.br (root)
-
-Teste Maildir
-.
-
-QUIT
-Aug 12 22:10:40 email pop3d: LOGOUT, user=aluno, ip=[::1], port=[38447], top=0, retr=465, rcvd=20, sent=607, time=15
-+OK Bye-bye.
-Connection closed by foreign host.
-.................
-
-4. Finalmente, vamos testar a conexão com o servidor IMAP. Apenas o procedimento de login e listagem de pastas é suficiente:
-+
-.................
-# telnet localhost 143
-Trying ::1...
-Connected to localhost.
-Escape character is '^]'.
-Aug 12 22:16:26 email imapd: Connection, ip=[::1]
-* OK [CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE ACL ACL2=UNION] Courier-IMAP ready. Copyright 1998-2011 Double Precision, Inc.  See COPYING for distribution information.
-
-01 LOGIN aluno rnpesr
-01 OK LOGIN Ok.
-Aug 12 22:16:33 email imapd: LOGIN, user=aluno, ip=[::1], port=[50201], protocol=IMAP
-
-. LIST "" "*"
-* LIST (\Marked \HasNoChildren) "." "INBOX"
-. OK LIST completed
-.................
-endif::gabarito[]
-
-=== 3) Configuração de autenticação do POP/IMAP em LDAP
-
-Altere as configurações do Cyrus-SASL para permitir autenticação a partir do diretório LDAP, em lugar do PAM. Você deve alterar os arquivos `/etc/default/saslauthd` e `/etc/postfix/sasl/smtpd.conf`. Além disso, será necessário criar um novo arquivo, `/etc/saslauthd.conf`, para especificar a base de pesquisa e filtros de busca na base LDAP.
-
-Teste o funcionamento da configuração usando o comando `testsaslauthd`. Lembre-se que o Postfix está operando em `chroot`, e por conseguinte a localização do _socket_ do `saslauthd` deve ser informada manualmente.
-
-[TIP]
-====
-Em caso de dúvidas, consulte http://www.postfix.org/SASL_README.html . Tenha especial atenção à configuração do _plugin_ `ldapdb`.
-====
-
-ifdef::gabarito[]
-1. Primeiro, edite o arquivo `/etc/default/saslauthd` e altere o mecanismo de autenticação de `pam` para `ldap`:
-+
-.................
-# cat /etc/default/saslauthd | grep '^MECHANISMS='
-MECHANISMS="ldap"
-.................
-
-2. A seguir, edite o arquivo `/etc/postfix/sasl/smtpd.conf` para o Cyrus SASL utilizar o _plugin_ `ldapdb` em procedimentos de autenticação. Informe também a URL do diretório LDAP, usuário administrativo e senha:
+7. A configuração de autenticação SASL fica no arquivo `/etc/postfix/sasl/smtpd.conf`, como se segue:
 +
 [source,bash]
 ----
 include::{srcdir}/s12/etc_postfix_sasl_smtpd.conf[]
 ----
 
-3. Crie o arquivo novo `/etc/saslauthd.conf`. Nele, indique qual é o _search base_ de pesquisa no diretório LDAP, bem como o filtro de pesquisa:
+8. Precisamos ativar o _daemon_ `saslauthd`, bem como configurá-lo para operar com o Postfix sob `chroot` no diretório `/var/spool/postfix`:
 +
-[source,bash]
-----
-include::{srcdir}/s12/etc_saslauthd.conf[]
-----
+.................
+# cat /etc/default/saslauthd | grep '^START=\|^OPTIONS='
+START=yes
+OPTIONS="-c -m /var/spool/postfix/var/run/saslauthd"
+.................
 
-4. Reinicie os serviços `postfix` e `saslauthd`:
+9. Para que o Postfix consiga se comunicar com o `saslauthd` e autenticar usuários, é necessário adicioná-lo ao grupo deste:
++
+.................
+# adduser postfix sasl
+.................
+
+10. Reinicie ambos os _daemons_ -- em caso de erros, verifique os arquivos `/var/log/syslog` e `/var/log/daemon.log`:
 +
 .................
 # systemctl restart postfix.service
 # systemctl restart saslauthd.service
 .................
 
-5. Teste o funcionamento da configuração com o comando `testsaslauthd`. Como o Postfix está em `chroot` no diretório `/var/spool/postfix`, temos que passar o caminho completo até o _socket_ com a opção `-f`. Vamos testar tanto com usuário local quanto com um usuário existente apenas no diretório LDAP:
+11. Agora, basta testar o funcionamento da conexão. O único impeditivo final é que, no método PLAIN, o servidor SMTP espera o envio da combinação usuário/senha em um formato específico -- `\0username\0password` -- e codificado em base64. Podemos fazer isso usando o comando `openssl`, como se segue:
 +
 .................
-# testsaslauthd -u aluno -p rnpesr -f /var/spool/postfix/var/run/saslauthd/mux
-0: OK "Success."
+# echo -ne '\000aluno\000rnpesr' | openssl base64
+AGFsdW5vAHJucGVzcg==
+.................
 
-# testsaslauthd -u esr -p rnpesr -f /var/spool/postfix/var/run/saslauthd/mux
-0: OK "Success."
+12. Finalmente, basta conectar-se ao servidor SMTP via `telnet` e fornecer as informações de autenticação obtidas acima:
++
+.................
+# telnet localhost 25
+Trying ::1...
+Connected to localhost.
+Escape character is '^]'.
+220 email.empresa.com.br ESMTP Postfix
+
+EHLO localhost
+250-email.empresa.com.br
+250-PIPELINING
+250-SIZE 10240000
+250-VRFY
+250-ETRN
+250-STARTTLS
+250-AUTH PLAIN LOGIN
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250 DSN
+
+AUTH PLAIN AGFsdW5vAHJucGVzcg==
+235 2.7.0 Authentication successful
 .................
 endif::gabarito[]
 
-=== 4) Utilização de clientes POP/IMAP
+=== 2) Envio e recebimento de mensagens por *_telnet_*
 
-Os programas clientes de e-mail (MUA) utilizam-se dos protocolos POP ou IMAP para recuperar mensagens no servidor de e-mail. Nesta atividade iremos configurar um cliente para o recebimento de mensagens usando esses protocolos.
+Vamos agora testar o envio de mensagens usando o comando `telnet`, diretamente a partir do servidor SMTP. Este teste visa averiguar o funcionamento do servidor de e-mail sem a influência de configurações de clientes de e-mail (_Mail User Agents_ -- MUA).
 
-1. Instale o cliente de e-mail _Mozilla Thunderbird_ na máquina _Win7-padrao_. Inicie o programa e crie uma nova conta de e-mail para o usuário `aluno`. Na tela inicial, informe:
+Conecte-se ao servidor SMTP por `telnet` com um usuário qualquer existente na base local de usuários ou LDAP e envie email para outro usuário usando os comandos `MAIL` e `RCPT TO` do SMTP. Logue na conta do destinatário e verifique que a mensagem foi recebida.
+
+ifdef::gabarito[]
+1. Já que utilizamos o usuário `aluno` no teste da atividade anterior, vamos tentar logar com um usuário diferente. O usuário `esr`, que foi criado anteriormente na base LDAP, será nosso remetente:
 +
-.Opções para criação de conta de e-mail existente
-[options="header",width="70%"]
-|===
-| Parâmetro | Valor
-| Seu nome | aluno
-| Endereço de e-mail | aluno@empresa.com.br
-| Senha | rnpesr
-|===
+.................
+# getent passwd | grep '^esr:'
+esr:x:5000:5000:esr,,,:/home/esr:/bin/bash
+.................
 
-2. Agora, clique em "Continuar". O _Thunderbird_ irá tentar buscar configuração automática dos servidores, sem sucesso. Clique então em "Config. manual", e informe:
+2. Temos que gerar a _string_ de autenticação base64, como feito anteriormente:
 +
-.Configurações avançadas para criação de e-mail
-[options="header"]
-|===
-| Tipo | Protocolo | Nome do servidor | Porta | SSL | Autenticação
-| Recebimento | IMAP | email.empresa.com.br | 143 | Nenhuma | Senha normal
-| Envio | SMTP | email.empresa.com.br | 25 | STARTTLS | Senha normal
-|===
+.................
+# echo -ne '\000esr\000rnpesr' | openssl base64
+AGVzcgBybnBlc3I=
+.................
 
-3. Na parte de baixo, em "Nome de usuário", troque o valor padrão `aluno@empresa.com.br` para `aluno` apenas. Garanta que ambos os campos "Recebimento" e "Envio" estão corretos. Finalmente, clique em "Concluído".
+3. Agora, basta logar no servidor SMTP e enviar a mensagem. Usa-se, em ordem, os comandos `EHLO`, `AUTH PLAIN`, `MAIL FROM`, `RCPT TO`, `DATA` e `QUIT`, como mostrado abaixo:
++
+.................
+# telnet localhost 25
+Trying ::1...
+Connected to localhost.
+Escape character is '^]'.
+220 email.empresa.com.br ESMTP Postfix
 
-4. O _Thunderbird_ irá avisar que o recebimento de e-mails (via IMAP) não está usando criptografia. Marque a caixa "Eu entendo os riscos" e depois clique em "Concluído".
+EHLO localhost
+250-email.empresa.com.br
+250-PIPELINING
+250-SIZE 10240000
+250-VRFY
+250-ETRN
+250-STARTTLS
+250-AUTH PLAIN LOGIN
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250 DSN
 
-5. Terminado esse passo, crie uma nova conta de e-mail, com as mesmas configurações explicadas acima, para um outro usuário do servidor.
+AUTH PLAIN AGVzcgBybnBlc3I=
+235 2.7.0 Authentication successful
 
-6. Finalmente, teste o envio e recebimento de e-mails entre os dois usuários e verifique que o serviço está funcionando como esperado.
+MAIL FROM:esr@empresa.com.br
+250 2.1.0 Ok
+
+RCPT TO:aluno@empresa.com.br
+250 2.1.5 Ok
+
+DATA
+354 End data with <CR><LF>.<CR><LF>
+Mensagem de teste
+.
+250 2.0.0 Ok: queued as C0465A075C
+
+QUIT
+221 2.0.0 Bye
+Connection closed by foreign host.
+.................
+
+4. Vamos finalmente entrar como o usuário `aluno` e verificar a caixa de entrada:
++
+.................
+# su - aluno
+
+$ mail
+"/var/mail/aluno": 1 message 1 unread
+>U   1 esr@empresa.com.br Dom Ago 12 17:29  14/475
+? 1
+Return-Path: <esr@empresa.com.br>
+X-Original-To: aluno@empresa.com.br
+Delivered-To: aluno@empresa.com.br
+Received: from localhost (localhost [IPv6:::1])
+        by email.empresa.com.br (Postfix) with ESMTPA id C0465A075C
+        for <aluno@empresa.com.br>; Sun, 12 Aug 2018 17:29:34 -0300 (-03)
+Message-Id: <20180812202940.C0465A075C@email.empresa.com.br>
+Date: Sun, 12 Aug 2018 17:29:34 -0300 (-03)
+From: esr@empresa.com.br
+X-IMAPbase: 1534106068 10
+Status: O
+X-UID: 9
+
+Mensagem de teste
+.................
+endif::gabarito[]
+
+=== 3) Análise do log de envio
+
+Envie uma nova mensagem de email usando o `telnet`, e monitore ao mesmo tempo o arquivo `/var/log/mail.log` por alterações. Responda, apontando a excerto do log que identifica a informação:
+
+--
+* Qual é o IP de origem da conexão SMTP?
+* Qual o nome do usuário que efetuou login?
+* Qual o endereço do destinatário da mensagem?
+* Qual o método de entrega da mensagem para a caixa do usuário?
+--
+
+ifdef::gabarito[]
+Vamos abrir um terminal monitorando por mudanças no arquivo de log do servidor SMTP com o comando `tail -f -n0 /var/log/mail.log`. Em outro terminal, vamos executar uma nova sessão de envio de email usando o comando `telnet`, como feito anteriormente.
+
+1. Assim que a conexão é aberta, visualiza-se a mensagem:
++
+.................
+Aug 12 17:57:02 email postfix/smtpd[6039]: connect from localhost[::1]
+.................
++
+Logo, o IP de origem da conexão é `localhost`, ou 127.0.0.1.
+
+2. Assim que o comando `RCPT TO` é enviado, surge uma nova mensagem:
++
+.................
+Aug 12 18:02:15 email postfix/smtpd[6079]: F0D56A0282: client=localhost[::1], sasl_method=PLAIN, sasl_username=esr@empresa.com.br
+.................
++
+Assim, o usuário que efetuou login e deseja enviar a mensagem é o `esr@empresa.com.br`.
+
+3. Quando o caractere ".", que delimita o final da mensagem, é enviado, vemos novas mensagens no log:
++
+.................
+Aug 12 18:03:31 email postfix/cleanup[6082]: F0D56A0282: message-id=<20180812210215.F0D56A0282@email.empresa.com.br>
+Aug 12 18:03:31 email postfix/qmgr[5983]: F0D56A0282: from=<esr@empresa.com.br>, size=333, nrcpt=1 (queue active)
+Aug 12 18:03:31 email postfix/local[6091]: F0D56A0282: to=<aluno@empresa.com.br>, relay=local, delay=81, delays=81/0/0/0, dsn=2.0.0, status=sent (delivered to command: procmail -a "$EXTENSION")
+Aug 12 18:03:31 email postfix/qmgr[5983]: F0D56A0282: removed
+.................
++
+No campo `to=` da terceira linha do log acima pode-se observar que o endereço do destinatário é `aluno@empresa.com.br`. Na mesma linha, vê-se que o método de entrega é via _relay_ local, usando o programa auxiliar `procmail`.
+endif::gabarito[]

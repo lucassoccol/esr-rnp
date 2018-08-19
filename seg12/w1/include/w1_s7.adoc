@@ -15,393 +15,148 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 7 -- DNS e NFS
-
-Nestas atividades, você deve trabalhar com duas máquinas virtuais (_Server_Linux_ e _Client_Linux_). Ambas devem estar na mesma rede. Como estabelecido na topologia de rede de curso, o endereço 192.168.0.10 será o da máquina _Server_Linux_, e o endereço 192.168.0.20 será o da máquina _Client_Linux_. Teste o funcionamento da rede através do comando `ping` antes de prosseguir com os exercícios.
-
-=== 1) Servidor de DNS Primário
+== Sessão 7: Segurança básica e procedimentos operacionais
 
 [WARNING]
 ====
-Esta configuração será realizada na máquina virtual _Server_Linux_.
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
 ====
 
-Considerando a rede 192.168.0.0/24, cujo domínio é `empresa.com.br`, configure o servidor de DNS Primário de modo que ele tenha as seguintes máquinas registradas, com tipos de registro associados:
+=== 1) Identificando senhas fracas
 
-.Configuração DNS
-[options="header"]
-|===
-| Nome | Endereço IP | Tipo de registro
-| `servidor.empresa.com.br` | 192.168.0.10 | NS
-| `email.empresa.com.br` | 192.168.0.15 | MX
-| `cliente.empresa.com.br` | 192.168.0.20 | A
-| `windows.empresa.com.br` | 192.168.0.25 | A
-| `www.empresa.com.br` | 192.168.0.10 | CNAME
-| `meusite.empresa.com.br` | 192.168.0.10 | CNAME
-| `pop.empresa.com.br` | 192.168.0.15 | CNAME
-| `smtp.empresa.com.br` | 192.168.0.15 | CNAME
-|===
+Uma das formas de verificar se o seu sistema atende às recomendações básicas de segurança é utilizar os programas "quebradores" de senha, ou _password crackers_. Neste exercício, utilizaremos um desses programas para mostrar seu funcionamento.
 
-Não se esqueça de configurar a resolução de nomes reversa.
-
+1. Obtenha e instale o _password cracker_ John the Ripper, ou simplesmente `john`.
 ifdef::gabarito[]
-1. Instale os seguintes aplicativos:
 +
 .................
-# apt-get install bind9 bind9utils
-.................
-
-2. Ajuste os arquivos de configuração da seguinte forma:
-+
-* `/etc/bind/named.conf.options` -- opções do servidor `bind`:
-+
-[source,bash]
-----
-include::{srcdir}/s7/etc_bind_named.conf.options[]
-----
-+
-* `/etc/bind/named.conf.local` -- configurações locais do servidor `bind`:
-+
-[source,bash]
-----
-include::{srcdir}/s7/etc_bind_named.conf.local[]
-----
-+
-* `/etc/bind/db.empresa.com.br` -- arquivo de zona do domínio `empresa.com.br`:
-+
-[source,bash]
-----
-include::{srcdir}/s7/etc_bind_db.empresa.com.br[]
-----
-+
-* `/etc/bind/db.0.168.192` -- arquivo de resolução reversa do domínio `empresa.com.br`:
-+
-[source,bash]
-----
-include::{srcdir}/s7/etc_bind_db.0.168.192[]
-----
-+
-* `/etc/resolv.conf` -- configuração de resolução de nomes para o _Server_Linux_:
-+
-[source,bash]
-----
-include::{srcdir}/s7/etc_resolv.conf[]
-----
-
-3. Como a interface de rede `eth0` da máquina _Server_Linux_ está configurada para obter endereço via DHCP, o _daemon_ `dhclient` irá sobrescrever as alterações que fizemos ao arquivo `/etc/resolv.conf` no próximo _reboot_. Para prevenir isso, podemos ativar o atributo `immutable` do arquivo, impedindo sua alteração:
-+
-.................
-# chattr +i /etc/resolv.conf
-.................
-
-4. Reinicie o `bind` e verifique por possíveis erros:
-+
-.................
-# systemctl restart bind9.service
-
-# systemctl status bind9.service
-● bind9.service - BIND Domain Name Server
-   Loaded: loaded (/lib/systemd/system/bind9.service; enabled)
-  Drop-In: /run/systemd/generator/bind9.service.d
-           └─50-insserv.conf-$named.conf
-   Active: active (running) since Qui 2018-08-09 21:23:48 -03; 5s ago
-     Docs: man:named(8)
-  Process: 14402 ExecStop=/usr/sbin/rndc stop (code=exited, status=0/SUCCESS)
- Main PID: 14406 (named)
-   CGroup: /system.slice/bind9.service
-           └─14406 /usr/sbin/named -f -u bind
-
-Ago 09 21:23:48 servidor named[14406]: zone 22.172.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: zone 16.172.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: zone 27.172.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: zone 127.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: zone 26.172.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: zone 25.172.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: zone localhost/IN: loaded serial 2
-Ago 09 21:23:48 servidor named[14406]: zone 28.172.in-addr.arpa/IN: loaded serial 1
-Ago 09 21:23:48 servidor named[14406]: all zones loaded
-Ago 09 21:23:48 servidor named[14406]: running
-.................
-
-5. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
-+
-.................
-# nslookup servidor.empresa.com.br
-Server:         127.0.0.1
-Address:        127.0.0.1#53
-
-Name:   servidor.empresa.com.br
-Address: 192.168.0.10
-
-# dig -x 192.168.0.25 +noquestion
-
-; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -x 192.168.0.25 +noquestion
-;; global options: +cmd
-;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 5625
-;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
-
-;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
-;; ANSWER SECTION:
-25.0.168.192.in-addr.arpa. 86400 IN     PTR     windows.empresa.com.br.
-
-;; AUTHORITY SECTION:
-0.168.192.in-addr.arpa. 86400   IN      NS      servidor.empresa.com.br.
-
-;; ADDITIONAL SECTION:
-servidor.empresa.com.br. 86400  IN      A       192.168.0.10
-
-;; Query time: 3 msec
-;; SERVER: 127.0.0.1#53(127.0.0.1)
-;; WHEN: Thu Aug 09 21:26:41 -03 2018
-;; MSG SIZE  rcvd: 129
+# apt-get install john
 .................
 endif::gabarito[]
 
-=== 2) Servidor de DNS Secundário
-
-[WARNING]
-====
-Esta configuração será realizada na máquina virtual _Client_Linux_.
-====
-
-Configure o servidor de DNS Secundário para o domínio `empresa.com.br`. Importante:
-
---
-* Não se esqueça de informar o endereço IP do servidor secundário no parâmetro `allow-transfer` do servidor primário.
-* Os arquivos de zona que forem transferidos devem ser gravados no diretório `/etc/bind/sec` do servidor secundário já que o _daemon_ executa como usuário `bind`, que não tem permissão de escrita direta no diretório `/etc/bind`.
---
-
+2. Crie o arquivo `/root/dicionario.txt` com uma lista de senhas. Caso considere necessário, acrescente palavras que julgue impróprias para uso em senhas. Por exemplo:
 ifdef::gabarito[]
-1. Antes de mais nada, configure o _Server_Linux_ para permitir transferência de zona a partir do servidor secundário _Client_Linux_:
-+
-.................
-# egrep '^ *allow-transfer' /etc/bind/named.conf.options
-  allow-transfer { 192.168.0.20; };
-
-# systemctl restart bind9.service
-.................
-
-2. A seguir, instale o servidor DNS `bind` na máquina _Client_Linux_:
-+
-.................
-# apt-get install bind9 bind9utils
-.................
-
-3. Ajuste os arquivos de configuração da seguinte forma:
-+
-* `/etc/bind/named.conf.options` -- opções do servidor `bind`:
 +
 [source,bash]
 ----
-include::{srcdir}/s7/sec_etc_bind_named.conf.options[]
+include::{srcdir}/s7/dicionario.txt[]
 ----
-+
-* `/etc/bind/named.conf.local` -- configurações locais do servidor `bind`:
-+
-[source,bash]
-----
-include::{srcdir}/s7/sec_etc_bind_named.conf.local[]
-----
-+
-* `/etc/resolv.conf` -- configuração de resolução de nomes para o _Client_Linux_:
-+
-[source,bash]
-----
-include::{srcdir}/s7/sec_etc_resolv.conf[]
-----
+endif::gabarito[]
 
-4. Observe que iremos escrever os arquivos transferidos no diretório `/etc/bind/sec`, que ainda não existe. Vamos criá-lo e atribuir permissionamento:
+3. Rode o _password cracker_ com o comando `# john -wordlist=/root/dicionario.txt -rules /etc/shadow`.
+ifdef::gabarito[]
 +
 .................
-# mkdir /etc/bind/sec
-# chown bind.root /etc/bind/sec
-.................
-
-5. Reinicie o `bind` e verifique se os arquivos de zona foram transferidos corretamente:
-+
-.................
-# systemctl restart bind9.service
-
-# systemctl status bind9.service -l
-● bind9.service - BIND Domain Name Server
-   Loaded: loaded (/lib/systemd/system/bind9.service; enabled)
-  Drop-In: /run/systemd/generator/bind9.service.d
-           └─50-insserv.conf-$named.conf
-   Active: active (running) since Qui 2018-08-09 21:41:27 -03; 2s ago
-     Docs: man:named(8)
-  Process: 5549 ExecStop=/usr/sbin/rndc stop (code=exited, status=0/SUCCESS)
- Main PID: 5553 (named)
-   CGroup: /system.slice/bind9.service
-           └─5553 /usr/sbin/named -f -u bind
-
-Ago 09 21:41:27 cliente named[5553]: all zones loaded
-Ago 09 21:41:27 cliente named[5553]: running
-Ago 09 21:41:27 cliente named[5553]: zone empresa.com.br/IN: Transfer started.
-Ago 09 21:41:27 cliente named[5553]: transfer of 'empresa.com.br/IN' from 192.168.0.10#53: connected using 192.168.0.20#48366
-Ago 09 21:41:27 cliente named[5553]: zone empresa.com.br/IN: transferred serial 2018080900
-Ago 09 21:41:27 cliente named[5553]: transfer of 'empresa.com.br/IN' from 192.168.0.10#53: Transfer completed: 1 messages, 12 records, 312 bytes, 0.001 secs (312000 bytes/sec)
-Ago 09 21:41:28 cliente named[5553]: zone 0.168.192.in-addr.arpa/IN: Transfer started.
-Ago 09 21:41:28 cliente named[5553]: transfer of '0.168.192.in-addr.arpa/IN' from 192.168.0.10#53: connected using 192.168.0.20#35160
-Ago 09 21:41:28 cliente named[5553]: zone 0.168.192.in-addr.arpa/IN: transferred serial 2018080900
-Ago 09 21:41:28 cliente named[5553]: transfer of '0.168.192.in-addr.arpa/IN' from 192.168.0.10#53: Transfer completed: 1 messages, 8 records, 261 bytes, 0.001 secs (261000 bytes/sec)
-
-# ls -lh /etc/bind/sec/
-total 8,0K
--rw-r--r-- 1 bind bind 569 Ago  9 21:41 db.0.168.192
--rw-r--r-- 1 bind bind 720 Ago  9 21:41 db.empresa.com.br
-.................
-
-6. Finalmente, teste a resolução de nomes no servidor secundário:
-+
-.................
-# nslookup pop.empresa.com.br 192.168.0.20
-Server:         192.168.0.20
-Address:        192.168.0.20#53
-
-pop.empresa.com.br      canonical name = email.empresa.com.br.
-Name:   email.empresa.com.br
-Address: 192.168.0.15
-
-# dig -x 192.168.0.10 +noquestion @192.168.0.20
-
-; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -x 192.168.0.10 +noquestion @192.168.0.20
-;; global options: +cmd
-;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 30045
-;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
-
-;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
-;; ANSWER SECTION:
-10.0.168.192.in-addr.arpa. 86400 IN     PTR     servidor.empresa.com.br.
-
-;; AUTHORITY SECTION:
-0.168.192.in-addr.arpa. 86400   IN      NS      servidor.empresa.com.br.
-
-;; ADDITIONAL SECTION:
-servidor.empresa.com.br. 86400  IN      A       192.168.0.10
-
-;; Query time: 2 msec
-;; SERVER: 192.168.0.20#53(192.168.0.20)
-;; WHEN: Thu Aug 09 21:52:36 -03 2018
-;; MSG SIZE  rcvd: 121
+# john -wordlist=/root/dicionario.txt -rules /etc/shadow
+Created directory: /root/.john
+Loaded 5 password hashes with 5 different salts (crypt, generic crypt(3) [?/64])
+Press 'q' or Ctrl-C to abort, almost any other key for status
+123456           (aluno2)
+senha            (marcelo)
+abacate          (aluno3)
+rnpesr           (root)
+rnpesr           (aluno)
+5g 0:00:00:01 100% 3.676g/s 70.58p/s 352.9c/s 352.9C/s 123456..Abacate9
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed
 .................
 endif::gabarito[]
 
-<<<
-
-=== 3) Configuração de servidor NFS
-
-[WARNING]
-====
-Esta configuração será realizada na máquina virtual _Server_Linux_.
-====
-
-Crie e exporte o diretório `/dados` via NFS na máquina _Server_Linux_ (192.168.0.10), para a máquina _Client_Linux_ (192.168.0.20).
-
+4. Veja o resultado da verificação com o comando `# john -show /etc/shadow`.
 ifdef::gabarito[]
-1. Instale os pacotes abaixo no servidor:
 +
 .................
-# apt-get nfs-kernel-server
-.................
+# john -show /etc/shadow
+root:rnpesr:16842:0:99999:7:::
+aluno:rnpesr:16842:0:99999:7:::
+aluno2:123456:17752:0:99999:7:::
+marcelo:senha:17752:0:99999:7:::
+aluno3:abacate:17752:0:99999:7:::
 
-2. Crie o diretório a ser exportado:
-+
-.................
-# mkdir /dados
-.................
-
-3. Edite o arquivo `/etc/exports` para configurar o compartilhamento da pasta:
-+
-[source,bash]
-----
-include::{srcdir}/s7/etc_exports[]
-----
-
-4. Finalmente, exporte o diretório e reinicie o serviço NFS. Teste se o _mapping_ de pasta está correto.
-+
-.................
-# exportfs -a
-
-# systemctl restart nfs-kernel-server.service
-# systemctl restart nfs-common.service
-
-# showmount -e
-Export list for servidor:
-/dados 192.168.0.20
+5 password hashes cracked, 0 left
 .................
 endif::gabarito[]
 
-=== 4) Configuração de cliente NFS
+=== 2) Descobrindo a funcionalidade do bit SGID em diretórios
 
-[WARNING]
-====
-Esta configuração será realizada na máquina virtual _Client_Linux_.
-====
+Como visto anteriormente, os bits SUID e SGID podem ser muito úteis para definir permissões especiais para arquivos e diretórios. Execute a sequência de comandos e depois responda as seguintes perguntas:
 
-Instale e configure o cliente NFS na máquina _Client_Linux_ (192.168.0.20), monte o diretório remoto `/dados` do servidor no diretório `/mnt/remoto`. Finalmente, realize as configurações necessárias para que sempre que a máquina for reiniciada o diretório `/dados` seja montado automaticamente.
-
+1. Crie o grupo `corp` e defina-o como grupo secundário do seu usuário.
 ifdef::gabarito[]
-1. Crie o diretório de montagem:
 +
 .................
-# mkdir /mnt/remoto
-.................
-
-2. Execute a montagem temporária do diretório NFS e verifique seu funcionamento:
-+
-.................
-# mount -t nfs 192.168.0.10:/dados /mnt/remoto/
-
-# mount | grep '^192.168.0.10:/dados '
-192.168.0.10:/dados on /mnt/remoto type nfs4 (rw,relatime,vers=4.0,rsize=65536,wsize=65536,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.0.20,local_lock=none,addr=192.168.0.10)
-.................
-
-3. Adicione a linha a seguir ao arquivo `/etc/fstab` para que a montagem se torne automática após o _boot_. Reinicie a máquina e verifique seu funcionamento.
-+
-.................
-# tail -n1 /etc/fstab
-192.168.0.10:/dados   /mnt/remoto   nfs   defaults   0   0
+# groupadd corp
+# usermod -a -G corp aluno
+# groups aluno
+aluno : aluno cdrom floppy sudo audio dip video plugdev netdev bluetooth corp
 .................
 endif::gabarito[]
 
-=== 5) Testando o funcionamento do serviço NFS
-
-Na máquina _Server_Linux_, crie um arquivo de nome `teste` no diretório `/dados` e verifique se este aparece no cliente. Depois, edite o arquivo `teste` a partir da máquina _Client_Linux_ adicionando a data atual ao conteúdo do arquivo. Volte ao servidor e verifique se o arquivo foi alterado.
-
+2. Entre no sistema a partir da sua conta e crie um diretório chamado `dir_corp`.
 ifdef::gabarito[]
-1. No servidor, execute:
 +
 .................
-# hostname
-servidor
-
-# touch /dados/teste
-# ls /dados/
-teste
+$ mkdir dir_corp
+$ ls
+dir_corp
 .................
+endif::gabarito[]
 
-2. No cliente, verifique e edite o arquivo:
+3. Verifique a qual grupo pertence o diretório criado no passo acima. Modifique-o para que passe a pertencer ao grupo `corp` e mude a sua permissão para `2755`.
+ifdef::gabarito[]
 +
 .................
-# hostname
-cliente
-
-# ls /mnt/remoto/
-teste
-# echo "$( date )" >> /mnt/remoto/teste
+$ chgrp corp ~/dir_corp/
+$ chmod 2755 ~/dir_corp/
+$ ls -ld dir_corp/
+drwxr-sr-x 2 aluno corp 4096 Ago  9 19:15 dir_corp/
 .................
+endif::gabarito[]
 
-3. De volta ao servidor, cheque se o arquivo foi editado com sucesso:
+4. Crie, no seu diretório _home_ um arquivo chamado `arq1`. Em seguida, mude para o diretório criado no segundo item e crie um arquivo chamado `arq2`.
+ifdef::gabarito[]
 +
 .................
-# hostname
-servidor
-
-# cat /dados/teste
-Sex Ago 10 14:35:52 -03 2018
+$ pwd
+/home/aluno
+$ touch arq1
+$ touch dir_corp/arq2
 .................
+endif::gabarito[]
+
+5. Verifique os grupos aos quais pertencem os arquivos criados no item anterior. Você saberia explicar por que os arquivos pertencem a grupos distintos, embora tenham sido criados pelo mesmo usuário?
+ifdef::gabarito[]
++
+.................
+$ ls -ld arq1
+-rw-r--r-- 1 aluno aluno 0 Ago  9 19:19 arq1
+$ ls -ld dir_corp/arq2
+-rw-r--r-- 1 aluno corp 0 Ago  9 19:19 dir_corp/arq2
+.................
++
+O arquivo criado no diretório `/home/aluno/dir_corp/` possui o mesmo grupo dono de seu diretório-pai, pois o mesmo está com o bit SGID definido -- isso faz com que qualquer arquivo criado dentro dele tenha o mesmo grupo dono que o próprio diretório, independente do usuário que o tenha criado. Já o arquivo criado no diretório `/home/aluno/` tem o mesmo grupo primário do usuário que o criou, já que este diretório não tem o bit SGID definido.
+endif::gabarito[]
+
+6. Quais as vantagens desse esquema?
+ifdef::gabarito[]
++
+Esse recurso é útil em diretórios compartilhados, nos quais diversos usuários criam arquivos que precisam ter permissão de escrita e/ou leitura para todos os usuários do grupo do diretório.
+endif::gabarito[]
+
+=== 3) Obtendo informações sobre os recursos computacionais
+
+1. Vimos, no texto teórico, que uma das importantes funções de um administrador de sistemas é acompanhar o uso dos recursos computacionais de sua instituição. Discuta com o seu colega quais comandos vistos em todo o módulo podem auxiliar na coleta desse tipo de informação.
+ifdef::gabarito[]
++
+Diversos comandos podem ser utilizados para verificar o uso dos recursos computacionais, dentre os quais podemos destacar: `df`, `du`, `ps`, `top`, `htop`, `free`, `vmstat`, `iostat`, `lsof`, etc.
+endif::gabarito[]
+
+=== 4) Controlando os recursos dos usuários
+
+Um dos grandes desafios de um administrador de sistema, nos tempos atuais, é controlar a ocupação do espaço em disco do seu sistema -- aplicações do tipo P2P (_peer-to-peer_), por exemplo, são consumidoras vorazes desse tipo de recurso.
+
+1. Que medidas podem ser tomadas para controlar a ocupação de disco de forma automática?
+ifdef::gabarito[]
++
+A instalação e configuração de _quotas_ de disco para usuários é uma excelente maneira de implementar controles nesse sentido.
 endif::gabarito[]

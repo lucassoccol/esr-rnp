@@ -1,6 +1,6 @@
 ifdef::oneof[]
 ////
-= SEG12 - Semana 2 - Sessão 0
+= SEG12 - Semana 2 - Sessão 1
 :Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
 :Author Initials: FM & MK & FS
 ////
@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Configuração preliminar das máquinas
+== Sessão 1: Configuração preliminar das máquinas
 
 === 1) Da divisão de grupos
 
@@ -288,7 +288,7 @@ image::Configuracao_Rede_WinClient.png[]
 
 O passo final é garantir que as VMs consigam acessar a internet através da máquina _FWGW1-G_, que é o firewall/roteador na topologia de rede do curso.
 
-1. Antes de mais nada, observe que na máquina _FWGW1-G_ já existe uma configuração de _masquerading_ (um tipo de SNAT que veremos em maior detalhe na sessão 4) no arquivo `/etc/rc.local`:
+1. Antes de mais nada, observe que na máquina _FWGW1-G_ já existe uma configuração de _masquerading_ (um tipo de SNAT que veremos em maior detalhe na sessão 5) no arquivo `/etc/rc.local`:
 +
 .................
 # hostname

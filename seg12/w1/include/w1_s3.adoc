@@ -15,348 +15,537 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 3 -- Processos
+== Sessão 3: Usuários e grupos
 
 [WARNING]
 ====
 As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
 ====
 
-=== 1) Descobrindo o número de processos em execução
+=== 1) Criando contas de usuários
 
-1. Quantos processos estão sendo executados na máquina no momento? Use o comando `wc` para contá-los.
+Uma das atividades que fazem parte da rotina diária de um administrador de sistemas é o gerenciamento de contas de usuários. Frequentemente, usuários são criados, modificados, desabilitados ou excluídos do sistema.
+
+1. Descubra se o sistema faz uso de _shadow passwords_ ou se ainda utiliza o esquema tradicional.
 ifdef::gabarito[]
 +
 .................
-# ps aux | sed -n '1!p' | wc -l
-71
+$ ls -ld /etc/gshadow /etc/shadow
+-rw-r----- 1 root shadow  666 Ago  5 16:52 /etc/gshadow
+-rw-r----- 1 root shadow 1125 Ago  5 16:51 /etc/shadow
 .................
++
+O aluno deve verificar se os arquivos `/etc/shadow` e `/etc/gshadow` existem.
 endif::gabarito[]
 
-2. Faça um _script_ que liste o número de processo que cada usuário está executando.
+2. Crie uma conta para você no sistema, seguindo os passos descritos na aula teórica e no material didático.
 ifdef::gabarito[]
 +
-O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
+* Editar o arquivo `/etc/group` e inserir uma nova linha com os parâmetros relativos ao grupo do novo usuário:
++
+** Nome do grupo;
+** Senha ("x");
+** GID;
+** Membros do grupo.
++
+.................
+marcelo:x:1001:
+.................
++
+* Editar o arquivo `/etc/gshadow` e inserir uma nova linha com os parâmetros relativos ao grupo do novo usuário:
++
+** Nome do grupo;
+** Senha criptografada do grupo ("!");
+** Administradores do grupo;
+** Membros do grupo.
++
+.................
+marcelo:!::
+.................
++
+* Editar o arquivo `/etc/passwd` e inserir uma nova linha com os parâmetros relativos à conta do novo usuário:
++
+** Nome do usuário;
+** Senha ("x");
+** UID;
+** GID;
+** GECOS: campo com comentários informativos do usuário;
+** Diretório _home_;
+** Shell de login.
++
+.................
+marcelo:x:1001:1001:,,,:/home/marcelo:/bin/bash
+.................
++
+* Editar o arquivo `/etc/shadow` e inserir uma nova linha os parâmetros relativos à conta do novo usuário:
++
+** Nome do usuário;
+** Senha criptografada: inserir valor "*", que será alterado a seguir;
+** _last_change_: número de dias desde a última alteração de senha;
+** _minimum_: número mínimo de dias até que senha possa ser alterada novamente;
+** _maximum_: número máximo de dias até que a senha deva ser alterada;
+** _warning_: número de dias para aviso de expiração de senha;
+** _inactive_: número de dias após expiração em que a senha será aceita;
+** _expire_: data para expiração da senha.
++
+.................
+marcelo:*:16846:0:99999:7:::
+.................
++
+* Definir uma senha para a nova conta, utilizando o comando `passwd`:
++
+.................
+# passwd marcelo
+.................
++
+* Copiar os arquivos de inicialização contidos no diretório `/etc/skel` para o diretório _home_ do usuário.
++
+.................
+# cp -r /etc/skel /home/marcelo
+.................
++
+* Alterar o usuário e grupo donos dos arquivos na pasta _home_ do novo usuário:
++
+.................
+# chown -R marcelo.marcelo /home/marcelo
+.................
++
+* Configurar a _quota_ de disco para o usuário, se o sistema utilizar _quotas_.
++
+* Testar se a conta foi criada corretamente, fazendo login no sistema e verificando se o diretório corrente é o diretório _home_ do usuário, definido no arquivo `/etc/passwd`.
++
+* O _script shell_ abaixo mostra uma maneira como os comandos executados manualmente nesta atividade poderiam ser automatizados por um administrador de sistemas:
 +
 [source,bash]
 ----
-include::{srcdir}/s3/pscount.sh[]
+include::{srcdir}/s3/adduser.sh[]
 ----
 endif::gabarito[]
 
-=== 2) Descobrindo o PID e o PPID de um processo
-
-1. Quais os valores de `PID` e `PPID` do shell que você está utilizando no sistema?
-ifdef::gabarito[]
+3. Agora, crie uma conta para o instrutor, utilizando, desta vez, o comando `useradd`. Faça com que a conta criada tenha sete dias de duração e com que o seu diretório de trabalho seja `/NOME`, onde `NOME` é o nome de usuário para o qual a conta deve ser aberta.
 +
-.................
-$ echo -e "PID: $$\nPPID: $PPID"
-PID: 1016
-PPID: 1015
-.................
-endif::gabarito[]
-
-2. Faça um _script_ que liste todos os processos que foram iniciados pelo processo `init`. A lista não deve conter mais de uma ocorrência do mesmo processo.
-ifdef::gabarito[]
-+
-O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
-+
-[source,bash]
-----
-include::{srcdir}/s3/pinit_count.sh[]
-----
-endif::gabarito[]
-
-=== 3) Estados dos processos
-
-1. Qual o status mais frequente dos processos que estão sendo executados no sistema? Você saberia explicar por quê?
-ifdef::gabarito[]
-+
-.................
-$ ps aux | awk '{print $8}' | sort | uniq -c | sort -n | tac
-     24 S
-     23 S<
-     16 Ss
-      4 S+
-      1 STAT
-      1 Ssl
-      1 Ss+
-      1 SN
-      1 R+
-      1 D+
-.................
-+
-O estado mais frequente é _sleep_, porque apenas um processo pode estar sendo executado pela CPU em um dado momento.
-endif::gabarito[]
-
-=== 4) Alternando a execução de processos
-
-1. Execute o comando `$ sleep 1000` diretamente do terminal.
-ifdef::gabarito[]
-+
-.................
-$ sleep 1000
-.................
-endif::gabarito[]
-
-2. Pare o processo e mantenha-o em memória.
-ifdef::gabarito[]
-+
-Basta digitar a combinação de teclas `CTRL + Z`.
-+
-.................
-$ sleep 1000
-^Z
-[1]+  Parado
-.................
-endif::gabarito[]
-
-3. Liste os processos parados.
-ifdef::gabarito[]
-+
-.................
-$ jobs
-[1]+  Parado                  sleep 1000
-.................
-endif::gabarito[]
-
-4. Coloque-o em _background_.
-ifdef::gabarito[]
-+
-.................
-$ bg
-[1]+ sleep 1000 &
-$ jobs
-[1]+  Executando              sleep 1000 &
-.................
-endif::gabarito[]
-
-5. Verifique se o comando sleep 1000 está rodando.
-ifdef::gabarito[]
-+
-.................
-$ ps ax | egrep 'sleep 1000$'
- 2178 pts/0    S      0:00 sleep 1000
-.................
-endif::gabarito[]
-
-6. É possível cancelar a execução desse comando quando ele está rodando em _background_? Caso seja possível, faça-o.
-ifdef::gabarito[]
-+
-.................
-$ kill 2178
-$ ps ax | egrep 'sleep 1000$'
-[1]+  Terminado               sleep 1000
-.................
-endif::gabarito[]
-
-=== 5) Identificando o RUID e o EUID de um processo
-
-1. Logado como o usuário `aluno`, execute o comando `passwd` no seu terminal. Antes de mudar a senha, abra uma segunda console e autentique-se como `root`. Verifique o `RUID` e o `EUID` associados ao processo `passwd`. Esses valores são iguais ou diferentes? Você saberia explicar por quê? Por fim, cancele a execução do processo `passwd`.
-ifdef::gabarito[]
-+
-Na primeira console, execute:
-+
-.................
-$ passwd
-Mudando senha para aluno.
-Senha UNIX (atual):
-.................
-+
-Antes de digitar a senha, abra uma segunda console como `root` e execute:
-+
-.................
-# ps -eo user,ruser,comm | egrep '^USER | passwd$'
-USER     RUSER    COMMAND
-root     aluno    passwd
-
-# which passwd
-/usr/bin/passwd
-# ls -lh /usr/bin/passwd
--rwsr-xr-x 1 root root 53K Mai 17  2017 /usr/bin/passwd
-.................
-+
-Os valores são diferentes porque o binário `passwd` possui o bit _SUID_ ativado. O `RUID` (_real uid_) é do usuário que está executando o comando e o EUID (_effective uid_) é o do usuário `root`, que é o dono do arquivo.
-endif::gabarito[]
-
-=== 6) Definindo a prioridade de processos
-
-1. Verifique as opções do comando `nice` e em seguida, execute o comando abaixo, verificando sua prioridade, utilizando o comando `ps`:
-+
-.................
-# nice -n -15 sleep 1000 &
-[1] 2289
-.................
-ifdef::gabarito[]
-+
-Basta executar o comando `# ps lax` e buscar o processo relevante, verificando o valor da quinta coluna. Em uma única linha e de forma mais específica, podemos fazer:
-+
-.................
-# ps lax | egrep ' sleep 1000$' | awk '{print $5}'
-2289 5
-.................
-endif::gabarito[]
-
-2. Repita o comando do primeiro item, passando para o comando `nice` o parâmetro `-n -5`. Verifique como isso afeta a prioridade do processo. Ela aumentou, diminuiu ou permaneceu a mesma?
-ifdef::gabarito[]
-+
-.................
-# nice -n -5 sleep 1000 &
-[2] 2312
-# ps lax | egrep ' sleep 1000$' | awk '{print $3, $5}'
-2289 5
-2312 15
-.................
-+
-A prioridade diminuiu, porque quanto maior o valor na coluna `PRI`, menor a prioridade do processo.
-endif::gabarito[]
-
-=== 7) Editando arquivos crontab para o agendamento de tarefas
-
-Neste exercício, trabalharemos com o comando `crontab`, utilizado para editar os arquivos `cron` do agendador de tarefas do sistema. Esses arquivos serão verificados pelo _daemon_ `cron` periodicamente em busca de tarefas para serem executadas pelo sistema.
-
 [NOTE]
 ====
-Para entender o funcionamento do `crontab`, o primeiro passo é ler as páginas do manual relevantes. Para o comando `crontab` em si, consulte a seção 1 do manual:
+Consulte a página de manual do comando `useradd` e procure as informações necessárias para incluir a data de expiração (_expire date_) e criar o diretório de trabalho (_homedir_) em um local diferente do padrão, que é `/home/NOME`. Ainda, não se deve esquecer de escolher e atribuir uma senha para as contas que obedeça aos padrões de segurança apresentados no texto. Observe, ainda, que o diretório _home_ não é criado automaticamente pelo comando `useradd`.
+====
+ifdef::gabarito[]
++
+.................
+# useradd instrutor -d /instrutor -m -e 2018-08-07
+# passwd instrutor
+Digite a nova senha UNIX:
+Redigite a nova senha UNIX:
+passwd: senha atualizada com sucesso
+.................
++
+[TIP]
+====
+Ao usar o comando `useradd`, o shell escolhido pelo sistema é o `/bin/sh`, por padrão. Para alterar o shell do usuário, pode-se editar o arquivo `/etc/passwd` diretamente, ou executar o comando `chsh`, mostrado abaixo:
 
 .................
-$ man 1 crontab
-.................
+# getent passwd | grep '^instrutor:'
+instrutor:x:1002:1002::/home/instrutor:/bin/sh
 
-Para o formato de um arquivo de configuração `crontab`, consulte a seção 5:
+# chsh instrutor
+Mudando o shell de login para instrutor
+Informe o novo valor ou pressione ENTER para aceitar o padrão
+        Shell de Login [/bin/sh]: /bin/bash
 
-.................
-$ man 5 crontab
+# getent passwd | grep '^instrutor:'
+instrutor:x:1002:1002::/home/instrutor:/bin/bash
 .................
 ====
-
-1. Existe alguma entrada de `crontab` para o seu usuário?
-ifdef::gabarito[]
-+
-.................
-$ crontab -l
-no crontab for aluno
-.................
 endif::gabarito[]
 
-2. Que opção deve ser usada para editar o seu arquivo de `crontab`?
+4. O comando `useradd` não é uma boa opção para informar a senha do usuário. Por quê?
 ifdef::gabarito[]
 +
-.................
-$ crontab -e
-no crontab for aluno - using an empty one
-
-Select an editor.  To change later, run 'select-editor'.
-  1. /bin/nano        <---- easiest
-  2. /usr/bin/vim.basic
-  3. /usr/bin/vim.tiny
-
-Choose 1-3 [1]: 1
-No modification made
-.................
+Porque a senha criptografada deve ser digitada diretamente na linha de comando, podendo ser lida posteriormente via logs ou histórico do shell.
 endif::gabarito[]
 
-=== 8) Agendando uma tarefa no daemon cron
-
-Neste exercício, será necessário enviar mensagens de correio eletrônico. Para isso, você deverá utilizar o comando `mail`; o instrutor pode fornecer as informações básicas sobre ele. Um exemplo do uso desse comando para enviar uma mensagem ao endereço `fulano@dominio` com o assunto _Mensagem de teste_ é:
-
-.................
-$ mail fulano@dominio -s "Mensagem de teste" < /dev/null
-.................
-
-1. Configure o `crontab` para que uma mensagem de correio eletrônico seja enviada automaticamente pelo sistema, sem interferência do administrador às 20:30 horas.
+5. Faça um _script_ que simule o comando `newusers`. Para isso, você deve criar um arquivo texto contendo as informações a respeito dos usuários, mantendo o mesmo padrão dos arquivos lidos pelo comando `newusers` (para descobrir o formato, consulte a página de manual: `$ man 8 newusers`). Como este arquivo conterá as senhas dos usuários, é importante removê-lo logo após a criação das contas.
++
+[TIP]
+====
+Utilize a variável de sistema `IFS` (_Internal Field Separator_) em seu _script_ para definir o caractere ":" como campo que separa as informações sobre as contas.
+====
 ifdef::gabarito[]
 +
-Utilize o comando `$ crontab -e` para editar o `crontab` e inserir a linha:
-+
-.................
-30 20 * * * mail fulano@dominio -s "Mensagem de teste" < /dev/null
-.................
-endif::gabarito[]
-
-2. Como verificar se a configuração foi feita corretamente?
-ifdef::gabarito[]
-+
-.................
-$ crontab -l | egrep -v '^#'
-30 20 * * * mail fulano@dominio -s "Mensagem de teste" < /dev/null
-.................
-endif::gabarito[]
-
-3. Qual o requisito fundamental para garantir que a ação programada será executada?
-ifdef::gabarito[]
-+
-O daemon do `cron` deve estar em execução e a sintaxe do `crontab`, incluindo a linha de comando utilizada, deve estar correta.
-endif::gabarito[]
-
-4. Há como confirmar se a mensagem foi efetivamente enviada, sem consultar o destinatário?
-ifdef::gabarito[]
-+
-Verifique no arquivo `/var/log/syslog` se a tarefa foi executada no horário correto com sucesso. Você deve ver uma entrada do tipo:
-+
-.................
-/var/log/syslog:Aug  7 17:40:01 cliente CRON[2524]: (aluno) CMD (COMMAND)
-.................
-+
-Dependendo da distribuição Linux em uso, as mensagens relativas ao `cron` podem estar em `/var/log/syslog`, `/var/log/cron.log`, `/var/log/daemon.log` ou outros arquivos. Verifique na documentação do fabricante/mantenedor.
-endif::gabarito[]
-
-5. Dê dois exemplos de utilização desse mecanismo para apoiar atividades do administrador de sistemas.
-ifdef::gabarito[]
-+
-Podemos, por exemplo, utilizar o `cron` para agendamento de backups e limpeza de diretórios temporários.
-endif::gabarito[]
-
-6. Faça um script que liste os arquivos sem dono do sistema e envie a lista por e-mail ao usuário root.
-ifdef::gabarito[]
-+
-O _script shell_ abaixo mostra um exemplo de solução para o problema proposto, com a característica adicional de guardar os logs enviados por e-mail em um diretório dentro do _home_ do `root`:
+O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
 +
 [source,bash]
 ----
-include::{srcdir}/s3/find_nouser.sh[]
+include::{srcdir}/s3/newusers.sh[]
 ----
-endif::gabarito[]
-
-7. Agende no crontab do usuário `root` o script do item 6, de modo que ele seja executado de segunda a sexta às 22:30 horas.
-ifdef::gabarito[]
 +
-Logado como usuário `root`, digite o comando `# crontab -e` para editar o `crontab` e insira a linha a seguir:
+Um arquivo de entrada com sintaxe válida para o _script_ acima seria como se segue:
 +
 .................
-30 22 * * 1-5 /root/scripts/find_nouser.sh
-.................
-endif::gabarito[]
-
-=== 9) Listando e removendo arquivos crontab
-
-1. Liste o conteúdo do seu arquivo de `crontab` e, em seguida, remova-o. Quais as opções utilizadas para executar as ações demandadas?
-ifdef::gabarito[]
-+
-.................
-$ crontab -l | egrep -v '^#'
-30 20 * * * mail fulano@dominio -s "Mensagem de teste" < /dev/null
-
-$ crontab -r
-$ crontab -l
-no crontab for aluno
+usuario1:rnpesr:1101:1101::/home/usuario1:/bin/bash
+usuario2:rnpesr:1102:1102::/home/usuario2:/bin/bash
+usuario3:rnpesr:1103:1103::/home/usuario3:/bin/bash
 .................
 endif::gabarito[]
 
-=== 10) Entendendo o comando exec
+=== 2) Verificando e modificando informações de contas de usuário
 
-1. Execute o comando `$ exec ls -l`. Explique o que aconteceu.
+Após a criação de uma conta, é fundamental que o administrador verifique se ela foi criada corretamente.
+
+1. Entre no sistema com o usuário criado no item 3 da atividade 1 e execute os comandos indicados para verificação de uma conta.
 ifdef::gabarito[]
 +
 .................
-# whoami
-root
-# exec ls -l /mnt/
-total 0
+$ ssh instrutor@localhost
+instrutor@localhost's password:
+
+$ id
+uid=1002(instrutor) gid=1002(instrutor) grupos=1002(instrutor)
+$ pwd
+/instrutor
+$ ls -la
+total 8
+drwxr-xr-x  2 instrutor instrutor 4096 Ago  7 14:42 .
+drwxr-xr-x 23 root      root      4096 Ago  7 14:42 ..
+.................
+endif::gabarito[]
+
+2. Seria possível inserir o número de telefone de trabalho desse mesmo usuário, junto com a informação de quem ele é? Faça isso e torne a checar se a sua mudança surtiu efeito.
+ifdef::gabarito[]
++
+.................
+# chfn -w 6198765432 instrutor
+# finger -l instrutor
+Login: instrutor                        Name:
+Directory: /instrutor                   Shell: /bin/sh
+Office Phone: 619-876-5432
+Last login Tue Aug  7 14:44 (-03) on pts/1 from localhost
+No mail.
+No Plan.
+.................
+endif::gabarito[]
+
+=== 3) Criando grupos de usuários
+
+O recurso de grupos de usuários é muito útil para compartilhar informações. No momento em que a conta `instrutor` foi criada, no item 3 da atividade 1 deste roteiro, o grupo primário ficou sendo o seu próprio nome de usuário. Isso ocorre sempre que não é atribuído um valor para o grupo primário, no momento da criação de um novo usuário. Como o usuário criado não faz parte de outro grupo, a não ser do seu próprio, ele somente poderá acessar seus arquivos ou aqueles arquivos para os quais haja permissão de acesso para outros usuários.
+
+1. Use o comando apropriado para criar um grupo chamado `grupoteste`.
+ifdef::gabarito[]
++
+.................
+# addgroup grupoteste
+Adicionando grupo 'grupoteste' (GID 1003) ...
+Concluído.
+.................
+endif::gabarito[]
+
+2. Liste o arquivo `/etc/group` e anote o `GID` que foi atribuído ao grupo criado.
+ifdef::gabarito[]
++
+.................
+# getent group | egrep '^grupoteste:' | cut -d':' -f3
+1003
+.................
+endif::gabarito[]
+
+3. Aproveite para observar, no arquivo `/etc/group`, quais são os outros grupos existentes no sistema. Qual o grupo associado ao usuário `root`?
+ifdef::gabarito[]
++
+.................
+# getent group | grep root
+root:x:0:
+.................
++
+O grupo `root`, que é o grupo primário do superusuário do sistema.
+endif::gabarito[]
+
+4. Altere o grupo primário do usuário `instrutor`, de modo que este passe a ser o grupo criado no item 1 da atividade 3, `grupoteste`.
+ifdef::gabarito[]
++
+.................
+# usermod -g grupoteste instrutor
+# getent passwd | egrep '^instrutor:'
+instrutor:x:1002:1003:,,6198765432,:/instrutor:/bin/sh
+.................
+endif::gabarito[]
+
+5. Se autentique no sistema utilizando a sua conta e inclua seu usuário como administrador do grupo `grupoteste`. Em seguida inclua o usuário `instrutor` no grupo `grupoteste`. Você conseguiu executar as tarefas propostas? Por quê? Como você deve fazer para realizar as tarefas?
+ifdef::gabarito[]
++
+.................
+$ gpasswd -a instrutor grupoteste
+gpasswd : Permissão negada.
+.................
++
+Não, porque somente o usuário `root` pode cadastrar administradores em um grupo. Os comandos para viabilizar essa tarefa seriam:
++
+.................
+# gpasswd -A aluno grupoteste
+# logout
 
 $ whoami
 aluno
+$ gpasswd -a instrutor grupoteste
+Adicionando usuário instrutor ao grupo grupoteste
+.................
+endif::gabarito[]
+
+6. Altere novamente o grupo primário do usuário `instrutor` para o grupo `instrutor`.
+ifdef::gabarito[]
++
+.................
+# usermod -g instrutor instrutor
+# getent passwd | egrep '^instrutor:'
+instrutor:x:1002:1002:,,6198765432,:/instrutor:/bin/sh
+.................
+endif::gabarito[]
+
+=== 4) Incluindo usuários em grupos secundários
+
+1. Editando o arquivo `/etc/group`, inclua, no grupo `grupoteste`, o usuário criado no terceiro item da atividade 1 desse roteiro (`instrutor`). Note que o grupo primário do usuário não deve mudar; continua sendo o nome do usuário.
+ifdef::gabarito[]
++
+Inserir após o último caractere ":" na linha referente ao grupo `grupoteste`, o _username_ do usuário `instrutor`.
++
+.................
+# getent group | egrep '^grupoteste:'
+grupoteste:x:1003:instrutor
+# groups instrutor
+instrutor : instrutor grupoteste
+.................
+endif::gabarito[]
+
+2. Agora, utilize um comando apropriado para inserir nesse mesmo grupo o usuário criado para você no primeiro item da atividade 1.
+ifdef::gabarito[]
++
+.................
+# groups marcelo
+marcelo : marcelo
+
+# usermod -a -G grupoteste marcelo
+# groups marcelo
+marcelo : marcelo grupoteste
+.................
+endif::gabarito[]
+
+=== 5) Bloqueando contas de usuários
+
+No Linux, é possível impedir temporariamente o acesso ao sistema mesmo que o usuário esteja utilizando uma conta com acesso liberado a este.
+
+1. Utilizando um comando apropriado, bloqueie a conta criada para o instrutor e teste se obteve sucesso no bloqueio.
+ifdef::gabarito[]
++
+.................
+# passwd -l instrutor
+passwd: informação de expiração de senha alterada.
+
+# ssh instrutor@localhost
+instrutor@localhost's password:
+Permission denied, please try again.
+.................
+endif::gabarito[]
+
+2. Agora desbloqueie a conta e faça o teste de acesso para verificar se sua alteração surtiu efeito.
+ifdef::gabarito[]
++
+.................
+# passwd -u instrutor
+passwd: informação de expiração de senha alterada.
+
+# ssh instrutor@localhost
+instrutor@localhost's password:
+$ pwd
+/instrutor
 .................
 +
-O shell corrente foi finalizado. Sempre que um comando é executado, um novo processo é criado. Já quando um comando é executado como argumento do comando `exec`, a imagem do shell corrente é substituída pela do processo invocado, e quando esse processo encerra sua execução já não há mais shell de retorno.
+Também pode-se utilizar o comando `# usermod -U USERNAME` para atingir o mesmo objetivo.
 endif::gabarito[]
+
+=== 6) Removendo uma conta de usuário manualmente
+
+No Linux, é possível executar uma mesma tarefa de diversas maneiras. Para um administrador de sistemas, é importante conhecer essas alternativas, porque elas podem ser úteis em situações específicas em que não seja possível utilizar um dado recurso ou ferramenta do sistema.
+
+1. Sem utilizar o comando `userdel`, remova a conta criada para você no segundo item da atividade 1.
+ifdef::gabarito[]
++
+Em ordem, deve-se executar as atividades espelho das que foram feitas anteriormente, quais sejam:
++
+* Remover entradas referente à conta nos arquivos:
++
+** `/etc/group`
+** `/etc/gshadow`
+** `/etc/passwd`
+** `/etc/shadow`
++
+* Remover o diretório _home_ do usuário;
++
+* Remover as configurações de _quota_, caso tenham sido configuradas anteriormente.
++
+* O _script shell_ abaixo mostra uma maneira como os comandos executados manualmente nesta atividade poderiam ser automatizados por um administrador de sistemas:
++
+<<<
++
+[source,bash]
+----
+include::{srcdir}/s3/deluser.sh[]
+----
+endif::gabarito[]
+
+2. Certifique-se de que esse usuário foi realmente excluído do sistema, utilizando um dos comandos que fornecem informações sobre os usuários.
+ifdef::gabarito[]
++
+.................
+# finger marcelo
+finger: marcelo: no such user.
+.................
+endif::gabarito[]
+
+3. Faça um backup de seus dados de modo que o instrutor possa ter sobre eles o mesmo tipo de acesso que você.
+ifdef::gabarito[]
++
+O _script_ apontado no primeiro item desta atividade já faz o backup de arquivos (via opção `-b`). Caso o usuário tenha sido removido sem que seu _home_ tenha sido apagado (por exemplo, via comando `userdel`), pode-se fazer o backup dos dados da seguinte forma:
++
+.................
+# tar czf /instrutor/marcelo.tar.gz /home/marcelo && rm -rf /home/marcelo
+tar: Removendo `/' inicial dos nomes dos membros
+# ls /instrutor/
+marcelo.tar.gz
+.................
+endif::gabarito[]
+
+=== 7) Obtendo informações sobre usuários
+
+Muitas vezes, é necessário obter informações sobre os usuários de um sistema. Dois comandos que fornecem informações sobre usuários são `finger` e `id`.
+
+1. Verifique os parâmetros do usuário criado na atividade 1 utilizando esses comandos, e descreva a diferença entre os dois a partir dos resultados obtidos. Consulte as páginas de manual para verificar as opções disponíveis nestes comandos.
+ifdef::gabarito[]
++
+.................
+$ id instrutor
+uid=1002(instrutor) gid=1002(instrutor) grupos=1002(instrutor),1003(grupoteste)
+
+$ finger instrutor
+Login: instrutor                        Name:
+Directory: /instrutor                   Shell: /bin/sh
+Office Phone: 619-876-5432
+Last login Tue Aug  7 15:45 (-03) on pts/1 from localhost
+No mail.
+No Plan.
+.................
++
+O comando `id` mostra os grupos do usuário e seu UID enquanto o comando `finger` mostra informações como: diretório _home_, shell, _username_, GECOS, terminal utilizado pelo usuário, etc.
+endif::gabarito[]
+
+=== 8) Removendo contas de usuários
+
+1. Utilizando os comandos apropriados, remova a conta criada para o instrutor. Não se esqueça de que um grupo foi especialmente criado para ele e que ele também possui um grupo secundário.
+ifdef::gabarito[]
++
+.................
+# userdel -r instrutor
+# getent passwd | egrep '^instrutor:'
+# getent group  | egrep ',?instrutor,?'
+#
+.................
+endif::gabarito[]
+
+=== 9) Alterando o grupo a que um arquivo pertence
+
+O arquivo `/etc/passwd` contém informações importantes sobre os usuários do sistema. Esse arquivo pertence ao usuário `root` e ao grupo `root`. As permissões de acesso desse arquivo definem que ele só poderá ser modificado pelo usuário `root`.
+
+1. Faça com que esse arquivo pertença ao grupo `grupoteste`, criado na atividade 3. Com isso, os usuários desse grupo, incluindo o usuário criado na atividade 1 poderão acessar esse arquivo por meio das permissões definidas para os usuários do grupo.
+ifdef::gabarito[]
++
+.................
+# chgrp grupoteste /etc/passwd
+# ls -ld /etc/passwd
+-rw-r--r-- 1 root grupoteste 1612 Ago  7 16:12 /etc/passwd
+.................
+endif::gabarito[]
+
+=== 10) Alterando permissões de acesso de arquivos
+
+É muito comum o administrador ter que modificar a permissão de arquivos para possibilitar ou impedir que eles sejam lidos ou modificados por diferentes categorias de usuários. A melhor forma de fazer isso é utilizando o comando `chmod`.
+
+1. O arquivo `/etc/passwd` tem apenas permissão de leitura para os usuários do seu grupo proprietário. Use o comando `chmod` para atribuir permissão de escrita ao grupo proprietário desse arquivo. A permissão de escrita nesse arquivo é inicialmente atribuída apenas ao usuário proprietário do arquivo.
+ifdef::gabarito[]
++
+.................
+# chmod 664 /etc/passwd
+# ls -ld /etc/passwd
+-rw-rw-r-- 1 root grupoteste 1612 Ago  7 16:12 /etc/passwd
+.................
++
+Alternativamente, pode-se usar também o comando `# chmod g+w /etc/passwd` para atingir o mesmo objetivo.
+endif::gabarito[]
+
+2. O setor de controladoria de uma empresa só possuía um funcionário, que pediu demissão. Como não há um diretório específico para armazenar os arquivos do setor, todos os seus arquivos de trabalho estão armazenados em seu diretório _home_. Que passos você deve fazer para disponibilizar estes arquivos para o novo funcionário que será contratado e para que este tipo de problema não volte a ocorrer?
+ifdef::gabarito[]
++
+* Crie o grupo controladoria:
++
+.................
+# addgroup controladoria
+Adicionando grupo 'controladoria' (GID 1002) ...
+Concluído.
+.................
++
+* Crie a conta do novo funcionário e defina o grupo `controladoria` como seu grupo primário:
++
+.................
+# useradd -m -g controladoria funcionario
+# ls -lha /home/ | egrep ' funcionario$'
+drwxr-xr-x  2 funcionario controladoria 4,0K Ago  7 16:22 funcionario
+.................
++
+* Crie o diretório `/home/controladoria`:
++
+.................
+# mkdir /home/controladoria
+# chgrp controladoria /home/controladoria
+# chmod g+w /home/controladoria/
+# ls -lha /home/ | egrep ' controladoria$'
+drwxrwxr-x  2 root        controladoria 4,0K Ago  7 16:24 controladoria
+.................
++
+* Habilite o _sticky bit_ para o diretório `/home/controladoria`, de forma que todos os membros do grupo `controladoria` possam criar arquivos ali, mas apenas o dono de cada arquivo possa apagá-los:
++
+.................
+# chmod +t /home/controladoria/
+# ls -lha /home/ | egrep ' controladoria$'
+drwxrwxr-t  2 root        controladoria 4,0K Ago  7 16:24 controladoria
+.................
++
+* Mova os arquivos do antigo funcionário para o diretório `/home/controladoria`:
++
+.................
+# cp -a /home/antigo_funcionario /home/controladoria
+# ls /home/controladoria
+antigo_funcionario
+.................
++
+Redefina as permissões dos arquivos do antigo funcionário:
++
+.................
+# chown -R root.controladoria /home/controladoria
+.................
++
+* Remova a conta do antigo funcionário:
++
+.................
+# userdel -r antigo_funcionario
+.................
++
+* Oriente o novo funcionário para que ele só armazene os arquivos relacionados ao setor de controladoria no diretório `/home/controladoria`, e seus arquivos pessoais em `/home/funcionario`.
+endif::gabarito[]
+
+[WARNING]
+====
+Por motivos de segurança, ao final das atividades, retorne a permissão e o grupo do arquivo `/etc/passwd` para os valores originais.
+
+.................
+# chown root.root /etc/passwd
+# chmod 644 /etc/passwd
+# ls -lh /etc/passwd
+-rw-r--r-- 1 root root 1,7K Ago  7 16:22 /etc/passwd
+.................
+====

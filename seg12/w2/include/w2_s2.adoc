@@ -1,0 +1,22 @@
+ifdef::oneof[]
+////
+= SEG12 - Semana 2 - Sessão 2
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 16-08-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../locale/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 2: Conceitos fundamentais em segurança da informação
+
+=== 1) Listas e informações complementares de segurança
+
+Neste curso, os alunos serão divididos em dois grupos: `A` e `B`. Ao longo da semana, iremos realizar algumas atividades que vão envolver a intercomunicação entre máquinas virtuais dos alunos de cada grupo; para que as configurações de rede de dois alunos envolvidos em uma mesma atividade não conflitem, iremos adotar uma nomenclatura de endereços para cada grupo, como se segue:

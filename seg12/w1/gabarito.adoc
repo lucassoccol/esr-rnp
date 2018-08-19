@@ -22,10 +22,6 @@ endif::[]
 
 include::../locale/attributes.adoc[]
 
-include::include/w1_s0.adoc[]
-
-<<<
-
 include::include/w1_s1.adoc[]
 
 <<<
@@ -75,3 +71,7 @@ include::include/w1_s12.adoc[]
 <<<
 
 include::include/w1_s13.adoc[]
+
+<<<
+
+include::include/w1_s14.adoc[]

@@ -15,546 +15,393 @@ ifdef::oneof[]
 include::../../locale/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 8 -- LDAP
+== Sessão 8: DNS e NFS
 
-=== 1) Instalação do servidor OpenLDAP
+Nestas atividades, você deve trabalhar com duas máquinas virtuais (_Server_Linux_ e _Client_Linux_). Ambas devem estar na mesma rede. Como estabelecido na topologia de rede de curso, o endereço 192.168.0.10 será o da máquina _Server_Linux_, e o endereço 192.168.0.20 será o da máquina _Client_Linux_. Teste o funcionamento da rede através do comando `ping` antes de prosseguir com os exercícios.
 
-[WARNING]
-====
-Esta configuração será realizada na máquina virtual _Server_Linux_.
-====
-
-Instale e configure um servidor LDAP na máquina _Server_Linux_ (192.168.0.10). Você deverá instalar os seguintes pacotes: `slapd, ldap-utils, migrationtools, attr, libpam-ldap, libnss-ldap, nscd`.
-
-.Configuração libpam-ldap e libnss-ldap
-[options="header"]
-|===
-| Parâmetro | Valor
-| LDAP URI | `ldap://127.0.0.1`
-| _Search base_ | `dc=empresa,dc=com,dc=br`
-| LDAP Admin | `cn=admin,dc=empresa,dc=com,dc=br`
-| LDAP Admin como usuário `root` local | Sim
-| LDAP requer autenticação | Não
-| Versão do LDAP | 3
-|===
-
-Após a instalação e configuração inicial, execute o comando `# dpkg-reconfigure slapd`.
-
-.Configuração do slapd
-[options="header"]
-|===
-| Parâmetro | Valor
-| Omitir configuração LDAP | Não
-| Nome DNS | empresa.com.br
-| Nome da Organização | Empresa
-| _Backend_ | MDB
-| Remover base atual em caso de `purge` | Não
-| Mover base de dados antiga | Sim
-| Permitir LDAPv2 | Não
-|===
-
-Finalmente, edite o arquivo `/etc/ldap/ldap.conf` e edite os parâmetros `BASE` e `URI` de acordo com o configurado nesta atividade. Reinicie o servidor LDAP e verifique se está operacional -- faça uma consulta-teste usando o comando `ldapsearch`.
-
-ifdef::gabarito[]
-1. Instale o OpenLDAP e programas auxiliares que serão utilizados:
-+
-.................
-# apt-get install slapd ldap-utils migrationtools attr libpam-ldap libnss-ldap nscd
-.................
-
-2. Reconfigure o pacote `slapd`, respondendo as perguntas de acordo com o exposto na tabela acima.
-+
-.................
-# dpkg-reconfigure slapd
-.................
-
-3. Inicie o _daemon_ `slapd` e verifique seu estado.
-+
-.................
-# systemctl start slapd
-
-# systemctl status slapd
-● slapd.service - LSB: OpenLDAP standalone server (Lightweight Directory Access Protocol)
-   Loaded: loaded (/etc/init.d/slapd)
-   Active: active (running) since Sex 2018-08-10 15:06:46 -03; 3s ago
-  Process: 5095 ExecStop=/etc/init.d/slapd stop (code=exited, status=0/SUCCESS)
-  Process: 6128 ExecStart=/etc/init.d/slapd start (code=exited, status=0/SUCCESS)
-   CGroup: /system.slice/slapd.service
-           └─6133 /usr/sbin/slapd -h ldap:/// ldapi:/// -g openldap -u openldap -F /etc/ld...
-
-Ago 10 15:06:46 servidor systemd[1]: Starting LSB: OpenLDAP standalone server (Lightwei......
-Ago 10 15:06:46 servidor slapd[6132]: @(#) $OpenLDAP: slapd  (Jun 14 2018 21:56:48) $
-                                              buildd@x86-csail-01:/build/openldap-Yko3W...apd
-Ago 10 15:06:46 servidor slapd[6133]: slapd starting
-Ago 10 15:06:46 servidor systemd[1]: Started LSB: OpenLDAP standalone server (Lightweig...l).
-Ago 10 15:06:46 servidor slapd[6128]: Starting OpenLDAP: slapd.
-Hint: Some lines were ellipsized, use -l to show in full.
-.................
-
-4. Edite o arquivo `/etc/ldap/ldap.conf` com os valores apropriados:
-+
-.................
-# grep '^BASE\|^URI' /etc/ldap/ldap.conf
-BASE    dc=empresa,dc=com,dc=br
-URI     ldap://127.0.0.1
-.................
-
-5. Finalmente, consulte a raiz da _search base_ do diretório para verificar seu funcionamento.
-+
-.................
-# ldapsearch -x -b 'dc=empresa,dc=com,dc=br' -s base '(ObjectClass=*)'
-# extended LDIF
-#
-# LDAPv3
-# base <dc=empresa,dc=com,dc=br> with scope baseObject
-# filter: (ObjectClass=*)
-# requesting: ALL
-#
-
-# empresa.com.br
-dn: dc=empresa,dc=com,dc=br
-objectClass: top
-objectClass: dcObject
-objectClass: organization
-o: Empresa
-dc: empresa
-
-# search result
-search: 2
-result: 0 Success
-
-# numResponses: 2
-# numEntries: 1
-.................
-endif::gabarito[]
-
-=== 2) Usando o *_migrationtools_*
+=== 1) Servidor de DNS Primário
 
 [WARNING]
 ====
 Esta configuração será realizada na máquina virtual _Server_Linux_.
 ====
 
-O _migrationtools_ é um conjunto de _scripts_ que permite importar as contas locais de um sistema Linux para um diretório LDAP, que já foi instalado na máquina _Server_Linux_ (192.168.0.10) durante a atividade 1.
+Considerando a rede 192.168.0.0/24, cujo domínio é `empresa.com.br`, configure o servidor de DNS Primário de modo que ele tenha as seguintes máquinas registradas, com tipos de registro associados:
 
-1. Edite o arquivo `/etc/migrationtools/migrate_common.ph`, substituindo as variáveis `$DEFAULT_MAIL_DOMAIN` e `$DEFAULT_BASE` pelos valores configurados na atividade anterior.
+.Configuração DNS
+[options="header"]
+|===
+| Nome | Endereço IP | Tipo de registro
+| `servidor.empresa.com.br` | 192.168.0.10 | NS
+| `email.empresa.com.br` | 192.168.0.15 | MX
+| `cliente.empresa.com.br` | 192.168.0.20 | A
+| `windows.empresa.com.br` | 192.168.0.25 | A
+| `www.empresa.com.br` | 192.168.0.10 | CNAME
+| `meusite.empresa.com.br` | 192.168.0.10 | CNAME
+| `pop.empresa.com.br` | 192.168.0.15 | CNAME
+| `smtp.empresa.com.br` | 192.168.0.15 | CNAME
+|===
+
+Não se esqueça de configurar a resolução de nomes reversa.
+
 ifdef::gabarito[]
+1. Instale os seguintes aplicativos:
 +
 .................
-# grep '^\$DEFAULT_' /etc/migrationtools/migrate_common.ph
-$DEFAULT_MAIL_DOMAIN = "empresa.com.br";
-$DEFAULT_BASE = "dc=empresa,dc=com,dc=br";
+# apt-get install bind9 bind9utils
+.................
+
+2. Ajuste os arquivos de configuração da seguinte forma:
++
+* `/etc/bind/named.conf.options` -- opções do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/s8/etc_bind_named.conf.options[]
+----
++
+* `/etc/bind/named.conf.local` -- configurações locais do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/s8/etc_bind_named.conf.local[]
+----
++
+* `/etc/bind/db.empresa.com.br` -- arquivo de zona do domínio `empresa.com.br`:
++
+[source,bash]
+----
+include::{srcdir}/s8/etc_bind_db.empresa.com.br[]
+----
++
+* `/etc/bind/db.0.168.192` -- arquivo de resolução reversa do domínio `empresa.com.br`:
++
+[source,bash]
+----
+include::{srcdir}/s8/etc_bind_db.0.168.192[]
+----
++
+* `/etc/resolv.conf` -- configuração de resolução de nomes para o _Server_Linux_:
++
+[source,bash]
+----
+include::{srcdir}/s8/etc_resolv.conf[]
+----
+
+3. Como a interface de rede `eth0` da máquina _Server_Linux_ está configurada para obter endereço via DHCP, o _daemon_ `dhclient` irá sobrescrever as alterações que fizemos ao arquivo `/etc/resolv.conf` no próximo _reboot_. Para prevenir isso, podemos ativar o atributo `immutable` do arquivo, impedindo sua alteração:
++
+.................
+# chattr +i /etc/resolv.conf
+.................
+
+4. Reinicie o `bind` e verifique por possíveis erros:
++
+.................
+# systemctl restart bind9.service
+
+# systemctl status bind9.service
+● bind9.service - BIND Domain Name Server
+   Loaded: loaded (/lib/systemd/system/bind9.service; enabled)
+  Drop-In: /run/systemd/generator/bind9.service.d
+           └─50-insserv.conf-$named.conf
+   Active: active (running) since Qui 2018-08-09 21:23:48 -03; 5s ago
+     Docs: man:named(8)
+  Process: 14402 ExecStop=/usr/sbin/rndc stop (code=exited, status=0/SUCCESS)
+ Main PID: 14406 (named)
+   CGroup: /system.slice/bind9.service
+           └─14406 /usr/sbin/named -f -u bind
+
+Ago 09 21:23:48 servidor named[14406]: zone 22.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 16.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 27.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 127.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 26.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone 25.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: zone localhost/IN: loaded serial 2
+Ago 09 21:23:48 servidor named[14406]: zone 28.172.in-addr.arpa/IN: loaded serial 1
+Ago 09 21:23:48 servidor named[14406]: all zones loaded
+Ago 09 21:23:48 servidor named[14406]: running
+.................
+
+5. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
++
+.................
+# nslookup servidor.empresa.com.br
+Server:         127.0.0.1
+Address:        127.0.0.1#53
+
+Name:   servidor.empresa.com.br
+Address: 192.168.0.10
+
+# dig -x 192.168.0.25 +noquestion
+
+; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -x 192.168.0.25 +noquestion
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 5625
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+25.0.168.192.in-addr.arpa. 86400 IN     PTR     windows.empresa.com.br.
+
+;; AUTHORITY SECTION:
+0.168.192.in-addr.arpa. 86400   IN      NS      servidor.empresa.com.br.
+
+;; ADDITIONAL SECTION:
+servidor.empresa.com.br. 86400  IN      A       192.168.0.10
+
+;; Query time: 3 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Thu Aug 09 21:26:41 -03 2018
+;; MSG SIZE  rcvd: 129
 .................
 endif::gabarito[]
 
-2. Entre no diretório `/usr/share/migrationtools` e execute os _scripts_ `migrate_base.pl`, `migrate_passwd.pl` e `migrate_group.pl` para exportar as bases (respectivamente) geral, de usuários/senhas e de grupos. Atente-se para a sintaxe de uso de cada _script_.
-ifdef::gabarito[]
-+
-.................
-# cd /usr/share/migrationtools
-# ./migrate_base.pl > /root/base.ldif
-# ./migrate_passwd.pl /etc/passwd /root/passwd.ldif
-# ./migrate_group.pl /etc/group /root/group.ldif
-.................
-endif::gabarito[]
-
-3. Remova os registros `dc=com,dc=br` e `dc=empresa,dc=com,dc=br` do topo do arquivo gerado pelo _script_ `migrate_base.pl`, que já foram incluídos no diretório LDAP na primeira atividade.
-ifdef::gabarito[]
-+
-.................
-# sed -i '/dn: dc=com,dc=br/,/^$/d' /root/base.ldif
-# sed -i '/dn: dc=empresa,dc=com,dc=br/,/^$/d' /root/base.ldif
-
-# head -n1 /root/base.ldif
-dn: ou=Networks,dc=empresa,dc=com,dc=br
-.................
-endif::gabarito[]
-
-4. Adicione os arquivos `.ldif` gerados anteriormente à base LDAP usando o comando `ldapadd`. Consulte sua página de manual para descobrir as opções apropriadas a passar para o comando. Lembre-se, apenas, que o diretório LDAP está utilizando autenticação simples, não SASL, e que é necessário informar um DN administrativo e senha para inserção de dados.
-ifdef::gabarito[]
-+
-.................
-# ldapadd -x -W -D 'cn=admin,dc=empresa,dc=com,dc=br' < /root/base.ldif
-# ldapadd -x -W -D 'cn=admin,dc=empresa,dc=com,dc=br' < /root/passwd.ldif
-# ldapadd -x -W -D 'cn=admin,dc=empresa,dc=com,dc=br' < /root/group.ldif
-.................
-endif::gabarito[]
-
-5. Use o comando `ldapsearch` juntamente com um filtro de pesquisa apropriado para listar todos os grupos que foram adicionados ao diretório LDAP pelos arquivos `.ldif` incluídos no passo anterior.
-ifdef::gabarito[]
-+
-.................
-# ldapsearch -x -b 'dc=empresa,dc=com,dc=br' '(&(cn=*)(objectClass=posixGroup))'
-# extended LDIF
-#
-# LDAPv3
-# base <dc=empresa,dc=com,dc=br> with scope subtree
-# filter: (&(cn=*)(objectClass=posixGroup))
-# requesting: ALL
-#
-
-# root, Group, empresa.com.br
-dn: cn=root,ou=Group,dc=empresa,dc=com,dc=br
-objectClass: posixGroup
-objectClass: top
-cn: root
-gidNumber: 0
-
-(...)
-
-# openldap, Group, empresa.com.br
-dn: cn=openldap,ou=Group,dc=empresa,dc=com,dc=br
-objectClass: posixGroup
-objectClass: top
-cn: openldap
-gidNumber: 117
-
-# search result
-search: 2
-result: 0 Success
-
-# numResponses: 58
-# numEntries: 57
-.................
-endif::gabarito[]
-
-=== 3) Configurança do cliente Linux para uso do LDAP
+=== 2) Servidor de DNS Secundário
 
 [WARNING]
 ====
 Esta configuração será realizada na máquina virtual _Client_Linux_.
 ====
 
-Para que as clientes Linux possam se autenticar na base de dados do LDAP, é necessário configurar o PAM (_Pluggable Authentication Modules_) e NSS (_Name Service Switch_) para consultarem logins junto ao servidor LDAP.
+Configure o servidor de DNS Secundário para o domínio `empresa.com.br`. Importante:
 
-Configure a máquina _Client_Linux_ (192.168.0.20) para se autenticar na base LDAP que está instalada na máquina _Server_Linux_ (192.168.0.10). Você deverá instalar os seguintes pacotes: `ldap-utils, libpam-ldap, libnss-ldap, nscd`.
-
-.Configuração libpam-ldap e libnss-ldap no *Client_Linux*
-[options="header"]
-|===
-| Parâmetro | Valor
-| LDAP URI | `ldap://192.168.0.10`
-| _Search base_ | `dc=empresa,dc=com,dc=br`
-| LDAP Admin | `cn=admin,dc=empresa,dc=com,dc=br`
-| LDAP Admin como usuário `root` local | Sim
-| LDAP requer autenticação | Não
-| Versão do LDAP | 3
-|===
-
-Não se esqueça de editar os arquivos `/etc/ldap/ldap.conf` e `/etc/nsswitch.conf` para habilitar consulta às bases do LDAP durante procedimentos de login.
-
-Se desejar que diretórios _home_ sejam criados automaticamente para usuários LDAP inexistentes na máquina local, insira a linha a seguir ao final do arquivo `/etc/pam.d/common-password`:
-
-.................
-session optional pam_mkhomedir.so skel=/etc/skel/ umask=022
-.................
-
-Finalmente, para reiniciar a _cache_ de usuários e grupos do LDAP, execute `# systemctl restart nscd`. Se houver algum registro de erro nos arquivos de log quanto à inexistência do arquivo `/etc/netgroup`, crie-o manualmente.
+--
+* Não se esqueça de informar o endereço IP do servidor secundário no parâmetro `allow-transfer` do servidor primário.
+* Os arquivos de zona que forem transferidos devem ser gravados no diretório `/etc/bind/sec` do servidor secundário já que o _daemon_ executa como usuário `bind`, que não tem permissão de escrita direta no diretório `/etc/bind`.
+--
 
 ifdef::gabarito[]
-1. Instale os _plugins_ LDAP para as bibliotes PAM e NSS, bem como programas auxiliares que serão utilizados:
+1. Antes de mais nada, configure o _Server_Linux_ para permitir transferência de zona a partir do servidor secundário _Client_Linux_:
 +
 .................
-# apt-get install ldap-utils libpam-ldap libnss-ldap nscd
+# egrep '^ *allow-transfer' /etc/bind/named.conf.options
+  allow-transfer { 192.168.0.20; };
+
+# systemctl restart bind9.service
 .................
 
-2. Verifique se os arquivos das bibliotecas PAM e NSS foram configurados automaticamente de forma correta pelo gerenciador de pacotes:
-+
-* `/etc/libnss-ldap.conf`:
+2. A seguir, instale o servidor DNS `bind` na máquina _Client_Linux_:
 +
 .................
-# cat /etc/libnss-ldap.conf | grep -v '^#' | sed '/^$/d'
-base dc=empresa,dc=com,dc=br
-uri ldap://192.168.0.10
-ldap_version 3
-rootbinddn cn=admin,dc=empresa,dc=com,dc=br
-.................
-+
-* `/etc/libnss-ldap.secret`:
-+
-.................
-# cat /etc/libnss-ldap.secret
-rnpesr
-.................
-+
-* `/etc/pam_ldap.conf`:
-+
-.................
-# cat /etc/pam_ldap.conf | grep -v '^#' | sed '/^$/d'
-base dc=empresa,dc=com,dc=br
-uri ldap://192.168.0.10
-ldap_version 3
-rootbinddn cn=admin,dc=empresa,dc=com,dc=br
-pam_password crypt
-.................
-+
-* `/etc/pam_ldap.secret`:
-+
-.................
-# cat /etc/pam_ldap.secret
-rnpesr
+# apt-get install bind9 bind9utils
 .................
 
-3. Insira as informações sobre o servidor LDAP no arquivo `/etc/ldap/ldap.conf`:
+3. Ajuste os arquivos de configuração da seguinte forma:
++
+* `/etc/bind/named.conf.options` -- opções do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/s8/sec_etc_bind_named.conf.options[]
+----
++
+* `/etc/bind/named.conf.local` -- configurações locais do servidor `bind`:
++
+[source,bash]
+----
+include::{srcdir}/s8/sec_etc_bind_named.conf.local[]
+----
++
+* `/etc/resolv.conf` -- configuração de resolução de nomes para o _Client_Linux_:
++
+[source,bash]
+----
+include::{srcdir}/s8/sec_etc_resolv.conf[]
+----
+
+4. Observe que iremos escrever os arquivos transferidos no diretório `/etc/bind/sec`, que ainda não existe. Vamos criá-lo e atribuir permissionamento:
 +
 .................
-# cat /etc/ldap/ldap.conf | grep -v '^#' | sed '/^$/d'
-BASE    dc=empresa,dc=com,dc=br
-URI     ldap://192.168.0.10
-TLS_CACERT      /etc/ssl/certs/ca-certificates.crt
+# mkdir /etc/bind/sec
+# chown bind.root /etc/bind/sec
 .................
 
-4. Configure o `nsswitch` para consultar as bases LDAP em adição às bases locais de usuários e senhas. Se desejar que as bases do LDAP tenham preferência, coloque a palavra-chave `ldap` à frente da palavra `compat`.
+5. Reinicie o `bind` e verifique se os arquivos de zona foram transferidos corretamente:
 +
 .................
-# cat /etc/nsswitch.conf | grep -v '^#'
+# systemctl restart bind9.service
 
-passwd:         compat ldap
-group:          compat ldap
-shadow:         compat ldap
-gshadow:        files
+# systemctl status bind9.service -l
+● bind9.service - BIND Domain Name Server
+   Loaded: loaded (/lib/systemd/system/bind9.service; enabled)
+  Drop-In: /run/systemd/generator/bind9.service.d
+           └─50-insserv.conf-$named.conf
+   Active: active (running) since Qui 2018-08-09 21:41:27 -03; 2s ago
+     Docs: man:named(8)
+  Process: 5549 ExecStop=/usr/sbin/rndc stop (code=exited, status=0/SUCCESS)
+ Main PID: 5553 (named)
+   CGroup: /system.slice/bind9.service
+           └─5553 /usr/sbin/named -f -u bind
 
-hosts:          files dns
-networks:       files
+Ago 09 21:41:27 cliente named[5553]: all zones loaded
+Ago 09 21:41:27 cliente named[5553]: running
+Ago 09 21:41:27 cliente named[5553]: zone empresa.com.br/IN: Transfer started.
+Ago 09 21:41:27 cliente named[5553]: transfer of 'empresa.com.br/IN' from 192.168.0.10#53: connected using 192.168.0.20#48366
+Ago 09 21:41:27 cliente named[5553]: zone empresa.com.br/IN: transferred serial 2018080900
+Ago 09 21:41:27 cliente named[5553]: transfer of 'empresa.com.br/IN' from 192.168.0.10#53: Transfer completed: 1 messages, 12 records, 312 bytes, 0.001 secs (312000 bytes/sec)
+Ago 09 21:41:28 cliente named[5553]: zone 0.168.192.in-addr.arpa/IN: Transfer started.
+Ago 09 21:41:28 cliente named[5553]: transfer of '0.168.192.in-addr.arpa/IN' from 192.168.0.10#53: connected using 192.168.0.20#35160
+Ago 09 21:41:28 cliente named[5553]: zone 0.168.192.in-addr.arpa/IN: transferred serial 2018080900
+Ago 09 21:41:28 cliente named[5553]: transfer of '0.168.192.in-addr.arpa/IN' from 192.168.0.10#53: Transfer completed: 1 messages, 8 records, 261 bytes, 0.001 secs (261000 bytes/sec)
 
-protocols:      db files
-services:       db files
-ethers:         db files
-rpc:            db files
-
-netgroup:       nis
+# ls -lh /etc/bind/sec/
+total 8,0K
+-rw-r--r-- 1 bind bind 569 Ago  9 21:41 db.0.168.192
+-rw-r--r-- 1 bind bind 720 Ago  9 21:41 db.empresa.com.br
 .................
 
-5. Para que diretórios _home_ sejam criados de forma automática se usuários LDAP inexistentes na máquina local logarem no sistema, insira a linha a seguir ao final do arquivo `/etc/pam.d/common-password`:
+6. Finalmente, teste a resolução de nomes no servidor secundário:
 +
 .................
-# tail -n1 /etc/pam.d/common-session
-session optional pam_mkhomedir.so skel=/etc/skel/ umask=022
-.................
+# nslookup pop.empresa.com.br 192.168.0.20
+Server:         192.168.0.20
+Address:        192.168.0.20#53
 
-6. Adiantando-se ao problema futuro que em que o _daemon_ `nscd` irá apontar a inexistência do arquivo `/etc/netgroup`, crie-o, vazio:
-+
-.................
-# touch /etc/netgroup
-.................
+pop.empresa.com.br      canonical name = email.empresa.com.br.
+Name:   email.empresa.com.br
+Address: 192.168.0.15
 
-7. Finalmente, reinicie o _daemon_ `nscd` e verifique se os usuários e grupos remotos do servidor LDAP estão sendo utilizados pelos subsistemas de autenticação local:
-+
-.................
-# systemctl restart nscd
+# dig -x 192.168.0.10 +noquestion @192.168.0.20
 
-# grep '^openldap:' /etc/passwd
-# getent passwd | grep '^openldap:'
-openldap:x:111:117:OpenLDAP Server Account,,,:/var/lib/ldap:/bin/false
+; <<>> DiG 9.9.5-9+deb8u15-Debian <<>> -x 192.168.0.10 +noquestion @192.168.0.20
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 30045
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
 
-# grep '^openldap:' /etc/group
-# getent group | grep '^openldap:'
-openldap:x:117:
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+10.0.168.192.in-addr.arpa. 86400 IN     PTR     servidor.empresa.com.br.
+
+;; AUTHORITY SECTION:
+0.168.192.in-addr.arpa. 86400   IN      NS      servidor.empresa.com.br.
+
+;; ADDITIONAL SECTION:
+servidor.empresa.com.br. 86400  IN      A       192.168.0.10
+
+;; Query time: 2 msec
+;; SERVER: 192.168.0.20#53(192.168.0.20)
+;; WHEN: Thu Aug 09 21:52:36 -03 2018
+;; MSG SIZE  rcvd: 121
 .................
-+
-Observe, acima, que tanto o usuário quanto o grupo `openldap` estão disponíveis na máquina local, muito embora não existam nos arquivos `/etc/passwd` e `/etc/group`. Eles estão sendo obtidos, remotamente, no servidor LDAP _Server_Linux_.
 endif::gabarito[]
 
-=== 4) Configurança do servidor Linux para uso do LDAP
+<<<
+
+=== 3) Configuração de servidor NFS
 
 [WARNING]
 ====
 Esta configuração será realizada na máquina virtual _Server_Linux_.
 ====
 
-Agora que a máquina _Client_Linux_ (192.168.0.20) está configurada para se autenticar na base LDAP remota localizada na máquina _Server_Linux_ (192.168.0.10), faça com que o próprio servidor _Server_Linux_ autentique-se usando sua base LDAP local.
+Crie e exporte o diretório `/dados` via NFS na máquina _Server_Linux_ (192.168.0.10), para a máquina _Client_Linux_ (192.168.0.20).
 
 ifdef::gabarito[]
-1. Essencialmente, basta repetir os passos do exercício anterior, desta vez na máquina _Server_Linux_:
+1. Instale os pacotes abaixo no servidor:
++
+.................
+# apt-get nfs-kernel-server
+.................
+
+2. Crie o diretório a ser exportado:
++
+.................
+# mkdir /dados
+.................
+
+3. Edite o arquivo `/etc/exports` para configurar o compartilhamento da pasta:
++
+[source,bash]
+----
+include::{srcdir}/s8/etc_exports[]
+----
+
+4. Finalmente, exporte o diretório e reinicie o serviço NFS. Teste se o _mapping_ de pasta está correto.
++
+.................
+# exportfs -a
+
+# systemctl restart nfs-kernel-server.service
+# systemctl restart nfs-common.service
+
+# showmount -e
+Export list for servidor:
+/dados 192.168.0.20
+.................
+endif::gabarito[]
+
+=== 4) Configuração de cliente NFS
+
+[WARNING]
+====
+Esta configuração será realizada na máquina virtual _Client_Linux_.
+====
+
+Instale e configure o cliente NFS na máquina _Client_Linux_ (192.168.0.20), monte o diretório remoto `/dados` do servidor no diretório `/mnt/remoto`. Finalmente, realize as configurações necessárias para que sempre que a máquina for reiniciada o diretório `/dados` seja montado automaticamente.
+
+ifdef::gabarito[]
+1. Crie o diretório de montagem:
++
+.................
+# mkdir /mnt/remoto
+.................
+
+2. Execute a montagem temporária do diretório NFS e verifique seu funcionamento:
++
+.................
+# mount -t nfs 192.168.0.10:/dados /mnt/remoto/
+
+# mount | grep '^192.168.0.10:/dados '
+192.168.0.10:/dados on /mnt/remoto type nfs4 (rw,relatime,vers=4.0,rsize=65536,wsize=65536,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.0.20,local_lock=none,addr=192.168.0.10)
+.................
+
+3. Adicione a linha a seguir ao arquivo `/etc/fstab` para que a montagem se torne automática após o _boot_. Reinicie a máquina e verifique seu funcionamento.
++
+.................
+# tail -n1 /etc/fstab
+192.168.0.10:/dados   /mnt/remoto   nfs   defaults   0   0
+.................
+endif::gabarito[]
+
+=== 5) Testando o funcionamento do serviço NFS
+
+Na máquina _Server_Linux_, crie um arquivo de nome `teste` no diretório `/dados` e verifique se este aparece no cliente. Depois, edite o arquivo `teste` a partir da máquina _Client_Linux_ adicionando a data atual ao conteúdo do arquivo. Volte ao servidor e verifique se o arquivo foi alterado.
+
+ifdef::gabarito[]
+1. No servidor, execute:
 +
 .................
 # hostname
 servidor
 
-# cat /etc/libnss-ldap.conf | grep -v '^#' | sed '/^$/d'
-base dc=empresa,dc=com,dc=br
-uri ldap://127.0.0.1
-ldap_version 3
-rootbinddn cn=admin,dc=empresa,dc=com,dc=br
-
-# cat /etc/libnss-ldap.secret
-rnpesr
-
-# cat /etc/pam_ldap.conf | grep -v '^#' | sed '/^$/d'
-base dc=empresa,dc=com,dc=br
-uri ldap://127.0.0.1
-ldap_version 3
-rootbinddn cn=admin,dc=empresa,dc=com,dc=br
-pam_password crypt
-
-# cat /etc/pam_ldap.secret
-rnpesr
-
-# cat /etc/ldap/ldap.conf | grep -v '^#' | sed '/^$/d'
-BASE    dc=empresa,dc=com,dc=br
-URI     ldap://127.0.0.1
-TLS_CACERT      /etc/ssl/certs/ca-certificates.crt
-
-# cat /etc/nsswitch.conf | grep -v '^#'
-
-passwd:         compat ldap
-group:          compat ldap
-shadow:         compat ldap
-gshadow:        files
-
-hosts:          files dns
-networks:       files
-
-protocols:      db files
-services:       db files
-ethers:         db files
-rpc:            db files
-
-netgroup:       nis
-
-# tail -n1 /etc/pam.d/common-session
-session optional pam_mkhomedir.so skel=/etc/skel/ umask=022
-
-# ls -ld /etc/netgroup
--rw-r--r-- 1 root root 0 Ago 12 17:20 /etc/netgroup
-
-# systemctl restart nscd
-.................
-endif::gabarito[]
-
-=== 5) Criação e remoção de usuários e grupos LDAP
-
-[WARNING]
-====
-Esta configuração será realizada na máquina virtual _Server_Linux_.
-====
-
-Agora que a máquina _Client_Linux_ está conectada ao servidor LDAP, adicione um novo usuário e grupo associado, ambos com o mesmo nome, e faça login com o usuário. Para realizar essa tarefa, crie arquivos LDIF manualmente e adicione-os via `ldapadd`. Não esqueça de definir a senha através do comando `ldappasswd`.
-
-*Observação:* Para evitar confusões entre a base de usuários do LDAP e a base local dos clientes, é recomendável adotar um _buffer_ numérico entre os usuários locais e os usuários do diretório. Faça com que o UID e GID dos novos usuários/grupos comece a partir de 5000.
-
-ifdef::gabarito[]
-1. Primeiro, vamos verificar o formato da entrada de diretório LDAP para um usuário existente:
-+
-.................
-# ldapsearch -x -LLL -b 'dc=empresa,dc=com,dc=br' '(uid=aluno)'
-dn: uid=aluno,ou=People,dc=empresa,dc=com,dc=br
-uid: aluno
-cn: aluno
-objectClass: account
-objectClass: posixAccount
-objectClass: top
-objectClass: shadowAccount
-shadowMax: 99999
-shadowWarning: 7
-loginShell: /bin/bash
-uidNumber: 1000
-gidNumber: 1000
-homeDirectory: /home/aluno
-gecos: aluno,,,
+# touch /dados/teste
+# ls /dados/
+teste
 .................
 
-2. Vamos adicionar o usuário `esr`. Para isso, basta processar a saída do comando acima, substituir com os dados do novo usuário, e enviar como entrada para o comando `ldapadd`, como se segue:
-+
-.................
-# ldapsearch -x -LLL -b 'dc=empresa,dc=com,dc=br' '(uid=aluno)' | sed 's/aluno/esr/ ; s/1000/5000/' | ldapadd -x -W -D 'cn=admin,dc=empresa,dc=com,dc=br'
-Enter LDAP Password:
-adding new entry "uid=esr,ou=People,dc=empresa,dc=com,dc=br"
-
-# ldapsearch -x -LLL -b 'dc=empresa,dc=com,dc=br' '(uid=esr)'
-dn: uid=esr,ou=People,dc=empresa,dc=com,dc=br
-uid: esr
-cn: esr
-objectClass: account
-objectClass: posixAccount
-objectClass: top
-objectClass: shadowAccount
-shadowMax: 99999
-shadowWarning: 7
-loginShell: /bin/bash
-uidNumber: 5000
-gidNumber: 5000
-homeDirectory: /home/esr
-gecos: esr,,,
-.................
-
-3. Excelente! Vamos fazer o mesmo para o grupo:
-+
-.................
-# ldapsearch -x -LLL -b 'dc=empresa,dc=com,dc=br' '(&(cn=aluno)(objectClass=posixGroup))' | sed 's/aluno/esr/ ; s/1000/5000/' | ldapadd -x -W -D 'cn=admin,dc=empresa,dc=com,dc=br'
-Enter LDAP Password:
-adding new entry "cn=esr,ou=Group,dc=empresa,dc=com,dc=br"
-
-# ldapsearch -x -LLL -b 'dc=empresa,dc=com,dc=br' '(&(cn=esr)(objectClass=posixGroup))'
-dn: cn=esr,ou=Group,dc=empresa,dc=com,dc=br
-objectClass: posixGroup
-objectClass: top
-cn: esr
-gidNumber: 5000
-.................
-
-4. Ainda falta configurar a senha do novo usuário. Vamos fazer isso através do comando `ldappasswd`:
-+
-.................
-# ldappasswd -x -W -D 'cn=admin,dc=empresa,dc=com,dc=br' -S "uid=esr,ou=People,dc=empresa,dc=com,dc=br"
-New password:
-Re-enter new password:
-Enter LDAP Password:
-
-# ldapsearch -x -LLL -W -D 'cn=admin,dc=empresa,dc=com,dc=br' -b 'dc=empresa,dc=com,dc=br' '(uid=esr)' userPassword
-Enter LDAP Password:
-dn: uid=esr,ou=People,dc=empresa,dc=com,dc=br
-userPassword:: e1NTSEF9ZW1YWkFBQVNWWEh1a2kwQmVRbzdMdkNzSGp0cm9VOEc=
-.................
-
-5. De volta à máquina _Client_Linux_, vamos verificar se o novo usuário está sendo importado corretamente:
+2. No cliente, verifique e edite o arquivo:
 +
 .................
 # hostname
 cliente
 
-# getent passwd | grep '^esr:'
-esr:x:5000:5000:esr,,,:/home/esr:/bin/bash
-# getent group | grep '^esr:'
-esr:*:5000:
+# ls /mnt/remoto/
+teste
+# echo "$( date )" >> /mnt/remoto/teste
 .................
 
-6. Agora, basta fazer login com o usuário e testar se a criação automática de diretório _home_ está funcionando:
+3. De volta ao servidor, cheque se o arquivo foi editado com sucesso:
 +
 .................
-$ ssh esr@192.168.0.20
-esr@192.168.0.20's password:
-Creating directory '/home/esr'.
+# hostname
+servidor
 
-$ hostname
-cliente
-
-$ whoami
-esr
-
-$ pwd
-/home/esr
+# cat /dados/teste
+Sex Ago 10 14:35:52 -03 2018
 .................
-endif::gabarito[]
-
-=== 6) Criação e deleção automática de usuários LDAP
-
-[WARNING]
-====
-Esta configuração será realizada na máquina virtual _Server_Linux_.
-====
-
-O esquema de criação de usuários manualmente acima funcionou, como visto. Não é, no entanto, muito conveniente do ponto de vista de manutenção do sistema proceder dessa forma. Seria mais interessante, se possível, automatizar essa tarefa para facilitar sua execução no dia-a-dia.
-
-Crie um _script_ que faça a adição e deleção automática de usuários na base LDAP. Atente-se para o fato de que os UIDs e GIDs desses usuários não devem se confundir com o dos sistemas locais. Use o valor mínimo de 5000 para ambos.
-
-ifdef::gabarito[]
-1. O _script shell_ abaixo mostra um exemplo de solução para o problema proposto:
-+
-[source,bash]
-----
-include::{srcdir}/s8/adduser_deluser_ldap.sh[]
-----
-+
-Observe que apesar de o _script_ ser relativamente complexo, ele ainda não está completo -- falta tratar a adição de usuários a grupos secundários no LDAP, bem como sua remoção desses grupos quando de sua deleção.
 endif::gabarito[]
