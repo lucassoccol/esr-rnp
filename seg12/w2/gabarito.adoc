@@ -29,3 +29,11 @@ include::include/w2_s1.adoc[]
 include::include/w2_s2.adoc[]
 
 <<<
+
+include::include/w2_s3.adoc[]
+
+<<<
+
+include::include/w2_s4.adoc[]
+
+<<<

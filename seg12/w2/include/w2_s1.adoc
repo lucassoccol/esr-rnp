@@ -40,7 +40,7 @@ A figura abaixo mostra a topologia de rede que será utilizada durante este curs
 .Topologia de rede do curso
 [#img-topologia]
 [caption="Figura 1: "]
-image::Topologia_SEG12_Semana2.png[]
+image::Topologia_SEG12_Semana2.png[align="center"]
 
 <<<
 
@@ -231,7 +231,7 @@ Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e 
 .Configuração de rede da máquina WinServer-G
 [#img-rede-winserver]
 [caption="Figura 2: "]
-image::Configuracao_Rede_WinServer.png[]
+image::Configuracao_Rede_WinServer.png[align="center"]
 +
 <<<
 
@@ -280,7 +280,7 @@ nameserver 8.8.4.4
 .Configuração de rede da máquina WinClient-G
 [#img-rede-winclient]
 [caption="Figura 3: "]
-image::Configuracao_Rede_WinClient.png[]
+image::Configuracao_Rede_WinClient.png[align="center"]
 +
 <<<
 
@@ -349,7 +349,7 @@ Vamos agora instalar os adicionais de convidado para máquinas virtuais do Virtu
 .Janela de autorun do CD Virtualbox Guest Additions
 [#img-vboxguest-autorun]
 [caption="Figura 4: "]
-image::Vboxguest_autorun.png[]
+image::Vboxguest_autorun.png[align="center"]
 +
 <<<
 
@@ -358,7 +358,7 @@ image::Vboxguest_autorun.png[]
 .Aviso de publisher não verificado do Virtualbox Guest Additions
 [#img-vboxguest-publisher]
 [caption="Figura 5: "]
-image::Vboxguest_publisher.png[]
+image::Vboxguest_publisher.png[align="center"]
 
 3. Ao final da instalação, o assistente irá solicitar que o computador seja reiniciado. Deixe a caixa _Reboot now_ marcada e clique em _Finish_.
 
@@ -448,7 +448,7 @@ A máquina _WinServer-G_ demanda uma pequena configuração adicional antes que 
 .Tela de configuração do sistema do WinServer
 [#img-winserver-system]
 [caption="Figura 6: "]
-image::Winserver_system.png[]
+image::Winserver_system.png[align="center"]
 +
 <<<
 
@@ -457,7 +457,7 @@ image::Winserver_system.png[]
 .Alteração de nome de máquina do WinServer
 [#img-winserver-changename]
 [caption="Figura 7: "]
-image::Winserver_changename.png[]
+image::Winserver_changename.png[align="center"]
 
 3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow Connections from computers running any version of Remote Desktop (less secure)_. Depois, clique em _Apply_ e em seguida em _Restart Later_.
 +
@@ -468,7 +468,7 @@ image::Winserver_changename.png[]
 .Desabilitar o firewall do WinServer
 [#img-winserver-firewall]
 [caption="Figura 8: "]
-image::Winserver_firewall.png[]
+image::Winserver_firewall.png[align="center"]
 
 5. Clique em _OK_ e reinicie a máquina _WinServer-G_.
 +
@@ -479,7 +479,7 @@ image::Winserver_firewall.png[]
 .Instalando a role IIS no WinServer
 [#img-winserver-iis]
 [caption="Figura 9: "]
-image::Winserver_iis.png[]
+image::Winserver_iis.png[align="center"]
 +
 <<<
 
@@ -488,6 +488,6 @@ image::Winserver_iis.png[]
 .Instalando a feature FTP Server no WinServer
 [#img-winserver-ftp]
 [caption="Figura 10: "]
-image::Winserver_ftp.png[]
+image::Winserver_ftp.png[align="center"]
 
 8. Finalmente, clique em _Install_ e aguarde. Ao final do processo, clique em _Close_.
