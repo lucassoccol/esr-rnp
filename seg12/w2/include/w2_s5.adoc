@@ -1,0 +1,337 @@
+ifdef::oneof[]
+////
+= SEG12 - Semana 2 - Sessão 5
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 16-08-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../locale/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 5: Firewall
+
+[WARNING]
+====
+As atividades desta sessão serão realizadas na máquina virtual _FWGW1-G_, com pequenas exceções apontadas pelo enunciado dos exercícios.
+====
+
+=== 1) Trabalhando com *__chains_* no *_iptables_*
+
+O Netfilter é um _framework_ provido pelo kernel Linux que permite que várias operações relacionadas à rede sejam implementadas através de _handlers_ customizados. Ele provê diversas funções e operações que permitem filtragem de pacotes, tradução de endereços de rede e portas, bem como a capacidade de proibir que pacotes cheguem a pontos sensíveis da rede.
+
+O `iptables` é a ferramenta em espaço de usuário que permite a gerência do Netfilter. Há vários conceitos centrais ao `iptables`, como:
+
+--
+* Tabelas:
+** _Filter_: filtragem de pacotes.
+** _NAT_: tradução de endereços.
+** _Mangle_: marcação de pacotes e QoS.
+
+* Chains:
+** INPUT: entrada no firewall propriamente dito.
+** OUTPUT: saída do firewall propriamente dito.
+** FORWARD: passagem através do firewall.
+** PREROUTING: decisões pré-roteamento; presente apenas nas tables _NAT_ e _Mangle_.
+** POSTROUTING: decisões pós-roteamento; presente apenas nas tables _NAT_ e _Mangle_.
+
+* Alvos:
+** ACCEPT: aceita o pacote.
+** DROP: descarta o pacote sem informar o remetente.
+** REJECT: rejeita o pacote e notifica o remetente.
+** LOG: loga o pacote nos registros do `iptables`.
+
+* Manipulação de regras:
+** A: adiciona a regra ao final da _chain_ (_append_).
+** I: insere a regra no começo da _chain_ (_insert_).
+** D: apaga a regra (_delete_).
+** L: listas as regras de uma dada _chain_ (_list_).
+** P: ajusta a política padrão de uma _chain_ (_policy_).
+** F: apaga todas as regras da _chain_ (_flush_).
+
+* Padrões de casamento:
+** `-s`: IP de origem do pacote.
+** `-d`: IP de destino do pacote.
+** `-i`: interface de entrada.
+** `-o`: interface de saída.
+** `-p`: protocolo, que pode ser dos tipos TCP, UDP e ICMP.
+--
+
+1. Primeiro, vamos testar a filtragem simples (_stateless_) no `iptables`. Faça login na máquina _FWGW1-G_ como `root` e mude a política padrão da _chain_ OUTPUT para DROP. Em seguida, tente conectar-se à porta 80/HTTP de um host remoto na Internet. É possível?
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+
+# iptables -P OUTPUT DROP
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca: forward host lookup failed: Host name lookup failure : Resource temporarily unavailable
+....
+endif::gabarito[]
+
+2. Agora, crie uma regra na _chain_ OUTPUT que permita a saída de pacotes na porta 80/HTTP (não se esqueça também de permitir consultas DNS à porta 53/UDP, se estiver utilizando um nome e não um endereço IP) e tente conectar-se novamente. Qual o resultado?
+ifdef::gabarito[]
++
+....
+# iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+# iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+....
+endif::gabarito[]
+
+3. Mude a política padrão da _chain_ INPUT também para DROP. Ainda é possível conectar-se?
+ifdef::gabarito[]
++
+....
+# iptables -P OUTPUT DROP
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+Host name lookup failure
+....
++
+Apesar de o resultado parecer o mesmo obtido anteriormente, há uma diferente substancial -- as requisições DNS/HTTP estão sendo enviado com sucesso, porém a resposta de retorno está sendo bloqueada. Ao rodar o `tcpdump` e monitorar a interface de rede de saída (`eth0`), o resposta da consulta DNS sai e retorna, porém é descartada pelo kernel.
++
+....
+# tcpdump -i eth0 -n src 192.168.1.203 or dst 192.168.1.203
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+21:52:28.135864 IP 192.168.1.203.33147 > 8.8.8.8.53: 48302+ A? obsd3.srv.ualberta.ca. (39)
+21:52:28.215508 IP 8.8.8.8.53 > 192.168.1.203.33147: 48302 1/0/0 A 129.128.5.194 (55)
+....
+endif::gabarito[]
+
+4. Finalmente, crie uma regra apropriada na _chain_ INPUT e teste o sucesso do envio de pacotes ICMP.
+ifdef::gabarito[]
++
+....
+# iptables -A INPUT -p tcp --sport 80 -j ACCEPT
+# iptables -A INPUT -p udp --sport 53 -j ACCEPT
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+....
++
+Note que devemos usar `--sport` (_source port_) ao invés de `--dport` (_destination port_), como feito anteriormente na regra da _chain_ OUTPUT.
+endif::gabarito[]
+
+=== 2) Firewall *_stateful_*
+
+Não é conveniente nem manutenível criar regras como fizemos na atividade (1) -- para cada regra de saída, ter que existir uma regra de entrada correspondente. Podemos usar a capacidade do `iptables` de monitorar estados de conexões a nosso favor, já que ele é um firewall _stateful_.
+
+1. Remova as regras da chain INPUT. Em seguida crie uma regra genérica que permita que conexões estabelecidas sejam autorizadas através do firewall. Em seguida, tente estabelecer uma conexão HTTP. Foi possível?
+ifdef::gabarito[]
++
+....
+# iptables -F INPUT
+
+# iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
+
+# iptables -L
+Chain INPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  anywhere             anywhere             state ESTABLISHED
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:http
+ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+....
+endif::gabarito[]
+
+2. Qual seria, então, a diferença entre filtros de pacotes _stateless_ e _stateful_?
+
+=== 4) Configuração do firewall para o laboratório
+
+A partir desta atividade o roteiro está dividido em duas partes. Na primeira, o aluno programará um controle de pacotes para permitir a comunicação entre os _hosts_ descritos na topologia do laboratório. Na segunda parte, programará a tradução de pacotes. Se precisar, retorne à imagem constante da atividade (2) da sessão 1 -- Configuração preliminar das máquinas.
+
+A tabela a seguir mostra uma listagem com a descrição dos serviços a serem disponibilizados pelos servidores da DMZ, cuja permissão de acesso será configurada nas atividades a seguir.
+
+.Serviços de rede disponíveis na DMZ
+[options="header"]
+|===
+| Servidor | Serviço | Protocolo | Porta | Descrição
+| LinServer-G | SSH | TCP | 22 | Serviço de login remoto
+| LinServer-G | Postfix | TCP | 25 | Servidor de mensagens
+| LinServer-G | Apache | TCP | 80 | Servidor de páginas web
+| LinServer-G | Courier | TCP | 110 | Servidor POP3
+| LinServer-G | PostgreSQL | TCP | 5432 | Servidor de banco de dados
+| LinServer-G | Bind | UDP | 53 | Servidor DNS
+| LinServer-G | NTP | UDP | 123 | Servidor de hora
+| WinServer-G | FTP | TCP | 21 | Servidor de arquivos
+| WinServer-G | IIS | TCP | 80 | Servidor de páginas web
+| WinServer-G | IIS | TCP | 443 | Servidor de páginas web
+| WinServer-G | RDP | TCP | 3389 | Serviço de conexão remota
+| WinServer-G | NTP | UDP | 123 | Servidor de hora
+|===
+
+=== 5) Configuração do filtro de pacotes do firewall *_FWGW1-G_*
+
+Nesta atividade, iremos configurar o filtro de pacotes no host _FWGW1-G_, fazendo-o atuar efetivamente como o firewall da rede. Tomaremos como padrão a topologia definida para o laboratório na imagem constante da atividade (2) da sessão 1, e os serviços DMZ da tabela da atividade (4).
+
+A realização desta atividade é fundamental para a realização das demais atividades deste curso.
+A política de filtro de pacotes será a mais restritiva possível, permitindo somente as conexões previamente definidas no firewall. Dessa forma, a política padrão é negar todos os pacotes que chegarem, saírem e/ou atravessarem o firewall.
+
+A cada item será necessário verificar a configuração corrente do firewall. Para listar as regras das tabelas _input_ e _nat_ do firewall, respectivamente, use os comandos:
+
+....
+# iptables -L -vn
+# iptables -t nat -L -vn
+....
+
+Caso cometa um erro, você pode apagar todas as regras das tabelas _input_ e _nat_ do firewall, respectivamente, com os comandos:
+
+....
+# iptables -F
+# iptables -t nat -F
+....
+
+Use o comando `tcpdump` para testar o funcionamento de suas regras.
+
+1. O primeiro passo, antes de mesmo começar a mexer no firewall, é ter uma maneira de gravar suas regras. Iremos instalar o pacote `iptables-persistent` para atingir esse objetivo; mas, antes de começar, garanta que seu firewall não possui regras e que as políticas de entrada/saída são permissivas:
++
+....
+# iptables -P INPUT ACCEPT
+# iptables -P OUTPUT ACCEPT
+# iptables -F
+
+# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+....
+
+2. Agora, instale o pacote `iptables-persistent` para tornar suas configurações de firewall permanentes mesmo após o `reboot` da máquina.
++
+.................
+# apt-get install iptables-persistent
+.................
++
+Na instalação do pacote, quando perguntado, responda:
++
+.Configurações do iptables-persistent
+[options="header",width="65%"]
+|===
+| Pergunta | Resposta
+| Salvar as regras IPv4 atuais? | Sim
+| Salvar as regras IPv6 atuais? | Sim
+|===
+
+3. Isso feito, basta dar início ao processo de configuração do firewall (que começa no passo 5 desta atividade). Ao inserir um conjunto de regras no firewall com as quais você esteja satisfeito, é possível gravá-las de forma fácil com o comando:
++
+....
+# iptables-save > /etc/iptables/rules.v4
+....
+
+4. Se cometer qualquer erro durante o processo de configuração, você pode recarregar o conjunto de regras salvo no arquivo `/etc/iptables/rules.v4` com o comando:
++
+....
+# systemctl restart netfilter-persistent.service
+....
+
+5. Agora sim, vamos começar. Primeiro, torne as políticas do firewall restritivas, ajustando a política das _chains_ INPUT e FORWARD para DROP.
+ifdef::gabarito[]
++
+....
+# iptables -P INPUT DROP
+# iptables -P FORWARD DROP
+....
+endif::gabarito[]
+
+6. Teste o funcionamento do firewall. Na máquina _LinServer_, por exemplo, tente enviar um pacote ICMP para a máquina _FWGW1-G_.
+ifdef::gabarito[]
++
+....
+$ hostname
+LinServer-A
+
+$ ping -c1 172.16.1.1
+PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
+
+--- 172.16.1.1 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+....
+endif::gabarito[]
+
+7. Agora, adicione as seguintes regras ao firewall:
++
+--
+* Permita todo o tráfego na interface _loopback_, e rejeitar qualquer pacote vindo da rede 127.0.0.0/8 que não seja para a interface `lo` com `icmp-port-unreachable`
+* Permita conexões destinadas ao firewall (_chain_ INPUT) cujo estado seja relacionado ou estabelecido.
+* Permita gerência via `ssh` do firewall _FWGW1-G_ a partir de máquinas da Intranet.
+* Permita que pacotes ICMP oriundos das redes DMZ/Intranet cheguem ao firewall _FWGW1-G_.
+--
+ifdef::gabarito[]
++
+....
+# iptables -A INPUT -i lo -j ACCEPT
+# iptables -A INPUT -d 127.0.0.0/8 -i '!lo' -j REJECT --reject-with icmp-port-unreachable
+# iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+# iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A INPUT -s 172.16.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
+# iptables -A INPUT -s 10.1.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
+....
+endif::gabarito[]
+
+8. Realize o teste de conexão do passo (6) novamente, e verifique que suas configurações funcionaram.
+ifdef::gabarito[]
++
+....
+$ hostname
+LinServer-A
+
+$ ping -c1 172.16.1.1
+PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
+64 bytes from 172.16.1.1: icmp_seq=1 ttl=64 time=0.235 ms
+
+--- 172.16.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.235/0.235/0.235/0.000 ms
+....
+endif::gabarito[]
+
+9. Se quiser, use o PuTTY (https://www.putty.org/) ou Cygwin (http://www.cygwin.com/) -- nas máquinas _WinClient-G_ ou sua máquina física -- para conectar-se à máquina _FWGW1-G_ e testar sua configuração.
+ifdef::gabarito[]
++
+Abaixo, temos um exemplo de conexão a partir da máquina física usando Cygwin/x64 para o _host_ _FWGW1-G_, via SSH.
++
+....
+fbs@LOCAL-PC ~
+$ uname
+CYGWIN_NT-10.0
+
+fbs@LOCAL-PC ~
+$ ssh aluno@10.1.1.1
+No mail.
+Last login: Sun Aug 19 22:30:33 2018 from 10.1.1.254
+
+$ whoami
+aluno
+
+$ hostname
+FWGW1-A
+....
+endif::gabarito[]
