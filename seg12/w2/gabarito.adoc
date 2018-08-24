@@ -20,7 +20,7 @@ ifdef::basebackend-html[]
 ++++
 endif::[]
 
-include::../locale/attributes.adoc[]
+include::../share/attributes.adoc[]
 
 include::include/w2_s1.adoc[]
 

@@ -18,7 +18,7 @@ toplevel() {
   flag="$( tgab $1 )"
 
   echo "Converting top-level '${1}'..."
-  asciidoctor-pdf -a lang=pt_BR $flag -o pdf/${1}_w${w}_temp.pdf gabarito.adoc
+  asciidoctor-pdf -a pdf-style=../share/rnp-theme.yml -a lang=pt_BR $flag -o pdf/${1}_w${w}_temp.pdf gabarito.adoc
   gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=pdf/${1}_w${w}.pdf  share/capa_w${w}.pdf pdf/${1}_w${w}_temp.pdf
   rm -f pdf/${1}_w${w}_temp.pdf
 }
@@ -29,7 +29,7 @@ oneof() {
   s=$( echo $2 | sed 's/.*_s\([0-9]*\).*/\1/' )
 
   echo "Converting oneof '${1}', session '${s}'..."
-  asciidoctor-pdf -a lang=pt_BR -a oneof $flag -o pdf/_${1}s/${1}_w${w}_s${s}.pdf $2
+  asciidoctor-pdf -a pdf-style=../share/rnp-theme.yml -a lang=pt_BR -a oneof $flag -o pdf/_${1}s/${1}_w${w}_s${s}.pdf $2
 }
 
 

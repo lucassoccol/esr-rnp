@@ -12,14 +12,14 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 2: Introdução ao sistema operacional Linux
 
 [WARNING]
 ====
-As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_. Utilize o usuáro `aluno`.
 ====
 
 === 1) Identificando bits de permissão
@@ -39,6 +39,16 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 .................
+# whoami
+root
+
+# touch /tmp/file_root
+.................
++
+.................
+$ whoami
+aluno
+
 $ rm -f /tmp/file_root
 rm: não foi possível remover “/tmp/file_root”: Operação não permitida
 .................
@@ -61,27 +71,27 @@ drwxr-xr-x  2 aluno  aluno  4,0K Ago  7 01:45 aluno
 Como visto acima, `2`. Esse número não é fixo, mas depende do conteúdo do diretório. Um diretório recém criado, que não tenha nenhum conteúdo possui dois _links_ (um referente ao próprio diretório e outro referente à entrada especial ".").
 endif::gabarito[]
 
-2. Crie o arquivo `arqses1ex3` no seu diretório _home_. Utilize o comando _touch_.
+2. Crie o arquivo `arqses2ex2` no seu diretório _home_. Utilize o comando _touch_.
 ifdef::gabarito[]
 +
 .................
-$ touch ~/arqses1ex3
+$ touch ~/arqses2ex2
 $ ls /home/aluno
-arqses1ex3
+arqses2ex2
 .................
 endif::gabarito[]
 
-3. Verifique o número de _links_ do arquivo `arqses1ex3` e anote o resultado. Você pode utilizar o redirecionamento de saída para registrar esse resultado no próprio arquivo criado. Essa informação será necessária para uma atividade posterior.
+3. Verifique o número de _links_ do arquivo `arqses2ex2` e anote o resultado. Você pode utilizar o redirecionamento de saída para registrar esse resultado no próprio arquivo criado. Essa informação será necessária para uma atividade posterior.
 ifdef::gabarito[]
 +
 .................
-$ mytemp=$(mktemp) && ls -lha ~/arqses1ex3 | tee nlinks && awk '{print $2}' nlinks > $mytemp && mv $mytemp nlinks
--rw-r--r-- 1 aluno aluno 0 Ago  7 01:52 /home/aluno/arqses1ex3
+$ mytemp=$(mktemp) && ls -lha ~/arqses2ex2 | tee nlinks && awk '{print $2}' nlinks > $mytemp && mv $mytemp nlinks
+-rw-r--r-- 1 aluno aluno 0 Ago  7 01:52 /home/aluno/arqses2ex2
 $ cat nlinks
 1
 .................
 +
-O arquivo `arqses1ex3` possui apenas um link.
+O arquivo `arqses2ex2` possui apenas um link.
 endif::gabarito[]
 
 4. Verifique se mudou o número de _links_ do seu diretório _home_.
@@ -95,13 +105,13 @@ drwxr-xr-x  2 aluno  aluno  4,0K Ago  7 02:05 aluno
 O número de _links_ continuou o mesmo.
 endif::gabarito[]
 
-5. Crie um diretório com o nome de `dirses1ex3`, também no seu diretório _home_.
+5. Crie um diretório com o nome de `dirses2ex2`, também no seu diretório _home_.
 ifdef::gabarito[]
 +
 .................
-$ mkdir /home/aluno/dirses1ex3
+$ mkdir /home/aluno/dirses2ex2
 $ ls ~
-arqses1ex3  dirses1ex3  nlinks
+arqses2ex2  dirses2ex2  nlinks
 .................
 endif::gabarito[]
 
@@ -113,56 +123,56 @@ $ ls -lha /home/ | egrep ' aluno$'
 drwxr-xr-x  3 aluno  aluno  4,0K Ago  7 02:11 aluno
 .................
 +
-O número de _links_ aumentou em uma unidade, por conta de entrada especial ".." presente no diretório `/home/aluno/dirses1ex3`, que aponta para o diretório `/home/aluno`.
+O número de _links_ aumentou em uma unidade, por conta de entrada especial ".." presente no diretório `/home/aluno/dirses2ex2`, que aponta para o diretório `/home/aluno`.
 endif::gabarito[]
 
-7. Qual o número de links do diretório `dirses1ex3`?
+7. Qual o número de links do diretório `dirses2ex2`?
 ifdef::gabarito[]
 +
 .................
-$ ls -lha ~ | egrep ' dirses1ex3$'
-drwxr-xr-x 2 aluno aluno 4,0K Ago  7 02:11 dirses1ex3
+$ ls -lha ~ | egrep ' dirses2ex2$'
+drwxr-xr-x 2 aluno aluno 4,0K Ago  7 02:11 dirses2ex2
 .................
 +
 Como visto acima, `2`.
 endif::gabarito[]
 
-8. Verifique qual opção deve ser passada ao comando `ls` para que ele liste as informações do diretório `dirses1ex3` e não o seu conteúdo.
+8. Verifique qual opção deve ser passada ao comando `ls` para que ele liste as informações do diretório `dirses2ex2` e não o seu conteúdo.
 ifdef::gabarito[]
 +
 .................
-$ ls -dl ~/dirses1ex3/
-drwxr-xr-x 2 aluno aluno 4096 Ago  7 02:11 /home/aluno/dirses1ex3/
+$ ls -dl ~/dirses2ex2/
+drwxr-xr-x 2 aluno aluno 4096 Ago  7 02:11 /home/aluno/dirses2ex2/
 .................
 +
 Devem ser passadas as opções `-d` e `-l`.
 endif::gabarito[]
 
-9. Você saberia explicar por que o número de _links_ do diretório `dirses1ex3` é maior que um?
+9. Você saberia explicar por que o número de _links_ do diretório `dirses2ex2` é maior que um?
 ifdef::gabarito[]
 +
-Os dois _links_ são relativos ao próprio diretório. Um aponta o caminho direto `/home/aluno -> /home/aluno/dirses1ex3` e o outro corresponde à entrada especial ".", presente no próprio diretório `/home/aluno/dirses1ex3`.
+Os dois _links_ são relativos ao próprio diretório. Um aponta o caminho direto `/home/aluno -> /home/aluno/dirses2ex2` e o outro corresponde à entrada especial ".", presente no próprio diretório `/home/aluno/dirses2ex2`.
 endif::gabarito[]
 
 === 3) Conhecendo diferenças entre *_hard link_* e *_symbolic link_*
 
 Foi explicada a importância dos _links_ criados com o comando `ln`. Para criar um _symbolic link_, a opção `-s` deve ser informada na linha de comando. Consulte as páginas do manual para conhecer outras opções.
 
-1. No seu diretório de trabalho, crie um _hard link_ para o arquivo `arqses1ex3`. O nome do arquivo criado deverá ser `hosts.hard`.
+1. No seu diretório de trabalho, crie um _hard link_ para o arquivo `arqses2ex2`. O nome do arquivo criado deverá ser `hosts.hard`.
 ifdef::gabarito[]
 +
 .................
-$ ln /home/aluno/arqses1ex3 /home/aluno/hosts.hard
+$ ln /home/aluno/arqses2ex2 /home/aluno/hosts.hard
 $ ls ~
-arqses1ex3  dirses1ex3  hosts.hard  nlinks
+arqses2ex2  dirses2ex2  hosts.hard  nlinks
 .................
 endif::gabarito[]
 
-2. Verifique agora o número de links do arquivo `arqses1ex3` e compare com aquele obtido na atividade 2. Explique a diferença.
+2. Verifique agora o número de links do arquivo `arqses2ex2` e compare com aquele obtido na atividade 2. Explique a diferença.
 ifdef::gabarito[]
 +
 .................
-$ ls -lha /home/aluno/arqses1ex3 | awk '{print $2}'
+$ ls -lha /home/aluno/arqses2ex2 | awk '{print $2}'
 2
 $ cat nlinks
 1
@@ -171,22 +181,22 @@ $ cat nlinks
 O número de _links_ foi aumentado de 1 para 2 devido à criação do _link_ `hosts.hard`.
 endif::gabarito[]
 
-3. Crie um _symbolic link_ para o arquivo `arqses1ex3`, que deverá se chamar `hosts.symbolic`.
+3. Crie um _symbolic link_ para o arquivo `arqses2ex2`, que deverá se chamar `hosts.symbolic`.
 ifdef::gabarito[]
 +
 .................
-$ ln -s /home/aluno/arqses1ex3 /home/aluno/hosts.symbolic
+$ ln -s /home/aluno/arqses2ex2 /home/aluno/hosts.symbolic
 $ ls
-arqses1ex3  dirses1ex3  hosts.hard  hosts.symbolic  nlinks
+arqses2ex2  dirses2ex2  hosts.hard  hosts.symbolic  nlinks
 .................
 endif::gabarito[]
 
-4. O número de _links_ do arquivo `arqses1ex3` aumentou?
+4. O número de _links_ do arquivo `arqses2ex2` aumentou?
 ifdef::gabarito[]
 +
 .................
-$ ls -lha /home/aluno/arqses1ex3
--rw-r--r-- 2 aluno aluno 0 Ago  7 01:52 /home/aluno/arqses1ex3
+$ ls -lha /home/aluno/arqses2ex2
+-rw-r--r-- 2 aluno aluno 0 Ago  7 01:52 /home/aluno/arqses2ex2
 .................
 +
 Não, não aumentou.
@@ -213,7 +223,7 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 .................
-$ ls -d /home/aluno/arqses1ex3 | tr -d '\n' | wc -c
+$ ls -d /home/aluno/arqses2ex2 | tr -d '\n' | wc -c
 22
 .................
 +
@@ -222,22 +232,22 @@ endif::gabarito[]
 
 === 4) Trabalhando com *_hard link_* e *_symbolic link_*
 
-1. Se o arquivo original `arqses1ex3` fosse removido, o que aconteceria se tentássemos acessá-lo pelo _hard link_? E pelo _symbolic link_?
+1. Se o arquivo original `arqses2ex2` fosse removido, o que aconteceria se tentássemos acessá-lo pelo _hard link_? E pelo _symbolic link_?
 ifdef::gabarito[]
 +
 Pelo _hard link_ conseguiríamos acessar o conteúdo do arquivo normalmente. Já pelo _symbolic link_ não conseguiríamos acessar o conteúdo do arquivo, uma vez que o mesmo é somente uma referência para o arquivo original.
 endif::gabarito[]
 
-2. Depois de responder a essas questões, remova o arquivo criado (`arqses1ex3`) e verifique se as suas respostas estão corretas.
+2. Depois de responder a essas questões, remova o arquivo criado (`arqses2ex2`) e verifique se as suas respostas estão corretas.
 ifdef::gabarito[]
 +
 .................
-$ rm arqses1ex3
+$ rm arqses2ex2
 
 $ ls -l hosts.hard
 -rw-r--r-- 1 aluno aluno 0 Ago  7 01:52 hosts.hard
 $ ls -l hosts.symbolic
-lrwxrwxrwx 1 aluno aluno 22 Ago  7 02:38 hosts.symbolic -> /home/aluno/arqses1ex3
+lrwxrwxrwx 1 aluno aluno 22 Ago  7 02:38 hosts.symbolic -> /home/aluno/arqses2ex2
 
 $ cat hosts.hard
 $ cat hosts.symbolic
@@ -249,7 +259,7 @@ endif::gabarito[]
 
 === 5) Conhecendo algumas limitações do *_hard link_*
 
-1. Crie um arquivo chamado `arqses1ex6`. Em seguida, crie um _hard link_ para esse arquivo com o nome `link-arqses1ex6` no diretório `/tmp`. O que aconteceu? Por quê? Como resolver esse problema?
+1. Crie um arquivo chamado `arqses2ex5`. Em seguida, crie um _hard link_ para esse arquivo com o nome `link-arqses2ex5` no diretório `/tmp`. O que aconteceu? Por quê? Como resolver esse problema?
 +
 [WARNING]
 ====
@@ -258,9 +268,9 @@ Para que esta atividade tenha efeito, o diretório `/tmp` deverá ter sido criad
 ifdef::gabarito[]
 +
 .................
-$ touch ~/arqses1ex6
-$ ln ~/arqses1ex6 /tmp/link-arqses1ex6
-ln: failed to create hard link “/tmp/link-arqses1ex6” => “/home/aluno/arqses1ex6”: Link entre dispositivos inválido
+$ touch ~/arqses2ex5
+$ ln ~/arqses2ex5 /tmp/link-arqses2ex5
+ln: failed to create hard link “/tmp/link-arqses2ex5” => “/home/aluno/arqses2ex5”: Link entre dispositivos inválido
 
 $ df -h | sed -n '1!p' | egrep -v '^tmpfs |^udev ' | awk '{printf "%s\t mounted on: %s\n", $6, $1}'
 /        mounted on: /dev/sda1
@@ -310,44 +320,44 @@ dr-xr-xr-x 3 aluno aluno 4096 Ago  7 03:38 /home/aluno
 .................
 endif::gabarito[]
 
-2. Verifique as permissões associadas ao arquivo `arqses1ex6`. Você tem permissão para escrever nesse arquivo? O grupo tem?
+2. Verifique as permissões associadas ao arquivo `arqses2ex5`. Você tem permissão para escrever nesse arquivo? O grupo tem?
 ifdef::gabarito[]
 +
 .................
-$ ls -lha ~/arqses1ex6
--rw-r--r-- 1 aluno aluno 0 Ago  7 02:55 /home/aluno/arqses1ex6
+$ ls -lha ~/arqses2ex5
+-rw-r--r-- 1 aluno aluno 0 Ago  7 02:55 /home/aluno/arqses2ex5
 .................
 +
 Somente o dono do arquivo tem permissão para escrever no mesmo.
 endif::gabarito[]
 
-3. Tente remover o arquivo `arqses1ex6`. Você conseguiu? Em caso negativo, você sabe explicar o motivo?
+3. Tente remover o arquivo `arqses2ex5`. Você conseguiu? Em caso negativo, você sabe explicar o motivo?
 ifdef::gabarito[]
 +
 .................
-$ rm ~/arqses1ex6
-rm: não foi possível remover “/home/aluno/arqses1ex6”: Permissão negada
+$ rm ~/arqses2ex5
+rm: não foi possível remover “/home/aluno/arqses2ex5”: Permissão negada
 .................
 +
 Não, porque o diretório `/home/aluno` está sem permissão de escrita para o dono.
 endif::gabarito[]
 
-4. Modifique as permissões do arquivo `arqses1ex6` de forma a retirar a permissão de escrita para o dono e colocá-la para o grupo.
+4. Modifique as permissões do arquivo `arqses2ex5` de forma a retirar a permissão de escrita para o dono e colocá-la para o grupo.
 ifdef::gabarito[]
 +
 .................
-$ chmod 464 ~/arqses1ex6
-$ ls -ld ~/arqses1ex6
--r--rw-r-- 1 aluno aluno 0 Ago  7 02:55 /home/aluno/arqses1ex6
+$ chmod 464 ~/arqses2ex5
+$ ls -ld ~/arqses2ex5
+-r--rw-r-- 1 aluno aluno 0 Ago  7 02:55 /home/aluno/arqses2ex5
 .................
 endif::gabarito[]
 
-5. Com o uso de redirecionamento, tente copiar o conteúdo do seu diretório _home_ para dentro do arquivo `arqses1ex6`.
+5. Com o uso de redirecionamento, tente copiar o conteúdo do seu diretório _home_ para dentro do arquivo `arqses2ex5`.
 ifdef::gabarito[]
 +
 .................
-$ ls -lha /home/aluno > /home/aluno/arqses1ex6
--bash: /home/aluno/arqses1ex6: Permissão negada
+$ ls -lha /home/aluno > /home/aluno/arqses2ex5
+-bash: /home/aluno/arqses2ex5: Permissão negada
 .................
 +
 Apresentou erro de permissão de gravação no diretório por parte do dono.
@@ -365,30 +375,30 @@ endif::gabarito[]
 
 === 8) Atribuindo as permissões padrão
 
-1. Crie arquivos (`arq1ses1ex9`, `arq2ses1ex9`, etc.) e diretórios (`dir1ses1ex9`, `dir2ses1ex9`, etc.) em seu diretório _home_, após definir cada uma das seguintes _umasks_: `000`; `002`; `003`; `023`; `222`; `022`. Em seguida, observe as permissões que foram associadas a cada um dos arquivos e diretórios.
+1. Crie arquivos (`arq1ses2ex8`, `arq2ses2ex8`, etc.) e diretórios (`dir1ses2ex8`, `dir2ses2ex8`, etc.) em seu diretório _home_, após definir cada uma das seguintes _umasks_: `000`; `002`; `003`; `023`; `222`; `022`. Em seguida, observe as permissões que foram associadas a cada um dos arquivos e diretórios.
 ifdef::gabarito[]
 +
 .................
-$ umask 000 ; touch arq1ses1ex9 ; mkdir dir1ses1ex9
-$ umask 002 ; touch arq2ses1ex9 ; mkdir dir2ses1ex9
-$ umask 003 ; touch arq3ses1ex9 ; mkdir dir3ses1ex9
-$ umask 023 ; touch arq4ses1ex9 ; mkdir dir4ses1ex9
-$ umask 222 ; touch arq5ses1ex9 ; mkdir dir5ses1ex9
-$ umask 022 ; touch arq6ses1ex9 ; mkdir dir6ses1ex9
+$ umask 000 ; touch arq1ses2ex8 ; mkdir dir1ses2ex8
+$ umask 002 ; touch arq2ses2ex8 ; mkdir dir2ses2ex8
+$ umask 003 ; touch arq3ses2ex8 ; mkdir dir3ses2ex8
+$ umask 023 ; touch arq4ses2ex8 ; mkdir dir4ses2ex8
+$ umask 222 ; touch arq5ses2ex8 ; mkdir dir5ses2ex8
+$ umask 022 ; touch arq6ses2ex8 ; mkdir dir6ses2ex8
 
-$ ls -lha /home/aluno | egrep 'arq[1-6]ses1ex9|dir[1-6]ses1ex9'
--rw-rw-rw- 1 aluno aluno    0 Ago  7 03:50 arq1ses1ex9
--rw-rw-r-- 1 aluno aluno    0 Ago  7 03:50 arq2ses1ex9
--rw-rw-r-- 1 aluno aluno    0 Ago  7 03:50 arq3ses1ex9
--rw-r--r-- 1 aluno aluno    0 Ago  7 03:52 arq4ses1ex9
--r--r--r-- 1 aluno aluno    0 Ago  7 03:52 arq5ses1ex9
--rw-r--r-- 1 aluno aluno    0 Ago  7 03:52 arq6ses1ex9
-drwxrwxrwx 2 aluno aluno 4,0K Ago  7 03:50 dir1ses1ex9
-drwxrwxr-x 2 aluno aluno 4,0K Ago  7 03:50 dir2ses1ex9
-drwxrwxr-- 2 aluno aluno 4,0K Ago  7 03:50 dir3ses1ex9
-drwxr-xr-- 2 aluno aluno 4,0K Ago  7 03:52 dir4ses1ex9
-dr-xr-xr-x 2 aluno aluno 4,0K Ago  7 03:52 dir5ses1ex9
-drwxr-xr-x 2 aluno aluno 4,0K Ago  7 03:52 dir6ses1ex9
+$ ls -lha /home/aluno | egrep 'arq[1-6]ses2ex8|dir[1-6]ses2ex8'
+-rw-rw-rw- 1 aluno aluno    0 Ago  7 03:50 arq1ses2ex8
+-rw-rw-r-- 1 aluno aluno    0 Ago  7 03:50 arq2ses2ex8
+-rw-rw-r-- 1 aluno aluno    0 Ago  7 03:50 arq3ses2ex8
+-rw-r--r-- 1 aluno aluno    0 Ago  7 03:52 arq4ses2ex8
+-r--r--r-- 1 aluno aluno    0 Ago  7 03:52 arq5ses2ex8
+-rw-r--r-- 1 aluno aluno    0 Ago  7 03:52 arq6ses2ex8
+drwxrwxrwx 2 aluno aluno 4,0K Ago  7 03:50 dir1ses2ex8
+drwxrwxr-x 2 aluno aluno 4,0K Ago  7 03:50 dir2ses2ex8
+drwxrwxr-- 2 aluno aluno 4,0K Ago  7 03:50 dir3ses2ex8
+drwxr-xr-- 2 aluno aluno 4,0K Ago  7 03:52 dir4ses2ex8
+dr-xr-xr-x 2 aluno aluno 4,0K Ago  7 03:52 dir5ses2ex8
+drwxr-xr-x 2 aluno aluno 4,0K Ago  7 03:52 dir6ses2ex8
 .................
 endif::gabarito[]
 

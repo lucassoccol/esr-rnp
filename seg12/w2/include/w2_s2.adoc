@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 2: Conceitos fundamentais em segurança da informação

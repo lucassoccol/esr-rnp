@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 8: DNS e NFS
@@ -305,7 +305,7 @@ ifdef::gabarito[]
 1. Instale os pacotes abaixo no servidor:
 +
 .................
-# apt-get nfs-kernel-server
+# apt-get install nfs-kernel-server
 .................
 
 2. Crie o diretório a ser exportado:

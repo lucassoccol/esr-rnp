@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 5: Sistema de arquivos
@@ -346,7 +346,7 @@ Verifique se o pacote `quota` está instalado no sistema com o comando `dpkg -l 
 +
 .................
 # dpkg -l | grep ' quota '
-# apt-get -y install quota quotatool
+# apt-get update && apt-get -y install quota quotatool
 .................
 endif::gabarito[]
 

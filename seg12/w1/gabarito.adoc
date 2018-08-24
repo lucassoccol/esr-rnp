@@ -12,7 +12,7 @@
 :srcdir: ../src
 :icons: font
 :toc:
-//:gabarito: true
+:gabarito: true
 
 ifdef::basebackend-html[]
 ++++
@@ -20,7 +20,7 @@ ifdef::basebackend-html[]
 ++++
 endif::[]
 
-include::../locale/attributes.adoc[]
+include::../share/attributes.adoc[]
 
 include::include/w1_s1.adoc[]
 

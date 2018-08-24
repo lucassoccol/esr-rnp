@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 10: DHCP, FTP e SSH
@@ -414,16 +414,16 @@ $ whoami
 aluno
 .................
 
-4. A chave pública RSA foi armazenada no arquivo `/home/aluno/.ssh/id_rsa.pub`, na pasta _home_ do usuário `aluno` dentro da máquina _Server_Linux_. Vamos exibir seu conteúdo:
+4. A chave pública RSA foi armazenada no arquivo `/home/aluno/.ssh/authorized_keys`, na pasta _home_ do usuário `aluno` dentro da máquina _Server_Linux_. Vamos exibir seu conteúdo:
 +
 .................
 $ hostname
 servidor
 
 $ ls ~/.ssh
-authorized_keys  id_rsa  id_rsa.pub  known_hosts
+authorized_keys
 
-$ cat ~/.ssh/id_rsa.pub
+$ cat ~/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCvtAjoHfRfhxUDd67eZhncv8n034RXM0ZZUyNiDYvId27q8MKerFHZAnCMxf0Sm+2MMqfNZxcvH7EiF28VE3ikaMnqfi6xj8Nhqp+kzEXAQNLfuVGBjnmrz7EUOVtG2YvUMrkTqUibAOFPCKrlkhyJg06tmkJVhJuKB7jzOmOFTrWeInCkPukv4lmi4JaEuLA5He9Qepg9WYduH0Gydb6D5nDkcHVt0zl5YT21imXOQFIMIHpfquKs6pc7kUFl/JiHHwAfJ+wkawyamTyKDSKbvwclzZvxeFpYBZ5VcwLy52bzdmsFakU8cIU1nr+6sdvOuejy8kodfKIrE2zmQ4ZL aluno@cliente
 .................
 endif::gabarito[]

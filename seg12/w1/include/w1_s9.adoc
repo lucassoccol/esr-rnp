@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 9: LDAP
@@ -30,12 +30,15 @@ Instale e configure um servidor LDAP na máquina _Server_Linux_ (192.168.0.10). 
 [options="header"]
 |===
 | Parâmetro | Valor
-| LDAP URI | `ldap://127.0.0.1`
-| _Search base_ | `dc=empresa,dc=com,dc=br`
-| LDAP Admin | `cn=admin,dc=empresa,dc=com,dc=br`
-| LDAP Admin como usuário `root` local | Sim
-| LDAP requer autenticação | Não
+| URI do servidor LDAP | `ldap://127.0.0.1`
+| Nome da base de pesquisa (_search base_) | `dc=empresa,dc=com,dc=br`
 | Versão do LDAP | 3
+| Conta LDAP para o root | `cn=admin,dc=empresa,dc=com,dc=br`
+| Password da conta root do LDAP | `rnpesr`
+| Permitir que a conta administrativa do LDAP se comporte como o usuário root local | Sim
+| A base de dados LDAP requer autenticação | Não
+| Conta administrativa do LDAP | `cn=admin,dc=empresa,dc=com,dc=br`
+| Senha para a conta administrativa no LDAP | `rnpesr`
 |===
 
 Após a instalação e configuração inicial, execute o comando `# dpkg-reconfigure slapd`.
@@ -218,7 +221,7 @@ result: 0 Success
 .................
 endif::gabarito[]
 
-=== 3) Configurança do cliente Linux para uso do LDAP
+=== 3) Configuração do cliente Linux para uso do LDAP
 
 [WARNING]
 ====
@@ -233,12 +236,15 @@ Configure a máquina _Client_Linux_ (192.168.0.20) para se autenticar na base LD
 [options="header"]
 |===
 | Parâmetro | Valor
-| LDAP URI | `ldap://192.168.0.10`
-| _Search base_ | `dc=empresa,dc=com,dc=br`
-| LDAP Admin | `cn=admin,dc=empresa,dc=com,dc=br`
-| LDAP Admin como usuário `root` local | Sim
-| LDAP requer autenticação | Não
+| URI do servidor LDAP | `ldap://192.168.0.10`
+| Nome da base de pesquisa (_search base_) | `dc=empresa,dc=com,dc=br`
 | Versão do LDAP | 3
+| Conta LDAP para o root | `cn=admin,dc=empresa,dc=com,dc=br`
+| Password da conta root do LDAP | `rnpesr`
+| Permitir que a conta administrativa do LDAP se comporte como o usuário root local | Sim
+| A base de dados LDAP requer autenticação | Não
+| Conta administrativa do LDAP | `cn=admin,dc=empresa,dc=com,dc=br`
+| Senha para a conta administrativa no LDAP | `rnpesr`
 |===
 
 Não se esqueça de editar os arquivos `/etc/ldap/ldap.conf` e `/etc/nsswitch.conf` para habilitar consulta às bases do LDAP durante procedimentos de login.

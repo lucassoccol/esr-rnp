@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 3: Usuários e grupos
@@ -20,6 +20,11 @@ endif::oneof[]
 [WARNING]
 ====
 As atividades desta sessão serão realizadas na máquina virtual _Client_Linux_.
+====
+
+[WARNING]
+====
+Em algumas atividades, você trabalhará com a conta `root`, o que lhe dará todos os direitos sobre os recursos do sistema. Seja cauteloso antes de executar qualquer comando.
 ====
 
 === 1) Criando contas de usuários
@@ -399,7 +404,7 @@ finger: marcelo: no such user.
 .................
 endif::gabarito[]
 
-3. Faça um backup de seus dados de modo que o instrutor possa ter sobre eles o mesmo tipo de acesso que você.
+3. Crie novamente a conta removida no passo 1 desta atividade. Agora, antes de removê-la, faça um backup de seus dados de modo que o instrutor possa ter sobre eles o mesmo tipo de acesso que você.
 ifdef::gabarito[]
 +
 O _script_ apontado no primeiro item desta atividade já faz o backup de arquivos (via opção `-b`). Caso o usuário tenha sido removido sem que seu _home_ tenha sido apagado (por exemplo, via comando `userdel`), pode-se fazer o backup dos dados da seguinte forma:
@@ -407,6 +412,9 @@ O _script_ apontado no primeiro item desta atividade já faz o backup de arquivo
 .................
 # tar czf /instrutor/marcelo.tar.gz /home/marcelo && rm -rf /home/marcelo
 tar: Removendo `/' inicial dos nomes dos membros
+
+# chown instrutor.instrutor /instrutor/marcelo.tar.gz
+
 # ls /instrutor/
 marcelo.tar.gz
 .................
@@ -416,7 +424,7 @@ endif::gabarito[]
 
 Muitas vezes, é necessário obter informações sobre os usuários de um sistema. Dois comandos que fornecem informações sobre usuários são `finger` e `id`.
 
-1. Verifique os parâmetros do usuário criado na atividade 1 utilizando esses comandos, e descreva a diferença entre os dois a partir dos resultados obtidos. Consulte as páginas de manual para verificar as opções disponíveis nestes comandos.
+1. Verifique os parâmetros do usuário `instrutor` utilizando esses comandos, e descreva a diferença entre os dois a partir dos resultados obtidos. Consulte as páginas de manual para verificar as opções disponíveis nestes comandos.
 ifdef::gabarito[]
 +
 .................
@@ -425,7 +433,7 @@ uid=1002(instrutor) gid=1002(instrutor) grupos=1002(instrutor),1003(grupoteste)
 
 $ finger instrutor
 Login: instrutor                        Name:
-Directory: /instrutor                   Shell: /bin/sh
+Directory: /instrutor                   Shell: /bin/bash
 Office Phone: 619-876-5432
 Last login Tue Aug  7 15:45 (-03) on pts/1 from localhost
 No mail.

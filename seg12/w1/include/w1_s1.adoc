@@ -12,7 +12,7 @@ ifdef::oneof[]
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
-include::../../locale/attributes.adoc[]
+include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 1: Configuração preliminar das máquinas
@@ -72,10 +72,14 @@ Agora, vamos configurar a rede de cada máquina virtual de acordo com as especif
 .................
 # hostname
 servidor
-
+.................
++
+.................
 # whoami
 root
-
+.................
++
+.................
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -93,9 +97,13 @@ iface eth1 inet static
 iface eth2 inet static
   address 172.16.0.10
   netmask 255.255.255.0
-
+.................
++
+.................
 # systemctl restart networking
-
+.................
++
+.................
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
     inet 10.0.0.204/24 brd 10.0.0.255 scope global eth0
@@ -108,10 +116,14 @@ iface eth2 inet static
 .................
 # hostname
 cliente
-
+.................
++
+.................
 # whoami
 root
-
+.................
++
+.................
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -123,9 +135,13 @@ iface eth0 inet static
         address 192.168.0.20
         netmask 255.255.255.0
         gateway 192.168.0.10
-
+.................
++
+.................
 # systemctl restart networking
-
+.................
++
+.................
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
     inet 192.168.0.20/24 brd 192.168.0.255 scope global eth0
