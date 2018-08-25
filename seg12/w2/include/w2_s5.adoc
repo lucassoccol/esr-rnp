@@ -183,9 +183,7 @@ A tabela a seguir mostra uma listagem com a descrição dos serviços a serem di
 | WinServer-G | NTP | UDP | 123 | Servidor de hora
 |===
 
-=== 5) Configuração do filtro de pacotes do firewall *_FWGW1-G_*
 
-Nesta atividade, iremos configurar o filtro de pacotes no host _FWGW1-G_, fazendo-o atuar efetivamente como o firewall da rede. Tomaremos como padrão a topologia definida para o laboratório na imagem constante da atividade (2) da sessão 1, e os serviços DMZ da tabela da atividade (4).
 
 A realização desta atividade é fundamental para a realização das demais atividades deste curso.
 A política de filtro de pacotes será a mais restritiva possível, permitindo somente as conexões previamente definidas no firewall. Dessa forma, a política padrão é negar todos os pacotes que chegarem, saírem e/ou atravessarem o firewall.
@@ -205,6 +203,8 @@ Caso cometa um erro, você pode apagar todas as regras das tabelas _input_ e _na
 ....
 
 Use o comando `tcpdump` para testar o funcionamento de suas regras.
+
+==== 1) Configuração preliminar
 
 1. O primeiro passo, antes de mesmo começar a mexer no firewall, é ter uma maneira de gravar suas regras. Iremos instalar o pacote `iptables-persistent` para atingir esse objetivo; mas, antes de começar, garanta que seu firewall não possui regras e que as políticas de entrada/saída são permissivas:
 +
@@ -252,7 +252,11 @@ Na instalação do pacote, quando perguntado, responda:
 # systemctl restart netfilter-persistent.service
 ....
 
-5. Agora sim, vamos começar. Primeiro, torne as políticas do firewall restritivas, ajustando a política das _chains_ INPUT e FORWARD para DROP.
+==== 2) Configuração do acesso ao firewall
+
+Vamos primeiramente permitir acesso administrativo ao firewall por SSH, bem como pacotes ICMP para testes de conectividades.
+
+1. Primeiro, torne as políticas do firewall restritivas, ajustando a política das _chains_ INPUT e FORWARD para DROP.
 ifdef::gabarito[]
 +
 ....
@@ -261,7 +265,7 @@ ifdef::gabarito[]
 ....
 endif::gabarito[]
 
-6. Teste o funcionamento do firewall. Na máquina _LinServer_, por exemplo, tente enviar um pacote ICMP para a máquina _FWGW1-G_.
+2. Teste o funcionamento do firewall. Na máquina _LinServer_, por exemplo, tente enviar um pacote ICMP para a máquina _FWGW1-G_.
 ifdef::gabarito[]
 +
 ....
@@ -276,7 +280,7 @@ PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
 ....
 endif::gabarito[]
 
-7. Agora, adicione as seguintes regras ao firewall:
+3. Agora, adicione as seguintes regras ao firewall:
 +
 --
 * Permita todo o tráfego na interface _loopback_, e rejeitar qualquer pacote vindo da rede 127.0.0.0/8 que não seja para a interface `lo` com `icmp-port-unreachable`
@@ -296,7 +300,7 @@ ifdef::gabarito[]
 ....
 endif::gabarito[]
 
-8. Realize o teste de conexão do passo (6) novamente, e verifique que suas configurações funcionaram.
+4. Realize o teste de conexão do passo (6) novamente, e verifique que suas configurações funcionaram.
 ifdef::gabarito[]
 +
 ....
@@ -313,7 +317,7 @@ rtt min/avg/max/mdev = 0.235/0.235/0.235/0.000 ms
 ....
 endif::gabarito[]
 
-9. Se quiser, use o PuTTY (https://www.putty.org/) ou Cygwin (http://www.cygwin.com/) -- nas máquinas _WinClient-G_ ou sua máquina física -- para conectar-se à máquina _FWGW1-G_ e testar sua configuração.
+5. Se quiser, use o PuTTY (https://www.putty.org/) ou Cygwin (http://www.cygwin.com/) -- nas máquinas _WinClient-G_ ou sua máquina física -- para conectar-se à máquina _FWGW1-G_ e testar sua configuração.
 ifdef::gabarito[]
 +
 Abaixo, temos um exemplo de conexão a partir da máquina física usando Cygwin/x64 para o _host_ _FWGW1-G_, via SSH.
@@ -334,4 +338,277 @@ aluno
 $ hostname
 FWGW1-A
 ....
+endif::gabarito[]
+
+==== 3) Configuração do acesso Intranet > DMZ
+
+Agora, vamos configurar o firewall para permitir pacotes originados na Intranet que atravessem o firewall com destino aos serviços da DMZ. Verifique a lista de serviços a serem permitidos na tabela 7 -- "Serviços de rede disponíveis na DMZ".
+
+1. Adicione regras à _chain_ FORWARD da tabela _filter_ que permitam que o serviços da tabela referenciada acima possam ser acessados a partir da Intranet.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+....
++
+....
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p tcp -m multiport --dports 22,25,80,110,5432 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
+....
++
+....
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443,3389 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 123 -j ACCEPT
+....
+endif::gabarito[]
+
+2. Teste sua configuração acessando o servidor web IIS instalado na máquina _WinServer-G_, e acessando-o a partir da máquina _WinClient-G_.
+ifdef::gabarito[]
++
+.Acesso da Intranet para a DMZ
+[#img-fwd-iis-ok]
+[caption="Figura 26: "]
+image::firewall-fwd-iis-ok.png[align="center"]
+endif::gabarito[]
+
+==== 4) Configuração do acesso DMZ/Intranet > Internet
+
+Agora, vamos configurar o acesso da DMZ e Intranet para a Internet. Para isso, teremos que permitir que pacotes originados nessas redes atravessem o firewall via interface de rede _outbound_.
+
+1. Adicione regras à _chain_ FORWARD da tabela _filter_ que permitam que as redes DMZ e Intranet possam acessar qualquer serviço na Internet, via quaisquer protocolos.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# iptables -A FORWARD -s 172.16.1.0/24 -o eth0 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24   -o eth0 -j ACCEPT
+....
+endif::gabarito[]
+
+2. Teste sua configuração acessando uma página da Internet a partir da máquina _LinServer-G_.
+ifdef::gabarito[]
++
+....
+$ hostname
+LinServer-A
+....
++
+....
+$ nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+....
+
+==== 5) Configuração do acesso Internet > DMZ
+
+Finalmente, o último passo é permitir que requisições vindas da Internet possam acessar alguns serviços publicados pela DMZ.
+
+Como dois serviços das máquinas _LinServer-G_ e _WinServer-G_ operam nas mesmas portas (80/TCP e 123/UDP), teremos que fazer uma técnica de PAT (_port address translation_) para que ambos possam ser atingidos. O primeiro passo será feito aqui, nas regras da _chain_ FORWARD; na próxima atividade, em que configuraremos o DNAT, será realizada a parte de tradução de portas.
+
+.Serviços publicados pela DMZ para a Internet
+[options="header"]
+|===
+| Servidor | Serviço | Protocolo | Porta do serviço | Porta Internet
+| LinServer-G | Postfix | TCP | 25 | 25
+| LinServer-G | Apache | TCP | 80 | 80
+| LinServer-G | Courier | TCP | 110 | 110
+| LinServer-G | Bind | UDP | 53 | 53
+| LinServer-G | NTP | UDP | 123 | 123
+| WinServer-G | FTP | TCP | 21 | 21
+| WinServer-G | IIS | TCP | 80 | 8080
+| WinServer-G | IIS | TCP | 443 | 443
+| WinServer-G | NTP | UDP | 123 | 8123
+|===
+
+O teste deste configuração será feito na próxima atividade, em que configuraremos o NAT.
+
+[WARNING]
+====
+As regras de DNAT que inseriremos na atividade a seguir entrarão na _chain_ PREROUTING, ou pré-roteamento. Isso significa dizer que os números de porta Internet mostrados acima serão traduzidos para os números das porta de serviço *ANTES* que as regras da _chain_ FORWARD sejam processadas.
+
+Tenha isso em mente ao decidir quais números de porta utilizar nas regras de repasse deste exercício.
+====
+
+1. Adicione regras à _chain_ FORWARD da tabela _filter_ que permitam que a Internet consiga acessar os serviços publicados pelas máquinas da DMZ, de acordo com as especificações acima.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# iptables -A FORWARD -i eth0 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
+# iptables -A FORWARD -i eth0 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
+# iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,443,80 -j ACCEPT
+# iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT
+....
++
+Como a tradução dos números de porta já terá sido realizado quando as regras acima forem processadas, devemos utilizar os número de porta internos (ou de serviço, de acordo com a tabela) na configuração das regras de _forward_.
+endif::gabarito[]
+
+=== 5) Configuração do NAT no firewall *_FWGW1-G_*
+
+O principal objetivo desta atividade é demonstrar o entendimento do funcionamento dos tipos de NAT e aplicá-los em uma simulação de caso real.
+
+Utilizando os conceitos aprendidos, será necessário configurar o NAT no firewall _FWGW1-G_ para permitir que as máquinas da rede local e da DMZ consigam acessar a Internet. Também será necessária a configuração do NAT para publicação dos serviços da DMZ para a Internet.
+
+==== 1) Configuração do SNAT: DMZ/Intranet > Internet
+
+1. Antes de configurar o SNAT para acesso DMZ/Intranet > Internet, será necessário remover a configuração de _masquerading_ preexistente, que fizemos na sessão 1. Edite o arquivo `/etc/rc.local` e remova ou comente a linha:
++
+....
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+....
+ifdef::gabarito[]
++
+....
+# sed -i 's/\(iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE\)/#\1/' /etc/rc.local
+....
+endif::gabarito[]
+
+2. Da mesma forma, remova essa regra do firewall, já que configuraremos outras regras, mais específicas, em seu lugar a seguir.
++
+....
+# iptables -t nat -L POSTROUTING -vn --line-number
+Chain POSTROUTING (policy ACCEPT 2 packets, 104 bytes)
+num   pkts bytes target     prot opt in     out     source               destination
+1       70  5922 MASQUERADE  all  --  *      eth0    0.0.0.0/0            0.0.0.0/0
+....
+ifdef::gabarito[]
++
+....
+# iptables -t nat -D POSTROUTING 1
+....
+endif::gabarito[]
+
+3. Agora sim, tudo pronto. Insira uma regra no firewall que faça tradução dos endereços das redes DMZ/Intranet via _masquerading_, permitindo assim seu acesso à Internet.
+ifdef::gabarito[]
++
+....
+# iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o eth0 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o eth0 -j MASQUERADE
+....
+endif::gabarito[]
+
+4. Teste sua configuração. Acesse, por exemplo, a máquina _LinServer-G_ e tente acessar um site na Internet.
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+....
+endif::gabarito[]
+
+==== 2) Configuração do DNAT: Internet > DMZ
+
+1. Agora, vamos configurar o DNAT, que irá permitir acesso pela Internet aos serviços publicados pela DMZ. Comece fazendo as regras para a máquina _LinServer-G_, que não exige PAT.
+ifdef::gabarito[]
++
+....
+# iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
+# iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10
+....
+endif::gabarito[]
+
+2. Agora, teste sua configuração. Primeiro, instale o servidor web Apache na máquina _LinServer-G_; a seguir, em sua máquina física, acesso o IP público da máquina _FWGW1-G_ na porta 80/TCP e verifique que de fato é exibida no navegador a página web instalada no _LinServer-G_.
+ifdef::gabarito[]
++
+Primeiro, vamos instalar o servidor web Apache na máquina _LinServer-G_:
++
+....
+# hostname
+LinServer-A
+
+# apt-get install --no-install-recommends apache2
+....
++
+Em seguida, vamos monitorar o log de acesso do Apache, aguardando por conexões:
++
+....
+# tail -f -n0 /var/log/apache2/access.log
+....
++
+Agora, temos que descobrir o IP público da máquina _FWGW1-G_:
++
+....
+# hostname
+FWGW1-A
+
+# ip a s eth0 | grep '^ *inet '
+    inet 192.168.29.103/24 brd 192.168.29.255 scope global eth0
+....
++
+Finalmente, vamos acessar esse IP na porta 80 a partir da máquina física:
++
+.Teste DNAT do acesso Internet > LinServer
+[#img-firewall-dnat-linserver]
+[caption="Figura 27: "]
+image::firewall-dnat-linserver.png[align="center"]
++
+Voltando ao monitoramento do log de acessos do Apache na máquina _LinServer-G_, vemos que o acesso de fato se concretizou:
++
+....
+# hostname
+LinServer-A
+
+# tail -f -n0 /var/log/apache2/access.log
+192.168.29.102 - - [25/Aug/2018:15:19:57 -0400] "GET / HTTP/1.1" 200 3380 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
+192.168.29.102 - - [25/Aug/2018:15:19:57 -0400] "GET /icons/openlogo-75.png HTTP/1.1" 200 6040 "http://192.168.29.103/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
+....
+endif::gabarito[]
+
+3. Faça o mesmo processo para a configuração do DNAT da máquina _WinServer-G_. Atente-se para o fato de que duas portas internat, 80/TCP e 123/UDP, serão acessadas através das portas externas 8080/TCP e 8123/UDP respectivamente. Configure o PAT de acordo.
+ifdef::gabarito[]
++
+....
+# iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 21,443 -j DNAT --to-de stination 172.16.1.20
+# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8080 -j DNAT --to-destination 172.16 .1.20:80
+# iptables -t nat -A PREROUTING -i eth0 -p udp --dport 8123 -j DNAT --to-destination 172.16 .1.20:123
+....
+endif::gabarito[]
+
+4. Teste sua configuração. Em sua máquina física, acesso o IP público da máquina _FWGW1-G_ na porta 8080/TCP e verifique que de fato é exibida no navegador a página web do servidor IIS instalada na máquina _WinServer-G_.
+ifdef::gabarito[]
++
+Utilizando o mesmo IP público descoberto anteriormente, basta acessá-lo na porta 8080 como solicitado:
++
+.Teste DNAT do acesso Internet > WinServer
+[#img-firewall-dnat-winserver]
+[caption="Figura 28: "]
+image::firewall-dnat-winserver.png[align="center"]
+endif::gabarito[]
+
+=== 6) Revisão final da configuração do firewall *_FWGW1-G_*
+
+Salve a configuração feita até aqui e reinicie o firewall com os comandos:
+
+....
+# hostname
+FWGW1-A
+
+# iptables-save > /etc/iptables/rules.v4
+# systemctl restart netfilter-persistent.service
+....
+
+Revise se todos os pontos abordados até aqui foram contemplados. Que outras regras interessantes poderiam ser incluídas na configuração desse firewall?
+ifdef::gabarito[]
++
+Abaixo, temos a configuração final sugeriada para o firewall:
++
+[source,bash]
+----
+include::{srcdir}/s5/etc_iptables_rules.v4[]
+----
 endif::gabarito[]
