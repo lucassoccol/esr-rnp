@@ -22,7 +22,7 @@ endif::oneof[]
 As atividades desta sessão serão realizadas na máquina virtual _FWGW1-G_, com pequenas exceções apontadas pelo enunciado dos exercícios.
 ====
 
-=== 1) Trabalhando com *__chains_* no *_iptables_*
+=== 1) Trabalhando com *_chains_* no *_iptables_*
 
 O Netfilter é um _framework_ provido pelo kernel Linux que permite que várias operações relacionadas à rede sejam implementadas através de _handlers_ customizados. Ele provê diversas funções e operações que permitem filtragem de pacotes, tradução de endereços de rede e portas, bem como a capacidade de proibir que pacotes cheguem a pontos sensíveis da rede.
 
@@ -159,9 +159,9 @@ endif::gabarito[]
 
 2. Qual seria, então, a diferença entre filtros de pacotes _stateless_ e _stateful_?
 
-=== 4) Configuração do firewall para o laboratório
+=== 3) Configurando o firewall *_FWGW1-G_*: tabela *_filter_*
 
-A partir desta atividade o roteiro está dividido em duas partes. Na primeira, o aluno programará um controle de pacotes para permitir a comunicação entre os _hosts_ descritos na topologia do laboratório. Na segunda parte, programará a tradução de pacotes. Se precisar, retorne à imagem constante da atividade (2) da sessão 1 -- Configuração preliminar das máquinas.
+A partir desta atividade o roteiro está dividido em duas grandes partes. Na primeira, o aluno programará um controle de pacotes para permitir a comunicação entre os _hosts_ descritos na topologia do laboratório. Na segunda parte, programará a tradução de pacotes. Se precisar, retorne à imagem constante da atividade (2) da sessão 1 -- Configuração preliminar das máquinas.
 
 A tabela a seguir mostra uma listagem com a descrição dos serviços a serem disponibilizados pelos servidores da DMZ, cuja permissão de acesso será configurada nas atividades a seguir.
 
@@ -240,7 +240,7 @@ Na instalação do pacote, quando perguntado, responda:
 | Salvar as regras IPv6 atuais? | Sim
 |===
 
-3. Isso feito, basta dar início ao processo de configuração do firewall (que começa no passo 5 desta atividade). Ao inserir um conjunto de regras no firewall com as quais você esteja satisfeito, é possível gravá-las de forma fácil com o comando:
+3. Isso feito, basta dar início ao processo de configuração do firewall. Ao inserir um conjunto de regras com as quais você esteja satisfeito, é possível gravá-las de forma fácil com o comando:
 +
 ....
 # iptables-save > /etc/iptables/rules.v4
@@ -317,7 +317,7 @@ rtt min/avg/max/mdev = 0.235/0.235/0.235/0.000 ms
 ....
 endif::gabarito[]
 
-5. Se quiser, use o PuTTY (https://www.putty.org/) ou Cygwin (http://www.cygwin.com/) -- nas máquinas _WinClient-G_ ou sua máquina física -- para conectar-se à máquina _FWGW1-G_ e testar sua configuração.
+5. Se quiser, use o PuTTY (https://www.putty.org/) ou Cygwin (http://www.cygwin.com/), nas máquinas _WinClient-G_ ou sua máquina física, para conectar-se à máquina _FWGW1-G_ e testar sua configuração.
 ifdef::gabarito[]
 +
 Abaixo, temos um exemplo de conexão a partir da máquina física usando Cygwin/x64 para o _host_ _FWGW1-G_, via SSH.
@@ -406,6 +406,7 @@ LinServer-A
 $ nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
 ....
+endif::gabarito[]
 
 ==== 5) Configuração do acesso Internet > DMZ
 
@@ -455,7 +456,7 @@ FWGW1-A
 Como a tradução dos números de porta já terá sido realizado quando as regras acima forem processadas, devemos utilizar os número de porta internos (ou de serviço, de acordo com a tabela) na configuração das regras de _forward_.
 endif::gabarito[]
 
-=== 5) Configuração do NAT no firewall *_FWGW1-G_*
+=== 4) Configurando o firewall *_FWGW1-G_*: tabela *_nat_*
 
 O principal objetivo desta atividade é demonstrar o entendimento do funcionamento dos tipos de NAT e aplicá-los em uma simulação de caso real.
 
@@ -483,12 +484,10 @@ Chain POSTROUTING (policy ACCEPT 2 packets, 104 bytes)
 num   pkts bytes target     prot opt in     out     source               destination
 1       70  5922 MASQUERADE  all  --  *      eth0    0.0.0.0/0            0.0.0.0/0
 ....
-ifdef::gabarito[]
 +
 ....
 # iptables -t nat -D POSTROUTING 1
 ....
-endif::gabarito[]
 
 3. Agora sim, tudo pronto. Insira uma regra no firewall que faça tradução dos endereços das redes DMZ/Intranet via _masquerading_, permitindo assim seu acesso à Internet.
 ifdef::gabarito[]
@@ -603,10 +602,10 @@ FWGW1-A
 ....
 
 Revise se todos os pontos abordados até aqui foram contemplados. Que outras regras interessantes poderiam ser incluídas na configuração desse firewall?
+
 ifdef::gabarito[]
-+
-Abaixo, temos a configuração final sugeriada para o firewall:
-+
+Abaixo, temos a configuração final sugerida para o firewall:
+
 [source,bash]
 ----
 include::{srcdir}/s5/etc_iptables_rules.v4[]
