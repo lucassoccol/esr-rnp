@@ -1,0 +1,185 @@
+ifdef::oneof[]
+////
+= SEG12 - Semana 2 - Sessão 6
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 16-08-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 6: Serviços básicos de segurança
+
+=== 1) Configuração do servidor de log remoto
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e _WinServer-G_.
+====
+
+Nesta atividade iremos configurar um repositório de logs em um servidor da DMZ (_LinServer-G_), e enviar os logs dos demais servidores para esse concentrador. O objetivo desta atividade é fazer o aluno aplicar os conceitos de repositório de logs de uma rede e preparar o ambiente para os serviços seguintes, que serão configurados durante o curso.
+
+1. Primeiro, vamos configurar o concentrador de logs. Acesse a máquina _LinServer-G_ e instale o pacote `syslog-ng`.
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+
+# apt-get install --no-install-recommends syslog-ng
+....
+endif::gabarito[]
+
+2. Observe que na última linha do arquivo `/etc/syslog-ng/syslog-ng.conf` são incluídos arquivos com a extensão `.conf` localizados no diretório `/etc/syslog-ng/conf.d`:
++
+....
+# tail -n1 /etc/syslog-ng/syslog-ng.conf
+@include "/etc/syslog-ng/conf.d/*.conf"
+....
++
+Aproveitando-se desse fato, crie um novo arquivo com a extensão apropriada nesse diretório e configure o recebimento de logs remotos. Faça com que o `syslog-ng` escute por conexões na porta 514/UDP, e envie os arquivos de log de uma dado _host_ para o arquivo `/var/log/$HOST.log`. Finalmente, reinicie o `syslog-ng`.
+ifdef::gabarito[]
++
+Abaixo, mostramos o conteúdo do arquivo `/etc/syslog-ng/conf.d/rserver.conf`, que cumpre os objetivos especificados:
++
+[source,bash]
+----
+include::{srcdir}/s6/linserver_etc_syslog-ng_conf.d_rserver.conf[]
+----
++
+Depois, basta reiniciar o serviço:
++
+....
+# systemctl restart syslog-ng.service
+....
+endif::gabarito[]
+
+3. Agora, na máquina _FWGW1-G_, instale o `syslog-ng` e configure-o como um cliente Syslog. Crie um arquivo de configuração na pasta `/etc/syslog-ng/conf.d` que envie todos os eventos de log locais para a máquina _LinServer-G_ na porta 514/UDP.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# apt-get install --no-install-recommends syslog-ng
+....
++
+A seguir, temos o arquivo `/etc/syslog-ng/conf.d/rclient.conf`, que envia os logs locais para o servidor remoto:
++
+[source,bash]
+----
+include::{srcdir}/s6/fwgw1_etc_syslog-ng_conf.d_rclient.conf[]
+----
++
+Finalmente, basta reiniciar o `syslog-ng`:
++
+....
+# systemctl restart syslog-ng.service
+....
+endif::gabarito[]
+
+4. Usando o comando `logger`, teste seu ambiente.
+ifdef::gabarito[]
++
+Na máquina _FWGW1-G_, crie um evento de log qualquer usando o comando `logger`:
++
+....
+# hostname
+FWGW1-A
+
+# logger -p error Teste
+....
++
+Observando a máquina _LinServer-G_, perceba que foi criado um novo arquivo `/var/log/172.16.G.1.log`. Verificando seu conteúdo, é possível constatar que, de fato, os logs remotos do _host_ _FWGW1-G_ estão sendo enviados para cá.
++
+....
+# hostname
+LinServer-A
+
+# tail -n1 /var/log/172.16.1.1.log
+Aug 26 06:49:30 172.16.1.1 aluno: Teste
+....
+endif::gabarito[]
+
+5. Agora, vamos configurar a máquina _WinServer-G_ para enviar registros de eventos para o concentrador Syslog. Faça login como usuário `Administrator` e abra o _Group Policy Editor_ digitando `gpedit.msc` no menu _Start_ > _Run..._.
++
+Na ferramenta, acesse a seção _Computer Configuration_ > _Windows Settings_ > _Security Settings_ > _Local Policies_ > _Audit Policy_ e habilite os seguintes eventos como "Sucesso" e "Falha":
++
+.Políticas de auditoria para o WinServer-G
+[options="header"]
+|===
+| Policy | Security Setting
+| Audit account logon events | Success, Failure
+| Audit account management | Success, Failure
+| Audit directory service access | No auditing
+| Audit logon events | Success, Failure
+| Audit object access | Failure
+| Audit policy change | Success
+| Audit privilege use | Failure
+| Audit process tracking | No Auditing
+| Audit system events | Success, Failure
+|===
+ifdef::gabarito[]
++
+A tela ficaria, portanto, desta forma:
++
+.Tela de políticas de auditoria para o WinServer-G
+[#img-syslog-gpedit]
+[caption="Figura 29: "]
+image::syslog-gpedit.png[align="center"]
+endif::gabarito[]
+
+6. O próximo passo é instalar o Snare, que permitirá envio dos registros de eventos do Windows para um servidor Syslog remoto. Faça o download em https://www.snaresolutions.com/products/snare-agents/open-source-agents/ ; será necessário cadastrar seu nome/email para receber o link de download. Alternativamente, solicite o instalador ao instrutor.
++
+Durante a instalação, responda todas as perguntas com as opções padrão, exceto:
++
+.Opções de instalação do Snare
+[options="header"]
+|===
+| Opção | Escolha
+| Snare Auditing | Yes
+| Service Account | Use System Account
+| Remote Control Interface | Enable Web Access (Password: rnpesr)
+|===
+
+7. Após a instalação, abra o Snare. Clique em _Start_ e digite "snare", escolhendo a opção `Snare for Windows (Open Source)`, como se segue:
++
+.Inicialização do Snare
+[#img-syslog-snare-start]
+[caption="Figura 30: "]
+image::syslog-snare-start.png[align="center"]
++
+Irá ser lançada uma janela do navegador. Informe o usuário `snare`, e senha `rnpesr`, como se segue:
++
+.Login no Snare
+[#img-syslog-snare-password]
+[caption="Figura 31: "]
+image::syslog-snare-password.png[align="center"]
++
+Clique em _Network Configuration_ -- informe o IP da máquina _LinServer-G_ no campo _Destination Snare Server address_, e a porta 514 no campo _Destination Port_, como se segue. Em seguida, clique em _Change Configuration_.
++
+.Configurações do Snare
+[#img-syslog-snare-config]
+[caption="Figura 32: "]
+image::syslog-snare-config.png[align="center"]
++
+Em seguida, clique em _Apply the Latest Audit Configuration_ e depois em _Reload Settings_.
+
+8. Faça logoff/logon no _WinServer-G_ para gerar registros de eventos. Em seguida, volte à máquina _LinServer-G_ e verifique que os logs estão de fato sendo enviados.
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+
+# grep Logoff /var/log/172.16.1.20.log
+Aug 26 07:10:25 172.16.1.20 WinServer-A MSWinEventLog   1       Security        50      dom ago 26 08:10:23 2018  4647    Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit     WinServer-A     Logoff          User initiated logoff:    Subject:   Security ID:  S-1-5-21-1959434341-4039883546-812769935-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0x16898    This event is generated when a logoff is initiated but the token reference count is not zero and the logon session cannot be destroyed.  No further user-initiated activity can occur.  This event can be interpreted as a logoff event.  41
+....
+endif::gabarito[]

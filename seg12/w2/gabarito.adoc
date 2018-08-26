@@ -12,7 +12,7 @@
 :srcdir: ../src
 :icons: font
 :toc:
-//:gabarito: true
+:gabarito: true
 
 ifdef::basebackend-html[]
 ++++
@@ -39,5 +39,9 @@ include::include/w2_s4.adoc[]
 <<<
 
 include::include/w2_s5.adoc[]
+
+<<<
+
+include::include/w2_s6.adoc[]
 
 <<<

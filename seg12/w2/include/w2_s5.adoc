@@ -449,7 +449,7 @@ FWGW1-A
 ....
 # iptables -A FORWARD -i eth0 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
 # iptables -A FORWARD -i eth0 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
-# iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,443,80 -j ACCEPT
+# iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443 -j ACCEPT
 # iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT
 ....
 +
