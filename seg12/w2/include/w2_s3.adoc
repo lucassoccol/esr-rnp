@@ -54,7 +54,7 @@ Primeiro, vamos fazer um _scan_ e analisar o log, que contém várias informaç�
 +
 .Scan do HijackThis
 [#img-hjt]
-[caption="Figura 14: "]
+[caption="Figura 15: "]
 image::hjt.png[align="center"]
 +
 Se quiser corrigir elementos que foram identificados como perigosos, rode o programa novamente com a opção _Do a system scan only_. Em seguide, marque as entradas desejadas e depois clique em _Fix checked_. Tenha cuidado, pois as entradas identificadas pelo HijackThis não são necessariamente nocivas e devem ser estudadas individualmente pelo analista de segurança. Você constatou algum tipo de arquivo malicioso encontrado pela ferramenta?

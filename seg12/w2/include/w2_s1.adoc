@@ -226,7 +226,7 @@ nameserver 8.8.4.4
 
 4. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
 +
-Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
+Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais. Quando perguntado sobre o perfil da rede, escolha _Work_.
 +
 .Configuração de rede da máquina WinServer-G
 [#img-rede-winserver]
@@ -286,7 +286,7 @@ image::Configuracao_Rede_WinClient.png[align="center"]
 
 === 6) Configuração de firewall e NAT
 
-O passo final é garantir que as VMs consigam acessar a internet através da máquina _FWGW1-G_, que é o firewall/roteador na topologia de rede do curso.
+O próximo passo é garantir que as VMs consigam acessar a internet através da máquina _FWGW1-G_, que é o firewall/roteador na topologia de rede do curso.
 
 1. Antes de mais nada, observe que na máquina _FWGW1-G_ já existe uma configuração de _masquerading_ (um tipo de SNAT que veremos em maior detalhe na sessão 5) no arquivo `/etc/rc.local`:
 +
@@ -322,23 +322,48 @@ Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
 +
 <<<
 
-4. Para testar a conectividade, acesse a máquina _LinServer-G_ e verifique -- você deve conseguir `ping` com um _host_ da internet, como `8.8.8.8`, por exemplo:
+=== 7) Teste de conectividade das VMs
+
+1. Vamos agora testar a conectividade de cada uma das VMs. Primeiro, acesse a máquina _FWGW1-G_ e verifique o acesso à internet e resolução de nomes:
 +
-.................
-$ ping -c3 8.8.8.8
+....
+aluno@FWGW1-A:~$ hostname
+FWGW1-A
+....
++
+....
+aluno@FWGW1-A:~$ ping -c3 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
-64 bytes from 8.8.8.8: icmp_seq=1 ttl=113 time=30.9 ms
-64 bytes from 8.8.8.8: icmp_seq=2 ttl=113 time=31.3 ms
-64 bytes from 8.8.8.8: icmp_seq=3 ttl=113 time=30.9 ms
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=121 time=28.7 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=121 time=16.9 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=121 time=16.7 ms
 
 --- 8.8.8.8 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2002ms
-rtt min/avg/max/mdev = 30.916/31.084/31.388/0.296 ms
-.................
+3 packets transmitted, 3 received, 0% packet loss, time 2005ms
+rtt min/avg/max/mdev = 16.776/20.832/28.757/5.606 ms
+....
 +
-<<<
+....
+aluno@FWGW1-A:~$ ping -c3 esr.rnp.br
+PING esr.rnp.br (200.130.99.56) 56(84) bytes of data.
+64 bytes from 200.130.99.56: icmp_seq=1 ttl=54 time=37.9 ms
+64 bytes from 200.130.99.56: icmp_seq=2 ttl=54 time=36.4 ms
+64 bytes from 200.130.99.56: icmp_seq=3 ttl=54 time=37.1 ms
 
-=== 7) Instalação do *_Virtualbox Guest Additions_* nas VMs Windows
+--- esr.rnp.br ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms
+....
+
+2. Em seguida, acesse cada uma das demais VMs, em ordem (_LinServer-G_, _WinServer-G_, _KaliLinux-G_ e _WinClient-G_) e teste se é possível:
++
+--
+* Alcançar o roteador da rede: `ping 172.16.1.1` (para máquinas da DMZ) ou `ping 10.1.1.1` (para máquinas da Intranet)
+* Alcançar um servidor na Internet: `ping 8.8.8.8`
+* Resolver nomes: comandos `nslookup`, `host` ou `ping` para o nome de domínio `esr.rnp.br`
+--
+
+=== 8) Instalação do *_Virtualbox Guest Additions_* nas VMs Windows
 
 Vamos agora instalar os adicionais de convidado para máquinas virtuais do Virtualbox, conhecido como _Virtualbox Guest Additions_. Esse adicionais consistem em _drivers_ de dispositivo e aplicações de sistema que otimizam o sistema para rodar no ambiente virtual, proporcionando maior performance e estabilidade. Nesta atividade, iremos instalar os adicionais apenas nas máquinas _WinServer-G_ e _WinClient-G_.
 
@@ -366,11 +391,17 @@ image::Vboxguest_publisher.png[align="center"]
 +
 <<<
 
-=== 8) Instalação do *_Virtualbox Guest Additions_* nas VMs Linux
+=== 9) Instalação do *_Virtualbox Guest Additions_* nas VMs Linux
 
 A instalação do _Virtualbox Guest Additions_ nas VMs Linux é um pouco diferente, mais manual. Siga os passos a seguir:
 
-1. Vamos começar pela máquina _FWGW1-G_. Primeiro, faça login como `root` e edite o arquivo `/etc/apt/sources.list` com o seguinte conteúdo:
+1. Vamos começar pela máquina _FWGW1-G_. Primeiro, faça login como `root` apague o conteúdo do arquivo `/etc/apt/sources.list`:
++
+....
+# echo "" > /etc/apt/sources.list
+....
++
+Em seguida, edite-o com o seguinte conteúdo:
 +
 ....
 # cat /etc/apt/sources.list
@@ -437,7 +468,7 @@ Não obstante, os passos de instalação são idênticos aos das máquinas _FWGW
 
 <<<
 
-=== 9) Configuração da VM *_WinServer-G_*
+=== 10) Configuração da VM *_WinServer-G_*
 
 A máquina _WinServer-G_ demanda uma pequena configuração adicional antes que estejamos prontos para começar os trabalhos. Vamos a ela:
 
@@ -456,16 +487,21 @@ image::Winserver_system.png[align="center"]
 [#img-winserver-changename]
 [caption="Figura 7: "]
 image::Winserver_changename.png[align="center"]
+<<<
 
-3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow Connections from computers running any version of Remote Desktop (less secure)_. Depois, clique em _Apply_ e em seguida em _Restart Later_.
+3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow Connections from computers running any version of Remote Desktop (less secure)_, como na imagem abaixo. Depois, clique em _Apply_ e em seguida em _Restart Later_.
 +
+.Configurações de Remote Desktop do WinServer
+[#img-winserver-rdesktop]
+[caption="Figura 8: "]
+image::Winserver_rdesktop.png[align="center"]
 <<<
 
 4. Agora, desabilite o firewall do Windows. Digite `firewall` no menu _Start_ (alternativamente, clique em _Windows Firewall_ no _Control Panel_), em seguida em _Turn Windows Firewall on or off_, e finalmente marque a caixa _Off_, como se segue:
 +
 .Desabilitar o firewall do WinServer
 [#img-winserver-firewall]
-[caption="Figura 8: "]
+[caption="Figura 9: "]
 image::Winserver_firewall.png[align="center"]
 
 5. Clique em _OK_ e reinicie a máquina _WinServer-G_.
@@ -476,7 +512,7 @@ image::Winserver_firewall.png[align="center"]
 +
 .Instalando a role IIS no WinServer
 [#img-winserver-iis]
-[caption="Figura 9: "]
+[caption="Figura 10: "]
 image::Winserver_iis.png[align="center"]
 +
 <<<
@@ -485,7 +521,7 @@ image::Winserver_iis.png[align="center"]
 +
 .Instalando a feature FTP Server no WinServer
 [#img-winserver-ftp]
-[caption="Figura 10: "]
+[caption="Figura 11: "]
 image::Winserver_ftp.png[align="center"]
 
 8. Finalmente, clique em _Install_ e aguarde. Ao final do processo, clique em _Close_.

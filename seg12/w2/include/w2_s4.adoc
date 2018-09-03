@@ -34,14 +34,14 @@ Muito frequentemente teremos, neste curso, de mover programas e arquivos localiz
 +
 .Configuração de pasta compartilhada no Virtualbox
 [#img-sharedfolder]
-[caption="Figura 15: "]
+[caption="Figura 16: "]
 image::Vbox_sharedfolder.png[align="center"]
 
 4. Agora, reinicie a máquina _WinServer-G_. Após o _reboot_, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome _SEG12_Semana2_Programas_.
 +
 .Visualização de pasta compartilhada no Virtualbox
 [#img-sharedfolder-view]
-[caption="Figura 16: "]
+[caption="Figura 17: "]
 image::Vbox_sharedfolder_view.png[align="center"]
 
 5. Pronto! Agora, basta fazer o download de programas e arquivos a serem acessados pelas máquinas virtuais dentro da pasta compartilhada, e elas terão acesso imediato. Se desejar, repita o procedimento para a máquina _WinClient-G_.
@@ -53,7 +53,9 @@ image::Vbox_sharedfolder_view.png[align="center"]
 Esta atividade será realizada na máquina virtual _WinServer-G_.
 ====
 
-Faça o download do Wireshark (versão 32-bit) em https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.2.16.exe , e instale-o na máquina _WinServer-G_ -- se preferir, faça o download na máquina física e copie o arquivo via pasta compartilhada, como explicado na atividade 1. Iremos instalar a versão 2.2 porque é a última compatível com Windows Vista/Windows Server 2008, que é o sistema operacional da máquina _WinServer-G_.
+Primeiro, baixe e instale o _Microsoft Visual C++ Redistributable Packages for Visual Studio 2013_ (https://www.microsoft.com/en-US/download/details.aspx?id=40784), como usuário _Administrator_, na máquina _WinServer-G_. Se preferir, faça o download na máquina física e copie o arquivo via pasta compartilhada, como explicado na atividade 1.
+
+Em seguida, faça o download do Wireshark (versão 32-bit) em https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.2.16.exe e, como usuário _Administrator_, instale-o na máquina _WinServer-G_. Iremos instalar a versão 2.2 porque é a última compatível com Windows Vista/Windows Server 2008, que é o sistema operacional da máquina _WinServer-G_.
 
 Em seguida:
 
@@ -68,7 +70,7 @@ ifdef::gabarito[]
 +
 .Envio de usuário/senha por FTP
 [#img-ftp-wronguser]
-[caption="Figura 17: "]
+[caption="Figura 18: "]
 image::Wireshark_ftp_wronguser.png[align="center"]
 endif::gabarito[]
 
@@ -79,7 +81,7 @@ Na imagem abaixo podemos confirmar que, de fato, o usuário e senha são passado
 +
 .Captura de sessão FTP no Wireshark
 [#img-wireshark-ftp]
-[caption="Figura 18: "]
+[caption="Figura 19: "]
 image::Wireshark_ftp_capture.png[align="center"]
 endif::gabarito[]
 
@@ -121,10 +123,10 @@ tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on eth1, link-type EN10MB (Ethernet), capture size 262144 bytes
 ....
 +
-Note que o filtro acima exclui pacotes IPv6 e pacotes vindos da máquina física (endereço 172.16.1.254), para não atrapalhar o processo de análise.
+Note que o filtro acima exclui pacotes IPv6 e pacotes vindos da máquina física (que também encontra-se conectada à rede _host-only_, com o endereço 172.16.1.254), para não atrapalhar o processo de análise.
 endif::gabarito[]
 
-3. Na máquina _KaliLinux-G_, use o `hping3` para iniciar um ataque _SYN flood_ com destino à máquina _FWGW1-G_, na porta do serviço SSH, com máxima velocidade de output e randomizando os IPs de origem dos pacotes.
+3. Na máquina _KaliLinux-G_, como usuário `root`, use o `hping3` para iniciar um ataque _SYN flood_ com destino à máquina _FWGW1-G_, na porta do serviço SSH (com o objetivo, no caso do atacante, de esgotar os recursos de atendimento do serviço a usuários legítimos), com máxima velocidade de output e randomizando os IPs de origem dos pacotes.
 ifdef::gabarito[]
 +
 ....
@@ -161,6 +163,10 @@ Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto
 ....
 +
 Note que os IPs de origem são todos distintos, como esperado. Além disso, todos possuem a _flag_ SYN ativada e objetivam a porta 22/TCP do servidor, numa tentativa de exaurir recursos para tratamento de conexão de novos clientes.
++
+Assim que o servidor recebe o SYN inicial, ele aloca memória para atender o cliente e responde com um SYN-ACK. No caso de um ataque SYN _flood_, como o desta atividade, o atacante envia um grande número de pacotes SYN sem qualquer intenção de responder o SYN-ACK recebido com um ACK (e, assim, fechar o _three-way handshake_). Se o atacante estiver usando endereços IP _spoofed_, o que estamos fazendo, o SYN-ACK sequer chega a ser recebido.
++
+Durante este período o servidor não pode fechar a conexão com um pacote RST, e ela permanece aberta. Antes do _timeout_, outros pacotes SYN vindos do atacante chegam, e começam a deixar um número crescente de conexões em estado _half-open_. Eventualmente, as tabelas de _overflow_ de conexão de servidor ficam cheias, e clientes legítimos têm seu acesso negado ao serviço.
 endif::gabarito[]
 
 5. Reative a proteção _TCP SYN Cookies_ do kernel da máquina _FWGW1-G_.
@@ -172,6 +178,8 @@ FWGW1-A
 
 # echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 ....
++
+Os SYN _cookies_ implementam uma proteção em que o servidor responde cada SYN inicial com um SYN-ACK contendo o hash criptográfico de um número de sequência construído a partir do endereço IP do cliente, número de porta e outras informações de identificação. Quando o cliente responde, esse hash deve ser incluído no pacote ACK. Finalmente, o servidor verifica esse ACK e só então aloca memória para a conexão.
 endif::gabarito[]
 
 === 4) Ataque *_Smurf_*
@@ -340,6 +348,9 @@ Por exemplo, para descobrir quais são as dez portas mais populares, basta execu
 +
 ....
 # cat /usr/share/nmap/nmap-services | grep -v '^#' | awk '{print $3,$2,$1}' | sort -n | tac | head -n10
+....
++
+....
 0.484143 80/tcp http
 0.450281 631/udp ipp
 0.433467 161/udp snmp
@@ -356,7 +367,7 @@ Finalmente, vamos ver o que aparece no Wireshark da máquina _WinServer-G_:
 +
 .Captura de scan nmap contra a máquina WinServer-G
 [#img-nmap-verbose]
-[caption="Figura 19: "]
+[caption="Figura 20: "]
 image::nmap-verbose.png[align="center"]
 +
 Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o `nmap` não envia um SYN/ACK em resposta a esse pacote -- esse é o modo padrão de _scan_ do `nmap`, TCP SYN, também conhecido como _half-open scan_.
@@ -431,7 +442,7 @@ Vamos verificar se a informação está correta:
 +
 .Versão do SO na máquina WinServer-G
 [#img-nmap-osdetect-windows]
-[caption="Figura 20: "]
+[caption="Figura 21: "]
 image::nmap-osdetect-windows.png[align="center"]
 +
 Bastante próximo -- o `nmap` reporta Windows Server 2008 SP1, e o _WinServer-G_ é um Windows Server 2008 SP2.

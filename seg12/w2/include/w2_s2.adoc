@@ -90,17 +90,17 @@ Estude no que consiste e quais são os benefícios da gerência da porta 25, e r
 +
 .Segurança lógica: Topologia 1
 [#img-segfislog-top1]
-[caption="Figura 11: "]
+[caption="Figura 12: "]
 image::Seg_fis_log_topologia1.png[align="center"]
 +
 .Segurança lógica: Topologia 2
 [#img-segfislog-top2]
-[caption="Figura 12: "]
+[caption="Figura 13: "]
 image::Seg_fis_log_topologia2.png[align="center"]
 +
 .Segurança lógica: Topologia 3
 [#img-segfislog-top3]
-[caption="Figura 13: "]
+[caption="Figura 14: "]
 image::Seg_fis_log_topologia3.png[align="center"]
 
 === 3) Exercitando os fundamentos de segurança

@@ -61,6 +61,14 @@ O `iptables` é a ferramenta em espaço de usuário que permite a gerência do N
 ** `-i`: interface de entrada.
 ** `-o`: interface de saída.
 ** `-p`: protocolo, que pode ser dos tipos TCP, UDP e ICMP.
+
+* Módulos adicionais para casamento de pacotes (_extended packet matching modules_) podem ser habilitados com a opção `-m` ou `--match`. Destacamos:
+** `conntrack`: quando habilitado, permite acesso ao controle de estados de conexões; normalmente invocado por `-m conntrack --ctstate` ou para um _subset_ de suas funções, `-m state --state`. Estados válidos incluem INVALID, NEW, ESTABLISHED, RELATED e UNTRACKED.
+** `icmp`: possibilita filtrar tipos específicos de ICMP, via _flag_ `--icmp-type`.
+** `mac`: possibilita filtragem por endereço físico de origem, via _flag_ `--mac-source`.
+** `multiport`: permite especificação de até 15 portas dentro de uma mesma regra, separadas por vírgula, ou um _range_ com a sintaxe `porta:porta`. Pode-se especificar portas de origem (`--sports`), destino (`--dports`) ou ambas (`--ports`).
+** `tcp`: habilita as opções `--source-port` (ou `--sport`), `--destination-port` (ou `--dport`), `--tcp-flags` (_flags válidas_: SYN, ACK, FIN, RST, URG, PSH, ALL e NONE), `--syn` e `--tcp-option` para pacotes TCP.
+** `udp`: habilita as opções `--source-port` (ou `--sport`), `--destination-port` (ou `--dport`) para pacotes UDP.
 --
 
 1. Primeiro, vamos testar a filtragem simples (_stateless_) no `iptables`. Faça login na máquina _FWGW1-G_ como `root` e mude a política padrão da _chain_ OUTPUT para DROP. Em seguida, tente conectar-se à porta 80/HTTP de um host remoto na Internet. É possível?
@@ -572,9 +580,9 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 21,443 -j DNAT --to-de stination 172.16.1.20
-# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8080 -j DNAT --to-destination 172.16 .1.20:80
-# iptables -t nat -A PREROUTING -i eth0 -p udp --dport 8123 -j DNAT --to-destination 172.16 .1.20:123
+# iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
+# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
+# iptables -t nat -A PREROUTING -i eth0 -p udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123
 ....
 endif::gabarito[]
 
