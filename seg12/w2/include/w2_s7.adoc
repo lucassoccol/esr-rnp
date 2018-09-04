@@ -162,34 +162,392 @@ Vamos recriar os links e a _cache_ para as bibliotecas dinâmicas do sistema, j�
 +
 O _script shell_ abaixo irá tratar de configurar os aspectos descritos acima:
 +
+[source,bash]
+----
+include::{srcdir}/s7/snortconfig.sh[]
+----
+
+2. Iremos agora desabilitar (via comentários) todas as regras padrão do Snort já que iremos, em um passo futuro, usar o PulledPort para atualizar as regras pela Internet.
++
 ....
-#!/bin/bash
+# sed -i 's/^\(include \$RULE\_PATH.*\)/#\1/' /etc/snort/snort.conf
+....
 
-groupadd snort
-useradd snort -r -s /sbin/nologin -c SNORT_IDS -g snort
+3. Edite o arquivo de configuração do Snort e configure as redes a serem protegidas (variável `HOME_NET`), e as redes consideradas externas (variável `EXTERNAL_NET`).
++
+....
+# sed -i 's/^\(ipvar HOME\_NET\).*/\1 \[172.16.1.1\/24,10.1.1.0\/24\]/' /etc/snort/snort.conf
+....
++
+....
+# grep '^ipvar HOME_NET' /etc/snort/snort.conf
+ipvar HOME_NET [172.16.1.1/24,10.1.1.0/24]
+....
++
+....
+# sed -i 's/^\(ipvar EXTERNAL\_NET\).*/\1 \!\$HOME\_NET/' /etc/snort/snort.conf
+....
++
+....
+# grep '^ipvar EXTERNAL_NET' /etc/snort/snort.conf
+ipvar EXTERNAL_NET !$HOME_NET
+....
 
-mkdir /usr/local/etc/snort
-mkdir /usr/local/etc/snort/rules
-mkdir /usr/local/etc/snort/preproc_rules
-ln -s /usr/local/etc/snort /etc/snort
+4. Agora, vamos corrigir os caminhos de busca de regras do Snort, que encontram-se incorretos no arquivo de configuração original.
++
+....
+# sed -i 's/^\(var RULE\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
+# sed -i 's/^\(var SO\_RULE\_PATH\).*/\1 \/etc\/snort\/so\_rules/' /etc/snort/snort.conf
+# sed -i 's/^\(var PREPROC\_RULE\_PATH\).*/\1 \/etc\/snort\/preproc\_rules/' /etc/snort/snort.conf
+# sed -i 's/^\(var WHITE\_LIST\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
+# sed -i 's/^\(var BLACK\_LIST\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
+....
++
+Verifique que as substituições funcionaram como esperado:
++
+....
+# grep '^var [RULE_PATH\|SO_RULE_PATH\|PREPROC_RULE_PATH\|WHITE_LIST_PATH\|BLACK_LIST_PATH]' /etc/snort/snort.conf
+....
++
+....
+var RULE_PATH /etc/snort/rules
+var SO_RULE_PATH /etc/snort/so_rules
+var PREPROC_RULE_PATH /etc/snort/preproc_rules
+var WHITE_LIST_PATH /etc/snort/rules
+var BLACK_LIST_PATH /etc/snort/rules
+....
 
-mkdir /usr/local/lib/snort_dynamicrules
-mkdir /var/log/snort
+5. Finalmente, vamos descomentar a linha que habilita regras customizadas locais, que usaremos em breve para testar o funcionamento do Snort.
++
+....
+# sed -i 's/^\#\(include \$RULE\_PATH\/local\.rules\)/\1/' /etc/snort/snort.conf
+....
++
+....
+# grep '^include \$RULE\_PATH\/local\.rules' /etc/snort/snort.conf
+include $RULE_PATH/local.rules
+....
 
-touch /etc/snort/rules/white_list.rules
-touch /etc/snort/rules/black_list.rules
-touch /etc/snort/rules/local.rules
+6. Teste o arquivo de configuração do Snort procurando por erros de sintaxe. Se tudo estiver correto, a penúltima linha deverá dizer `Snort successfully validated the configuration!`.
++
+....
+# snort -T -c /etc/snort/snort.conf
+....
++
+....
+(...)
+Snort successfully validated the configuration!
+Snort exiting
+....
 
-chmod -R 5775 /usr/local/etc/snort
-chmod -R 5775 /usr/local/lib/snort_dynamicrules
-chmod -R 5775 /var/log/snort
+7. Vamos criar uma regra customizada no Snort para testar se tudo está a contento. No arquivo `/etc/snort/rules/local.rules`, insira a linha:
++
+....
+alert icmp any any -> any any (msg:"ICMP packet from all, to all"; sid:10000001; rev:001;)
+....
++
+Esta regra irá simplesmente levantar um alerta se o Snort detectar um pacote ICMP vindo de qualquer IP, qualquer porta, para qualquer IP, qualquer porta.
 
-chown -R snort:snort /usr/local/etc/snort
-chown -R snort:snort /usr/local/lib/snort_dynamicrules
-chown -R snort:snort /var/log/snort
+8. Descubra o IP público da máquina _FWGW1-G_:
++
+....
+# ip a s eth0 | grep '^ *inet ' | awk '{ print $2 }'
+192.168.29.103/24
+....
++
+Agora, vamos rodar o Snort em modo console e testar o funcionamento da regra.
++
+....
+# snort -A console -q -g snort -u snort -c /etc/snort/snort.conf -i eth0
+....
++
+Em sua máquina física, envie alguns pacotes ICMP para o IP público da máquina _FWGW1-G_:
++
+....
+C:\>ping 192.168.29.103
 
-cp ~/src/snort-2.9.11.1/etc/*.conf* /etc/snort
-cp ~/src/snort-2.9.11.1/etc/*.map   /etc/snort
+Pinging 192.168.29.103 with 32 bytes of data:
+Request timed out.
+Request timed out.
+Request timed out.
+Request timed out.
+
+Ping statistics for 192.168.29.103:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
+....
++
+De volta à máquina _FWGW1-G_, note que o Snort gerou registros para cada um dos pacotes recebidos, como esperado:
++
+....
+09/04-09:10:33.691493  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -> 192.168.29.103
+09/04-09:10:38.278164  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -> 192.168.29.103
+09/04-09:10:43.279523  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -> 192.168.29.103
+09/04-09:10:48.283261  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -> 192.168.29.103
+....
++
+Observe, ainda, que os ICMP `echo-reply` enviados por sua máquina física não foram respondidos porque o firewall interno permite tráfego ICMP oriundo apenas das redes 172.16.1.0/24 e 10.1.1.0/24, como configurado na sessão 5.
++
+....
+# iptables -vn -L INPUT | grep ' prot\|icmp '
+ pkts bytes target     prot opt in     out     source               destination
+    1    84 ACCEPT     icmp --  *      *       172.16.1.0/24        0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     icmp --  *      *       10.1.1.0/24          0.0.0.0/0            icmptype 255
+....
++
+Finalize o Snort com CTRL+C, e comente a regra inserida no arquivo `/etc/snort/rules/local.rules`.
+
+=== 3) Habilitando o Snort no boot
+
+1. Ainda devido ao fato de termos instalado o Snort via código-fonte, não temos instalado nenhum script de inicialização que permita iniciar/reiniciar/parar o Snort de forma automática (via comando `systemctl`), bem como configurá-lo para ser iniciado durante o boot da máquina.
++
+Crie o arquivo novo `/lib/systemd/system/snort.service`, com o seguinte conteúdo:
++
+[source,bash]
+----
+include::{srcdir}/s7/snort.service[]
+----
+
+2. Verifique que as permissões, usuário e grupo dono do arquivo estão corretos. Em seguida, crie um _symlink_ do mesmo para o diretório `/etc/systemd/system`.
++
+....
+# chown root.root /lib/systemd/system/snort.service
+# chmod 0644 /lib/systemd/system/snort.service
+....
++
+....
+# ls -ld /lib/systemd/system/snort.service
+-rw-r--r-- 1 root root 223 Sep  4 09:22 /lib/systemd/system/snort.service
+....
++
+....
+# ln -s /lib/systemd/system/snort.service /etc/systemd/system/snort.service
+....
++
+....
+# ls -ld /etc/systemd/system/snort.service
+lrwxrwxrwx 1 root root 33 Sep  4 09:24 /etc/systemd/system/snort.service -> /lib/systemd/system/snort.service
+....
+
+3. Recarregue as configurações de _daemons_ do `systemd`. Em seguida, tente iniciar/verificar o estado/parar o Snort de forma automática usando o _initsystem_ do sistema. Finalmente, adicione-o à sequência de boot.
++
+....
+# systemctl daemon-reload
+....
++
+....
+# systemctl start snort.service
+....
++
+....
+# systemctl status snort.service
+● snort.service - Snort NIDS Daemon
+   Loaded: loaded (/lib/systemd/system/snort.service; linked)
+   Active: active (running) since Tue 2018-09-04 09:30:16 EDT; 4s ago
+ Main PID: 5215 (snort)
+   CGroup: /system.slice/snort.service
+           └─5215 /usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth0 -D
+....
++
+....
+# ps auxwm | grep '^snort'
+snort     5215  0.0  2.1 127420 44596 ?        -    09:30   0:00 /usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth0 -D
+snort        -  0.0    -      -     - -        Ssl  09:30   0:00 -
+snort        -  0.0    -      -     - -        Ssl  09:30   0:00 -
+....
++
+....
+# systemctl stop snort.service
+....
++
+....
+# systemctl enable snort.service
+Created symlink from /etc/systemd/system/multi-user.target.wants/snort.service to /lib/systemd/system/snort.service.
+....
++
+....
+# systemctl is-enabled snort.service
+enabled
+....
+
+=== 4) Configurando atualizações de regras de forma automática
+
+1. O programa PulledPork nos permite receber definições de regras atualizadas periodicamente pela Internet, sempre que novas vulnerabilidade e _exploits_ forem descobertos e divulgados.
++
+Primeiro, vamos instalar as dependências do PulledPork:
++
+....
+apt-get install git                              \
+                libcrypt-ssleay-perl             \
+                liblwp-useragent-determined-perl
+....
+
+2. Dentro do diretório `/root/src`, faça o download do código-fonte do PulledPork. Em seguida, copie seus binários e arquivos de configuração para os locais apropriados.
++
+....
+# cd ~/src/
+....
++
+....
+# git clone https://github.com/shirkdog/pulledpork.git
+Cloning into 'pulledpork'...
+remote: Counting objects: 1323, done.
+remote: Total 1323 (delta 0), reused 0 (delta 0), pack-reused 1323
+Receiving objects: 100% (1323/1323), 331.28 KiB | 343.00 KiB/s, done.
+Resolving deltas: 100% (884/884), done.
+Checking connectivity... done.
+....
++
+....
+# cd pulledpork/
+....
++
+....
+# cp pulledpork.pl /usr/local/bin/
+# chmod +x /usr/local/bin/pulledpork.pl
+....
++
+....
+# cp ./etc/*.conf /etc/snort
+....
+
+3. Crie os diretórios e arquivos de configuração padrão do PulledPork, vazios.
++
+....
+# mkdir /etc/snort/rules/iplists
+# touch /etc/snort/rules/iplists/default.blacklist
+....
+
+4. Teste o funcionamento do PulledPork, verificando sua versão.
++
+....
+# pulledpork.pl -V
+PulledPork v0.7.4 - Helping you protect your bitcoin wallet!
+....
+
+5. Vamos agora configurar o PulledPork. O primeiro passo é a obtenção de um _Oinkcode_, que é basicamente um número de registro com o `snort.org` que nos permitirá o download de listas de regras geradas pela comunidade.
++
+--
+1. Acesse https://www.snort.org/ , e clique em _Sign In_ no canto superior direito.
+2. Se você não possuir uma conta, clique em _Sign up_.
+3. Preencha os campos _Email_ (use um email válido e acessível), _Password_ e _Password confirmation_, marque a caixa _Agree to Snort license_ e finalmente clique em _Sign up_.
+4. Acesse o e-mail informado no passo (3). Dentro de algum tempo, você deverá receber uma mensagem com o título _Confirmation instructions_. Abra-a e clique no link _Confirm my account_.
+5. Com a conta confirmada, faça login no site https://www.snort.org/ usando os dados informados anteriormente.
+6. No canto superior direito da página, clique no seu e-mail cadastrado, logo ao lado do ícone de logout.
+7. Na nova página, clique no menu _Oinkcode_. Deverá aparecer uma _string_ de cerca de 40 caracteres no centro da tela. Copie-a, pois a usaremos em seguida.
+--
+
+6. Com o _Oinkcode_ em mãos, vamos configurar o PulledPork. No comando abaixo, substitua o valor `OINKCODE` no começo do comando pelo código que você copiou no item (7) do passo anterior. Em seguida, execute-o no terminal.
++
+....
+# oc="OINKCODE" ; sed -i "s/^\(rule\_url\=https\:\/\/www\.snort\.org\/reg\-rules\/|snortru les\-snapshot\.tar\.gz|\).*/\1${oc}/" /etc/snort/pulledpork.conf ; unset oc
+....
++
+Se tudo deu certo, você deverá ver seu _Oinkcode_ ao final da linha de regras baixadas do site https://www.snort.org , como mostrado a seguir (nota: o _Oinkcode_ abaixo é fictício):
++
+....
+# grep 'rule_url=https://www.snort.org/reg-rules' /etc/snort/pulledpork.conf
+rule_url=https://www.snort.org/reg-rules/|snortrules-snapshot.tar.gz|13eba036f37e80d0efb689c60af9e6daae810763
+....
++
+Falta substituir a distribuição-alvo padrão do PulledPork:
++
+....
+# sed -i 's/^\(distro=\).*/\1Debian-6-0/' /etc/snort/pulledpork.conf
+....
++
+....
+# grep '^distro=' /etc/snort/pulledpork.conf
+distro=Debian-6-0
+....
+
+7. Vamos testar as configurações do PulledPork, e fazer o download das listas de regras mais atualizadas.
++
+....
+# pulledpork.pl -c /etc/snort/pulledpork.conf -l
+....
++
+....
+
+    https://github.com/shirkdog/pulledpork
+      _____ ____
+     `----,\    )
+      `--==\\  /    PulledPork v0.7.4 - Helping you protect your bitcoin wallet!
+       `--==\\/
+     .-~~~~-.Y|\\_  Copyright (C) 2009-2017 JJ Cummings, Michael Shirk
+  @_/        /  66\_  and the PulledPork Team!
+    |    \   \   _(")
+     \   /-| ||'--'  Rules give me wings!
+      \_\  \_\\
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+(...)
+
+Rule Stats...
+        New:-------33914
+        Deleted:---0
+        Enabled Rules:----10841
+        Dropped Rules:----0
+        Disabled Rules:---23073
+        Total Rules:------33914
+IP Blacklist Stats...
+        Total IPs:-----1470
+
+Done
+Please review /var/log/sid_changes.log for additional details
+Fly Piggy Fly!
+....
++
+Se tudo deu certo, o PulledPork deve ter consolidado as regras baixadas no arquivo `/etc/snort/rules/snort.rules`. Verifique o tamanho e o número de linhas desse arquivo.
++
+....
+# du -sk /etc/snort/rules/snort.rules
+18380   /etc/snort/rules/snort.rules
+....
++
+....
+# wc -l /etc/snort/rules/snort.rules
+38155 /etc/snort/rules/snort.rules
+....
+
+8. Finalmente, basta indicar ao Snort que esse arquivo seja usado em sua inicialização. Insira a linha `include $RULE_PATH/snort.rules` ao final do arquivo `/etc/snort/snort.conf`.
++
+....
+# echo 'include $RULE_PATH/snort.rules' >> /etc/snort/snort.conf
+....
++
+Pare todas as instâncias do Snort. Em seguida, inicie-o, e verifique seu uso de memória e processamento.
++
+....
+# systemctl stop snort
+# ps auxwm | grep '^snort'
+....
++
+....
+# systemctl start snort
+....
++
+....
+# ps -eo 'rss,comm' | grep 'snort$'
+548016 snort
+....
++
+....
+# ps -eo 'cputime,comm' | grep 'snort$'
+00:00:18 snort
+....
+
+9. Para que as regras se mantenham atualizadas, é necessário atualizá-las periodicamente. Crie um novo arquivo no diretório `/etc/cron.daily` que atualize as regras diariamente, com o seguinte conteúdo:
++
+[source,bash]
+----
+include::{srcdir}/s7/pulledpork-cron[]
+----
++
+Verifique que o usuário/grupo dono e permissões do arquivo estão corretos.
++
+....
+# chown root.root /etc/cron.daily/pulledpork
+# chmod 0755 /etc/cron.daily/pulledpork
 ....
 
 === Referências
