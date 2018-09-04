@@ -1,0 +1,5 @@
+sed -i 's/^\(var RULE\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
+sed -i 's/^\(var SO\_RULE\_PATH\).*/\1 \/etc\/snort\/so\_rules/' /etc/snort/snort.conf
+sed -i 's/^\(var PREPROC\_RULE\_PATH\).*/\1 \/etc\/snort\/preproc\_rules/' /etc/snort/snort.conf
+sed -i 's/^\(var WHITE\_LIST\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
+sed -i 's/^\(var BLACK\_LIST\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
