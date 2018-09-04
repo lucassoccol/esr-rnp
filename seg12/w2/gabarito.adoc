@@ -45,3 +45,7 @@ include::include/w2_s5.adoc[]
 include::include/w2_s6.adoc[]
 
 <<<
+
+include::include/w2_s7.adoc[]
+
+<<<

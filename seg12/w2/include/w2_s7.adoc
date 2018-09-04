@@ -1,0 +1,197 @@
+ifdef::oneof[]
+////
+= SEG12 - Semana 2 - Sessão 7
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 16-08-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 7: Sistema de detecção/prevenção de intrusos
+
+[WARNING]
+====
+Todas as atividades desta sessão serão realizadas na máquina virtual _FWGW1-G_, com pequenas exceções destacadas no enunciado de cada exercício.
+====
+
+As atividades apresentadas nesta seção foram baseadas no excelente tutorial de Don Mizutani, acessível em http://donmizutani.com/ , com adaptações para o cenário de laboratório deste curso.
+
+=== 1) Instalação do Snort
+
+1. A seção 1.5 do manual oficial do Snort, _Packet Acquisition_, alerta para o fato que duas características de placas de rede e de processamento do kernel Linux podem afetar negativamente o funcionamento do IDS: LRO (_large receive offload_) e GRO (_generic receive offload_). Em particular, o fato de que as placas de rede podem remontar pacotes antes do processamento do kernel pode ser problemático, pois o Snort trunca pacotes maiores que o _snaplen_ de 1518 bytes; em adição a isso, essas _features_ podem causar problemas com a remontagem de fluxo orientada a alvo [1] do Snort.
++
+Na máquina _FWGW1-G_, instale o pacote `ethtool` e desative as _features_ `lro` e `gro` da interface `eth0`. Se houver algum erro desativando as características, não se preocupe; siga para o próximo passo.
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# apt-get install ethtool
+....
++
+....
+# ethtool -K eth0 gro off
+# ethtool -K eth0 lro off
+Cannot change large-receive-offload
+....
+
+2. Agora, vamos instalar o Snort. Mas, antes, um problema: note que o Snort não está disponível nos repositórios do `apt-get`:
++
+....
+# apt-cache search snort | grep '^snort '
+....
++
+Assim sendo, vamos ter que fazer a instalação do Snort por código-fonte. Primeiro, vamos instalar as dependências de compilação. Quando perguntado: _Install these packages without verification? [y/N]_, responda `y`.
++
+....
+# apt-get install bison           \
+                  build-essential \
+                  ca-certificates \
+                  flex            \
+                  libdumbnet-dev  \
+                  libpcap-dev     \
+                  libpcre3-dev    \
+                  zlib1g-dev
+....
++
+Crie um diretório para download dos fontes do Snort, no qual trabalharemos, e entre nesse diretório.
++
+....
+# mkdir ~/src
+# cd ~/src
+# pwd
+/root/src
+....
+
+3. Vamos compilar a instalar o DAQ (_Data Acquisition Library_) do Snort, usado para I/O de pacotes. Essa biblioteca permite ao Snort substituir chamadas diretas a funções da `libpcap` com uma camada de abstração que facilita operações em uma quantidade variada de interfaces de hardware e software sem serem necessárias mudanças ao Snort em si.
++
+Quando da escrita deste material, a versão mais recente da DAQ era a 2.0.6. Faça o (1) download, (2) extração, (3) configuração, (4) compilação e (5) instalação como indicam os passos a seguir.
++
+....
+# wget https://www.snort.org/downloads/snort/daq-2.0.6.tar.gz
+(...)
+....
++
+....
+# tar zxf daq-2.0.6.tar.gz
+# cd daq-2.0.6/
+....
++
+....
+# ./configure
+....
++
+....
+# make
+....
++
+....
+# make install
+....
+
+4. Volte ao diretório-pai (`/root/src`) e proceda com a instalação do Snort em si. Quando da escrita deste material, a versão mais recente era a 2.9.11.1. Faça o (1) download, (2) extração, (3) configuração, (4) compilação e (5) instalação como indicam os passos a seguir.
++
+....
+# cd ~/src
+....
++
+....
+# wget https://www.snort.org/downloads/snort/snort-2.9.11.1.tar.gz
+(...)
+....
++
+....
+# tar zxf snort-2.9.11.1.tar.gz
+# cd snort-2.9.11.1/
+....
++
+....
+# ./configure --enable-sourcefire --enable-reload
+....
++
+....
+# make
+....
++
+....
+# make install
+....
++
+Vamos recriar os links e a _cache_ para as bibliotecas dinâmicas do sistema, já que a instalação do Snort criou novas dessas bibliotecas. Em adição a isso, vamos criar um link simbólico apontando para o binário do Snort.
++
+....
+# ldconfig
+# ln -s /usr/local/bin/snort /usr/sbin/snort
+....
+
+5. Teste o funcionamento do Snort.
++
+....
+# snort -V
+
+   ,,_     -*> Snort! <*-
+  o"  )~   Version 2.9.11.1 GRE (Build 268)
+   ''''    By Martin Roesch & The Snort Team: http://www.snort.org/contact#team
+           Copyright (C) 2014-2017 Cisco and/or its affiliates. All rights reserved.
+           Copyright (C) 1998-2013 Sourcefire, Inc., et al.
+           Using libpcap version 1.6.2
+           Using PCRE version: 8.35 2014-04-04
+           Using ZLIB version: 1.2.8
+....
+
+=== 2) Configuração inicial do Snort
+
+1. Vamos agora fazer a configuração do Snort. Como o software foi instalado manualmente, via código-fonte, temos que fazer diversos passos que normalmente são realizados pelo gerenciador de pacotes da distribuição, quais sejam:
++
+--
+* Configurar uma conta de sistema não-privilegiada.
+* Criar arquivos e diretórios padrão, vazios.
+* Todos os arquivos de configuração serão salvos em `/etc/snort`, que será um _symlink_ para `/usr/local/etc/snort`.
+* Os registros de eventos serão gravados em `/var/log/snort`.
+--
++
+O _script shell_ abaixo irá tratar de configurar os aspectos descritos acima:
++
+....
+#!/bin/bash
+
+groupadd snort
+useradd snort -r -s /sbin/nologin -c SNORT_IDS -g snort
+
+mkdir /usr/local/etc/snort
+mkdir /usr/local/etc/snort/rules
+mkdir /usr/local/etc/snort/preproc_rules
+ln -s /usr/local/etc/snort /etc/snort
+
+mkdir /usr/local/lib/snort_dynamicrules
+mkdir /var/log/snort
+
+touch /etc/snort/rules/white_list.rules
+touch /etc/snort/rules/black_list.rules
+touch /etc/snort/rules/local.rules
+
+chmod -R 5775 /usr/local/etc/snort
+chmod -R 5775 /usr/local/lib/snort_dynamicrules
+chmod -R 5775 /var/log/snort
+
+chown -R snort:snort /usr/local/etc/snort
+chown -R snort:snort /usr/local/lib/snort_dynamicrules
+chown -R snort:snort /var/log/snort
+
+cp ~/src/snort-2.9.11.1/etc/*.conf* /etc/snort
+cp ~/src/snort-2.9.11.1/etc/*.map   /etc/snort
+....
+
+=== Referências
+
+[1] Novak, J. e Sturges, S. (2007). Target-Based TCP Stream Reassembly. [online] Pld.cs.luc.edu. Disponível em: http://pld.cs.luc.edu/courses/447/sum08/class5/novak,sturges.stream5_reassembly.pdf [Acessado em 4 Set. 2018].
