@@ -29,7 +29,7 @@ Neste curso, os alunos serão divididos em dois grupos: `A` e `B`. Ao longo da s
 | B | 2
 |===
 
-O que isso significa, na prática? Em vários momentos, ao ler este material, você irá se deparar com endereços como 172.16.G.20 ou 10.1.G.10 -- que evidentemente são inválidos. Nesse momento, substitua o número do seu grupo pela letra `G` no endereço. Se você for membro do grupo `B`, portanto, os endereços acima seriam 172.16.2.20 e 172.16.2.10.
+O que isso significa, na prática? Em vários momentos, ao ler este material, você irá se deparar com endereços como 172.16.G.20 ou 10.1.G.10 -- que evidentemente são inválidos. Nesse momento, substitua o número do seu grupo pela letra `G` no endereço. Se você for membro do grupo `B`, portanto, os endereços acima seriam 172.16.2.20 e 10.1.2.10.
 
 <<<
 
@@ -50,7 +50,7 @@ image::Topologia_SEG12_Semana2.png[align="center"]
 +
 Se ainda não foram, importe-as manualmente através do menu _File_ > _Import Appliance_. Navegue até a pasta onde se encontra o arquivo `.ova` com as imagens das máquinas virtuais e clique em _Next_. Na tela subsequente, marque a caixa _Reinitialize the MAC address of all network cards_ e só depois clique em _Import_.
 +
-Ao final do processo, você deve ter cinco VMs com as configurações que se seguem.
+Ao final do processo, você deve ter cinco VMs com as configurações que se seguem. Renomeie as máquinas virtuais com os nomes indicados na tabela abaixo, substituindo o `G` pela letra do seu grupo.
 +
 .VMs disponíveis no Virtualbox
 [options="header",width="50%"]
@@ -153,13 +153,22 @@ Finalmente, execute o comando que se segue. Volte a testar o teclado e verifique
 
 2. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
 +
-.................
+....
 # hostname
 FWGW1-A
-
+....
++
+....
 # whoami
 root
-
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -177,27 +186,40 @@ netmask 255.255.255.0
 iface eth2 inet static
 address 10.1.1.1
 netmask 255.255.255.0
-
+....
++
+....
 # systemctl restart networking
-
+....
++
+....
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
     inet 192.168.1.203/24 brd 192.168.1.255 scope global eth0
     inet 172.16.1.1/24 brd 172.16.1.255 scope global eth1
     inet 10.1.1.1/24 brd 10.1.1.255 scope global eth2
-.................
+....
 +
 <<<
 
 3. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
 +
-.................
+....
 # hostname
 LinServer-A
-
+....
++
+....
 # whoami
 root
-
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -210,17 +232,28 @@ iface eth0 inet static
 address 172.16.1.10
 netmask 255.255.255.0
 gateway 172.16.1.1
-
+....
++
+....
+# nano /etc/resolv.conf
+(...)
+....
++
+....
 # cat /etc/resolv.conf
 nameserver 8.8.8.8
 nameserver 8.8.4.4
-
+....
++
+....
 # systemctl restart networking
-
+....
++
+....
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
     inet 172.16.1.10/24 brd 172.16.1.255 scope global eth0
-.................
+....
 +
 <<<
 
@@ -248,10 +281,19 @@ Em _Input Sources_, clique no botão `+` para adicionar um novo mapa de teclado.
 ....
 # hostname
 kali
-
+....
++
+....
 # whoami
 root
-
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -263,11 +305,24 @@ iface eth0 inet static
 address 172.16.1.30
 netmask 255.255.255.0
 gateway 172.16.1.1
-
+....
++
+....
+# nano /etc/resolv.conf
+(...)
+....
++
+....
 # cat /etc/resolv.conf
 nameserver 8.8.8.8
 nameserver 8.8.4.4
-
+....
++
+....
+# systemctl restart networking
+....
++
+....
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
     inet 172.16.1.30/24 brd 172.16.1.255 scope global eth0

@@ -104,13 +104,13 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# iptables -P OUTPUT DROP
+# iptables -P INPUT DROP
 
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 Host name lookup failure
 ....
 +
-Apesar de o resultado parecer o mesmo obtido anteriormente, há uma diferente substancial -- as requisições DNS/HTTP estão sendo enviado com sucesso, porém a resposta de retorno está sendo bloqueada. Ao rodar o `tcpdump` e monitorar a interface de rede de saída (`eth0`), o resposta da consulta DNS sai e retorna, porém é descartada pelo kernel.
+Apesar de o resultado parecer o mesmo obtido anteriormente, há uma diferente substancial -- as requisições DNS/HTTP estão sendo enviado com sucesso, porém a resposta de retorno está sendo bloqueada. Rode o `tcpdump` em outra sessão e monitore a interface de rede de saída (`eth0`), enquanto o comando `nc` acima é executado. A requisição DNS e enviada e sua resposta retorna, porém é descartada pelo kernel.
 +
 ....
 # tcpdump -i eth0 -n src 192.168.1.203 or dst 192.168.1.203
@@ -121,7 +121,7 @@ listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
 ....
 endif::gabarito[]
 
-4. Finalmente, crie uma regra apropriada na _chain_ INPUT e teste o sucesso do envio de pacotes ICMP.
+4. Finalmente, crie uma regra apropriada na _chain_ INPUT e teste o sucesso na conexão HTTP.
 ifdef::gabarito[]
 +
 ....
@@ -190,8 +190,6 @@ A tabela a seguir mostra uma listagem com a descrição dos serviços a serem di
 | WinServer-G | RDP | TCP | 3389 | Serviço de conexão remota
 | WinServer-G | NTP | UDP | 123 | Servidor de hora
 |===
-
-
 
 A realização desta atividade é fundamental para a realização das demais atividades deste curso.
 A política de filtro de pacotes será a mais restritiva possível, permitindo somente as conexões previamente definidas no firewall. Dessa forma, a política padrão é negar todos os pacotes que chegarem, saírem e/ou atravessarem o firewall.
@@ -308,7 +306,7 @@ ifdef::gabarito[]
 ....
 endif::gabarito[]
 
-4. Realize o teste de conexão do passo (6) novamente, e verifique que suas configurações funcionaram.
+4. Realize o teste de conexão do passo (2) novamente, e verifique que suas configurações funcionaram.
 ifdef::gabarito[]
 +
 ....
@@ -371,7 +369,7 @@ FWGW1-A
 +
 ....
 # iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443,3389 -j ACCEPT
-# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 123 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT
 ....
 endif::gabarito[]
 

@@ -1,0 +1,65 @@
+ifdef::oneof[]
+////
+= SEG12 - Semana 2 - Sessão 9
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 16-08-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 9: Redes privadas virtuais e inspeção de tráfego
+
+=== 1) Recurso do SSH
+
+1. Utilize o putty para acessar o FWGW;
+2. Ative um sniffer na sua máquina com Wireshark;
+3. Acesse sua conta shell no servidor SSH usando autenticação com senha. O sniffer capturou sua senha?
+4. Crie seu par de chaves; (Essa atividade deve ser feita em dupla). Para criar o par de chaves, digite o comando abaixo como root:
+`ssh-keygen -t rsa`
+* Será solicitado o nome do arquivo onde será salvo a chave, aperte enter
+* Será solicitado uma senha de acesso, deixe em branco e aperte enter
+* Após esse comando a chave será gerada em /root/.ssh com o nome de id_rsa.pub
+5. Copie a chave pública gerada para a estação do outro aluno com o seguinte comando
+`# ssh-copy-id -i /root/.ssh/ip_rsa.pub <ip_da_outra_maquina>`
+Após essa ação tente acessar a maquina do outro aluno através do comando:
+`# ssh <ip_da_outra_maquina>`
+6. Use sua chave privada para se autenticar no servidor via SSH;
+7. Abra uma sessão no servidor Linux via SSH, e torne-se super usuário (usuário root) sem digitar senha (use “ssh-copy-id”);
+8. Crie um túnel utilizando SSH.
+
+=== 2) Uso de criptografia em arquivos
+
+Essa atividade deverá ser feita em dupla:
+--
+* Em uma das estações instale o pacote cliente do Filezilla, disponível na pasta do aluno
+* Na outra estação instale o pacote server do Filezilla , disponível na pasta do aluno
+* No servidor Filezilla clique em Edit > Settings
+* Clique em SSL/TLS settings e marque a opção Enable FTP over SSL/TLS Support (FTPS)
+* Clique no botão Generate new certificate
+* Preencha os dados que se pede e clique em generate certificate depois clique em ok
+* A partir de agora o servidor estará escutando na porta 990
+* Clique em Edit > Users para criar um novo usuário
+* Clique em Add e informe um nome para a conta
+* Marque o campo password e digite a senha “rnpesr”
+* Clique em shared folders e clique em add. compartilhe a pasta documentos do seu computador
+--
+
+--
+* Na estação cliente digite na parte superior do programa o endereço do servidor, o usuário, a senha e a porta (990) onde o servidor está escutando
+* Ative o Wireshark para interceptar os pacotes e verifique se foi possível capturar a senha fornecida.
+--
+
+1. Instale o pacote cliente FileZilla no host físico:
+*	Ative um sniffer;
+*	Abra uma sessão de FTP com um cliente FileZilla (FTP via TLS).
+Você conseguiu capturar a senha de autenticação?
+2. Instale o pacote KeePass: http://portableapps.com/apps/utilities/keepass_portable
+*	Crie suas senhas e manipule-as.

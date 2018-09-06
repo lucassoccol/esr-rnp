@@ -49,3 +49,19 @@ include::include/w2_s6.adoc[]
 include::include/w2_s7.adoc[]
 
 <<<
+
+include::include/w2_s8.adoc[]
+
+<<<
+
+include::include/w2_s9.adoc[]
+
+<<<
+
+include::include/w2_s10.adoc[]
+
+<<<
+
+include::include/w2_s11.adoc[]
+
+<<<

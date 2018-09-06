@@ -44,7 +44,7 @@ image::Vbox_sharedfolder.png[align="center"]
 [caption="Figura 17: "]
 image::Vbox_sharedfolder_view.png[align="center"]
 
-5. Pronto! Agora, basta fazer o download de programas e arquivos a serem acessados pelas máquinas virtuais dentro da pasta compartilhada, e elas terão acesso imediato. Se desejar, repita o procedimento para a máquina _WinClient-G_.
+5. Pronto! Agora, basta fazer o download de programas e arquivos em sua máquina física, colocá-los dentro da pasta compartilhada, e suas VMs terão acesso imediato. Se desejar, repita o procedimento para a máquina _WinClient-G_.
 
 === 2) *_Sniffers_* para captura de dados
 
@@ -146,7 +146,7 @@ hping in flood mode, no replies will be shown
 --
 endif::gabarito[]
 
-4. De volta à máquina _FWGW1-G_, verifique que o ataque está sendo realizado como esperado e interprete a saída do `tcpdump`.
+4. Pare a execução do `hping` com CTRL+C. De volta à máquina _FWGW1-G_, verifique que o ataque está sendo realizado como esperado e interprete a saída do `tcpdump`.
 ifdef::gabarito[]
 +
 Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto de 8 pacotes do _output_ do `tcpdump`:
@@ -201,14 +201,18 @@ FWGW1-A
 # echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
 (...)
-
+....
++
+....
 # hostname
 LinServer-A
 
 # echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
 (...)
-
+....
++
+....
 # hostname
 kali
 
@@ -498,7 +502,7 @@ e. Selecionamos a porta na qual o cliente irá tentar buscar durante a conexão 
 f. Finalmente, executamos `exploit`. No caso particular desse _exploit_, esse comando produziu o PDF malicioso objetivado, e o gravou no arquivo `/root/.msf4/local/boleto.pdf`.
 --
 
-3. O próximo passo é disponibilizar o PDF para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado -- basta copiar o arquivo gerado no passo anterior para a pasta `/var/www/html`, retirar o arquivo `index.html` dessa pasta para que a listagem de arquivos seja feita no navegador, e iniciar o serviço. Vamos fazer isso:
+3. O próximo passo é disponibilizar o PDF para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado -- basta copiar o arquivo gerado no passo anterior para a pasta `/var/www/html`, retirar o arquivo `index.html` dessa pasta para que a listagem de arquivos seja feita no navegador, e iniciar o serviço. Abra um novo terminal e faça isso:
 +
 ....
 # mv /root/.msf4/local/boleto.pdf /var/www/html/
