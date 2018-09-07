@@ -17,49 +17,273 @@ endif::oneof[]
 
 == Sessão 9: Redes privadas virtuais e inspeção de tráfego
 
-=== 1) Recurso do SSH
+=== 1) Interceptação ofensiva de tráfego HTTPS com o *_mitmproxy_*
 
-1. Utilize o putty para acessar o FWGW;
-2. Ative um sniffer na sua máquina com Wireshark;
-3. Acesse sua conta shell no servidor SSH usando autenticação com senha. O sniffer capturou sua senha?
-4. Crie seu par de chaves; (Essa atividade deve ser feita em dupla). Para criar o par de chaves, digite o comando abaixo como root:
-`ssh-keygen -t rsa`
-* Será solicitado o nome do arquivo onde será salvo a chave, aperte enter
-* Será solicitado uma senha de acesso, deixe em branco e aperte enter
-* Após esse comando a chave será gerada em /root/.ssh com o nome de id_rsa.pub
-5. Copie a chave pública gerada para a estação do outro aluno com o seguinte comando
-`# ssh-copy-id -i /root/.ssh/ip_rsa.pub <ip_da_outra_maquina>`
-Após essa ação tente acessar a maquina do outro aluno através do comando:
-`# ssh <ip_da_outra_maquina>`
-6. Use sua chave privada para se autenticar no servidor via SSH;
-7. Abra uma sessão no servidor Linux via SSH, e torne-se super usuário (usuário root) sem digitar senha (use “ssh-copy-id”);
-8. Crie um túnel utilizando SSH.
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_ e _WinClient-G_.
+====
 
-=== 2) Uso de criptografia em arquivos
+Vamos usar a ferramenta `mitmproxy` para inspecionar conteúdo HTTPS na rede, através de um ataque _man-in-the-middle_ usando a técnica de ARP _spoofing_.
 
-Essa atividade deverá ser feita em dupla:
+1. Primeiro, mova a máquina _KaliLinux-G_ para a Intranet alterando o nome da interface de rede _host-only_ à que ela se encontra conectada no Virtualbox. Em seguida, altere seu endereço IP para algum que ainda não está sendo utilizado na rede, como 10.1.1.30, por exemplo. Teste a conectividade com as máquinas _FWGW1-G_ e _WinClient-G_.
++
+....
+# hostname
+kali
+....
++
+....
+root@kali:~# cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+address 10.1.1.30/24
+gateway 10.1.1.1
+....
++
+....
+root@kali:~# systemctl restart networking
+....
++
+....
+root@kali:~# ip a s eth0 | grep '^ *inet '
+    inet 10.1.1.30/24 brd 10.1.1.255 scope global eth0
+....
++
+....
+root@kali:~# ping -c1 10.1.1.1
+PING 10.1.1.1 (10.1.1.1) 56(84) bytes of data.
+64 bytes from 10.1.1.1: icmp_seq=1 ttl=64 time=0.185 ms
+
+--- 10.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.185/0.185/0.185/0.000 ms
+....
++
+....
+root@kali:~# ping -c1 10.1.1.10
+PING 10.1.1.10 (10.1.1.10) 56(84) bytes of data.
+64 bytes from 10.1.1.10: icmp_seq=1 ttl=128 time=0.451 ms
+
+--- 10.1.1.10 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms
+....
+
+2. Rode o comando `mitmproxy` uma vez, para que os certificados SSL sejam auto-gerados pelo programa. Assim que iniciado, saia do programa digitando `q`, e depois `y`.
+
+3. Copie o certificado auto-gerado no passo (2) para a raiz do servidor web Apache instalado na máquina _KaliLinux-G_. Em seguida, renomeie o arquivo `index.html` e inicie o servidor web.
++
+....
+# cp ~/.mitmproxy/mitmproxy-ca-cert.cer /var/www/html/
+....
++
+....
+# mv /var/www/html/index.html /var/www/html/index.html.bak
+....
++
+....
+# systemctl start apache2
+....
+
+4. Na máquina _WinClient-G_, instale o navegador _Google Chrome_. O _Internet Explorer_ padrão disponível no Windows 7 encontra-se um pouco defasado para lidar com websites HTTPS mais modernos. Em seguida, acesse o endereço IP da máquina _KaliLinux-G_ e faça o download do arquivo `mitmproxy-ca-cert.cer`, como mostrado abaixo:
++
+.Download do certificado do mitmproxy
+[#img-mitmproxy-dlcert]
+[caption="Figura 56: "]
+image::mitmproxy-dlcert.png[align="center"]
+
+5. De posse do certificado, instale-o na máquina _WinClient-G_. Clique duas vezes sobre o certificado, e em seguida em _Abrir_. Na janela seguinte, clique em _Instalar Certificado..._.
++
+.Instalação do certificado do mitmproxy, parte 1
+[#img-mitmproxy-instcert1]
+[caption="Figura 57: "]
+image::mitmproxy-instcert1.png[align="center"]
++
+Clique em _Avançar_. Em seguida, marque a caixa _Colocar todos os certificados no repositório a seguir_, clique em _Procurar..._ e selecione _Autoridades de Certificação Raiz Confiáveis_.
++
+.Instalação do certificado do mitmproxy, parte 2
+[#img-mitmproxy-instcert2]
+[caption="Figura 58: "]
+image::mitmproxy-instcert2.png[align="center"]
++
+Finalmente, clique em _Avançar_ e em seguida em _Concluir_. Agora, o certificado do `mitmproxy` é reconhecido como um AC Raiz pelo sistema Windows. Num cenário real, o atacante teria que descobrir algum vetor de ataque _client-side_ que permitisse a ele ter o acesso para copiar o certificado e instalá-lo na máquina da vítima. Aqui, como estamos em um ambiente simulado, pudemos contar com a "colaboração" do usuário-alvo.
+
+6. De volta ao _KaliLinux-G_, pare o Apache. Em seguida, permita o repasse de pacotes no kernel, e redirecione o tráfego da vítima para o `mitmproxy`:
++
+....
+# systemctl stop apache2
+....
++
+....
+# sysctl -w net.ipv4.ip_forward=1
+....
++
+....
+# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80  -j REDIRECT --to-port 8080
+# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8080
+....
+
+7. Agora sim, tudo pronto para efetivarmos o ataque. Abra duas abas lado-a-lado do terminal, logado como `root`. Na primeira, execute o ARP _spoofing_ com o comando:
++
+....
+# arpspoof -i eth0 -r -t 10.1.1.10 10.1.1.1
+....
++
+No segundo terminal, inicie o `mitmproxy` (em sua variante web) para iniciar o ataque _man-in-the-middle_ contra a máquina _WinClient-G_.
++
+....
+# mitmweb --mode transparent
+....
++
+Depois de pouco tempo, será aberta uma janela do navegador para inspeção do tráfego.
+
+8. Na máquina _WinClient-G_, abra o _Google Chrome_ e navegue por websites HTTP e HTTPS. Note como o tráfego está sendo interceptado pelo `mitmproxy` e, no caso de conexões SSL, sendo mostrado em claro. Como um exemplo, fizemos um login no https://facebook.com com uma conta de teste -- imediatamente, o usuário e senha são mostrados em claro na janela do `mitmweb`, na máquina _KaliLinux-G_:
++
+.Credenciais em claro no mitmweb
+[#img-mitmproxy-password]
+[caption="Figura 59: "]
+image::mitmproxy-password.png[align="center"]
++
+Em parelelo, na janela do navegador na máquina _WinClient-G_, o login no Facebook é concluído com sucesso:
++
+.Login no facebook através do mitmproxy
+[#img-mitmproxy-fblogin]
+[caption="Figura 60: "]
+image::mitmproxy-fblogin.png[align="center"]
+
+9. Finalmente, retorne o ambiente de laboratório a seu estado original: pare o `mitmweb`, encerre o ARP _spoofing_ e remova as regras de firewall criadas no passo (6).
+
+=== 2) Inspeção corporativa de tráfego HTTPS usando o Squid
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _WinClient-G_.
+====
+
+Na atividade anterior, fizemos um ataque _man-in-the-middle_ com o intuito de inspecionar tráfego HTTPS de uma vítima usando o `mitmproxy`, nos mesmos moldes que um atacante o faria no mundo real. Mas e se o objetivo for legítimo, como para inspecionar tráfego em uma rede corporativa?
+
+Iremos utilizar a funcionalidade _SslBump Peek and Splice_ (https://wiki.squid-cache.org/Features/SslPeekAndSplice) do Squid, disponível a partir da versão 3.5, para implementar um proxy HTTPS para os clientes da rede 10.1.G.0/24. Tendo em vista que a versão mais recente do Squid disponível nos repositórios do Debian 8, quando da escrita deste tutorial, é a 3.4.8-6, teremos que fazer a instalação através do código-fonte.
+
+....
+# hostname
+FWGW1-A
+....
+
+....
+# apt-cache showpkg squid3 | grep 'Versions' -A1
+Versions:
+3.4.8-6+deb8u5 (/var/lib/apt/lists/ftp.br.debian.org_debian_dists_jessie_main_binary-amd64_Packages) (/var/lib/apt/lists/security.debian.org_dists_jessie_updates_main_binary-amd64_Packages)
+....
+
+1. Na máquina _FWGW1-G_, instale as dependências de compilação:
++
+....
+# apt-get -y install build-essential libssl-dev
+....
+
+2. A seguir, faça o download do código-fonte do Squid, sua configuração, compilação e instalação através dos comandos que se seguem. O passo de compilação (`make`) pode demorar um pouco, seja paciente.
++
+....
+# cd ~/src/
+....
++
+....
+# wget http://www.squid-cache.org/Versions/v3/3.5/squid-3.5.28.tar.gz
+....
++
+....
+# tar zxf squid-3.5.28.tar.gz ; cd squid-3.5.28
+....
++
+....
+# ./configure --prefix /usr/local --with-openssl=yes --enable-ssl-crtd --without-gnutls --enable-linux-netfilter
+....
++
+....
+# make
+....
++
+....
+# make install
+....
+
+3. Feito isso, faremos a configuração inicial do Squid, incluindo criação de certificados para assinatura de conexões intermediárias, criação de usuários e permissionamento, via script que se segue:
++
+[source,bash]
+----
+include::{srcdir}/s9/squidconfig.sh[]
+----
+
+4. O próximo passo é editar o arquivo de configuração do Squid, `/usr/local/etc/squid.conf`. O excerto abaixo mostra uma configuração válida para um proxy HTTP/HTTPS transparente que executa _bumping_ (ou seja, as inspeciona via técnica _man-in-the-middle_) em todas as conexões, exceto para os domínios que constam no arquivo `/usr/local/etc/whitelist.txt`, para os quais o proxy irá fazer _splicing_ (i.e., as conexões não serão inspecionadas pelo proxy, mas sim repassadas diretamente ao destino final).
++
+O método de _bump_ seletivo implementado como descrito acima é feito através da observação do campo `SSL::server_name` enviado pelo cliente durante o processo de _handshake_ TLS. Nesse campo o cliente indica a qual _hostname_ ele deseja se conectar, uma extensão ao protocolo TLS denominada _Server Name Indication_ (SNI). Isso permite a um servidor apresentar múltiplos certificados em um mesmo endereço IP, respondendo por vários sites HTTPS diferentes. É, em essência, um conceito análogo ao _name-based virtual hosting_ do HTTP/1.1, mas para o protocolo HTTPS.
++
+[source,bash]
+----
+include::{srcdir}/s9/usr_local_etc_squid.conf[]
+----
+
+5. Vamos popular o arquivo `/usr/local/etc/whitelist.txt` com alguns domínios que não serão inspecionados. Em geral, bancos e outras informações sigilosas são bons exemplos de destinos que não devem sofrer _man-in-the-middle_, até mesmo pelas questões éticas levantadas por esse tipo de inspeção. Por exemplo:
++
+....
+# cat /usr/local/etc/whitelist.txt
+.bb.com.br
+.bancobrasil.com.br
+.bradesco
+.caixa.gov.br
+.itau.com.br
+.santander.com.br
+....
+
+6. Finalmente, será necessário introduzir algumas regras no firewall da máquina _FWGW1-G_ para que o tráfego dos clientes seja automaticamente repassado ao proxy para tratamento. Além de regras usuais de FORWARD e MASQUERADE para permitir acesso internet através de NAT, será necessário inserir as seguintes regras:
++
+....
+# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 80 -j REDIRECT --to-port 8080
+# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 443 -j REDIRECT --to-port 8443
+# iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp -m multiport --dports 8080,8443 -j ACCEPT
+....
++
+Com as regras acima, todo tráfego com destino à porta 80 saindo do firewall será redirecionado para `localhost:8080`, e então tratado pelo Squid. O mesmo vale para o tráfego da porta 443, que será redirecionado para `localhost:8443`. Enfim, é necessário permitir aos clientes conectar-se diretamente essas novas portas, considerando que a política padrão da chain INPUT seja DROP.
+
+7. Concluído esses passos, inicie o Squid com o comando:
++
+....
+# /usr/local/sbin/squid -f /usr/local/etc/squid.conf
+....
++
+A partir desse momento, todo o tráfego da rede 10.1.1.0/24 será repassado ao Squid para tratamento.
+
+8. Se você tentar navegar na internet na máquina _WinClient-G_ neste momento, no entanto, irá notar que embora conexões HTTP sejam tratadas com sucesso, conexões HTTPS provavelmente irão encontrar erros na cadeia de certificação. Isso se deve ao fato de o Squid estar reescrevendo os certificados de servidor com o seu próprio, que não é reconhecido pelo cliente como válido.
++
+Para contornar esse problema, siga os seguintes passos:
++
 --
-* Em uma das estações instale o pacote cliente do Filezilla, disponível na pasta do aluno
-* Na outra estação instale o pacote server do Filezilla , disponível na pasta do aluno
-* No servidor Filezilla clique em Edit > Settings
-* Clique em SSL/TLS settings e marque a opção Enable FTP over SSL/TLS Support (FTPS)
-* Clique no botão Generate new certificate
-* Preencha os dados que se pede e clique em generate certificate depois clique em ok
-* A partir de agora o servidor estará escutando na porta 990
-* Clique em Edit > Users para criar um novo usuário
-* Clique em Add e informe um nome para a conta
-* Marque o campo password e digite a senha “rnpesr”
-* Clique em shared folders e clique em add. compartilhe a pasta documentos do seu computador
+a. Copie o certificado `/usr/local/etc/ssl/public.crt` para a máquina _WinClient-G_ (via PuTTY, WinSCP ou fazendo o download via HTTP/FTP, por exemplo).
+b. Clique com o botão direito no arquivo e escolha "Instalar Certificado".
+c. Clique em "Avançar".
+d. Escolha "Colocar todos os certificados no repositório a seguir", e então em "Procurar...".
+e. Escolha a pasta "Autoridades de Certificação Raiz Confiáveis" e depois em "OK".
+f. Clique em "Avançar", e então em "Concluir".
 --
 
---
-* Na estação cliente digite na parte superior do programa o endereço do servidor, o usuário, a senha e a porta (990) onde o servidor está escutando
-* Ative o Wireshark para interceptar os pacotes e verifique se foi possível capturar a senha fornecida.
---
+9. Falta testar a configuração que fizemos. Acesse um website com HTTPS e verifique sua cadeia de certificação: o site terá sido assinado pelo proxy Squid, e não pela autoridade certificadora original. Veja, por exemplo, um acesso ao site https://twitter.com :
++
+.Acesso via Squid/Bump a https://twitter.com
+[#img-squid-bump]
+[caption="Figura 61: "]
+image::squid-bump.png[align="center"]
++
+Agora, acesse um dos websites cujo domínio consta no arquivo `/usr/local/etc/whitelist.txt`, e verifique sua cadeia certificadora: a AC que assina o certificado será a original, inalterada pelo proxy. Veja abaixo um acesso a https://www.bb.com.br :
++
+.Acesso via Squid/Bump a https://www.bb.com.br
+[#img-squid-splice]
+[caption="Figura 62: "]
+image::squid-splice.png[align="center"]
 
-1. Instale o pacote cliente FileZilla no host físico:
-*	Ative um sniffer;
-*	Abra uma sessão de FTP com um cliente FileZilla (FTP via TLS).
-Você conseguiu capturar a senha de autenticação?
-2. Instale o pacote KeePass: http://portableapps.com/apps/utilities/keepass_portable
-*	Crie suas senhas e manipule-as.
+10. Finalmente, retorne o ambiente de laboratório a seu estado original: pare o Squid (via `/usr/local/sbin/squid -k shutdown`) e remova as regras de firewall criadas no passo (6).
