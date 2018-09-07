@@ -281,9 +281,326 @@ image::squid-bump.png[align="center"]
 +
 Agora, acesse um dos websites cujo domínio consta no arquivo `/usr/local/etc/whitelist.txt`, e verifique sua cadeia certificadora: a AC que assina o certificado será a original, inalterada pelo proxy. Veja abaixo um acesso a https://www.bb.com.br :
 +
-.Acesso via Squid/Bump a https://www.bb.com.br
+.Acesso via Squid/Splice a https://www.bb.com.br
 [#img-squid-splice]
 [caption="Figura 62: "]
 image::squid-splice.png[align="center"]
 
 10. Finalmente, retorne o ambiente de laboratório a seu estado original: pare o Squid (via `/usr/local/sbin/squid -k shutdown`) e remova as regras de firewall criadas no passo (6).
+
+=== 3) VPN SSL usando o OpenVPN
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _WinClient-G_. Esta é uma atividade a ser realizada *EM DUPLA*, entre membros dos grupos *A* e *B*.
+====
+
+Nesta atividade, iremos configurar um servidor e um cliente para estabelecer uma sessão VPN SSL. Para o estabelecimento dessa sessão utilizaremos o OpenVPN configurado como servidor no _host_ _FWGW1-G_ e o cliente instalado na máquina _WinClient-G_.
+
+A conexão será feita entre duplas, ou seja:
+--
+* Máquina _WinClient-A_ irá conectar-se ao servidor _FWGW1-B_ de um colega, e
+* máquina _WinClient-B_ irá conectar-se ao servidor _FWGW1-A_ do colega.
+--
+
+1. Na máquina _FWGW-1-G_, o primeiro passo é instalar o pacote `openvpn`:
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# apt-get install openvpn
+....
+
+2. Para gerar os certificados da autoridade certificadora (CA, ou _certificate authority_), _hosts_ e usuários, vamos utilizar o conjunto de scripts `easy-rsa`, que acompanha o pacote do OpenVPN. Entre no diretório `/usr/share/easy-rsa`:
++
+....
+# cd /usr/share/easy-rsa
+....
++
+Agora, edite o arquivo `/usr/share/easy-rsa/vars` com os dados dos campos de certificado a serem gerados. Altere os campos `KEY_COUNTRY`, `KEY_PROVINCE`, `KEY_CITY`, `KEY_ORG`, `KEY_EMAIL` e `KEY_OU` com os dados relevantes à sua organização. Por exemplo:
++
+....
+# nano /usr/share/easy-rsa/vars
+(...)
+....
++
+....
+# grep KEY_COUNTRY /usr/share/easy-rsa/vars -A5
+export KEY_COUNTRY="BR"
+export KEY_PROVINCE="DF"
+export KEY_CITY="Brasilia"
+export KEY_ORG="RNP"
+export KEY_EMAIL="suporte@esr.rnp.br"
+export KEY_OU="ESR"
+....
++
+A seguir, importe o arquivo de variáveis `/usr/share/easy-rsa/vars` para o _shell_ corrente:
++
+....
+# . /usr/share/easy-rsa/vars
+NOTE: If you run ./clean-all, I will be doing a rm -rf on /usr/share/easy-rsa/keys
+....
++
+Finalmente, utilize os seguintes comandos para gerar o certificado da CA:
++
+....
+# ./clean-all
+....
++
+....
+# ./build-ca
+Generating a 2048 bit RSA private key
+.........+++
+.....+++
+writing new private key to 'ca.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [BR]:
+State or Province Name (full name) [DF]:
+Locality Name (eg, city) [Brasilia]:
+Organization Name (eg, company) [RNP]:
+Organizational Unit Name (eg, section) [ESR]:
+Common Name (eg, your name or your server's hostname) [RNP CA]:
+Name [EasyRSA]:
+Email Address [suporte@esr.rnp.br]:
+....
++
+Note que todos os campos já estavam com os valores corretos, então bastou apertar ENTER em cada um deles. Se não tivéssemos editado o arquivo `/usr/share/easy-rsa/vars`, cada um desses campos teria que ser digitado individualmente.
+
+3. Para gerar o certificado do servidor OpenVPN (a máquina _FWGW1-G_), use o seguinte comando:
++
+....
+# ./build-key-server FWGW1-A
+
+(...)
+
+Country Name (2 letter code) [BR]:
+State or Province Name (full name) [DF]:
+Locality Name (eg, city) [Brasilia]:
+Organization Name (eg, company) [RNP]:
+Organizational Unit Name (eg, section) [ESR]:
+Common Name (eg, your name or your server's hostname) [FWGW1-A]:
+Name [EasyRSA]:
+Email Address [suporte@esr.rnp.br]:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+(...)
+
+Sign the certificate? [y/n]:y
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+....
++
+Mantenha o campo _A challenge password_ vazio. Responda `y` para as perguntas _Sign the certificate?_ e _1 out of 1 certificate requests certified, commit?_.
+
+4. Vamos agora gerar o certificado do cliente. Atente-se para o fato de que o cliente do seu servidor é na realidade a máquina _WinClient-G_ do seu colega, e não a sua própria (então, membros do grupo A gerarão certificados para as máquinas _WinClient-B_, e membros do grupo B gerarão para as máquinas _WinClient-A_).
++
+....
+# ./build-key WinClient-B
+
+(...)
+
+Country Name (2 letter code) [BR]:
+State or Province Name (full name) [DF]:
+Locality Name (eg, city) [Brasilia]:
+Organization Name (eg, company) [RNP]:
+Organizational Unit Name (eg, section) [ESR]:
+Common Name (eg, your name or your server's hostname) [WinClient-B]:
+Name [EasyRSA]:
+Email Address [suporte@esr.rnp.br]:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+(...)
+
+Sign the certificate? [y/n]:y
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+....
++
+Assim como anteriormente, mantenha o campo _A challenge password_ vazio, e responda `y` para as perguntas _Sign the certificate?_ e _1 out of 1 certificate requests certified, commit?_.
+
+5. Gere os parâmetros de troca de chaves _Diffie-Hellman_ com o comando abaixo. O passo de geração pode demorar um pouco, seja paciente.
++
+....
+# ./build-dh
+Generating DH parameters, 2048 bit long safe prime, generator 2
+This is going to take a long time
+(...)
+....
+
+6. As chaves/certificados foram todos gerados no subdiretório `keys` da pasta corrente, `/usr/share/easy-rsa`. Copie-os para o diretório `/etc/openvpn/keys` (onde faremos a configuração do _daemon_) com os comandos que se seguem:
++
+....
+# mkdir /etc/openvpn/keys
+....
++
+....
+# cp keys/ca.crt /etc/openvpn/keys/
+# cp keys/FWGW1-A.crt /etc/openvpn/keys/
+# cp keys/FWGW1-A.key /etc/openvpn/keys/
+# cp keys/dh2048.pem /etc/openvpn/keys/
+....
+
+7. Agora, vamos fazer a configuração do OpenVPN. Crie um arquivo novo, `/etc/openvpn/openvpn.conf`, com o seguinte conteúdo:
++
+[source,bash]
+----
+include::{srcdir}/s9/etc_openvpn_openvpn.conf[]
+----
++
+Nas linhas `key` e `cert` , substitua a letra ao final do arquivo `/etc/openvpn/keys/FWGW1-G` pela que representa seu grupo.
++
+Note que a linha `server` indica uma *NOVA* rede que será criada para o túnel VPN. Nesse sentido, configura a faixa 10.8.1.0/24 se você for membro do grupo A, e 10.8.2.0/24 se você for membro do grupo B.
++
+De igual forma, nas linhas `push route`, informe as rotas 10.1.1.0/24 e 172.16.1.0/24 se você for membro do grupo A, e 10.1.2.0/24 e 172.16.2.0/24 se você for membro do grupo B.
+
+8. Transfira as chaves geradas no passo (4) para o cliente *que irá se conectar no seu servidor*. Para os membros do grupo A, isso significa transferir as chaves para a máquina _WinClient-B_ do seu colega; e, para os membros do grupo B, transferi-las para a máquina _WinClient-A_. Vamos fazer isso em alguns passos simples:
++
+Primeiro, em sua máquina _FWGW1-G_, gere um pacote `.tar.gz` com as chaves a serem transferidas.
++
+....
+# mkdir /tmp/vpn-keys
+....
++
+....
+# cp /usr/share/easy-rsa/keys/ca.crt /tmp/vpn-keys/
+# cp /usr/share/easy-rsa/keys/WinClient-B.key /tmp/vpn-keys/
+# cp /usr/share/easy-rsa/keys/WinClient-B.crt /tmp/vpn-keys/
+....
++
+....
+# tar czf /tmp/vpn-keys.tar.gz /tmp/vpn-keys/
+tar: Removing leading `/' from member names
+....
++
+....
+# chmod a+r /tmp/vpn-keys.tar.gz
+....
++
+....
+# rm -rf /tmp/vpn-keys
+....
++
+....
+# ls -ld /tmp/vpn-keys.tar.gz
+-rw-r--r-- 1 root root 5525 Sep  7 09:02 /tmp/vpn-keys.tar.gz
+....
++
+Como não há regra no firewall que permita conexão via SSH ou HTTP vinda de fora, vamos inserir uma regra temporária para permitir a cópia remota:
++
+....
+# iptables -A INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT
+....
++
+Descubra o IP público da máquina _FWGW1-G_:
++
+....
+# ip a s eth0 | grep '^ *inet ' | awk '{print $2}'
+192.168.29.103/24
+....
++
+Copie o arquivo com as chaves do cliente usando o IP público e o comando `scp` -- use os programas `pscp.exe`, _Cygwin_ ou _WinSCP_ para a tarefa. No exemplo abaixo, iremos usar o Cygwin:
++
+....
+fbs@FBS-DESKTOP ~
+$ scp aluno@192.168.29.103:/tmp/vpn-keys.tar.gz ~
+vpn-keys.tar.gz                                                         100% 5525   705.2KB/s   00:00
+....
++
+....
+fbs@FBS-DESKTOP ~
+$ ls -ld ~/vpn-keys.tar.gz
+-rw-r--r-- 1 fbs None 5525 Sep  7 10:09 /home/fbs/vpn-keys.tar.gz
+....
++
+Ainda na máquina _FWGW1-G_, remova a regra de firewall temporária que criamos para a cópia remota, bem como o arquivo contendo as chaves no `/tmp`:
++
+....
+# iptables -D INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT
+....
++
+....
+# rm /tmp/vpn-keys.tar.gz
+....
+
+9. Instale o OpenVPN na máquina _WinClient-G_. *NÃO* instale o software _Private Tunnel_, mas sim o OpenVPN _Open Source_, acessível em https://openvpn.net/index.php/open-source/downloads.html . Aceite todas as opções padrão do instalador; ao ser perguntado se deseja instalar os _drivers_ de rede do OpenVPN, responda afirmativamente.
+
+10. Entre na pasta de configuração do OpenVPN no Windows, `C:\Program Files\OpenVPN\config`. Aqui, iremos fazer duas coisas: (1) criar o arquivo de configuração do OpenVPN para conexão no servidor _FWGW1-G_ do seu colega de atividade, e (2) extrair as chaves do cliente copiadas no passo (8). Vamos lá:
++
+Crie o arquivo `winclient-b.ovpn` no _Desktop_ do seu usuário na máquina _WinClient-G_, com o conteúdo a seguir. Logo após, mova-o para `C:\Program Files\OpenVPN\config\winclient-b.ovpn`, concedendo permissão administrativa quando solicitado.
++
+[source,bash]
+----
+include::{srcdir}/s9/winclient-b.ovpn[]
+----
++
+Nas linhas `key` e `cert` , substitua a letra ao final do arquivo `WinClient-G` pela que representa seu grupo.
++
+Na linha `remote`, insira o IP público da máquina _FWGW1-G_ *do seu colega* -- esta será a máquina em que seu cliente VPN irá tentar conectar-se quando iniciado.
++
+O segundo passo é extrair o arquivo `.tar.gz` contendo as chaves do cliente que foi copiado no passo (8). Use o _7-zip_ (disponível em https://www.7-zip.org/download.html) para fazer a extração, numa pasta em que seu usuário possua permissão (como o _Desktop_, por exemplo). Depois, mova as chaves para `C:\Program Files\OpenVPN\config`. Sua pasta deve ficar assim:
++
+.Estado final da pasta do OpenVPN na máquina WinClient-G
+[#img-ovpn-folder]
+[caption="Figura 63: "]
+image::ovpn-folder.png[align="center"]
+
+11. Tudo quase pronto! Vamos testar o funcionamento da VPN, passo a passo: primeiro, o aluno do grupo A deverá atuar como servidor, e o aluno do grupo B atuará como cliente. A seguir, as posições serão invertidas.
++
+No firewall do aluno do grupo A, _FWGW1-A_, inicie o OpenVPN e aguarde:
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# /usr/sbin/openvpn --config /etc/openvpn/openvpn.conf
+Fri Sep  7 09:52:51 2018 OpenVPN 2.3.4 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [EPOLL] [PKCS11] [MH] [IPv6] built on Jun 26 2017
+Fri Sep  7 09:52:51 2018 library versions: OpenSSL 1.0.1t  3 May 2016, LZO 2.08
+Fri Sep  7 09:52:51 2018 Diffie-Hellman initialized with 2048 bit key
+Fri Sep  7 09:52:51 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Fri Sep  7 09:52:51 2018 ROUTE_GATEWAY 192.168.29.1/255.255.255.0 IFACE=eth0 HWADDR=08:00:27:43:b1:9d
+Fri Sep  7 09:52:51 2018 TUN/TAP device tun0 opened
+Fri Sep  7 09:52:51 2018 TUN/TAP TX queue length set to 100
+Fri Sep  7 09:52:51 2018 do_ifconfig, tt->ipv6=0, tt->did_ifconfig_ipv6_setup=0
+Fri Sep  7 09:52:51 2018 /sbin/ip link set dev tun0 up mtu 1500
+Fri Sep  7 09:52:51 2018 /sbin/ip addr add dev tun0 local 10.8.1.1 peer 10.8.1.2
+Fri Sep  7 09:52:51 2018 /sbin/ip route add 10.8.1.0/24 via 10.8.1.2
+Fri Sep  7 09:52:51 2018 UDPv4 link local (bound): [undef]
+Fri Sep  7 09:52:51 2018 UDPv4 link remote: [undef]
+Fri Sep  7 09:52:51 2018 MULTI: multi_init called, r=256 v=256
+Fri Sep  7 09:52:51 2018 IFCONFIG POOL: base=10.8.1.4 size=62, ipv6=0
+Fri Sep  7 09:52:51 2018 ifconfig_pool_read(), in='WinClient-B,10.8.1.4', TODO: IPv6
+Fri Sep  7 09:52:51 2018 succeeded -> ifconfig_pool_set()
+Fri Sep  7 09:52:51 2018 IFCONFIG POOL LIST
+Fri Sep  7 09:52:51 2018 WinClient-B,10.8.1.4
+Fri Sep  7 09:52:51 2018 Initialization Sequence Completed
+....
++
+Na máquina cliente do aluno do grupo B, _WinClient-B_, inicie o OpenVPN como administrador. Navegue até a pasta `C:\Program Files\OpenVPN\bin`, clique com o botão direito no executável `openvpn-gui.exe` e selecione _Executar como administrador_. Autorize a execução na janela seguinte.
++
+Deverá aparecer um símbolo de um monitor com um cadeado no _tray_ do sistema, no canto inferior direito da tela, próximo ao relógio. Clique com o botão direito nesse ícone e selecione _Connect_.
++
+Se tudo deu certo, após alguns instantes a janela do OpenVPN que se abriu momentaneamente irá fechar, e o ícone do monitor ficará verde. Colocando o mouse em cima do ícone, você deve ver as linhas _Connected to: winclient-b_ e _Assigned IP: 10.8.1.X_.
