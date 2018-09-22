@@ -127,7 +127,7 @@ Pubkey: RSA, RSA-E, RSA-S, ELG-E, DSA
 ....
 endif::gabarito[]
 
-2. Vamos fazer um exercício de criptografia usando chaves assimétricas entre dois usuários fictícios, Alice (operando na máquina _FWGW1-G_) e Bobby (operando na máquina _LinServer-G_). Vamos começar por Alice -- gere um par de chaves assimétricas RSA padrão, com 4096 bits e sem data de expiração para ela, usando o programa `gpg`. O e-mail de Alice será alice@seg12.esr.rnp.br , e a senha de acesso à chave será `rnpesr123`.
+3. Vamos fazer um exercício de criptografia usando chaves assimétricas entre dois usuários fictícios, Alice (operando na máquina _FWGW1-G_) e Bobby (operando na máquina _LinServer-G_). Vamos começar por Alice -- gere um par de chaves assimétricas RSA padrão, com 4096 bits e sem data de expiração para ela, usando o programa `gpg`. O e-mail de Alice será alice@seg12.esr.rnp.br , e a senha de acesso à chave será `rnpesr123`.
 ifdef::gabarito[]
 +
 ....
@@ -187,7 +187,7 @@ sub   4096R/B2CCF948 2018-09-06
 ....
 endif::gabarito[]
 
-3. Na máquina _LinServer-G_, como usuário `root`, instale o pacote `rng-tools` e rode o comando `rngd -r /dev/urandom`:
+4. Na máquina _LinServer-G_, como usuário `root`, instale o pacote `rng-tools` e rode o comando `rngd -r /dev/urandom`:
 ifdef::gabarito[]
 +
 ....
@@ -205,7 +205,7 @@ root
 ....
 endif::gabarito[]
 
-4. Como usuário `aluno`, gere a chave de Bobby na máquina _LinServer-G_. Repita o procedimento do passo (2), alterando o nome de usuário para Bobby e o email para bobby@seg12.esr.rnp.br .
+5. Como usuário `aluno`, gere a chave de Bobby na máquina _LinServer-G_. Repita o procedimento do passo (2), alterando o nome de usuário para Bobby e o email para bobby@seg12.esr.rnp.br .
 ifdef::gabarito[]
 +
 ....
@@ -235,7 +235,7 @@ sub   4096R/4A677FB6 2018-09-06
 ....
 endif::gabarito[]
 
-5. Temos que exportar as chaves públicas de ambos os usuários, copiá-las para a máquina remota, e importá-las. Comece pela chave de Alice, exportando-a em formato _ASCII armored_; em seguida, copie-a para a máquina _LinServer-G_ usando o `scp`, importe-a usando `gpg --import` e assine a chave.
+6. Temos que exportar as chaves públicas de ambos os usuários, copiá-las para a máquina remota, e importá-las. Comece pela chave de Alice, exportando-a em formato _ASCII armored_; em seguida, copie-a para a máquina _LinServer-G_ usando o `scp`, importe-a usando `gpg --import` e assine a chave.
 ifdef::gabarito[]
 +
 Na máquina _FWGW1-G_, execute:
@@ -321,7 +321,7 @@ Save changes? (y/N) y
 ....
 endif::gabarito[]
 
-6. Faça o procedimento reverso, exportando/copiando/importando e assinando a chave de Bobby na máquina de Alice. Lembre-se que o `ssh` para a máquina _FWGW1-G_ é permitido apenas a partir da Intranet, então pode ser mais interessante iniciar o procedimento de cópia a partir do firewall, e não da máquina _LinServer-G_.
+7. Faça o procedimento reverso, exportando/copiando/importando e assinando a chave de Bobby na máquina de Alice. Lembre-se que o `ssh` para a máquina _FWGW1-G_ é permitido apenas a partir da Intranet, então pode ser mais interessante iniciar o procedimento de cópia a partir do firewall, e não da máquina _LinServer-G_.
 ifdef::gabarito[]
 +
 Primeiro, na máquina _LinServer-G_, vamos exportar a chave:
@@ -407,7 +407,7 @@ Save changes? (y/N) y
 ....
 endif::gabarito[]
 
-7. Agora, vamos fazer o teste de criptografia assimétrica propriamente dito. Na máquina _FWGW1-G_, verifique que as chaves estão de fato disponíveis. Em seguida, criptografe um documento de texto com conteúdo qualquer com a chave pública de Bobby, envie para a máquina _LinServer-G_, e tente decriptá-lo usando a chave privada de Bobby.
+8. Agora, vamos fazer o teste de criptografia assimétrica propriamente dito. Na máquina _FWGW1-G_, verifique que as chaves estão de fato disponíveis. Em seguida, criptografe um documento de texto com conteúdo qualquer com a chave pública de Bobby, envie para a máquina _LinServer-G_, e tente decriptá-lo usando a chave privada de Bobby.
 ifdef::gabarito[]
 +
 Na máquina _FWGW1-G_, vamos verificar se as chaves estão disponíveis:
@@ -483,7 +483,7 @@ teste assimetrico
 ....
 endif::gabarito[]
 
-8. Vamos agora testar a assinatura digital de arquivos. Começando a partir da máquina _LinServer-G_, crie um arquivo texto com conteúdo qualquer. Assine-o com a chave privada de Bobby, e copie o arquivo para a máquina _FWGW1-G_. Finalmente, verifique a assinatura usando o _keyring_ de Alice.
+9. Vamos agora testar a assinatura digital de arquivos. Começando a partir da máquina _LinServer-G_, crie um arquivo texto com conteúdo qualquer. Assine-o com a chave privada de Bobby, e copie o arquivo para a máquina _FWGW1-G_. Finalmente, verifique a assinatura usando o _keyring_ de Alice.
 ifdef::gabarito[]
 +
 Na máquina _LinServer-G_, vamos criar um arquivo com conteúdo qualquer e assiná-lo usando a chave privada de Bobby, em texto claro (opção `--clearsign`):
@@ -556,7 +556,7 @@ gpg: Good signature from "Bobby <bobby@seg12.esr.rnp.br>"
 ....
 endif::gabarito[]
 
-9. Finalmente, vamos "juntar tudo". Da máquina _FWGW1-G_, crie um arquivo texto com conteúdo qualquer e (1) assine-o com a *chave privada de Alice*, e (2) criptografe-o com a *chave pública de Bobby*. Copie o arquivo para a máquina _LinServer-G_, decripte-o e verifique sua assinatura.
+10. Finalmente, vamos "juntar tudo". Da máquina _FWGW1-G_, crie um arquivo texto com conteúdo qualquer e (1) assine-o com a *chave privada de Alice*, e (2) criptografe-o com a *chave pública de Bobby*. Copie o arquivo para a máquina _LinServer-G_, decripte-o e verifique sua assinatura.
 ifdef::gabarito[]
 +
 Na máquina _FWGW1-G_, vamos criar um arquivo com conteúdo qualquer, assiná-lo, criptografá-lo e enviar para a máquina _LinServer-G_:
