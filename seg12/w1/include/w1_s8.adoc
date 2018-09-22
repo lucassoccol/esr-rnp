@@ -26,7 +26,9 @@ Nestas atividades, você deve trabalhar com duas máquinas virtuais (_Server_Lin
 Esta configuração será realizada na máquina virtual _Server_Linux_.
 ====
 
-Considerando a rede 192.168.0.0/24, cujo domínio é `empresa.com.br`, configure o servidor de DNS Primário de modo que ele tenha as seguintes máquinas registradas, com tipos de registro associados:
+Instale o serviço `ntp` na máquina _Server_Linux_, e configure corretamente sua _timezone_. Em seguida, pare o _daemon_ `ntp`, atualize o relógio do sistema para a hora correta usando `ntpd -gq` e reinicie o `ntp`.
+
+Feito isso, configure o servidor DNS. Considerando a rede 192.168.0.0/24, cujo domínio é `empresa.com.br`, configure o servidor de DNS Primário de modo que ele tenha as seguintes máquinas registradas, com tipos de registro associados:
 
 .Configuração DNS
 [options="header"]
@@ -48,10 +50,34 @@ ifdef::gabarito[]
 1. Instale os seguintes aplicativos:
 +
 .................
-# apt-get install bind9 bind9utils
+# apt-get install ntp bind9 bind9utils
 .................
 
-2. Ajuste os arquivos de configuração da seguinte forma:
+2. Configure a _timezone_ do sistema, via `dpkg-reconfigure tzdata`. Escolha `America`, e em seguida `Sao_Paulo`.
++
+....
+# dpkg-reconfigure tzdata
+
+Current default time zone: 'America/Sao_Paulo'
+Local time is now:      Sat Sep 22 10:47:12 -03 2018.
+Universal Time is now:  Sat Sep 22 13:47:12 UTC 2018.
+....
++
+Pare o `ntp`, atualize o relógio do sistema e reinicie o `ntp`.
++
+....
+# systemctl stop ntp ; ntpd -gq ; systemctl start ntp
+ntpd: time set +2.651545s
+....
++
+Verifique a hora do sistema.
++
+....
+# date
+Sat Sep 22 10:49:46 -03 2018
+....
+
+3. Vamos agora configurar o `bind`. Ajuste os arquivos de configuração da seguinte forma:
 +
 * `/etc/bind/named.conf.options` -- opções do servidor `bind`:
 +
@@ -88,13 +114,13 @@ include::{srcdir}/s8/etc_bind_db.0.168.192[]
 include::{srcdir}/s8/etc_resolv.conf[]
 ----
 
-3. Como a interface de rede `eth0` da máquina _Server_Linux_ está configurada para obter endereço via DHCP, o _daemon_ `dhclient` irá sobrescrever as alterações que fizemos ao arquivo `/etc/resolv.conf` no próximo _reboot_. Para prevenir isso, podemos ativar o atributo `immutable` do arquivo, impedindo sua alteração:
+4. Como a interface de rede `eth0` da máquina _Server_Linux_ está configurada para obter endereço via DHCP, o _daemon_ `dhclient` irá sobrescrever as alterações que fizemos ao arquivo `/etc/resolv.conf` no próximo _reboot_. Para prevenir isso, podemos ativar o atributo `immutable` do arquivo, impedindo sua alteração:
 +
 .................
 # chattr +i /etc/resolv.conf
 .................
 
-4. Reinicie o `bind` e verifique por possíveis erros:
+5. Reinicie o `bind` e verifique por possíveis erros:
 +
 .................
 # systemctl restart bind9.service
@@ -123,7 +149,7 @@ Ago 09 21:23:48 servidor named[14406]: all zones loaded
 Ago 09 21:23:48 servidor named[14406]: running
 .................
 
-5. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
+6. Teste os registros com o uso das ferramentas `nslookup` e `dig`:
 +
 .................
 # nslookup servidor.empresa.com.br
@@ -166,30 +192,85 @@ endif::gabarito[]
 Esta configuração será realizada na máquina virtual _Client_Linux_.
 ====
 
-Configure o servidor de DNS Secundário para o domínio `empresa.com.br`. Importante:
+Instale o serviço `ntp` na máquina _Client_Linux_, e configure corretamente sua _timezone_. Em seguida, pare o _daemon_ `ntp`, atualize o relógio do sistema para a hora correta usando `ntpd -gq` e reinicie o `ntp`.
+
+Feito isso, configure o servidor de DNS Secundário para o domínio `empresa.com.br`. Importante:
 
 --
 * Não se esqueça de informar o endereço IP do servidor secundário no parâmetro `allow-transfer` do servidor primário.
+* Habilite a notificação de servidores secundários via diretiva `notify yes;` no arquivo `named.conf.options` do servidor primário.
+* Inclua o servidor secundário nas entradas `NS` das zonas direta e reversa.
 * Os arquivos de zona que forem transferidos devem ser gravados no diretório `/etc/bind/sec` do servidor secundário já que o _daemon_ executa como usuário `bind`, que não tem permissão de escrita direta no diretório `/etc/bind`.
 --
 
 ifdef::gabarito[]
-1. Antes de mais nada, configure o _Server_Linux_ para permitir transferência de zona a partir do servidor secundário _Client_Linux_:
+1. Antes de mais nada, configure o _Server_Linux_ para permitir transferência de zona a partir do servidor secundário _Client_Linux_, e notificá-lo sempre que zonas forem atualizadas:
++
+....
+# hostname
+servidor
+....
 +
 .................
-# egrep '^ *allow-transfer' /etc/bind/named.conf.options
+# egrep -A1 '^ *allow-transfer' /etc/bind/named.conf.options
   allow-transfer { 192.168.0.20; };
-
-# systemctl restart bind9.service
+  notify yes;
 .................
 
-2. A seguir, instale o servidor DNS `bind` na máquina _Client_Linux_:
+2. Adicione entradas para o servidor DNS secundário nos arquivos de zona direta e reversa do domínio `empresa.com.br`, e reinicie o `bind`:
++
+....
+# egrep -A1 '^@ *IN *NS' /etc/bind/db.empresa.com.br
+@         IN    NS            servidor.empresa.com.br.
+@         IN    NS            cliente.empresa.com.br.
+....
++
+....
+# egrep -A1 '^@ *IN *NS' /etc/bind/db.0.168.192
+@         IN    NS            servidor.empresa.com.br.
+@         IN    NS            cliente.empresa.com.br.
+....
++
+....
+# systemctl restart bind9.service
+....
+
+3. A seguir, instale o servidor DNS `bind` e o serviço `ntp` na máquina _Client_Linux_:
++
+....
+# hostname
+cliente
+....
 +
 .................
-# apt-get install bind9 bind9utils
+# apt-get install ntp bind9 bind9utils
 .................
 
-3. Ajuste os arquivos de configuração da seguinte forma:
+4. Configure a _timezone_ do sistema, via `dpkg-reconfigure tzdata`. Escolha `America`, e em seguida `Sao_Paulo`.
++
+....
+# dpkg-reconfigure tzdata
+
+Current default time zone: 'America/Sao_Paulo'
+Local time is now:      Sat Sep 22 10:52:48 -03 2018.
+Universal Time is now:  Sat Sep 22 13:52:48 UTC 2018.
+....
++
+Pare o `ntp`, atualize o relógio do sistema e reinicie o `ntp`.
++
+....
+# systemctl stop ntp ; ntpd -gq ; systemctl start ntp
+ntpd: time slew +0.001848s
+....
++
+Verifique a hora do sistema.
++
+....
+# date
+Sat Sep 22 10:53:15 -03 2018
+....
+
+5. Agora, configure o `bind`. Ajuste os arquivos de configuração da seguinte forma:
 +
 * `/etc/bind/named.conf.options` -- opções do servidor `bind`:
 +
@@ -212,14 +293,14 @@ include::{srcdir}/s8/sec_etc_bind_named.conf.local[]
 include::{srcdir}/s8/sec_etc_resolv.conf[]
 ----
 
-4. Observe que iremos escrever os arquivos transferidos no diretório `/etc/bind/sec`, que ainda não existe. Vamos criá-lo e atribuir permissionamento:
+6. Observe que iremos escrever os arquivos transferidos no diretório `/etc/bind/sec`, que ainda não existe. Vamos criá-lo e atribuir permissionamento:
 +
 .................
 # mkdir /etc/bind/sec
 # chown bind.root /etc/bind/sec
 .................
 
-5. Reinicie o `bind` e verifique se os arquivos de zona foram transferidos corretamente:
+7. Reinicie o `bind` e verifique se os arquivos de zona foram transferidos corretamente:
 +
 .................
 # systemctl restart bind9.service
@@ -253,7 +334,7 @@ total 8,0K
 -rw-r--r-- 1 bind bind 720 Ago  9 21:41 db.empresa.com.br
 .................
 
-6. Finalmente, teste a resolução de nomes no servidor secundário:
+8. Finalmente, teste a resolução de nomes no servidor secundário:
 +
 .................
 # nslookup pop.empresa.com.br 192.168.0.20

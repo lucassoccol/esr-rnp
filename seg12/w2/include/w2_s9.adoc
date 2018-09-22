@@ -26,7 +26,7 @@ Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_ e _WinClient
 
 Vamos usar a ferramenta `mitmproxy` para inspecionar conteúdo HTTPS na rede, através de um ataque _man-in-the-middle_ usando a técnica de ARP _spoofing_.
 
-1. Primeiro, mova a máquina _KaliLinux-G_ para a Intranet alterando o nome da interface de rede _host-only_ à que ela se encontra conectada no Virtualbox. Em seguida, altere seu endereço IP para algum que ainda não está sendo utilizado na rede, como 10.1.1.30, por exemplo. Teste a conectividade com as máquinas _FWGW1-G_ e _WinClient-G_.
+1. Primeiro, mova a máquina _KaliLinux-G_ para a Intranet alterando o nome da interface de rede _host-only_ à que ela se encontra conectada no Virtualbox. Em seguida, altere seu endereço IP para algum que ainda não está sendo utilizado na rede, como 10.1.1.30, por exemplo. Teste a conectividade com as máquinas _FWGW1-G_ e _WinClient-G_ (desative o firewall do Windows na máquina _WinClient-G_ para permitir a troca de pacotes ICMP).
 +
 ....
 # hostname
@@ -228,6 +228,8 @@ O método de _bump_ seletivo implementado como descrito acima é feito através 
 ----
 include::{srcdir}/s9/usr_local_etc_squid.conf[]
 ----
++
+Se você for membro do grupo B, lembre-se de alterar a `acl` `localnet` no arquivo de configuração acima.
 
 5. Vamos popular o arquivo `/usr/local/etc/whitelist.txt` com alguns domínios que não serão inspecionados. Em geral, bancos e outras informações sigilosas são bons exemplos de destinos que não devem sofrer _man-in-the-middle_, até mesmo pelas questões éticas levantadas por esse tipo de inspeção. Por exemplo:
 +

@@ -37,6 +37,8 @@ while read username password uid gid gecos homedir shell; do
     echo "  [*] UID $uid already exists, skipping..."
   elif getent group | cut -d':' -f3 | grep "$gid" &> /dev/null; then
     echo "  [*] GID $gid already exists, skipping..."
+  elif [ -d $homedir ]; then
+    echo "  [*] Directory $homedir already exists, skipping..."
   else
     hpass="$( mkpasswd -m sha-512 -s <<< $pass )"
     $groupadd $username -g $gid

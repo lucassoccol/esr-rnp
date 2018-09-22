@@ -67,7 +67,28 @@ image::Topologia_SEG12_Semana1.png[]
 
 Agora, vamos configurar a rede de cada máquina virtual de acordo com as especificações da topologia de rede apresentada no começo deste capítulo.
 
-1. Primeiramente, ligue a máquina _Server_Linux_ e faça login como usuário `root` e senha `rnpesr`. A seguir, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
+1. Primeiramente, ligue a máquina _Server_Linux_ e faça login como usuário `root` e senha `rnpesr`.
+
+2. Ao longo do curso, iremos editar vários arquivos de texto em ambiente Linux. Há vários editores de texto disponíveis para a tarefa, como o `vi`, `emacs` ou `nano`. Caso você não esteja familiarizado com um editor de texto, recomendamos o uso do `nano`, que possui uma interface bastante amigável para usuários iniciantes. Para editar um arquivo com o `nano`, basta digitar `nano` seguido do nome do arquivo a editar -- não é necessário que o arquivo tenha sido criado previamente:
++
+....
+# nano teste
+....
++
+Digite livremente a seguir. Use as setas do teclado para navegar no texto, e `DELETE` ou `BACKSPACE` para apagar texto. O `nano` possui alguns atalhos interessantes, como:
++
+--
+* `CTRL + G`: Exibir a ajuda do editor
+* `CTRL + X`: Fechar o `buffer` de arquivo atual (que pode ser um texto sendo editado, ou o painel de ajuda), e sair do `nano`. Para salvar o arquivo, digite `Y` (_yes_) ou `S` (_sim_) para confirmar as mudanças ao arquivo, opcionalmente altere o nome do arquivo a ser escrito no disco, e digite `ENTER`.
+* `CTRL + O`: Salvar o arquivo no disco sem sair do editor.
+* `CTRL + W`: Buscar padrão no texto.
+* `CTRL + K`: Cortar uma linha inteira e salvar no `buffer` do editor.
+* `CTRL + U`: Colar o `buffer` do editor na posição atual do cursor. Pode ser usado repetidamente.
+--
++
+Para salvar e sair do texto sendo editado, como mencionado acima, utilize `CTRL + X`.
+
+3. Agora, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
 +
 .................
 # hostname
@@ -79,7 +100,12 @@ servidor
 root
 .................
 +
-.................
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -97,7 +123,7 @@ iface eth1 inet static
 iface eth2 inet static
   address 172.16.0.10
   netmask 255.255.255.0
-.................
+....
 +
 .................
 # systemctl restart networking
@@ -110,8 +136,10 @@ iface eth2 inet static
     inet 192.168.0.10/24 brd 192.168.0.255 scope global eth1
     inet 172.16.0.10/24 brd 172.16.0.255 scope global eth2
 .................
++
+Observe que como a interface `eth0` da máquina _Server_Linux_ está em modo _bridge_, ela terá atribuída a si um endereço IP dinâmico, fornecido pelo servidor DHCP da sua rede. É provável que esse endereço seja diferente do exibido no exemplo acima.
 
-2. Faça o mesmo para a máquina _Client_Linux_:
+4. Faça o mesmo para a máquina _Client_Linux_:
 +
 .................
 # hostname
@@ -123,7 +151,12 @@ cliente
 root
 .................
 +
-.................
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
@@ -135,7 +168,7 @@ iface eth0 inet static
         address 192.168.0.20
         netmask 255.255.255.0
         gateway 192.168.0.10
-.................
+....
 +
 .................
 # systemctl restart networking
@@ -147,9 +180,16 @@ iface eth0 inet static
     inet 192.168.0.20/24 brd 192.168.0.255 scope global eth0
 .................
 +
+Verifique se a resolução de nomes está corretamente configurada, checando o arquivo `/etc/resolv.conf`:
++
+....
+# cat /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+....
 <<<
 
-3. Na máquina _Win7-padrao_, verifique que a configuração IPv4 da interface de rede está ajustada para obter endreço IP e servidor DNS automaticamente, como mostra a imagem a seguir:
+5. Na máquina _Win7-padrao_, verifique que a configuração IPv4 da interface de rede está ajustada para obter endreço IP e servidor DNS automaticamente, como mostra a imagem a seguir:
 +
 .Configuração de rede da máquina Win7-padrao
 [#img-rede-win7]
@@ -215,6 +255,11 @@ Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
 
 4. Acesse a máquina _Client_Linux_ e faça um teste de conectividade. Você deve conseguir `ping` com um _host_ da internet, como `8.8.8.8`, por exemplo:
 +
+....
+$ hostname
+cliente
+....
++
 .................
 $ ping -c3 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
@@ -226,8 +271,27 @@ PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 3 packets transmitted, 3 received, 0% packet loss, time 2004ms
 rtt min/avg/max/mdev = 31.982/32.482/33.291/0.595 ms
 .................
++
+Teste também a resolução de nomes. Tente, por exemplo, `ping` para o _host_ `www.google.com`:
++
+....
+$ ping -c3 www.google.com
+PING www.google.com (216.58.202.164) 56(84) bytes of data.
+64 bytes from gru06s30-in-f164.1e100.net (216.58.202.164): icmp_seq=1 ttl=55 time=16.8 ms
+64 bytes from gru06s30-in-f164.1e100.net (216.58.202.164): icmp_seq=2 ttl=55 time=16.9 ms
+64 bytes from gru06s30-in-f164.1e100.net (216.58.202.164): icmp_seq=3 ttl=55 time=17.4 ms
+
+--- www.google.com ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2001ms
+rtt min/avg/max/mdev = 16.816/17.063/17.408/0.292 ms
+....
 
 5. Torne permanente a configuração de _masquerading_ na máquina _Server_Linux_ editando o arquivo `/etc/rc.local` e adicionando a linha `iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE` antes da linha `exit 0` ao final do arquivo.
++
+....
+# hostname
+servidor
+....
 +
 .................
 # cat /etc/rc.local | grep -v '^# \|^#$\|^$'

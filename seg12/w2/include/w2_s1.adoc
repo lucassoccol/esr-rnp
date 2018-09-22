@@ -151,7 +151,26 @@ Finalmente, execute o comando que se segue. Volte a testar o teclado e verifique
 +
 <<<
 
-2. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
+2. Ao longo do curso, iremos editar vários arquivos de texto em ambiente Linux. Há vários editores de texto disponíveis para a tarefa, como o `vi`, `emacs` ou `nano`. Caso você não esteja familiarizado com um editor de texto, recomendamos o uso do `nano`, que possui uma interface bastante amigável para usuários iniciantes. Para editar um arquivo com o `nano`, basta digitar `nano` seguido do nome do arquivo a editar -- não é necessário que o arquivo tenha sido criado previamente:
++
+....
+# nano teste
+....
++
+Digite livremente a seguir. Use as setas do teclado para navegar no texto, e `DELETE` ou `BACKSPACE` para apagar texto. O `nano` possui alguns atalhos interessantes, como:
++
+--
+* `CTRL + G`: Exibir a ajuda do editor
+* `CTRL + X`: Fechar o `buffer` de arquivo atual (que pode ser um texto sendo editado, ou o painel de ajuda), e sair do `nano`. Para salvar o arquivo, digite `Y` (_yes_) ou `S` (_sim_) para confirmar as mudanças ao arquivo, opcionalmente altere o nome do arquivo a ser escrito no disco, e digite `ENTER`.
+* `CTRL + O`: Salvar o arquivo no disco sem sair do editor.
+* `CTRL + W`: Buscar padrão no texto.
+* `CTRL + K`: Cortar uma linha inteira e salvar no `buffer` do editor.
+* `CTRL + U`: Colar o `buffer` do editor na posição atual do cursor. Pode ser usado repetidamente.
+--
++
+Para salvar e sair do texto sendo editado, como mencionado acima, utilize `CTRL + X`.
+
+3. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
 +
 ....
 # hostname
@@ -202,7 +221,7 @@ netmask 255.255.255.0
 +
 <<<
 
-3. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
+4. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
 +
 ....
 # hostname
@@ -257,7 +276,7 @@ nameserver 8.8.4.4
 +
 <<<
 
-4. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
+5. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
 +
 Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais. Quando perguntado sobre o perfil da rede, escolha _Work_.
 +
@@ -268,7 +287,7 @@ image::Configuracao_Rede_WinServer.png[align="center"]
 +
 <<<
 
-5. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se tiver problemas com o mapa de teclado, abra um terminal e digite:
+6. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se tiver problemas com o mapa de teclado, abra um terminal e digite:
 +
 ....
 # gnome-control-center region
@@ -276,7 +295,7 @@ image::Configuracao_Rede_WinServer.png[align="center"]
 +
 Em _Input Sources_, clique no botão `+` para adicionar um novo mapa de teclado. Clique no símbolo `...` na parte de baixo da nova janela e procure o teclado _Portuguese (Brazil)_. Em seguida, clique em _Add_. Finalmente, apague o teclado original selecionando _English (US)_ e clicando no botão `-`.
 
-6. Ainda na máquina _KaliLinux-G_, edite as configurações de rede no arquivo `/etc/network/interfaces` e de DNS no arquivo `/etc/resolv.conf`. Reinicie a rede e verifique se tudo está funcionando:
+7. Ainda na máquina _KaliLinux-G_, edite as configurações de rede no arquivo `/etc/network/interfaces` e de DNS no arquivo `/etc/resolv.conf`. Reinicie a rede e verifique se tudo está funcionando:
 +
 ....
 # hostname
@@ -330,7 +349,7 @@ nameserver 8.8.4.4
 +
 <<<
 
-7. Finalmente, vamos configurar a máquina _WinClient-G_: faça login como usuário `aluno` e senha `rnpesr`. Acesse o _Control Panel_ ou use o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
+8. Finalmente, vamos configurar a máquina _WinClient-G_: faça login como usuário `aluno` e senha `rnpesr`. Acesse o _Control Panel_ ou use o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
 +
 .Configuração de rede da máquina WinClient-G
 [#img-rede-winclient]

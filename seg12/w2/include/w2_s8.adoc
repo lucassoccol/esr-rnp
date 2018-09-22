@@ -93,12 +93,32 @@ endif::gabarito[]
 Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _LinServer-G_.
 ====
 
-1. Na máquina _FWGW1-G_, descubra quais cifras assimétricas são suportadas pelo programa `gpg` (_GNU Privacy Guard_).
+1. Na máquina _FWGW1-G_, como usuário `root`, instale o pacote `rng-tools` e rode o comando `rngd -r /dev/urandom`:
 ifdef::gabarito[]
 +
 ....
-$ hostname
+# hostname ; whoami
 FWGW1-A
+root
+....
++
+....
+# apt-get install rng-tools
+....
++
+....
+# rngd -r /dev/urandom
+....
+endif::gabarito[]
+
+2. Agora, como usuário `aluno`, descubra quais cifras assimétricas são suportadas pelo programa `gpg` (_GNU Privacy Guard_).
+ifdef::gabarito[]
++
+....
+$ hostname ; whoami ; pwd
+FWGW1-A
+aluno
+/home/aluno
 ....
 +
 ....
@@ -150,11 +170,9 @@ You selected this USER-ID:
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
 You need a Passphrase to protect your secret key.
-....
-+
-Nesse momento o `gpg` irá informar que precisa de um grande número de bytes aleatórios para ter entropia na geração de números primos usada no algoritmo RSA. Aperte teclas quaisquer no teclado até que a chave seja gerada, como mostrado abaixo:
-+
-....
+
+(...)
+
 gpg: /home/aluno/.gnupg/trustdb.gpg: trustdb created
 gpg: key 209411F7 marked as ultimately trusted
 public and secret key created and signed.
@@ -169,12 +187,13 @@ sub   4096R/B2CCF948 2018-09-06
 ....
 endif::gabarito[]
 
-3. No caso da máquina _LinServer-G_, a entropia mesmo após digitar um grande número de teclas é baixa, pois há menor número de fontes de aleatoriedade (como o fato de não estar conectado à uma rede pública via eth0, por exemplo). Ao invés de "cansar o braço" digitando caracteres no passo de geração de chaves, instale o pacote `rng-tools` e rode o comando `rngd -r /dev/urandom`:
+3. Na máquina _LinServer-G_, como usuário `root`, instale o pacote `rng-tools` e rode o comando `rngd -r /dev/urandom`:
 ifdef::gabarito[]
 +
 ....
-# hostname
+# hostname ; whoami
 LinServer-A
+root
 ....
 +
 ....
@@ -186,12 +205,14 @@ LinServer-A
 ....
 endif::gabarito[]
 
-4. Agora sim, vamos agora gerar a chave de Bobby, na máquina _LinServer-G_. Repita o procedimento do passo (2), alterando o nome de usuário para Bobby e o email para bobby@seg12.esr.rnp.br .
+4. Como usuário `aluno`, gere a chave de Bobby na máquina _LinServer-G_. Repita o procedimento do passo (2), alterando o nome de usuário para Bobby e o email para bobby@seg12.esr.rnp.br .
 ifdef::gabarito[]
 +
 ....
-$ hostname
+$ hostname ; whoami ; pwd
 LinServer-A
+aluno
+/home/aluno
 ....
 +
 ....

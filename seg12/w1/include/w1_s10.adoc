@@ -282,7 +282,13 @@ Redigite a nova senha UNIX:
 passwd: senha atualizada com sucesso
 .................
 
-5. Na máquina _Client_Linux_, crie um arquivo de teste para ser enviado por _upload_ para o servidor FTP. A seguir, logue no servidor e envie o arquivo:
+5. Reinicie o _daemon_ do `vsftpd`:
++
+....
+# systemctl restart vsftpd
+....
+
+6. Na máquina _Client_Linux_, crie um arquivo de teste para ser enviado por _upload_ para o servidor FTP. A seguir, logue no servidor e envie o arquivo:
 +
 .................
 $ hostname
@@ -308,7 +314,7 @@ local: test remote: test
 45 bytes sent in 0.00 secs (1.0729 MB/s)
 .................
 
-6. De volta à máquina _Server_Linux_, verifique que o arquivo foi enviado com sucesso.
+7. De volta à máquina _Server_Linux_, verifique que o arquivo foi enviado com sucesso.
 +
 .................
 # hostname

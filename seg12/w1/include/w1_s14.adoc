@@ -50,10 +50,10 @@ ifdef::gabarito[]
 # wc -l /etc/squid3/squid.conf
 7655 /etc/squid3/squid.conf
 
+# cp /etc/squid3/squid.conf /etc/squid3/squid.conf.orig
+
 # grep -v '^#' /etc/squid3/squid.conf.orig | sed '/^$/d' | wc -l
 24
-
-# cp /etc/squid3/squid.conf /etc/squid3/squid.conf.orig
 .................
 
 3. A seguir, vamos editar o arquivo de acordo com as especificações da atividade. Preste especial atenção aos blocos `http_access`, que são lidos sequencialmente de cima para baixo:
@@ -132,7 +132,15 @@ f. Bloqueio por domínio de destino -- `acl` com palavra-chave `dstdomain`. Faç
 --
 
 ifdef::gabarito[]
-1. Primeiro, vamos implementar o controle por endereço físico. Edite o arquivo `/etc/squid3/acl/mac.conf` e inclua:
+1. Primeiro, vamos implementar o controle por endereço físico. Crie o diretório `/etc/squid3/acl` e em seguida edite o arquivo `/etc/squid3/acl/mac.conf`, incluindo:
++
+....
+# mkdir /etc/squid3/acl
+....
++
+....
+# cat /etc/squid3/acl/mac.conf
+....
 +
 [source,bash]
 ----
@@ -145,7 +153,7 @@ No topo do bloco `acl` do arquivo de configuração `/etc/squid3/squid.conf`, in
 acl block_mac  arp           "/etc/squid3/acl/mac.conf"
 .................
 +
-No topo do bloco `http_access`, faça o bloqueio.
+No topo do bloco `http_access`, antes de todas as demais entradas desse tipo, faça o bloqueio.
 +
 .................
 http_access deny block_mac

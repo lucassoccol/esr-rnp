@@ -176,12 +176,12 @@ include::{srcdir}/s7/snortconfig.sh[]
 3. Edite o arquivo de configuração do Snort e configure as redes a serem protegidas (variável `HOME_NET`), e as redes consideradas externas (variável `EXTERNAL_NET`).
 +
 ....
-# sed -i 's/^\(ipvar HOME\_NET\).*/\1 \[172.16.1.1\/24,10.1.1.0\/24\]/' /etc/snort/snort.conf
+# sed -i 's/^\(ipvar HOME\_NET\).*/\1 \[172.16.1.0\/24,10.1.1.0\/24\]/' /etc/snort/snort.conf
 ....
 +
 ....
 # grep '^ipvar HOME_NET' /etc/snort/snort.conf
-ipvar HOME_NET [172.16.1.1/24,10.1.1.0/24]
+ipvar HOME_NET [172.16.1.0/24,10.1.1.0/24]
 ....
 +
 ....
@@ -439,7 +439,7 @@ PulledPork v0.7.4 - Helping you protect your bitcoin wallet!
 6. Com o _Oinkcode_ em mãos, vamos configurar o PulledPork. No comando abaixo, substitua o valor `OINKCODE` no começo do comando pelo código que você copiou no item (7) do passo anterior. Em seguida, execute-o no terminal.
 +
 ....
-# oc="OINKCODE" ; sed -i "s/^\(rule\_url\=https\:\/\/www\.snort\.org\/reg\-rules\/|snortru les\-snapshot\.tar\.gz|\).*/\1${oc}/" /etc/snort/pulledpork.conf ; unset oc
+# oc="OINKCODE" ; sed -i "s/^\(rule\_url\=https\:\/\/www\.snort\.org\/reg\-rules\/|snortrules\-snapshot\.tar\.gz|\).*/\1${oc}/" /etc/snort/pulledpork.conf ; unset oc
 ....
 +
 Se tudo deu certo, você deverá ver seu _Oinkcode_ ao final da linha de regras baixadas do site https://www.snort.org , como mostrado a seguir (nota: o _Oinkcode_ abaixo é fictício):

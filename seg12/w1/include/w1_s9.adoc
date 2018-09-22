@@ -249,7 +249,7 @@ Configure a máquina _Client_Linux_ (192.168.0.20) para se autenticar na base LD
 
 Não se esqueça de editar os arquivos `/etc/ldap/ldap.conf` e `/etc/nsswitch.conf` para habilitar consulta às bases do LDAP durante procedimentos de login.
 
-Se desejar que diretórios _home_ sejam criados automaticamente para usuários LDAP inexistentes na máquina local, insira a linha a seguir ao final do arquivo `/etc/pam.d/common-password`:
+Se desejar que diretórios _home_ sejam criados automaticamente para usuários LDAP inexistentes na máquina local, insira a linha a seguir ao final do arquivo `/etc/pam.d/common-session`:
 
 .................
 session optional pam_mkhomedir.so skel=/etc/skel/ umask=022
@@ -331,7 +331,7 @@ rpc:            db files
 netgroup:       nis
 .................
 
-5. Para que diretórios _home_ sejam criados de forma automática se usuários LDAP inexistentes na máquina local logarem no sistema, insira a linha a seguir ao final do arquivo `/etc/pam.d/common-password`:
+5. Para que diretórios _home_ sejam criados de forma automática se usuários LDAP inexistentes na máquina local logarem no sistema, insira a linha a seguir ao final do arquivo `/etc/pam.d/common-session`:
 +
 .................
 # tail -n1 /etc/pam.d/common-session

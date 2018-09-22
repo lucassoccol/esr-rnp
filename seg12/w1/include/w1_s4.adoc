@@ -192,7 +192,7 @@ ifdef::gabarito[]
 Basta executar o comando `# ps lax` e buscar o processo relevante, verificando o valor da quinta coluna. Em uma única linha e de forma mais específica, podemos fazer:
 +
 .................
-# ps lax | egrep ' sleep 1000$' | awk '{print $5}'
+# ps lax | egrep ' sleep 1000$' | awk '{print $3, $5}'
 2289 5
 .................
 endif::gabarito[]
@@ -230,7 +230,7 @@ $ man 5 crontab
 .................
 ====
 
-1. Existe alguma entrada de `crontab` para o seu usuário?
+1. Logado como usuário `aluno`, verifique: existe alguma entrada de `crontab` para o seu usuário?
 ifdef::gabarito[]
 +
 .................
