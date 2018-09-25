@@ -1,0 +1,624 @@
+ifdef::oneof[]
+////
+= SEG2 - Sessão 1
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 25-09-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 1: Fundamentos de segurança
+
+=== 1) Da divisão de grupos
+
+Neste curso, os alunos serão divididos em dois grupos: `A` e `B`. Ao longo da semana, iremos realizar algumas atividades que vão envolver a intercomunicação entre máquinas virtuais dos alunos de cada grupo; para que as configurações de rede de dois alunos envolvidos em uma mesma atividade não conflitem, iremos adotar uma nomenclatura de endereços para cada grupo, como se segue:
+
+.Nomenclatura entre grupos
+[options="header",width="50%"]
+|===
+| Grupo | Sufixo de endereço
+| A | 1
+| B | 2
+|===
+
+O que isso significa, na prática? Em vários momentos, ao ler este material, você irá se deparar com endereços como 172.16.G.20 ou 10.1.G.10 -- que evidentemente são inválidos. Nesse momento, substitua o número do seu grupo pela letra `G` no endereço. Se você for membro do grupo `B`, portanto, os endereços acima seriam 172.16.2.20 e 10.1.2.10.
+
+<<<
+
+=== 2) Topologia geral de rede
+
+A figura abaixo mostra a topologia de rede que será utilizada durante este curso. Nos tópicos que se seguem, iremos verificar que a importação de máquinas virtuais, configurações de rede e conectividade estão funcionais antes de prosseguir. As configurações específicas de cada máquina/interface serão detalhadas na seção a seguir.
+
+.Topologia de rede do curso
+[#img-topologia]
+[caption="Figura 1: "]
+image::Topologia_SEG12_Semana2.png[align="center"]
+
+<<<
+
+=== 3) Configuração do Virtualbox
+
+1. Primeiramente, verifique se todas as máquinas virtuais foram importadas.
++
+Se ainda não foram, importe-as manualmente através do menu _File_ > _Import Appliance_. Navegue até a pasta onde se encontra o arquivo `.ova` com as imagens das máquinas virtuais e clique em _Next_. Na tela subsequente, marque a caixa _Reinitialize the MAC address of all network cards_ e só depois clique em _Import_.
++
+Ao final do processo, você deve ter cinco VMs com as configurações que se seguem. Renomeie as máquinas virtuais com os nomes indicados na tabela abaixo, substituindo o `G` pela letra do seu grupo.
++
+.VMs disponíveis no Virtualbox
+[options="header",width="50%"]
+|===
+| Nome VM | Memória
+| FWGW1-G | 2048 MB
+| LinServer-G | 2048 MB
+| WinServer-G | 2048 MB
+| KaliLinux-G | 2048 MB
+| WinClient-G | 2048 MB
+|===
++
+Se a quantidade de RAM de alguma das máquinas for inferior aos valores estipulados, ajuste-a.
+
+2. Agora, configure as redes do Virtualbox. Acesso o menu _File_ > _Host Network Manager_ e crie as seguintes redes:
++
+.Redes _host-only_ no Virtualbox
+[options="header",width="100%"]
+|===
+| Rede | Endereço IPv4 | Máscara de rede | Servidor DHCP
+| Virtualbox Host-Only Ethernet Adapter | 172.16.G.254 | 255.255.255.0 | Desabilitado
+| Virtualbox Host-Only Ethernet Adapter #2 | 10.1.G.254 | 255.255.255.0 | Desabilitado
+|===
++
+<<<
+
+3. Finalmente, configure as interfaces de rede de cada máquinas virtual. Para cada VM, acesse _Settings_ > _Network_ e faça as configurações que se seguem:
++
+.Interfaces de rede das máquinas virtuais
+[options="header",cols="<.^,<.^,<.^,<.^",width="100%"]
+|===
+| VM Nome | Interface | Conectado a | Nome da rede
+.3+| FWGW1-G | Adapter 1 | Bridged Adapter | Placa de rede física do _host_
+| Adapter 2 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| Adapter 3 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter #2
+| LinServer-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| WinServer-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| KaliLinux-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter
+| WinClient-G | Adapter 1 | Host-only Adapter | Virtualbox Host-Only Ethernet Adapter #2
+|===
+
+=== 4) Detalhamento das configurações de rede
+
+As configurações de rede realizadas internamente em cada máquina virtual foram apresentados de forma sucinta na figura 1. Iremos detalhar as configurações logo abaixo:
+
+.Configurações de rede de cada VM
+[options="header",cols="<.^,<.^,<.^,<.^,<.^,<.^",width="100%"]
+|===
+| VM Nome | Interface | Modo | Endereço | Gateway | Servidores DNS
+.3+| FWGW1-G | eth0 | Estático | DHCP | Automático | Automático
+| eth1 | Estático | 172.16.G.1/24 | n/a | n/a
+| eth2 | Estático | 10.1.G.1/24 | n/a | n/a
+| LinServer-G | eth0 | Estático | 172.16.G.10/24 | 172.16.G.1 | 8.8.8.8 ; 8.8.4.4
+| WinServer-G | eth0 | Estático | 172.16.G.20/24 | 172.16.G.1 | 8.8.8.8 ; 8.8.4.4
+| KaliLinux-G | eth0 | Estático | 172.16.G.30/24 | 172.16.G.1 | 8.8.8.8 ; 8.8.4.4
+| WinClient-G | eth0 | Estático | 10.1.G.10/24 | 10.1.G.1 | 8.8.8.8 ; 8.8.4.4
+|===
+
+<<<
+
+=== 5) Configuração da máquinas virtuais
+
+Agora, vamos configurar a rede de cada máquina virtual de acordo com as especificações da topologia de rede apresentada no começo deste capítulo.
+
+[WARNING]
+====
+Observe que as máquinas virtuais da *DMZ* e *Intranet* ainda não terão acesso à Internet neste passo, pois ainda não configuramos o firewall. A próxima seção irá tratar deste tópico.
+====
+
+[WARNING]
+====
+Para tangibilizar os exemplos nas configurações-modelo deste gabarito, iremos assumir que o aluno é membro do grupo `A`, ou seja, tem suas máquinas virtuais nas redes 172.16.1.0/24 e 10.1.1.0/24. Se você for membro do grupo `B`, tenha o cuidado de sempre adaptar os endereços IP dos exemplos para as suas faixas de rede.
+====
+
+1. Primeiramente, ligue a máquina _FWGW1-G_ e faça login como usuário `root` e senha `rnpesr`. Verifique se o mapa de teclado está correto (teste com os caracteres `/` ou `ç`). Se não estiver, execute o comando:
++
+....
+# dpkg-reconfigure keyboard-configuration
+....
++
+Nas perguntas que se seguem, responda:
++
+.Configurações de teclado
+[options="header"]
+|===
+| Pergunta | Parâmetro
+| Keyboard model | Generic 105-key (Intl) PC
+| Keyboard layout | Other > Portuguese (Brazil) > Portuguese (Brazil)
+| Key to function as AltGr | Right Alt (AltGr)
+| Compose key | Right Logo key
+|===
++
+Finalmente, execute o comando que se segue. Volte a testar o teclado e verifique seu funcionamento.
++
+....
+# systemctl restart keyboard-setup.service
+....
++
+<<<
+
+2. Ao longo do curso, iremos editar vários arquivos de texto em ambiente Linux. Há vários editores de texto disponíveis para a tarefa, como o `vi`, `emacs` ou `nano`. Caso você não esteja familiarizado com um editor de texto, recomendamos o uso do `nano`, que possui uma interface bastante amigável para usuários iniciantes. Para editar um arquivo com o `nano`, basta digitar `nano` seguido do nome do arquivo a editar -- não é necessário que o arquivo tenha sido criado previamente:
++
+....
+# nano teste
+....
++
+Digite livremente a seguir. Use as setas do teclado para navegar no texto, e `DELETE` ou `BACKSPACE` para apagar texto. O `nano` possui alguns atalhos interessantes, como:
++
+--
+* `CTRL + G`: Exibir a ajuda do editor
+* `CTRL + X`: Fechar o `buffer` de arquivo atual (que pode ser um texto sendo editado, ou o painel de ajuda), e sair do `nano`. Para salvar o arquivo, digite `Y` (_yes_) ou `S` (_sim_) para confirmar as mudanças ao arquivo, opcionalmente altere o nome do arquivo a ser escrito no disco, e digite `ENTER`.
+* `CTRL + O`: Salvar o arquivo no disco sem sair do editor.
+* `CTRL + W`: Buscar padrão no texto.
+* `CTRL + K`: Cortar uma linha inteira e salvar no `buffer` do editor.
+* `CTRL + U`: Colar o `buffer` do editor na posição atual do cursor. Pode ser usado repetidamente.
+--
++
+Para salvar e sair do texto sendo editado, como mencionado acima, utilize `CTRL + X`.
+
+3. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# whoami
+root
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
+# cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+auto eth0 eth1 eth2
+
+iface eth0 inet dhcp
+
+iface eth1 inet static
+address 172.16.1.1
+netmask 255.255.255.0
+
+iface eth2 inet static
+address 10.1.1.1
+netmask 255.255.255.0
+....
++
+....
+# systemctl restart networking
+....
++
+....
+# ip a s | grep '^ *inet '
+    inet 127.0.0.1/8 scope host lo
+    inet 192.168.1.203/24 brd 192.168.1.255 scope global eth0
+    inet 172.16.1.1/24 brd 172.16.1.255 scope global eth1
+    inet 10.1.1.1/24 brd 10.1.1.255 scope global eth2
+....
++
+<<<
+
+4. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
++
+....
+# hostname
+LinServer-A
+....
++
+....
+# whoami
+root
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
+# cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+
+iface eth0 inet static
+address 172.16.1.10
+netmask 255.255.255.0
+gateway 172.16.1.1
+....
++
+....
+# nano /etc/resolv.conf
+(...)
+....
++
+....
+# cat /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+....
++
+....
+# systemctl restart networking
+....
++
+....
+# ip a s | grep '^ *inet '
+    inet 127.0.0.1/8 scope host lo
+    inet 172.16.1.10/24 brd 172.16.1.255 scope global eth0
+....
++
+<<<
+
+5. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
++
+Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais. Quando perguntado sobre o perfil da rede, escolha _Work_.
++
+.Configuração de rede da máquina WinServer-G
+[#img-rede-winserver]
+[caption="Figura 2: "]
+image::Configuracao_Rede_WinServer.png[align="center"]
++
+<<<
+
+6. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se tiver problemas com o mapa de teclado, abra um terminal e digite:
++
+....
+# gnome-control-center region
+....
++
+Em _Input Sources_, clique no botão `+` para adicionar um novo mapa de teclado. Clique no símbolo `...` na parte de baixo da nova janela e procure o teclado _Portuguese (Brazil)_. Em seguida, clique em _Add_. Finalmente, apague o teclado original selecionando _English (US)_ e clicando no botão `-`.
+
+7. Ainda na máquina _KaliLinux-G_, edite as configurações de rede no arquivo `/etc/network/interfaces` e de DNS no arquivo `/etc/resolv.conf`. Reinicie a rede e verifique se tudo está funcionando:
++
+....
+# hostname
+kali
+....
++
+....
+# whoami
+root
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
+# cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+address 172.16.1.30
+netmask 255.255.255.0
+gateway 172.16.1.1
+....
++
+....
+# nano /etc/resolv.conf
+(...)
+....
++
+....
+# cat /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+....
++
+....
+# systemctl restart networking
+....
++
+....
+# ip a s | grep '^ *inet '
+    inet 127.0.0.1/8 scope host lo
+    inet 172.16.1.30/24 brd 172.16.1.255 scope global eth0
+....
++
+<<<
+
+8. Finalmente, vamos configurar a máquina _WinClient-G_: faça login como usuário `aluno` e senha `rnpesr`. Acesse o _Control Panel_ ou use o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
++
+.Configuração de rede da máquina WinClient-G
+[#img-rede-winclient]
+[caption="Figura 3: "]
+image::Configuracao_Rede_WinClient.png[align="center"]
++
+<<<
+
+=== 6) Configuração de firewall e NAT
+
+O próximo passo é garantir que as VMs consigam acessar a internet através da máquina _FWGW1-G_, que é o firewall/roteador na topologia de rede do curso.
+
+1. Antes de mais nada, observe que na máquina _FWGW1-G_ já existe uma configuração de _masquerading_ (um tipo de SNAT que veremos em maior detalhe na sessão 3) no arquivo `/etc/rc.local`:
++
+.................
+# hostname
+FWGW1-A
+
+# cat /etc/rc.local | grep -v '^#'
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+exit 0
+.................
+
+2. Isto significa dizer que a tradução de endereços das redes privadas já está configurado. Basta, então, habilitar o repasse de pacotes entre interfaces -- descomente a linha `net.ipv4.ip_forward=1` no arquivo `/etc/sysctl.conf` e, posteriormente, execute `# sysctl -p`:
++
+.................
+# sed -i 's/^#\(net.ipv4.ip_forward\)/\1/' /etc/sysctl.conf
+
+# grep 'net.ipv4.ip_forward' /etc/sysctl.conf
+net.ipv4.ip_forward=1
+
+# sysctl -p
+net.ipv4.ip_forward = 1
+.................
+
+3. Verifique que o _masquerading_ está de fato habilitado no firewall:
++
+.................
+# iptables -L POSTROUTING -vn -t nat
+Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 MASQUERADE  all  --  *      eth0    0.0.0.0/0            0.0.0.0/0
+.................
++
+<<<
+
+=== 7) Teste de conectividade das VMs
+
+1. Vamos agora testar a conectividade de cada uma das VMs. Primeiro, acesse a máquina _FWGW1-G_ e verifique o acesso à internet e resolução de nomes:
++
+....
+aluno@FWGW1-A:~$ hostname
+FWGW1-A
+....
++
+....
+aluno@FWGW1-A:~$ ping -c3 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=121 time=28.7 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=121 time=16.9 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=121 time=16.7 ms
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2005ms
+rtt min/avg/max/mdev = 16.776/20.832/28.757/5.606 ms
+....
++
+....
+aluno@FWGW1-A:~$ ping -c3 esr.rnp.br
+PING esr.rnp.br (200.130.99.56) 56(84) bytes of data.
+64 bytes from 200.130.99.56: icmp_seq=1 ttl=54 time=37.9 ms
+64 bytes from 200.130.99.56: icmp_seq=2 ttl=54 time=36.4 ms
+64 bytes from 200.130.99.56: icmp_seq=3 ttl=54 time=37.1 ms
+
+--- esr.rnp.br ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms
+....
+
+2. Em seguida, acesse cada uma das demais VMs, em ordem (_LinServer-G_, _WinServer-G_, _KaliLinux-G_ e _WinClient-G_) e teste se é possível:
++
+--
+* Alcançar o roteador da rede: `ping 172.16.1.1` (para máquinas da DMZ) ou `ping 10.1.1.1` (para máquinas da Intranet)
+* Alcançar um servidor na Internet: `ping 8.8.8.8`
+* Resolver nomes: comandos `nslookup`, `host` ou `ping` para o nome de domínio `esr.rnp.br`
+--
+
+=== 8) Instalação do *_Virtualbox Guest Additions_* nas VMs Windows
+
+Vamos agora instalar os adicionais de convidado para máquinas virtuais do Virtualbox, conhecido como _Virtualbox Guest Additions_. Esse adicionais consistem em _drivers_ de dispositivo e aplicações de sistema que otimizam o sistema para rodar no ambiente virtual, proporcionando maior performance e estabilidade. Nesta atividade, iremos instalar os adicionais apenas nas máquinas _WinServer-G_ e _WinClient-G_.
+
+1. Na console da máquina _WinServer-G_, acesse o menu _Devices_ > _Insert Guest Additions CD image_. Após algum tempo, a janela de _autorun_ irá aparecer, como mostrado abaixo. Clique duas vezes na opção _Run VBoxWindowsAdditions.exe_.
++
+.Janela de autorun do CD Virtualbox Guest Additions
+[#img-vboxguest-autorun]
+[caption="Figura 4: "]
+image::Vboxguest_autorun.png[align="center"]
++
+<<<
+
+2. No assistente de instalação, clique em _Next_, _Next_, e finalmente em _Install_. No meio da instalação o sistema irá avisar que a assinatura de quem publicou o software não é conhecida. Clique em _Install this driver software anyway_, como mostrado abaixo. A mesma janela irá aparecer logo depois, então escolha a mesma opção.
++
+.Aviso de publisher não verificado do Virtualbox Guest Additions
+[#img-vboxguest-publisher]
+[caption="Figura 5: "]
+image::Vboxguest_publisher.png[align="center"]
+
+3. Ao final da instalação, o assistente irá solicitar que o computador seja reiniciado. Deixe a caixa _Reboot now_ marcada e clique em _Finish_.
+
+4. Após o reinício do sistema, maximize a janela do Virtualbox e faça login no sistema como o usuário `Administrator`. Observe que, agora, o _desktop_ do Windows Server 2008 ocupa toda extensão do monitor, e não apenas uma pequena janela -- indício de que a instalação do _Virtualbox Guest Additions_ foi realizada com sucesso.
+
+5. Repita o procedimento de instalação dos passos 1 - 4 na máquina _WinClient-G_.
++
+<<<
+
+=== 9) Instalação do *_Virtualbox Guest Additions_* nas VMs Linux
+
+A instalação do _Virtualbox Guest Additions_ nas VMs Linux é um pouco diferente, mais manual. Siga os passos a seguir:
+
+1. Vamos começar pela máquina _FWGW1-G_. Primeiro, faça login como `root` apague o conteúdo do arquivo `/etc/apt/sources.list`:
++
+....
+# echo "" > /etc/apt/sources.list
+....
++
+Em seguida, edite-o com o seguinte conteúdo:
++
+....
+# cat /etc/apt/sources.list
+deb http://ftp.br.debian.org/debian/ jessie         main contrib non-free
+deb http://ftp.br.debian.org/debian/ jessie-updates main contrib non-free
+deb http://security.debian.org/      jessie/updates main contrib non-free
+....
+
+2. Em seguida, atualize os repositórios com o comando `apt-get update` e depois instale os pacotes `build-essential` e `module-assistant`, sem incluir recomendações:
++
+....
+# apt-get update
+# apt-get install --no-install-recommends build-essential module-assistant
+....
+
+3. Agora, faça o download dos `headers` do kernel em execução no sistema:
++
+....
+# m-a prepare
+....
+
+4. Na console do Virtualbox da máquina _FWGW1-G_, acesse o menu _Devices_ > _Insert Guest Additions CD image_. Em seguida, monte o dispositivo:
++
+....
+# mount /dev/cdrom /mnt/
+....
+
+5. Agora, execute o instalador do _Virtualbox Guest Additions_, com o comando:
++
+....
+# sh /mnt/VBoxLinuxAdditions.run
+Verifying archive integrity... All good.
+Uncompressing VirtualBox 5.2.18 Guest Additions for Linux........
+VirtualBox Guest Additions installer
+Copying additional installer modules ...
+Installing additional modules ...
+VirtualBox Guest Additions: Building the VirtualBox Guest Additions kernel modules.  This may take a while.
+VirtualBox Guest Additions: Starting.
+....
++
+<<<
+
+6. Finalmente, reinicie a máquina. Após o _reboot_, verifique que os módulos do _Virtualbox Guest Additions_ estão operacionais:
++
+....
+# reboot
+
+(...)
+
+# lsmod | grep '^vbox'
+vboxsf                 36413  0
+vboxvideo              34226  1
+vboxguest             221732  2 vboxsf
+....
+
+7. Instale os módulos do _Virtualbox Guest Additions_ na máquina _LinServer-G_. O procedimento é idêntico ao que fizemos nos passos 1 - 6.
+
+[WARNING]
+====
+Não iremos instalar os módulos do _Virtualbox Guest Additions_ na máquina _KaliLinux-G_. Pelo fato de a VM estar um pouco desatualizada (jan/2016), o `apt` exige que um grande número de pacotes seja baixado antes que os _headers_ do kernel possam ser recuperados. Visto que o tempo de instalação e download desses pacotes é longo, vamos pular essa etapa.
+
+Não obstante, os passos de instalação são idênticos aos das máquinas _FWGW1-G_ e _LinServer-G_. O Kali Linux é baseado na distribuição Debian, que está sendo usado nessas duas VMs.
+====
+
+<<<
+
+=== 10) Configuração da VM *_WinServer-G_*
+
+A máquina _WinServer-G_ demanda uma pequena configuração adicional antes que estejamos prontos para começar os trabalhos. Vamos a ela:
+
+1. Usando o 1) _Control Panel_, 2) clique direito em _Computer_ > _Properties_ no Windows Explorer ou 3) digitando `system` no menu iniciar, abra a tela de configuração do sistema como mostrado a seguir:
++
+.Tela de configuração do sistema do WinServer
+[#img-winserver-system]
+[caption="Figura 6: "]
+image::Winserver_system.png[align="center"]
++
+<<<
+
+2. Clique em _Change Settings_, e na aba _Computer Name_, no botão _Change..._. Altere o nome do computador para `WinServer-G` e o _Workgroup_ para `GRUPO`, como se segue. Depois, clique em _OK_.
++
+.Alteração de nome de máquina do WinServer
+[#img-winserver-changename]
+[caption="Figura 7: "]
+image::Winserver_changename.png[align="center"]
+<<<
+
+3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow Connections from computers running any version of Remote Desktop (less secure)_, como na imagem abaixo. Depois, clique em _Apply_ e em seguida em _Restart Later_.
++
+.Configurações de Remote Desktop do WinServer
+[#img-winserver-rdesktop]
+[caption="Figura 8: "]
+image::Winserver_rdesktop.png[align="center"]
+<<<
+
+4. Agora, desabilite o firewall do Windows. Digite `firewall` no menu _Start_ (alternativamente, clique em _Windows Firewall_ no _Control Panel_), em seguida em _Turn Windows Firewall on or off_, e finalmente marque a caixa _Off_, como se segue:
++
+.Desabilitar o firewall do WinServer
+[#img-winserver-firewall]
+[caption="Figura 9: "]
+image::Winserver_firewall.png[align="center"]
+
+5. Clique em _OK_ e reinicie a máquina _WinServer-G_.
++
+<<<
+
+6. Após o _reboot_, abra o _Server Manager_ (é o primeiro ícone à direta do botão _Start_), e em seguida clique com o botão direito em _Roles_, selecionando _Add Roles_. Na janela subsequente, clique em _Next_. Depois, marque a caixa da _role_ _Web Server (IIS)_, como se segue. Quando surgir a pergunta _Add features required for Web Server (IIS)?_, clique em _Add Required Features_, e depois em _Next_.
++
+.Instalando a role IIS no WinServer
+[#img-winserver-iis]
+[caption="Figura 10: "]
+image::Winserver_iis.png[align="center"]
++
+<<<
+
+7. Na janela _Introduction to Web Server (IIS)_, clique em _Next_. A seguir, na janela _Role services_, desça a barra de rolagem até o final e marque a caixa _FTP Publishing Service_, como se segue. Da mesma forma que antes, quando surgir a pergunta _Add features required for FTP Publishing Service?_, clique em _Add Required Features_, e depois em _Next_.
++
+.Instalando a feature FTP Server no WinServer
+[#img-winserver-ftp]
+[caption="Figura 11: "]
+image::Winserver_ftp.png[align="center"]
+
+8. Finalmente, clique em _Install_ e aguarde. Ao final do processo, clique em _Close_.
+
+=== 11) Exercitando os fundamentos de segurança
+
+1. Como vimos, o conceito de segurança mais básico apresentado consiste no CID (Confidencialidade, Integridade e Disponibilidade). Apresente três exemplos de quebra de segurança em cada um desses componentes, como por exemplo:
++
+* Planilha Excel corrompida.
+* Acesso não autorizado aos e-mails de uma conta de correio eletrônico.
+* Queda de um servidor web por conta de uma falha de energia elétrica.
+
+2. Associe cada um dos eventos abaixo a uma estratégia de segurança definida na parte teórica.
++
+* Utilizar um servidor web Linux e outro Windows 2016 Server para servir um mesmo conteúdo, utilizando alguma técnica para redirecionar o tráfego para os dois servidores.
+* Utilizar uma interface gráfica simplificada para configurar uma solução de segurança.
+* Configurar todos os acessos externos de modo que passem por um ponto único.
+* Um sistema de segurança em que caso falte energia elétrica, todos os acessos que passam por ele são bloqueados.
+* Configurar um sistema para só ser acessível através de redes confiáveis, para solicitar uma senha de acesso e em seguida verificar se o sistema de origem possui antivírus instalado.
+* Configurar as permissões de um servidor web para apenas ler arquivos da pasta onde estão as páginas HTML, sem nenhuma permissão de execução ou gravação em qualquer arquivo do sistema.
+
+=== 12) Normas e políticas de segurança
+
+1. Acesse o site do DSIC em http://dsic.planalto.gov.br/assuntos/editoria-c/instrucoes-normativas e leia a Instrução Normativa GSI/PR nº 1, de 13 de junho de 2008 e as normas complementares indicadas. Elas são um bom ponto de partida para a criação de uma Política de Segurança, de uma Equipe de Tratamento de Incidentes de Segurança, de um Plano de Continuidade de Negócios e para a implementação da Gestão de Riscos de Segurança da Informação.
+
+2. Leia o texto da Política de Segurança da Informação da Secretaria de Direitos Humanos da Presidência da República, de 2012 (disponível na seção _Links Úteis e Leituras Recomendadas_ do AVA, pasta _PoSIC_), e procure identificar os principais pontos na estruturação de uma PoSIC. Faça uma crítica construtiva do documento com vistas a identificar as principais dificuldades encontradas na elaboração de uma PoSIC.

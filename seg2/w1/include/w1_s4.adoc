@@ -1,0 +1,502 @@
+ifdef::oneof[]
+////
+= SEG2 - Sessão 4
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 25-09-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 4: Serviços básicos de segurança
+
+=== 1) Configuração do servidor de log remoto
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e _WinServer-G_.
+====
+
+Nesta atividade iremos configurar um repositório de logs em um servidor da DMZ (_LinServer-G_), e enviar os logs dos demais servidores para esse concentrador. O objetivo desta atividade é fazer o aluno aplicar os conceitos de repositório de logs de uma rede e preparar o ambiente para os serviços seguintes, que serão configurados durante o curso.
+
+1. Primeiro, vamos configurar o concentrador de logs. Acesse a máquina _LinServer-G_ e instale o pacote `syslog-ng`.
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+
+# apt-get install --no-install-recommends syslog-ng
+....
+endif::gabarito[]
+
+2. Observe que na última linha do arquivo `/etc/syslog-ng/syslog-ng.conf` são incluídos arquivos com a extensão `.conf` localizados no diretório `/etc/syslog-ng/conf.d`:
++
+....
+# tail -n1 /etc/syslog-ng/syslog-ng.conf
+@include "/etc/syslog-ng/conf.d/*.conf"
+....
++
+Aproveitando-se desse fato, crie um novo arquivo com a extensão apropriada nesse diretório e configure o recebimento de logs remotos. Faça com que o `syslog-ng` escute por conexões na porta 514/UDP, e envie os arquivos de log de uma dado _host_ para o arquivo `/var/log/$HOST.log`. Finalmente, reinicie o `syslog-ng`.
+ifdef::gabarito[]
++
+Abaixo, mostramos o conteúdo do arquivo `/etc/syslog-ng/conf.d/rserver.conf`, que cumpre os objetivos especificados:
++
+[source,bash]
+----
+include::{srcdir}/s6/linserver_etc_syslog-ng_conf.d_rserver.conf[]
+----
++
+Depois, basta reiniciar o serviço:
++
+....
+# systemctl restart syslog-ng.service
+....
+endif::gabarito[]
+
+3. Agora, na máquina _FWGW1-G_, instale o `syslog-ng` e configure-o como um cliente Syslog. Crie um arquivo de configuração na pasta `/etc/syslog-ng/conf.d` que envie todos os eventos de log locais para a máquina _LinServer-G_ na porta 514/UDP.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# apt-get install --no-install-recommends syslog-ng
+....
++
+A seguir, temos o arquivo `/etc/syslog-ng/conf.d/rclient.conf`, que envia os logs locais para o servidor remoto:
++
+[source,bash]
+----
+include::{srcdir}/s6/fwgw1_etc_syslog-ng_conf.d_rclient.conf[]
+----
++
+Finalmente, basta reiniciar o `syslog-ng`:
++
+....
+# systemctl restart syslog-ng.service
+....
+endif::gabarito[]
+
+4. Usando o comando `logger`, teste seu ambiente.
+ifdef::gabarito[]
++
+Na máquina _FWGW1-G_, crie um evento de log qualquer usando o comando `logger`:
++
+....
+# hostname
+FWGW1-A
+
+# logger -p error Teste
+....
++
+Observando a máquina _LinServer-G_, perceba que foi criado um novo arquivo `/var/log/172.16.G.1.log`. Verificando seu conteúdo, é possível constatar que, de fato, os logs remotos do _host_ _FWGW1-G_ estão sendo enviados para cá.
++
+....
+# hostname
+LinServer-A
+
+# tail -n1 /var/log/172.16.1.1.log
+Aug 26 06:49:30 172.16.1.1 aluno: Teste
+....
+endif::gabarito[]
+
+5. Agora, vamos configurar a máquina _WinServer-G_ para enviar registros de eventos para o concentrador Syslog. Faça login como usuário `Administrator` e abra o _Group Policy Editor_ digitando `gpedit.msc` no menu _Start_ > _Run..._.
++
+Na ferramenta, acesse a seção _Computer Configuration_ > _Windows Settings_ > _Security Settings_ > _Local Policies_ > _Audit Policy_ e habilite os seguintes eventos como "Sucesso" e "Falha":
++
+.Políticas de auditoria para o WinServer-G
+[options="header"]
+|===
+| Policy | Security Setting
+| Audit account logon events | Success, Failure
+| Audit account management | Success, Failure
+| Audit directory service access | No auditing
+| Audit logon events | Success, Failure
+| Audit object access | Failure
+| Audit policy change | Success
+| Audit privilege use | Failure
+| Audit process tracking | No Auditing
+| Audit system events | Success, Failure
+|===
+ifdef::gabarito[]
++
+A tela ficaria, portanto, desta forma:
++
+.Tela de políticas de auditoria para o WinServer-G
+[#img-syslog-gpedit]
+[caption="Figura 29: "]
+image::syslog-gpedit.png[align="center"]
+endif::gabarito[]
+
+6. O próximo passo é instalar o Snare, que permitirá envio dos registros de eventos do Windows para um servidor Syslog remoto. Faça o download em https://www.snaresolutions.com/products/snare-agents/open-source-agents/ ; será necessário cadastrar seu nome/email para receber o link de download. Alternativamente, solicite o instalador ao instrutor.
++
+Durante a instalação, responda todas as perguntas com as opções padrão, exceto:
++
+.Opções de instalação do Snare
+[options="header"]
+|===
+| Opção | Escolha
+| Snare Auditing | Yes
+| Service Account | Use System Account
+| Remote Control Interface | Enable Web Access (Password: rnpesr)
+|===
+
+7. Após a instalação, abra o Snare. Clique em _Start_ e digite "snare", escolhendo a opção `Snare for Windows (Open Source)`, como se segue:
++
+.Inicialização do Snare
+[#img-syslog-snare-start]
+[caption="Figura 30: "]
+image::syslog-snare-start.png[align="center"]
++
+Irá ser lançada uma janela do navegador. Informe o usuário `snare`, e senha `rnpesr`, como se segue:
++
+.Login no Snare
+[#img-syslog-snare-password]
+[caption="Figura 31: "]
+image::syslog-snare-password.png[align="center"]
++
+Clique em _Network Configuration_ -- informe o IP da máquina _LinServer-G_ no campo _Destination Snare Server address_, e a porta 514 no campo _Destination Port_, como se segue. Em seguida, clique em _Change Configuration_.
++
+.Configurações do Snare
+[#img-syslog-snare-config]
+[caption="Figura 32: "]
+image::syslog-snare-config.png[align="center"]
++
+Em seguida, clique em _Apply the Latest Audit Configuration_ e depois em _Reload Settings_.
+
+8. Faça logoff/logon no _WinServer-G_ para gerar registros de eventos. Em seguida, volte à máquina _LinServer-G_ e verifique que os logs estão de fato sendo enviados.
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+
+# grep Logoff /var/log/172.16.1.20.log
+Aug 26 07:10:25 172.16.1.20 WinServer-A MSWinEventLog   1       Security        50      dom ago 26 08:10:23 2018  4647    Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit     WinServer-A     Logoff          User initiated logoff:    Subject:   Security ID:  S-1-5-21-1959434341-4039883546-812769935-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0x16898    This event is generated when a logoff is initiated but the token reference count is not zero and the logon session cannot be destroyed.  No further user-initiated activity can occur.  This event can be interpreted as a logoff event.  41
+....
+endif::gabarito[]
+
+=== 2) Configuração do servidor de hora
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e _WinServer-G_.
+====
+
+Nesta atividade vamos configurar o serviço de sincronismo de relógio em um servidor da rede (_LinServer-G_) e configurar os demais _hosts_ da rede para sincronizar com o relógio desse servidor.
+
+1. Primeiro, vamos configurar o servidor de hora. Acesse a máquina _LinServer-G_ e instale o pacote `ntp`.
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+....
++
+....
+# apt-get install --no-install-recommends ntp
+....
+endif::gabarito[]
+
+2. Edite o arquivo `/etc/ntp.conf` e substitua o conteúdo das linhas 21-24 (que começam com a palavra-chave `server`) pelas que se seguem. Comente ou remova as linhas originais.
+ifdef::gabarito[]
++
+....
+# nano /etc/ntp.conf
+(...)
+....
++
+....
+# grep '^server' /etc/ntp.conf
+server a.ntp.br iburst
+server b.ntp.br iburst
+server c.ntp.br iburst
+....
+endif::gabarito[]
+
+3. Para sincronizar o relógio de forma imediata, pare o serviço do `ntp`, rode o comando `ntpd -gq` e em seguida inicie o _daemon_. Verifique se a hora está corrigida.
+ifdef::gabarito[]
++
+....
+# systemctl stop ntp
+....
++
+....
+# ntpd -gq
+ntpd: time slew +0.000090s
+....
++
+....
+# date
+Mon Sep  3 19:36:26 EDT 2018
+....
++
+....
+# systemctl start ntp
+....
+endif::gabarito[]
+
+4. Cheque se o `ntp` está funcionando, e se está escutando por conexões de rede na porta esperada. A seguir, iremos configurar os clientes NTP.
+ifdef::gabarito[]
++
+....
+# ntpq -c pe
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+*a.ntp.br        200.160.7.186    2 u   48   64   77   16.623   -0.352   0.229
+ b.ntp.br        200.160.7.186    2 u   51   64   77   57.992   -1.086   0.239
+ c.ntp.br        200.160.7.186    2 u   50   64   77   40.497   -2.432   0.281
+....
++
+....
+# netstat -unlp | grep '^udp .*:123'
+udp        0      0 172.16.1.10:123         0.0.0.0:*                           11052/ntpd
+udp        0      0 127.0.0.1:123           0.0.0.0:*                           11052/ntpd
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           11052/ntpd
+....
+endif::gabarito[]
+
+5. Vamos configurar o cliente NTP Linux, na máquina _FWGW1-G_. Instale o pacote `ntp`; edite o arquivo `/etc/ntpd.conf` para consultar o servidor de hora _LinServer-G_; pare o serviço `ntp`, sincronize a hora imediatamente e reinicie-o.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# apt-get install --no-install-recommends ntp
+....
++
+....
+# nano /etc/ntp.conf
+(...)
+....
++
+....
+# grep '^server' /etc/ntp.conf
+server 172.16.1.10 iburst
+....
++
+....
+# systemctl stop ntp
+....
++
+....
+# ntpd -gq
+ntpd: time slew -0.000270s
+....
++
+....
+# date
+Mon Sep  3 19:44:04 EDT 2018
+....
++
+....
+# systemctl start ntp
+....
+endif::gabarito[]
+
+6. Finalmente, configure o cliente NTP na máquina _WinServer-G_. O Microsoft Windows possui uma forma simples de configurar o sincronismo de relógio com servidores de rede, desde de que não tenham o servidor de diretório _Microsoft Active Directory_ como controlador de domínio, pois dessa forma o sincronismo é automático.
++
+Para a configuração do sincronismo automático do _host_ Windows com o servidor de hora da rede, clique no relógio da barra de tarefas, e em seguida em _Change date and time settings..._; logo depois, navegue até a aba _Internet Time_.
++
+.Aba Internet Time do relógio do Windows
+[#img-ntp-win-internettime]
+[caption="Figura 33: "]
+image::ntp-win-internettime.png[align="center"]
++
+Clique em _Change Settings..._, e informe o IP da máquina _LinServer-G_ no campo _Server_. Em seguida, clique em _Update now_ (se ocorrer um erro, clique uma segunda vez), e o relógio do sistema deverá ser atualizado.
++
+.Modificando o servidor NTP do Windows
+[#img-ntp-win-setserver]
+[caption="Figura 34: "]
+image::ntp-win-setserver.png[align="center"]
+
+=== 3) Monitoramento de serviços
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e _WinServer-G_.
+====
+
+Nesta atividade prática, o software Cacti será configurado para monitorar os recursos dos servidores da rede. O Cacti e os pacotes necessários para o correto funcionamento serão instalados na máquina _LinServer-G_. Serão configurados agentes SNMP nos servidores _WinServer-G_ e _FWGW1-G_ para que o Cacti possa monitorar os recursos desses hosts.
+
+1. Primeiro, vamos instalar o Cacti. Acesse a máquina _LinServer-G_ e instale o pacote `cacti`.
++
+--
+* Quando perguntado sobre a senha para o usuário `root` do MySQL, informe `rnpesr123`.
+* Quando perguntado sobre o _web server_ para o qual o Cacti deve ser autoconfigurado, escolha `apache2`.
+* Quando perguntado se a base de dados do Cacti deve ser configurada usando o `dbconfig-common`, responda _Yes_. Para a senha do usuário administrativo da base de dados e a senha do aplicativo Cacti no MySQL, informe `rnpesr123` para ambas as perguntas.
+--
+ifdef::gabarito[]
++
+....
+# hostname
+LinServer-A
+....
++
+....
+# apt-get install cacti
+(...)
+....
+endif::gabarito[]
+
+2. Em sua máquina física, acesse a URL `http://172.16.1.10/cacti` para concluir a instalação do Cacti.
++
+.Tela inicial do Cacti
+[#img-cacti-welcome]
+[caption="Figura 35: "]
+image::cacti-welcome.png[align="center"]
++
+Clique em _Next_. Na tela seguinte, mantenha a escolha em _New Install_ e clique em _Next_. Verifique que todos os valores na tela a seguir estão corretos (texto em verde com os dizeres `OK: FILE FOUND`), e clique em _Finish_.
++
+Você verá a tela de login do Cacti. Entre com o usuário `admin` e senha `admin`; quando solicitada mudança de senha, escolha `rnpesr` em ambos os campos e clique em _Save_. Você deverá acessar a tela principal de configuração do Cacti.
++
+.Console do Cacti
+[#img-cacti-console]
+[caption="Figura 36: "]
+image::cacti-console.png[align="center"]
+
+3. Vamos instalar o agente SNMP na máquina _FWGW1-G_. Instale o pacote `snmpd`.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+....
++
+....
+# apt-get install --no-install-recommends snmpd
+....
+endif::gabarito[]
+
+4. Edite o arquivo `/etc/snmp/snmpd.conf`, comente a linha `agentAddress  udp:127.0.0.1:161` e descomente a linha `agentAddress udp:161,udp6:[::1]:161`. Em seguida, reinicie o `snmpd` e verifique que ele está escutando na porta apropriada.
+ifdef::gabarito[]
++
+....
+# vi /etc/snmp/snmpd.conf
+(...)
+....
++
+....
+# grep '^#*agentAddress' /etc/snmp/snmpd.conf
+#agentAddress  udp:127.0.0.1:161
+agentAddress udp:161,udp6:[::1]:161
+....
++
+....
+# systemctl restart snmpd
+....
++
+....
+# netstat -unlp | grep '^udp .*:161'
+udp        0      0 0.0.0.0:161             0.0.0.0:*                           12527/snmpd
+....
+endif::gabarito[]
+
+5. Lembre-se que a _chain_ INPUT da tabela _filter_ do firewall _FWGW1-G_ não está configurada para permitir conexões nessa porta. Corrija o problema e salve as modificações no arquivo `/etc/iptables/rules.v4`.
+ifdef::gabarito[]
++
+....
+# iptables -A INPUT -s 172.16.1.10/32 -p udp -m udp --dport 161 -m state --state NEW,ESTABLISHED -j ACCEPT
+....
++
+....
+# iptables-save > /etc/iptables/rules.v4
+....
+endif::gabarito[]
+
+6. Agora, vamos instalar o agente SNMP na máquina _WinServer-G_. Acesse como usuário _Administrator_ e, dentro do _Server Manager_, clique com o botão direito em _Features_ > _Add Features_. Desça a barra de rolagem, selecione a caixa _SNMP Services_ e prossiga com o assistente.
++
+.Instalação da feature SNMP
+[#img-snmp-wininstall]
+[caption="Figura 37: "]
+image::snmp-wininstall.png[align="center"]
+
+7. Abra o gestor de serviços do Windows, via menu _Start_ > _Run..._ > `services.msc`. Encontre o serviço _SNMP Service_ e clique com o botão direto > _Properties_.
++
+.Propriedades do serviço SNMP
+[#img-snmp-winprop]
+[caption="Figura 38: "]
+image::snmp-winprop.png[align="center"]
++
+Na aba _Security_, caixa _Accepted community names_, clique em _Add..._ e adicione a comunidade `public` com permissões _READ ONLY_. Logo abaixo, na caixa _Accept SNMP packets from these hosts_, clique em _Add..._ e adicione o IP da máquina _LinServer-G_. Sua janela deverá ficar assim:
++
+.Configurações do serviço SNMP
+[#img-snmp-winconfig]
+[caption="Figura 39: "]
+image::snmp-winconfig.png[align="center"]
++
+Finalmente, clique com o botão direito no serviço _SNMP Service_ e em seguida em _Restart_.
+
+8. De volta à console do Cacti, no navegador da sua máquina física acessando a URL `http://172.16.1.10/cacti`, vamos adicionar os dois servidores configurados. No menu à esquerda, clique em _Devices_, e em seguida na palavra _Add_ no canto superior direto da nova janela.
++
+.Adicionando device no Cacti, parte 1
+[#img-cacti-adddevice]
+[caption="Figura 40: "]
+image::cacti-adddevice.png[align="center"]
++
+Na nova janela, informe o nome da máquina _FWGW1-G_ no campo _Description_, seu IP exposto à DMZ no campo _Hostname_, e escolha a opção _Local Linux Machine_ no campo _Host Template_. Verifique se sua janela está como se segue, e clique em _Create_.
++
+.Adicionando device no Cacti, parte 2
+[#img-cacti-adddevice2]
+[caption="Figura 41: "]
+image::cacti-adddevice2.png[align="center"]
++
+Verifique que as informações SNMP do _host_ _FWGW1-G_ figuram corretamente na seção _SNMP Information_ no topo da tela. Em seguida, clique em _Create Graphs for this Host_.
++
+.Adicionando gráficos no Cacti, parte 1
+[#img-cacti-cgraphs]
+[caption="Figura 42: "]
+image::cacti-cgraphs.png[align="center"]
++
+Na nova janela, selecione todos os _Graph Templates_ e _Data Queries_ disponíveis e clique em _Create_. Na janela que se segue, clique novamente em _Create_.
++
+.Adicionando gráficos no Cacti, parte 2
+[#img-cacti-cgraphs2]
+[caption="Figura 43: "]
+image::cacti-cgraphs2.png[align="center"]
++
+Agora, o passo final é adicionar os gráficos a uma árvore de gráficos. No menu à esquerda, clique em _Graph Trees_, e em seguida em _Default Tree_.
++
+.Adicionando gráficos a árvores no Cacti, parte 1
+[#img-cacti-addtree]
+[caption="Figura 44: "]
+image::cacti-addtree.png[align="center"]
++
+Na nova janela, em _Tree Items_, clique em _Add_.
++
+.Adicionando gráficos a árvores no Cacti, parte 2
+[#img-cacti-addtree2]
+[caption="Figura 45: "]
+image::cacti-addtree2.png[align="center"]
++
+Na nova janela, em _Tree Item Type_, altere o valor para _Host_. Novas opções irão surgir. Em _Host_, selecione a máquina _FWGW1-G_, e depois clique em _Create_.
++
+.Adicionando gráficos a árvores no Cacti, parte 3
+[#img-cacti-addtree3]
+[caption="Figura 46: "]
+image::cacti-addtree3.png[align="center"]
++
+Para visualizar os gráficos recém-criados, no menu superior acesse _graphs_, expanda a _Default Tree_ e clique no _host_ _FWGW1-G_. Pode demorar algum tempo para que os gráficos sejam populados.
++
+.Visualizando gráficos no Cacti, máquina _FWGW1-G_
+[#img-cacti-viewgraph]
+[caption="Figura 47: "]
+image::cacti-viewgraph.png[align="center"]
+
+9. Faça o mesmo procedimento realizado no passo (8), mas agora com a máquina _WinServer-G_. A única diferença é que você irá apontar o IP da máquina _WinServer-G_ no campo _Hostname_, e o _Host Template_ como sendo _Windows 2000/XP Host_. Ao final do processo, os gráficos deverão ficar visíveis como se segue.
++
+.Visualizando gráficos no Cacti, máquina _WinServer-G_
+[#img-cacti-viewgraph2]
+[caption="Figura 48: "]
+image::cacti-viewgraph2.png[align="center"]

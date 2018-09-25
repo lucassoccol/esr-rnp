@@ -1,0 +1,339 @@
+ifdef::oneof[]
+////
+= SEG2 - Sessão 9
+:Author: Francisco_Marcelo,_Marcelo_Karam_e_Felipe_Scarel
+:Author Initials: FM & MK & FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 25-09-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 9: Configuração segura de servidores Windows
+
+=== 1) Configuração do controlador de domínio *_Active Directory_*
+
+[WARNING]
+====
+Esta atividade será realizada na máquina virtual _WinServer-G_.
+====
+
+Nesta atividade iremos instalar e configurar a _role_ _Active Directory_ na máquina _WinServer-G_, tornando-o um controlador de domínio primário (também conhecido como AD DC -- _Active Directory Domain Controller_) para o domínio `domainG.esr.local`, sendo `G` a letra associada ao seu grupo. Para fazer isso, siga os passos abaixo:
+
+1. Acesse a máquina _WinServer-G_ como o usuário `Administrator`. Acesse _Start_ > _Run..._ e digite `dcpromo.exe`. Clique em _OK_. O Windows Server irá iniciar o processo de instalação dos binários do _Active Directory_ na máquina e, ao final do processo, irá abrir o _wizard_ de configuração como se segue:
++
+.Tela inicial de configuração do AD DC
+[#img-ad1]
+[caption="Figura 76: "]
+image::ad1.png[align="center"]
++
+Marque a opção _Use advanced mode installation_ e clique em _Next_.
+
+2. Na tela _Operating System Compatibility_, clique em _Next_.
+
+3. Na tela _Choose a Deployment Configuration_, selecione _Create a new domain in a new forest_, como mostrado abaixo, e clique em _Next_.
++
+.Escolha de tipo de instalação do AD DC
+[#img-ad2]
+[caption="Figura 77: "]
+image::ad2.png[align="center"]
++
+<<<
+
+4. Na tela _Name the Forest Root Domain_, escolha o FQDN do seu domínio. Se estiver no grupo A, digite `domainA.esr.local`; no grupo B, digite `domainB.esr.local`. Verifique sua entrada de acordo com a imagem que se segue, e clique em _Next_.
++
+.Escolha do FQDN do AD DC
+[#img-ad3]
+[caption="Figura 78: "]
+image::ad3.png[align="center"]
+
+5. Na tela subsequente, _Domain NetBIOS Name_, escolha `DOMAINA` ou `DOMAINB` (dependendo do seu grupo) e clique em _Next_.
++
+<<<
+
+6. Na página _Set Forest Functional Level_, selecione o nível funcional de floresta que acomoda os controladores de domínio a serem instalados em qualquer lugar da floresta. Como teremos somente controladores de domínio Windows 2008 Server e acima, utilizaremos o nível funcional `Windows 2008 Server`. Confira sua seleção de acordo com a imagem a seguir, e clique em _Next_.
++
+.Escolha do nível funcional da floresta AD DC
+[#img-ad4]
+[caption="Figura 79: "]
+image::ad4.png[align="center"]
++
+<<<
+
+7. Na tela _Additional Domain Controller Options_, mantenha a opção `DNS Server` marcada, indicando que a infraestrutura DNS da sua floresta deverá ser criada durante a instalação do AD DS. Em seguida, clique em _Next_.
++
+O sistema irá informar que uma delegação DNS para o servidor local (a máquina _WinServer-G_) não pode ser criada pois o servidor DNS autoritativo não está usando o servidor DNS do Windows, como se segue:
++
+.Erro na delegação DNS do AD DC
+[#img-ad5]
+[caption="Figura 80: "]
+image::ad5.png[align="center"]
++
+Após ler a mensagem de aviso, clique em _Yes_ para continuar.
+
+8. Na tela _Location for Database, Log Files and SYSVOL_, mantenha os valores propostos pelo instalador e clique em _Next_.
++
+<<<
+
+9. Na tela _Directory Services Restore Mode Administrator Password_, defina uma senha para o modo de recuperação dos serviços de diretório do AD DC a ser usada em casos de falha. Para este exemplo, defina a senha como `rnpesr`, como mostrado abaixo. Em seguida, clique em _Next_.
++
+.Definição da senha do modo de recuperação do AD DC
+[#img-ad6]
+[caption="Figura 81: "]
+image::ad6.png[align="center"]
+
+10. Na tela _Summary_, verifique se todas as opções definidas para o servidor do _Active Directory_ estão corretas; em caso positivo, clique em _Next_.
+
+11. Ao final do processo de instalação da _role_ AD DC, reinicie a máquina _WinServer-G_ para concluir o processo de instalação.
+
+=== 2) Configuração do firewall para o *_Active Directory_*
+
+[WARNING]
+====
+Esta atividade será realizada na máquina virtual _FWGW1-G_.
+====
+
+O próximo passo seria adicionar a máquina _WinClient-G_ ao domínio mas, antes disso, temos que configurar a _chain_ FORWARD do firewall _FWGW1-G_ para permitir o repasse dos pacotes nas portas relevantes.
+
+A base de documentação da Microsoft, acessível através do link (https://support.microsoft.com/en-us/help/832017#method1) lista um grande conjunto de portas a serem acessadas, como se segue:
+
+--
+* Para ambientes que utilizam exclusivamente versões do Windows anteriores ao Windows Server 2008 e Windows Vista, deve-se habilitar conectividade das portas 1025 a 5000.
+* Para ambientes que utilizam apenas o Windows Server 2008 R2, Windows Server 2008, Windows 7 ou Windows Vista, deve-se habilitar conectividade das portas 49152 a 65535.
+* Para ambientes que utilizam tanto versões modernas quanto antigas do Windows, deve-se habilitar ambas as faixas acima, 1025 a 5000 e 49152 a 65535.
+--
+
+Além dessas portas, a figura a seguir mostra também quais portas conhecidas devem ser liberadas pelo firewall para conectividade.
+
+.Portas conhecidas para liberação do AD no firewall
+[#img-adports]
+[caption="Figura 82: "]
+image::adports.png[align="center"]
+
+Considerando o grande número de portas em questão, iremos permitir a faixa completa de conexão entre as máquinas _WinServer-G_ e _WinClient-G_, para facilitar a configuração neste laboratório.
+
+1. Acesse a máquina _FWGW1-G_ como usuário `root` e permita trânsito irrestrito de pacotes entre as máquinas _WinServer-G_ e _WinClient-G_. Considere o sentido do fluxo de pacotes em suas regras.
++
+....
+# hostname ; whoami
+FWGW1-A
+root
+....
++
+....
+# iptables -A FORWARD -s 10.1.1.10/32 -d 172.16.1.20/32 -j ACCEPT
+....
+
+=== 3) Adição de clientes ao *_Active Directory_*
+
+[WARNING]
+====
+Esta atividade será realizada na máquina virtual _WinClient-G_.
+====
+
+1. Vamos, agora sim, adicionar a máquina _WinClient-G_ ao domínio. Acesse-a como usuário `Aluno` e abra as configurações de rede. Acesse _Iniciar_ e digite `ncpa.cpl`. Em seguida, clique com o botão direito em _Conexão Local_ e navegue para _Propriedades_ > _Protoloco TCP/IP Versão 4_ > _Propriedades_. Altere o servidor DNS primário para o IP da máquina _WinServer-G_, como se segue:
++
+.Configuração DNS do cliente AD
+[#img-adclient1]
+[caption="Figura 83: "]
+image::adclient1.png[align="center"]
+
+2. Agora, navegue para _Painel de Controle_ > _Sistema e Segurança_ > _Sistema_ > _Alterar configurações_. Em seguida, clique no botão _Alterar..._ para mudar o domínio da máquina local. Na caixa _Membro de_, marque o botão _Domínio_ e digite o FQDN do domínio configurado no passo (4) da atividade (1) desta sessão, como se segue.
++
+.Inserindo o cliente AD no domínio
+[#img-adclient2]
+[caption="Figura 84: "]
+image::adclient2.png[align="center"]
++
+Clique em _OK_. O sistema irá exigir autenticação -- você deve usar um usuário com permissões *administrativas* no AD DC, como o usuário `Administrator`. Informe, também, o domínio de autenticação do usuário. Trocando em miúdos, autentique-se como:
++
+--
+* Nome de usuário: `DOMAINA\Administrator`
+* Senha: `rnpesr`
+--
++
+Após algum tempo de processamento, você deverá receber a mensagem _Bem vindo ao domínio domainG.esr.local_, como mostrado abaixo.
++
+.Inserção do cliente AD no domínio com sucesso
+[#img-adclient3]
+[caption="Figura 85: "]
+image::adclient3.png[align="center"]
++
+Reinicie a máquina _WinClient-G_ para concluir o processo.
+
+=== 4) Adição de usuários ao *_Active Directory_*
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _WinClient-G_.
+====
+
+1. Vamos criar um usuário não-privilegiado para autenticar-se no domínio. Logue na máquina _WinServer-G_ como um usuário administrativo (por exemplo, `DOMAINA\Administrator`), e execute _Start_ > _Run..._ > `dsa.msc`. Você deverá ver a tela do _Active Directory Users and Computers_, como se segue:
++
+.Interface de edição de usuários e máquinas do AD
+[#img-aduser1]
+[caption="Figura 86: "]
+image::aduser1.png[align="center"]
+
+2. Expanda a floresta `domainA.esr.local`, e observe as pastas _Builtin_, _Computers_, _Domain Controllers_, _ForeignSecurityPrincipals_ e _Users_. Para visualizar os usuários e grupos existentes no domínio, clique sobre a pasta _Users_.
++
+.Visão de usuários e grupos existentes no AD
+[#img-aduser2]
+[caption="Figura 87: "]
+image::aduser2.png[align="center"]
++
+De igual forma, para ver os computadores adicionados ao AD, basta clicar sobre a pasta _Computers_.
+
+3. Para adicionar um novo usuário, clique com o botão direito sobre a pasta _Users_, e em seguida _New_ > _User_. Crie um usuário com os seguintes dados:
++
+--
+* _First name_: Indiana
+* _Last name_: Jones
+* _Initials_: IJ
+* _Full name_: Henry Walton Jones Jr.
+* _User logon name_: `indyjones@domainA.esr.local`
+* _User logon name (pre-Windows 2000)_: `DOMAINA\indyjones`
+--
++
+Preenchidos os dados, clique em _Next_.
+
+4. Na tela de definição de senha, devemos escolher uma senha suficientemente complexa para que o AD não a invalide. Uma senha como `RnpEsr!123` é uma boa escolha. Logo abaixo, mantenha marcada a caixa _User must change password at next logon_, e todas as demais desmarcadas. Clique em _Next_.
+
+5. Na tela de confirmação dos dados, verifique que tudo está correto como mostrado a seguir, e clique em _Finish_.
++
+.Confirmação de adição de usuário ao AD
+[#img-aduser3]
+[caption="Figura 88: "]
+image::aduser3.png[align="center"]
+
+6. De volta à máquina _WinClient-G_, tente logar com o usuário `indyjones` recém-criado. Clique no botão _Trocar Usuário_ > _Outro Usuário_ e digite os dados inseridos nos passos (3) e (4). Observe que o logon será feito no domínio `DOMAINA`, como objetivado.
++
+.Logon inicial no AD
+[#img-adlogon1]
+[caption="Figura 89: "]
+image::adlogon1.png[align="center"]
++
+Imediatamente, o AD reporta que a senha deve ser alterada no primeiro logon -- isso faz sentido, pois mantivemos a caixa _User must change password at next logon_ marcada quando da criação do usuário no passo (4). Escolha uma nova senha, diferente da primeira e igualmente complexa (sugestão: `Seg2@rnp!`), e confirme o logon.
++
+Finalmente, verifique que você está de fato logado na máquina como o usuário do domínio.
++
+.Verificação de logon no AD
+[#img-adlogon2]
+[caption="Figura 90: "]
+image::adlogon2.png[align="center"]
+
+=== 5) Distribuição de configurações via GPOs
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _WinServer-G_ e _WinClient-G_.
+====
+
+Iremos agora usar GPOs (_Group Policy Objects_) para fazer configurações centralizadas de máquinas clientes do domínio. De fato, iremos usar as GPOs para resolver um problema que já tivemos anteriormente neste curso: a adição de certificados de ACs para _man-in-the-middle_, especificamente o do Squid _SslBump Peek and Splice_ (sessão 7, atividade 2).
+
+1. Primeiro, acesse a máquina _FWGW1-G_ como usuário `root` e volte a executar o Squid em modo de interceptação de tráfego SSL, como fizemos anteriormente. Caso as regras de firewall não estejam mais ativas, reinsira-as e execute o Squid:
++
+....
+# hostname ; whoami
+FWGW1-A
+root
+....
++
+....
+# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 80 -j REDIRECT --to-port 8080
+# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 443 -j REDIRECT --to-port 8443
+# iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp -m multiport --dports 8080,8443 -j ACCEPT
+....
++
+....
+# /usr/local/sbin/squid -f /usr/local/etc/squid.conf
+....
+
+2. Na máquina _WinClient-G_, tente acessar um website via HTTPS para testar se a interceptação está ativa. No exemplo abaixo, estamos acessando o https://facebook.com ; note que o certificado é identificado como inválido (como esperado), e emitido pela CA da máquina `fwgw1-g.esr.rnp.br`:
++
+.Detecção de certificado forjado não-confiável na máquina WinClient-G
+[#img-gpo1]
+[caption="Figura 91: "]
+image::gpo1.png[align="center"]
+
+3. Para resolver o problema, vamos adicionar o certificado do Squid instalado na máquina _FWGW1-G_ à base de certificados raiz confiáveis, como fizemos anteriormente. Mas, ao invés de fazer isso manualmente, vamos usar o AD e as GPOs para realizar essa tarefa. Copie o certificado localizado em `/usr/local/etc/ssl/public.crt` (na máquina _FWGW1-G_) para o _Desktop_ da máquina _WinServer-G_ -- use o programa `WinSCP` ou a pasta compartilhada pelo Virtualbox, como preferir.
++
+Ao final do processo, você deverá ter a chave pública da CA do Squid disponível na máquina _WinServer-G_, como mostrado abaixo.
++
+.Cópia do certificado da CA do Squid para a máquina WinServer-G
+[#img-gpo2]
+[caption="Figura 92: "]
+image::gpo2.png[align="center"]
+
+4. Vamos criar uma política para distribuição do certificado copiado. Execute _Start_ > _Run..._ > `gpmc.msc`. Você deverá ver a tela do _Group Policy Management_, como se segue:
++
+.Ferramenta para gestão de políticas no AD
+[#img-gpo3]
+[caption="Figura 93: "]
+image::gpo3.png[align="center"]
+
+5. Expanda a floresta `domainA.esr.local`, e em seguida _Domains_. Clique com o botão direito no domínio `domainA.esr.local`, e em seguida em _Create a GPO in this domain, and Link it here..._. Para o nome da GPO, digite _squidcert_, e em seguida clique em _OK_. Uma nova política deve surgir na lista linkadas, como mostrado abaixo:
++
+.Criação de nova GPO
+[#img-gpo4]
+[caption="Figura 94: "]
+image::gpo4.png[align="center"]
+
+6. Clique com o botão direito na política _squidcert_, e em seguida em _Edit_. Surgirá uma nova janela para edição de políticas, idêntica à invocada pelo _snap-in_ `gpedit.msc`. Navegue para _Computer Configuration_ > _Policies_ > _Windows Settings_ > _Security Settings_ > _Public Key Policies_, clique com o botão direito em _Trusted Root Certification Authorities_, como mostrado abaixo. Em seguida, clique em _Import_.
++
+.Navegando na tela de edição de políticas
+[#img-gpo5]
+[caption="Figura 95: "]
+image::gpo5.png[align="center"]
+
+7. Será aberta uma tela de adição de certificado idêntica à que usamos na sessão 7. Aponte o certificado do Squid baixado no passo (3) desta atividade, e confirme todas as janelas de adição do certificado. Ao final, você deverá vê-lo adicionado ao _Trusted Root Certification Authorities_ da GPO, como mostrado a seguir.
++
+.Certificado do Squid adicionado à GPO
+[#img-gpo6]
+[caption="Figura 96: "]
+image::gpo6.png[align="center"]
+
+8. Tudo pronto! Feche a janela do _Group Policy Management Editor_ e do _Group Policy Management_, e volte à máquina _WinClient-G_. Segundo a _knowledge base_ da Microsoft (https://msdn.microsoft.com/en-us/library/ms813077.aspx), as GPOs são atualizadas de 90 em 90 minutos, com _offsets_ aleatórios de 30 minutos. Como não queremos esperar tudo isso para verificar nossa configuração, abra (novamente, na máquina _WinClient-G_) uma janela do _prompt_ de comando e digite `gpupdate /force` para atualizar as GPOs imediatamente:
++
+.Forçando atualização de GPOs imediatamente
+[#img-gpo7]
+[caption="Figura 97: "]
+image::gpo7.png[align="center"]
+
+9. Abra o navegador e tente acessar um website em HTTPS, como o https://facebook.com  que havia sido acessado anteriormente. Note que, agora, o navegador reporta o certificado forjado pela CA do Squid como confiável.
++
+.Detecção de certificado da CA do Squid como confiável
+[#img-gpo8]
+[caption="Figura 98: "]
+image::gpo8.png[align="center"]
+
+10. De fato, verificando a lista de certificados raiz confiáveis do sistema, o da máquina _FWGW1-G_ consta da lista.
++
+.Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis
+[#img-gpo9]
+[caption="Figura 99: "]
+image::gpo9.png[align="center"]
++
+Com efeito, nossa configuração via GPO funcionou corretamente -- em um cenário com dezenas de clientes Windows, ou mesmo centenas, você poderia usar um esquema de configuração como este para distribuir o certificado do seu _proxy_ de forma imediata.
+
+=== 6) Configuração do WSUS
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _WinClient-G_.
+====
+
+1. Acesse a máquina _WinServer-G_ como um usuário administrativo (por exemplo, `DOMAINA\Administrator`) e verifique que todos as atualizações de segurança da Microsoft estão aplicadas. Execute _Start_ > _Windows Update_ e verifique que o servidor está totalmente atualizado, como mostrado abaixo.
++
+.Máquina WinServer-G atualizada
+[#img-wsus1]
+[caption="Figura 100: "]
+image::wsus1.png[align="center"]
+
+2. Ainda na máquina _WinServer-G_, abra o _Server Manager_ e em seguida navegue para _Roles_ > _Add Roles_. Na nova janela, marque a caixa do _Windows Server Update Services_ (WSUS), aceite a adição dos _role services_ requeridos como dependência para ele, e confirme todos os valores padrão para instalação da _role_.
