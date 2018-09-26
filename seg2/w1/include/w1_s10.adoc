@@ -141,21 +141,18 @@ Após o _boot_ da máquina, o menu do GRUB nos apresenta a possibilidade de edit
 +
 .Edição de opções no GRUB
 [#img-grub-passwd1]
-[caption="Figura 77: "]
 image::grub-passwd1.png[align="center"]
 +
 Apertando `e` sobre a primeira opção, imediatamente o sistema requisita a combinação usuário/senha configurada anteriormente:
 +
 .Inserção de usuário/senha no GRUB
 [#img-grub-passwd2]
-[caption="Figura 78: "]
 image::grub-passwd2.png[align="center"]
 +
 Mediante a inserção da combinação correta, o menu de edição de opções de _boot_ é mostrado, como se segue.
 +
 .Edição de opções de boot no GRUB
 [#img-grub-passwd3]
-[caption="Figura 79: "]
 image::grub-passwd3.png[align="center"]
 +
 Note, ainda, que mesmo o _boot_ do sistema prossegue apenas se a combinação de usuário/senha correta é inserida no GRUB.

@@ -378,7 +378,6 @@ ifdef::gabarito[]
 +
 .Acesso da Intranet para a DMZ
 [#img-fwd-iis-ok]
-[caption="Figura 26: "]
 image::firewall-fwd-iis-ok.png[align="center"]
 endif::gabarito[]
 
@@ -559,7 +558,6 @@ Finalmente, vamos acessar esse IP na porta 80 a partir da máquina física:
 +
 .Teste DNAT do acesso Internet > LinServer
 [#img-firewall-dnat-linserver]
-[caption="Figura 27: "]
 image::firewall-dnat-linserver.png[align="center"]
 +
 Voltando ao monitoramento do log de acessos do Apache na máquina _LinServer-G_, vemos que o acesso de fato se concretizou:
@@ -591,7 +589,6 @@ Utilizando o mesmo IP público descoberto anteriormente, basta acessá-lo na por
 +
 .Teste DNAT do acesso Internet > WinServer
 [#img-firewall-dnat-winserver]
-[caption="Figura 28: "]
 image::firewall-dnat-winserver.png[align="center"]
 endif::gabarito[]
 

@@ -633,7 +633,6 @@ Vamos agora testar o procedimento de criptografia assimétrica usado na atividad
 +
 .Adicionando uma conta de e-mail ao Thunderbird
 [#img-thunderbird-addaccount]
-[caption="Figura 49: "]
 image::thunderbird-addaccount.png[align="center"]
 
 5. No Thunderbird, navegue no menu localizado no canto superior direito. Clique em _Extensões_ > _Extensões_. No canto superior da janela, pesquise por `enigmail` e pressione ENTER. O primeiro resultado, a extensão _Enigmail_, é o que queremos: clique no botão _Adicionar ao Thunderbird_ > _Instalar agora_.
@@ -650,14 +649,12 @@ image::thunderbird-addaccount.png[align="center"]
 +
 .PeP habilitado no Thunderbird
 [#img-thunderbird-pep1]
-[caption="Figura 50: "]
 image::thunderbird-pep1.png[align="center"]
 +
 Clicando no botão _Seguro & Confiável_ na base da janela, o _Enigmail/PeP_ mostra que o envio de mensagens será feito de forma segura (i.e. criptografada) e confiável (i.e. assinada), como mostra a imagem a seguir:
 +
 .Relação de confiança Enigmail/PeP no Thunderbird
 [#img-thunderbird-pep2]
-[caption="Figura 51: "]
 image::thunderbird-pep2.png[align="center"]
 
 8. Teste o envio de mensagens entre você e seu colega. O _Enigmail/PeP_ está funcionando corretamente? O que você achou desse esquema facilitado de criptografia assimétrica?
@@ -675,14 +672,12 @@ Esta atividade será realizada em sua máquina física.
 +
 .Criação de volumes no VeraCrypt, parte 1
 [#img-veracrypt1]
-[caption="Figura 52: "]
 image::veracrypt1.png[align="center"]
 
 3. Na tela seguinte, mantenha marcada a opção _Create an encrypted file container_ e clique em _Next_.
 +
 .Criação de volumes no VeraCrypt, parte 2
 [#img-veracrypt2]
-[caption="Figura 53: "]
 image::veracrypt2.png[align="center"]
 
 4. Na tela subsequente, mantenha marcada a opção _Standard VeraCrypt volume_ e clique em _Next_.
@@ -691,7 +686,6 @@ image::veracrypt2.png[align="center"]
 +
 .Criação de volumes no VeraCrypt, parte 3
 [#img-veracrypt3]
-[caption="Figura 54: "]
 image::veracrypt3.png[align="center"]
 
 6. Para as opções de criptografia, mantenha o algoritmo AES e hash SHA-512, e clique em _Next_.
@@ -706,7 +700,6 @@ image::veracrypt3.png[align="center"]
 +
 .Criação de volumes no VeraCrypt, parte 4
 [#img-veracrypt4]
-[caption="Figura 55: "]
 image::veracrypt4.png[align="center"]
 
 11. Pronto, o volume criptografado está montado. Basta escrever arquivos como desejado e, ao final do processo, clicar em _Dismount_ na janela principal do VeraCrypt. Caso queira mover o volume criptografado para outro local, copie-o em um _pendrive_, mídia removível ou mesmo através da Internet, e remonte-o no local de destino.

@@ -232,7 +232,6 @@ Na tela subsequente, mantenha o _Scanner Type_ em _Home, Professional or Manager
 +
 .Console do Nessus
 [#img-nessus-console]
-[caption="Figura 64: "]
 image::nessus-console.png[align="center"]
 
 === 2) Realizando um *_scan_* em SO Linux
@@ -270,7 +269,6 @@ Vamos realizar um _scan_ na máquina _LinServer-G_, verificar as vulnerabilidade
 +
 .Scan inicial do LinServer-G no Nessus
 [#img-nessus-linserver1]
-[caption="Figura 65: "]
 image::nessus-linserver1.png[align="center"]
 +
 Aguarde o final do _scan_, e confira o resultado. Se quiser acompanhar o _scan_ enquanto ele é realizado, clique na linha para expandi-la.
@@ -279,14 +277,12 @@ Aguarde o final do _scan_, e confira o resultado. Se quiser acompanhar o _scan_ 
 +
 .Primeiro scan do LinServer-G no Nessus
 [#img-nessus-linserver2]
-[caption="Figura 66: "]
 image::nessus-linserver2.png[align="center"]
 +
 Veja que há um grande número de vulnerabilidades identificadas: 6 críticas, 43 de alto impacto, 34 de médio impacto, 4 de baixo impacto e 48 de cunho informativo. Entre na aba _Vulnerabilities_ e explore algumas dessas vulnerabilidades -- por exemplo, confira abaixo a vulnerabilidade DSA-3481-1, referente à `glibc`:
 +
 .Vulnerabilidade crítica da glibc
 [#img-nessus-linserver3]
-[caption="Figura 67: "]
 image::nessus-linserver3.png[align="center"]
 +
 O Nessus apresenta várias informações úteis, como a natureza da vulnerabilidade, quais CVEs (_Common Vulnerabilities and Exposures_) são relevantes, e quais são as soluções mais indicadas. Do ponto de vista de gestão de riscos e vulnerabilidades em um parque com um grande número de máquinas instaladas, essas informações são importantíssimas.
@@ -314,7 +310,6 @@ LinServer-A
 +
 .Scan do LinServer-G após atualização
 [#img-nessus-linserver4]
-[caption="Figura 68: "]
 image::nessus-linserver4.png[align="center"]
 +
 Temos uma melhora notável: apenas 1 vulnerabilidade crítica e 3 de alto impacto foram identificadas, um cenário muito menos preocupante que o que tínhamos anteriormente.
@@ -353,7 +348,6 @@ Vamos agora realizar um _scan_ na máquina _WinServer-G_, verificar as vulnerabi
 +
 .Primeiro scan do WinServer-G no Nessus
 [#img-nessus-winserver1]
-[caption="Figura 69: "]
 image::nessus-winserver1.png[align="center"]
 +
 Veja que há um enorme número de vulnerabilidades identificadas: 25 críticas, 327 de alto impacto, 81 de médio impacto, 7 de baixo impacto e 159 de cunho informativo. Entre na aba _Vulnerabilities_ e explore algumas dessas vulnerabilidades.
@@ -364,14 +358,12 @@ Na instalação do MBSA, aceite todas as opções padrão do instalador. Em segu
 +
 .Scan do MBSA na máquina WinServer-G
 [#img-nessus-winserver2]
-[caption="Figura 70: "]
 image::nessus-winserver2.png[align="center"]
 +
 Após o final do _scan_, vários apontamentos serão indicados pelo MBSA, como se segue:
 +
 .Resultados do scan do MBSA na máquina WinServer-G
 [#img-nessus-winserver3]
-[caption="Figura 71: "]
 image::nessus-winserver3.png[align="center"]
 +
 Desses, o mais preocupante é de longe o grande número de atualizações de segurança pendentes: 205. Ainda há alertas quanto à falta de atualizações automáticas, expiração de senhas de usuários e situação do _Windows Firewall_.
@@ -380,7 +372,6 @@ Desses, o mais preocupante é de longe o grande número de atualizações de seg
 +
 .WinServer-G atualizado
 [#img-nessus-winserver4]
-[caption="Figura 72: "]
 image::nessus-winserver4.png[align="center"]
 +
 Após o final do processo, a tela do _Windows Update_ deve mostrar a mensagem acima.
@@ -389,7 +380,6 @@ Após o final do processo, a tela do _Windows Update_ deve mostrar a mensagem ac
 +
 .Scan final do WinServer-G no Nessus
 [#img-nessus-winserver5]
-[caption="Figura 73: "]
 image::nessus-winserver5.png[align="center"]
 +
 A diferença para o panorama anterior é significativa: agora temos apenas 7 vulnerabilidades de médio impacto, 2 de baixo impacto e 27 de cunho informativo. De fato, as recomendações do MBSA e as atualizações de sistema fizeram uma diferença importante na segurança do sistema.
@@ -445,7 +435,6 @@ Agora sim, clique no ícone _Launch_ (que parece um pequeno _play_) na parte à 
 +
 .Primeiro scan do FWGW1-G no Nessus
 [#img-nessus-fwgw1]
-[caption="Figura 74: "]
 image::nessus-fwgw1.png[align="center"]
 +
 Um resultado impressionante: apenas 6 vulnerabilidades informativas, e nenhum alerta levantado pelo Snort. Mas, será mesmo?
@@ -517,7 +506,6 @@ Após o final do _scan_, temos o seguinte resultado:
 +
 .Segundo scan do FWGW1-G no Nessus
 [#img-nessus-fwgw2]
-[caption="Figura 75: "]
 image::nessus-fwgw2.png[align="center"]
 +
 Agora temos uma vulnerabilidade de alto impacto, duas de médio impacto e 23 informativas. Talvez o servidor não esteja tão seguro quando imaginávamos... vamos tentar ir mais a fundo.
@@ -584,7 +572,6 @@ E como ficou o resultado do _scan_?
 +
 .Scan final do FWGW1-G no Nessus
 [#img-nessus-fwgw3]
-[caption="Figura 76: "]
 image::nessus-fwgw3.png[align="center"]
 +
 Com o login `ssh` ativado, o Nessus conseguiu, agora sim, encontrar 6 vulnerabilidades críticas, 44 de alto impacto, 36 de médio impacto, 4 de baixo impacto e 54 informativas. De fato, a segurança do servidor _FWGW1-G_ está no mesmo patamar da máquina _LinServer-G_ antes da sua atualização, o que seria esperado.

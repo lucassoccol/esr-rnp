@@ -95,21 +95,18 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms
 +
 .Download do certificado do mitmproxy
 [#img-mitmproxy-dlcert]
-[caption="Figura 56: "]
 image::mitmproxy-dlcert.png[align="center"]
 
 5. De posse do certificado, instale-o na máquina _WinClient-G_. Clique duas vezes sobre o certificado, e em seguida em _Abrir_. Na janela seguinte, clique em _Instalar Certificado..._.
 +
 .Instalação do certificado do mitmproxy, parte 1
 [#img-mitmproxy-instcert1]
-[caption="Figura 57: "]
 image::mitmproxy-instcert1.png[align="center"]
 +
 Clique em _Avançar_. Em seguida, marque a caixa _Colocar todos os certificados no repositório a seguir_, clique em _Procurar..._ e selecione _Autoridades de Certificação Raiz Confiáveis_.
 +
 .Instalação do certificado do mitmproxy, parte 2
 [#img-mitmproxy-instcert2]
-[caption="Figura 58: "]
 image::mitmproxy-instcert2.png[align="center"]
 +
 Finalmente, clique em _Avançar_ e em seguida em _Concluir_. Agora, o certificado do `mitmproxy` é reconhecido como um AC Raiz pelo sistema Windows. Num cenário real, o atacante teria que descobrir algum vetor de ataque _client-side_ que permitisse a ele ter o acesso para copiar o certificado e instalá-lo na máquina da vítima. Aqui, como estamos em um ambiente simulado, pudemos contar com a "colaboração" do usuário-alvo.
@@ -147,14 +144,12 @@ Depois de pouco tempo, será aberta uma janela do navegador para inspeção do t
 +
 .Credenciais em claro no mitmweb
 [#img-mitmproxy-password]
-[caption="Figura 59: "]
 image::mitmproxy-password.png[align="center"]
 +
 Em parelelo, na janela do navegador na máquina _WinClient-G_, o login no Facebook é concluído com sucesso:
 +
 .Login no facebook através do mitmproxy
 [#img-mitmproxy-fblogin]
-[caption="Figura 60: "]
 image::mitmproxy-fblogin.png[align="center"]
 
 9. Finalmente, retorne o ambiente de laboratório a seu estado original: pare o `mitmweb`, encerre o ARP _spoofing_ e remova as regras de firewall criadas no passo (6).
@@ -278,14 +273,12 @@ f. Clique em "Avançar", e então em "Concluir".
 +
 .Acesso via Squid/Bump a https://twitter.com
 [#img-squid-bump]
-[caption="Figura 61: "]
 image::squid-bump.png[align="center"]
 +
 Agora, acesse um dos websites cujo domínio consta no arquivo `/usr/local/etc/whitelist.txt`, e verifique sua cadeia certificadora: a AC que assina o certificado será a original, inalterada pelo proxy. Veja abaixo um acesso a https://www.bb.com.br :
 +
 .Acesso via Squid/Splice a https://www.bb.com.br
 [#img-squid-splice]
-[caption="Figura 62: "]
 image::squid-splice.png[align="center"]
 
 10. Finalmente, retorne o ambiente de laboratório a seu estado original: pare o Squid (via `/usr/local/sbin/squid -k shutdown`) e remova as regras de firewall criadas no passo (6).
@@ -565,7 +558,6 @@ O segundo passo é extrair o arquivo `.tar.gz` contendo as chaves do cliente que
 +
 .Estado final da pasta do OpenVPN na máquina WinClient-G
 [#img-ovpn-folder]
-[caption="Figura 63: "]
 image::ovpn-folder.png[align="center"]
 
 11. Tudo quase pronto! Vamos testar o funcionamento da VPN, passo a passo: primeiro, o aluno do grupo A deverá atuar como servidor, e o aluno do grupo B atuará como cliente. A seguir, as posições serão invertidas.

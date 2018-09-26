@@ -30,7 +30,6 @@ Nesta atividade iremos instalar e configurar a _role_ _Active Directory_ na máq
 +
 .Tela inicial de configuração do AD DC
 [#img-ad1]
-[caption="Figura 76: "]
 image::ad1.png[align="center"]
 +
 Marque a opção _Use advanced mode installation_ e clique em _Next_.
@@ -41,7 +40,6 @@ Marque a opção _Use advanced mode installation_ e clique em _Next_.
 +
 .Escolha de tipo de instalação do AD DC
 [#img-ad2]
-[caption="Figura 77: "]
 image::ad2.png[align="center"]
 +
 <<<
@@ -50,7 +48,6 @@ image::ad2.png[align="center"]
 +
 .Escolha do FQDN do AD DC
 [#img-ad3]
-[caption="Figura 78: "]
 image::ad3.png[align="center"]
 
 5. Na tela subsequente, _Domain NetBIOS Name_, escolha `DOMAINA` ou `DOMAINB` (dependendo do seu grupo) e clique em _Next_.
@@ -61,7 +58,6 @@ image::ad3.png[align="center"]
 +
 .Escolha do nível funcional da floresta AD DC
 [#img-ad4]
-[caption="Figura 79: "]
 image::ad4.png[align="center"]
 +
 <<<
@@ -72,7 +68,6 @@ O sistema irá informar que uma delegação DNS para o servidor local (a máquin
 +
 .Erro na delegação DNS do AD DC
 [#img-ad5]
-[caption="Figura 80: "]
 image::ad5.png[align="center"]
 +
 Após ler a mensagem de aviso, clique em _Yes_ para continuar.
@@ -85,7 +80,6 @@ Após ler a mensagem de aviso, clique em _Yes_ para continuar.
 +
 .Definição da senha do modo de recuperação do AD DC
 [#img-ad6]
-[caption="Figura 81: "]
 image::ad6.png[align="center"]
 
 10. Na tela _Summary_, verifique se todas as opções definidas para o servidor do _Active Directory_ estão corretas; em caso positivo, clique em _Next_.
@@ -113,7 +107,6 @@ Além dessas portas, a figura a seguir mostra também quais portas conhecidas de
 
 .Portas conhecidas para liberação do AD no firewall
 [#img-adports]
-[caption="Figura 82: "]
 image::adports.png[align="center"]
 
 Considerando o grande número de portas em questão, iremos permitir a faixa completa de conexão entre as máquinas _WinServer-G_ e _WinClient-G_, para facilitar a configuração neste laboratório.
@@ -141,14 +134,12 @@ Esta atividade será realizada na máquina virtual _WinClient-G_.
 +
 .Configuração DNS do cliente AD
 [#img-adclient1]
-[caption="Figura 83: "]
 image::adclient1.png[align="center"]
 
 2. Agora, navegue para _Painel de Controle_ > _Sistema e Segurança_ > _Sistema_ > _Alterar configurações_. Em seguida, clique no botão _Alterar..._ para mudar o domínio da máquina local. Na caixa _Membro de_, marque o botão _Domínio_ e digite o FQDN do domínio configurado no passo (4) da atividade (1) desta sessão, como se segue.
 +
 .Inserindo o cliente AD no domínio
 [#img-adclient2]
-[caption="Figura 84: "]
 image::adclient2.png[align="center"]
 +
 Clique em _OK_. O sistema irá exigir autenticação -- você deve usar um usuário com permissões *administrativas* no AD DC, como o usuário `Administrator`. Informe, também, o domínio de autenticação do usuário. Trocando em miúdos, autentique-se como:
@@ -162,7 +153,6 @@ Após algum tempo de processamento, você deverá receber a mensagem _Bem vindo 
 +
 .Inserção do cliente AD no domínio com sucesso
 [#img-adclient3]
-[caption="Figura 85: "]
 image::adclient3.png[align="center"]
 +
 Reinicie a máquina _WinClient-G_ para concluir o processo.
@@ -178,14 +168,12 @@ Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _WinClient
 +
 .Interface de edição de usuários e máquinas do AD
 [#img-aduser1]
-[caption="Figura 86: "]
 image::aduser1.png[align="center"]
 
 2. Expanda a floresta `domainA.esr.local`, e observe as pastas _Builtin_, _Computers_, _Domain Controllers_, _ForeignSecurityPrincipals_ e _Users_. Para visualizar os usuários e grupos existentes no domínio, clique sobre a pasta _Users_.
 +
 .Visão de usuários e grupos existentes no AD
 [#img-aduser2]
-[caption="Figura 87: "]
 image::aduser2.png[align="center"]
 +
 De igual forma, para ver os computadores adicionados ao AD, basta clicar sobre a pasta _Computers_.
@@ -209,14 +197,12 @@ Preenchidos os dados, clique em _Next_.
 +
 .Confirmação de adição de usuário ao AD
 [#img-aduser3]
-[caption="Figura 88: "]
 image::aduser3.png[align="center"]
 
 6. De volta à máquina _WinClient-G_, tente logar com o usuário `indyjones` recém-criado. Clique no botão _Trocar Usuário_ > _Outro Usuário_ e digite os dados inseridos nos passos (3) e (4). Observe que o logon será feito no domínio `DOMAINA`, como objetivado.
 +
 .Logon inicial no AD
 [#img-adlogon1]
-[caption="Figura 89: "]
 image::adlogon1.png[align="center"]
 +
 Imediatamente, o AD reporta que a senha deve ser alterada no primeiro logon -- isso faz sentido, pois mantivemos a caixa _User must change password at next logon_ marcada quando da criação do usuário no passo (4). Escolha uma nova senha, diferente da primeira e igualmente complexa (sugestão: `Seg2@rnp!`), e confirme o logon.
@@ -225,7 +211,6 @@ Finalmente, verifique que você está de fato logado na máquina como o usuário
 +
 .Verificação de logon no AD
 [#img-adlogon2]
-[caption="Figura 90: "]
 image::adlogon2.png[align="center"]
 
 === 5) Distribuição de configurações via GPOs
@@ -246,8 +231,8 @@ root
 ....
 +
 ....
-# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 80 -j REDIRECT --to-port 8080
-# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 443 -j REDIRECT --to-port 8443
+# iptables -t nat -A PREROUTING -i eth2 -o eth0 -p tcp -m tcp --dport 80 -j REDIRECT --to-port 8080
+# iptables -t nat -A PREROUTING -i eth2 -o eth0 -p tcp -m tcp --dport 443 -j REDIRECT --to-port 8443
 # iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp -m multiport --dports 8080,8443 -j ACCEPT
 ....
 +
@@ -259,7 +244,6 @@ root
 +
 .Detecção de certificado forjado não-confiável na máquina WinClient-G
 [#img-gpo1]
-[caption="Figura 91: "]
 image::gpo1.png[align="center"]
 
 3. Para resolver o problema, vamos adicionar o certificado do Squid instalado na máquina _FWGW1-G_ à base de certificados raiz confiáveis, como fizemos anteriormente. Mas, ao invés de fazer isso manualmente, vamos usar o AD e as GPOs para realizar essa tarefa. Copie o certificado localizado em `/usr/local/etc/ssl/public.crt` (na máquina _FWGW1-G_) para o _Desktop_ da máquina _WinServer-G_ -- use o programa `WinSCP` ou a pasta compartilhada pelo Virtualbox, como preferir.
@@ -268,72 +252,283 @@ Ao final do processo, você deverá ter a chave pública da CA do Squid disponí
 +
 .Cópia do certificado da CA do Squid para a máquina WinServer-G
 [#img-gpo2]
-[caption="Figura 92: "]
 image::gpo2.png[align="center"]
 
 4. Vamos criar uma política para distribuição do certificado copiado. Execute _Start_ > _Run..._ > `gpmc.msc`. Você deverá ver a tela do _Group Policy Management_, como se segue:
 +
 .Ferramenta para gestão de políticas no AD
 [#img-gpo3]
-[caption="Figura 93: "]
 image::gpo3.png[align="center"]
 
-5. Expanda a floresta `domainA.esr.local`, e em seguida _Domains_. Clique com o botão direito no domínio `domainA.esr.local`, e em seguida em _Create a GPO in this domain, and Link it here..._. Para o nome da GPO, digite _squidcert_, e em seguida clique em _OK_. Uma nova política deve surgir na lista linkadas, como mostrado abaixo:
+5. Expanda a floresta `domainA.esr.local`, e em seguida _Domains_. Clique com o botão direito no domínio `domainA.esr.local`, e em seguida em _Create a GPO in this domain, and Link it here..._. Para o nome da GPO, digite _squidcert_, e em seguida clique em _OK_. Uma nova política deve surgir na lista do painel direito, como mostrado abaixo:
 +
 .Criação de nova GPO
 [#img-gpo4]
-[caption="Figura 94: "]
 image::gpo4.png[align="center"]
 
 6. Clique com o botão direito na política _squidcert_, e em seguida em _Edit_. Surgirá uma nova janela para edição de políticas, idêntica à invocada pelo _snap-in_ `gpedit.msc`. Navegue para _Computer Configuration_ > _Policies_ > _Windows Settings_ > _Security Settings_ > _Public Key Policies_, clique com o botão direito em _Trusted Root Certification Authorities_, como mostrado abaixo. Em seguida, clique em _Import_.
 +
 .Navegando na tela de edição de políticas
 [#img-gpo5]
-[caption="Figura 95: "]
 image::gpo5.png[align="center"]
 
 7. Será aberta uma tela de adição de certificado idêntica à que usamos na sessão 7. Aponte o certificado do Squid baixado no passo (3) desta atividade, e confirme todas as janelas de adição do certificado. Ao final, você deverá vê-lo adicionado ao _Trusted Root Certification Authorities_ da GPO, como mostrado a seguir.
 +
 .Certificado do Squid adicionado à GPO
 [#img-gpo6]
-[caption="Figura 96: "]
 image::gpo6.png[align="center"]
 
 8. Tudo pronto! Feche a janela do _Group Policy Management Editor_ e do _Group Policy Management_, e volte à máquina _WinClient-G_. Segundo a _knowledge base_ da Microsoft (https://msdn.microsoft.com/en-us/library/ms813077.aspx), as GPOs são atualizadas de 90 em 90 minutos, com _offsets_ aleatórios de 30 minutos. Como não queremos esperar tudo isso para verificar nossa configuração, abra (novamente, na máquina _WinClient-G_) uma janela do _prompt_ de comando e digite `gpupdate /force` para atualizar as GPOs imediatamente:
 +
 .Forçando atualização de GPOs imediatamente
 [#img-gpo7]
-[caption="Figura 97: "]
 image::gpo7.png[align="center"]
 
 9. Abra o navegador e tente acessar um website em HTTPS, como o https://facebook.com  que havia sido acessado anteriormente. Note que, agora, o navegador reporta o certificado forjado pela CA do Squid como confiável.
 +
 .Detecção de certificado da CA do Squid como confiável
 [#img-gpo8]
-[caption="Figura 98: "]
 image::gpo8.png[align="center"]
 
 10. De fato, verificando a lista de certificados raiz confiáveis do sistema, o da máquina _FWGW1-G_ consta da lista.
 +
 .Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis
 [#img-gpo9]
-[caption="Figura 99: "]
 image::gpo9.png[align="center"]
 +
 Com efeito, nossa configuração via GPO funcionou corretamente -- em um cenário com dezenas de clientes Windows, ou mesmo centenas, você poderia usar um esquema de configuração como este para distribuir o certificado do seu _proxy_ de forma imediata.
 
-=== 6) Configuração do WSUS
+=== 6) Instalação e configuração do WSUS
 
 [WARNING]
 ====
-Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _WinClient-G_.
+Esta atividade será realizada na máquina virtual _WinServer-G_.
 ====
 
 1. Acesse a máquina _WinServer-G_ como um usuário administrativo (por exemplo, `DOMAINA\Administrator`) e verifique que todos as atualizações de segurança da Microsoft estão aplicadas. Execute _Start_ > _Windows Update_ e verifique que o servidor está totalmente atualizado, como mostrado abaixo.
 +
 .Máquina WinServer-G atualizada
 [#img-wsus1]
-[caption="Figura 100: "]
 image::wsus1.png[align="center"]
 
-2. Ainda na máquina _WinServer-G_, abra o _Server Manager_ e em seguida navegue para _Roles_ > _Add Roles_. Na nova janela, marque a caixa do _Windows Server Update Services_ (WSUS), aceite a adição dos _role services_ requeridos como dependência para ele, e confirme todos os valores padrão para instalação da _role_.
+2. Ainda na máquina _WinServer-G_, abra o _Server Manager_ e em seguida navegue para _Roles_ > _Web Server (IIS)_ > _Add Role Services_. Nos serviços abaixo, marque as caixas que se seguem:
++
+--
+* _Application Development_ (aceitando a instalação da dependência _Windows Process Activation Service_ > _.NET Environment_):
+** _ASP .NET_
+** _ISAPI Extensions_
+** _ISAPI Filters_
+** _.NET Extensibility_
+* _Performance_:
+** _Dynamic Content Compression_
+* _Security_:
+** _Windows Authentication_
+--
++
+.Instalação das dependências do WSUS
+[#img-wsus2]
+image::wsus2.png[align="center"]
++
+Confirme que suas seleções estão corretas e clique em _Next_, e em seguida em _Install_.
+
+3. A seguir, desligue a máquina _WinServer-G_. Iremos adicionar um novo disco para instalação do WSUS no Virtualbox -- o procedimento é bastante similar ao que fizemos para a instalação do Nessus na sessão 8.
++
+Na console administrativa do Virtualbox, selecione a máquina _WinServer-G_ e navegue para _Settings_ > _Storage_ > _SATA Controller_ > _Add hard disk_. Na nova tela, selecione _Create new disk_, formato VDI, _Dynamically allocated_ e aloque um espaço de 20 GB para o disco, com nome `wsus`. Finalmente, clique em _Create_.
++
+Ao final do processo, ligue novamente a máquina _WinServer-G_, e faça login como `DOMAINA\Administrator`.
+
+4. Execute _Start_ > _Run..._ > `diskmgmt.msc`. Imediatamente, o sistema detectará o novo disco e irá sugerir sua inicialização, como mostrado a seguir:
++
+.Inicialização do disco para o WSUS
+[#img-wsus-disk1]
+image::wsus-disk1.png[align="center"]
++
+Mantenha marcada a caixa _MBR (Master Boot Record)_ e clique em _OK_. Em seguida, clique com o botão direito no novo disco (o nome dele deve ser _Disk 1_), e selecione _New Simple Volume..._.
++
+Na nova janela, clique em _Next_. Na tela _Specify Volume Size_, mantenha o valor máximo de 20477 MB e clique em _Next_. Em _Assign Drive Letter or Path_, mantenha marcada a caixa _Assign the following drive letter_ e escolha uma letra não-utilizada do sistema, como `K:` por exemplo.
++
+Em _Format Partition_, mantenha marcada a caixa _Format this volume with the following settings_ e escolha:
++
+--
+* _File system_: NTFS
+* _Allocation unit size_: _Default_
+* _Volume label_: WSUS
+* _Perform a quick format_: marcada
+* _Enable file and folder compression_: desmarcada
+--
++
+Clique em _Next_. Na tela seguinte, verifique que todas as opções de formatação do volume estão corretas, como se segue:
++
+.Formatação do volume para o WSUS
+[#img-wsus-disk2]
+image::wsus-disk2.png[align="center"]
++
+Clique em _Finish_. Ao final do processo, feche a janela do _Disk Management_ e verifique que o novo volume `K:`, com _label_ `WSUS`, está disponível no _Windows Explorer_.
+
+5. Agora, baixe o pacote do _Windows Server Update Services_ 3.0 SP2, disponível em https://www.microsoft.com/en-us/download/details.aspx?id=5216 , e inicie sua instalação.
++
+.Instalação do WSUS
+[#img-wsus3]
+image::wsus3.png[align="center"]
+
+6. Na tela _Installation Mode Selection_, marque _Full server installation including Administration Console_ e clique em _Next_.
+
+7. Em _License Agreement_, marque a caixa _I accept the terms of the License agreement_ e clique em _Next_.
+
+8. Na tela _Required Components to use administration UI_, clique em _Next_. Iremos instalar essa dependência a seguir.
+
+9. Em _Select Update Source_, mantenha a caixa _Store updates locally_ marcada, com o valor `K:\WSUS`, como se segue. Clique em _Next_.
++
+.Pasta de download dos arquivos de update do WSUS
+[#img-wsus4]
+image::wsus4.png[align="center"]
+
+10. Na tela _Database Options_, mantenha marcada a caixa _Install Windows Internal Database on this computer_ com o valor `K:\WSUS`, e clique em _Next_.
+
+11. Em _Web Site Selection_, mantenha marcada a caixa _Use the existing IIS Default Web site (recommended)_ e clique em _Next_.
+
+12. Na tela _Ready to Install Windows Server Update Services 3.0 SP2_, verifique as opções de instalação como mostrado a seguir. Se tudo estiver correto, clique em _Next_.
++
+.Revisão das opções de instalação do WSUS
+[#img-wsus5]
+image::wsus5.png[align="center"]
++
+Aguarde o processo de instalação do WSUS. Ao final, clique em _Finish_.
+
+13. Após a instalação será aberto o _Windows Server Update Services Configuration Wizard_, como mostrado abaixo. Clique em _Next_.
++
+.Configuração do WSUS
+[#img-wsus6]
+image::wsus6.png[align="center"]
+
+14. Na tela _Join the Microsoft Update Improvement Program_, desmarque a caixa _Yes, I would like to join the Microsoft Update Improvement Program_ e clique em _Next_.
+
+15. Em _Choose Upstream Server_, mantenha marcada a caixa _Synchronize from Microsoft Update_ e clique em _Next_.
+
+16. Na tela _Specify Proxy Server_, apenas clique em _Next_.
+
+17. Em _Connect to Upstream Server_, clique no botão _Start Connecting_. O configurar irá conectar-se à Microsoft para fazer o download de tipos de atualizações disponíveis, produtos que podem ser atualizados e linguagens disponíveis. Esse processo pode demorar alguns minutos.
++
+.Atualização da base de updates do WSUS
+[#img-wsus7]
+image::wsus7.png[align="center"]
++
+Ao final do procedimento, clique em _Next_.
+
+18. Iremos fazer o download de atualizações para a máquina _WinServer-G_ (Windows Server 2008 x86, idioma Inglês-EUA) e _WinClient-G_ (Windows 7 x64, idioma Português-Brasil). Assim, na tela _Choose languages_, marque a caixa _Download updates only in these languages_ e marque os idiomas _English_ e _Portuguese (Brazil)_. Clique em _Next_.
+
+19. Em _Choose Products_, desmarque todas as atualizações do Office e do Windows. Pontualmente, marque apenas as caixas _Windows_ > _Windows 7_ e _Windows_ > _Windows Server 2008_, como mostrado a seguir. Clique em _Next_.
++
+.Escolha de produtos para download de atualizações
+[#img-wsus8]
+image::wsus8.png[align="center"]
+
+20. Na tela _Choose Classifications_, marque as caixas _Critical Updates_, _Definition Updates_, _Security Updates_ e _Service Packs_. Clique em _Next_.
+
+21. Em _Set Sync Schedule_ é possível agendar a atualização periódica e automática da base de atualizações a partir do site da Microsoft. Já que neste laboratório estamos configurando apenas um ambiente de testes, mantenha a caixa _Synchronize manually_ marcada e clique em _Next_.
+
+22. Na tela _Finished_, desmarque a caixa _Launch the Windows Server Update Services Administration Console_ e mantenha marcada a caixa _Begin initial synchronization_. Clique em _Finish_.
+
+23. Para visualizar os relatórios do WSUS, faça o download do _Microsoft Report Viewer 2008 Redistributable_ em https://www.microsoft.com/en-us/download/details.aspx?id=6576 , e instale-o. Aceite todas as opções padrão do instalador.
+
+24. Abra a console de configuração do _Windows Server Update Services_ -- abra o menu _Start_ e pesquise pelo termo `update` para encontrar o programa. Você deverá ver a tela abaixo:
++
+.Console administrativa do WSUS
+[#img-wsus9]
+image::wsus9.png[align="center"]
++
+Para verificar o estado da sincronização iniciada no passo (22), navegue para _WINSERVER-G_ > _Synchronizations_. Ao final da sincronização você deverá ver o processo concluído com sucesso, como se segue:
++
+.Sincronização do WSUS realizada com sucesso
+[#img-wsus10]
+image::wsus10.png[align="center"]
++
+Finalmente, feche a console de configuração do _Windows Server Update Services_.
+
+25. Antes de utilizar plenamento o WSUS, é necessário atualizar novamente sua máquina _WinServer-G_ usando o _Windows Update_. A atualização KB2720211 (https://support.microsoft.com/en-us/help/2720211/), de 8/6/2011, é necessária para atualização dos canais de comunicação do WSUS com os clientes de atualização.
++
+Ao final da atualização, reinicie a máquina _WinServer-G_ para concluir o processo.
+
+=== 7) Configuração de clientes no WSUS
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _WinClient-G_.
+====
+
+1. Vamos criar uma política para atualização automática de clientes a partir de nosso servidor WSUS. Execute _Start_ > _Run..._ > `gpmc.msc`. Você deverá ver a tela do _Group Policy Management_, como na atividade (5).
++
+Expanda a floresta `domainA.esr.local`, e em seguida _Domains_. Clique com o botão direito no domínio `domainA.esr.local`, e em seguida em _Create a GPO in this domain, and Link it here..._. Para o nome da GPO, digite _wsus_, e em seguida clique em _OK_. Uma nova política deve surgir na lista do painel direito, como mostrado abaixo:
++
+.Criação de política para o WSUS
+[#img-wsus-gpo1]
+image::wsus-gpo1.png[align="center"]
+
+2. Clique com o botão direito sobre a política _wsus_, e em seguida em _Edit_. Navegue para _Computer Configuration_ > _Policies_ > _Administrative Templates_ > _Windows Components_ > _Windows Update_. Em seguida, clique duas vezes sobre a diretiva de configuração _Configure Automatic Updates_.
++
+Marque a caixa _Enabled_, e em seguida escolha:
++
+--
+* _Configure automatic updating_: _3 - Auto download and notify for install_
+* _Scheduled install day_: _0 - Every day_
+* _Scheduled install time_: _03:00_
+--
++
+.Configuração de atualizações automáticas via GPO
+[#img-wsus-gpo2]
+image::wsus-gpo2.png[align="center"]
++
+Clique em _OK_.
+
+3. De volta à tela de edição de GPOs, clique duas vezes sobre a diretiva de configuração _Specify intranet Microsoft update service location_.
++
+Marque a caixa _Enabled_, e em seguida escolha:
++
+--
+* _Set the intranet update service for detecting updates_: `http://172.16.1.20`
+* _Set the intranet statistics server_: `http://172.16.1.20`
+--
++
+.Configuração de servidor remoto para download de atualizações
+[#img-wsus-gpo3]
+image::wsus-gpo3.png[align="center"]
++
+Clique em _OK_.
+
+4. Feche as janelas de configuração das GPOs. Como anteriormente, sabemos que as GPOs são atualizadas de 90 em 90 minutos, com _offsets_ aleatórios de 30 minutos -- para não aguardar esse intervalos, acesse a máquina _WinClient-G_, abra uma janela do _prompt_ de comando e digite `gpupdate /force` para atualizar as GPOs imediatamente. Para iniciar o contato imediato da máquina com o servidor WSUS, digite `wuauclt.exe /detectnow`.
++
+Feito isso, abra o _Windows Update_ e verifique se há novas atualizações para a máquina _WinClient-G_:
++
+.WinClient-G verificando se existem novas atualizações
+[#img-wsus-gpo4]
+image::wsus-gpo4.png[align="center"]
++
+Ao final do processo, a máquina irá reportar-se como atualizada. Isso é parcialmente verdade, como veremos a seguir.
+
+5. De volta à máquina _WinServer-G_, abra a console de configuração do _Windows Server Update Services_ e navegue para _WINSERVER-G_ > _Computers_ > _All Computers_. O estado de atualização da máquina _WinClient-A_ será mostrado num gráfico no centro da tela, como na imagem a seguir:
++
+.Status de atualização da máquina WinClient-G
+[#img-wsus-gpo5]
+image::wsus-gpo5.png[align="center"]
++
+Observe que a máquina _WinClient-G_ possui 2369 atualizações realizadas e 273 ainda não aplicadas, e com o _service pack_ 1 instalado. No WSUS, a gestão de atualizações é feita de forma centralizada pelo administrador -- pode-se agrupar máquinas em grupos de trabalho, e habilitar/desabilitar atualizações pontualmente para essas máquinas e grupos. Para gerenciar a aprovação de atualizações, navegue para _WINSERVER-A_ > _Updates_ > _All Updates_. Ajuste o filtro para condição _Unapproved_ e estado _Failed or Needed_, e clique em _Refresh_. Você deverá ver algo semelhante a tela a seguir:
++
+.Aprovação de atualizações no WSUS, parte 1
+[#img-wsus-gpo6]
+image::wsus-gpo6.png[align="center"]
++
+Aprove todas as atualizações. Selecione-as usando SHIFT e no painel direito, clique em _Actions_ > _Update_ > _Approve..._. Na nova janela, clique no quadrado à esquerda de _All Computers_ e marque _Approved for Install_; faça o mesmo para o grupo abaixo, _Unassigned Computers_, e clique em _OK_. O WSUS iniciará o processo de aprovação das atualizações, como mostrado abaixo:
++
+.Aprovação de atualizações no WSUS, parte 2
+[#img-wsus-gpo7]
+image::wsus-gpo7.png[align="center"]
++
+Ao final do processo, clique em _Close_.
+
+6. De volta à máquina _WinClient-G_, verifique novamente por atualizações usando o _Windows Update_. Normalmente, não seria necessário realizar este passo -- já configuramos o download e notificação automática de atualizações no passo (2) desta atividade. Mas, para não termos que esperar até 3 da manhã, vamos acelerar o processo. Após a verificação, note que novas atualizações surgem como disponíveis na interface:
++
+.Novas atualizações aprovadas pelo WSUS disponibilizadas
+[#img-wsus-gpo8]
+image::wsus-gpo8.png[align="center"]
++
+Um vez aprovadas na console administrativa do WSUS, as atualizações podem ser instaladas nas máquinas cliente. Assim, o administrador pode controlar de forma granular quais atualizações distribuir, para quais máquinas, e quando deseja que elas sejam instaladas, tornando o processo de gestão de segurança do parque computacional muito mais eficiente.

@@ -34,14 +34,12 @@ Muito frequentemente teremos, neste curso, de mover programas e arquivos localiz
 +
 .Configuração de pasta compartilhada no Virtualbox
 [#img-sharedfolder]
-[caption="Figura 16: "]
 image::Vbox_sharedfolder.png[align="center"]
 
 4. Agora, reinicie a máquina _WinServer-G_. Após o _reboot_, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome _SEG12_Semana2_Programas_.
 +
 .Visualização de pasta compartilhada no Virtualbox
 [#img-sharedfolder-view]
-[caption="Figura 17: "]
 image::Vbox_sharedfolder_view.png[align="center"]
 
 5. Pronto! Agora, basta fazer o download de programas e arquivos em sua máquina física, colocá-los dentro da pasta compartilhada, e suas VMs terão acesso imediato. Se desejar, repita o procedimento para a máquina _WinClient-G_.
@@ -70,7 +68,6 @@ ifdef::gabarito[]
 +
 .Envio de usuário/senha por FTP
 [#img-ftp-wronguser]
-[caption="Figura 18: "]
 image::Wireshark_ftp_wronguser.png[align="center"]
 endif::gabarito[]
 
@@ -81,7 +78,6 @@ Na imagem abaixo podemos confirmar que, de fato, o usuário e senha são passado
 +
 .Captura de sessão FTP no Wireshark
 [#img-wireshark-ftp]
-[caption="Figura 19: "]
 image::Wireshark_ftp_capture.png[align="center"]
 endif::gabarito[]
 
@@ -371,7 +367,6 @@ Finalmente, vamos ver o que aparece no Wireshark da máquina _WinServer-G_:
 +
 .Captura de scan nmap contra a máquina WinServer-G
 [#img-nmap-verbose]
-[caption="Figura 20: "]
 image::nmap-verbose.png[align="center"]
 +
 Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o `nmap` não envia um SYN/ACK em resposta a esse pacote -- esse é o modo padrão de _scan_ do `nmap`, TCP SYN, também conhecido como _half-open scan_.
@@ -446,7 +441,6 @@ Vamos verificar se a informação está correta:
 +
 .Versão do SO na máquina WinServer-G
 [#img-nmap-osdetect-windows]
-[caption="Figura 21: "]
 image::nmap-osdetect-windows.png[align="center"]
 +
 Bastante próximo -- o `nmap` reporta Windows Server 2008 SP1, e o _WinServer-G_ é um Windows Server 2008 SP2.
@@ -543,7 +537,6 @@ msf exploit(handler) > exploit
 +
 .PDF malicioso disponível para download no browser
 [#img-metasploit-browser]
-[caption="Figura 22: "]
 image::metasploit-browser.png[align="center"]
 +
 <<<
@@ -552,7 +545,6 @@ image::metasploit-browser.png[align="center"]
 +
 .Exploit do Adobe Reader com sucesso
 [#img-metasploit-pdf]
-[caption="Figura 23: "]
 image::metasploit-pdf.png[align="center"]
 
 7. De volta à console do _KaliLinux-G_, observe que o _handler_ recebeu a conexão reversa e iniciou o _meterpreter_, um _payload_ avançado que irá permitir-nos controlar a máquina _WinServer-G_ remotamente.
@@ -603,12 +595,10 @@ Server username: NT AUTHORITY\SYSTEM
 +
 .Comandos do meterpreter, parte 1
 [#img-meterpreter-commands-p1]
-[caption="Figura 24: "]
 image::meterpreter-commands-p1.png[align="center"]
 +
 .Comandos do meterpreter, parte 2
 [#img-meterpreter-commands-p2]
-[caption="Figura 25: "]
 image::meterpreter-commands-p2.png[align="center"]
 
 === 7) Realizando um ataque de dicionário com o *_medusa_*

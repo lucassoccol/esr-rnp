@@ -132,7 +132,6 @@ A tela ficaria, portanto, desta forma:
 +
 .Tela de políticas de auditoria para o WinServer-G
 [#img-syslog-gpedit]
-[caption="Figura 29: "]
 image::syslog-gpedit.png[align="center"]
 endif::gabarito[]
 
@@ -153,21 +152,18 @@ Durante a instalação, responda todas as perguntas com as opções padrão, exc
 +
 .Inicialização do Snare
 [#img-syslog-snare-start]
-[caption="Figura 30: "]
 image::syslog-snare-start.png[align="center"]
 +
 Irá ser lançada uma janela do navegador. Informe o usuário `snare`, e senha `rnpesr`, como se segue:
 +
 .Login no Snare
 [#img-syslog-snare-password]
-[caption="Figura 31: "]
 image::syslog-snare-password.png[align="center"]
 +
 Clique em _Network Configuration_ -- informe o IP da máquina _LinServer-G_ no campo _Destination Snare Server address_, e a porta 514 no campo _Destination Port_, como se segue. Em seguida, clique em _Change Configuration_.
 +
 .Configurações do Snare
 [#img-syslog-snare-config]
-[caption="Figura 32: "]
 image::syslog-snare-config.png[align="center"]
 +
 Em seguida, clique em _Apply the Latest Audit Configuration_ e depois em _Reload Settings_.
@@ -311,14 +307,12 @@ Para a configuração do sincronismo automático do _host_ Windows com o servido
 +
 .Aba Internet Time do relógio do Windows
 [#img-ntp-win-internettime]
-[caption="Figura 33: "]
 image::ntp-win-internettime.png[align="center"]
 +
 Clique em _Change Settings..._, e informe o IP da máquina _LinServer-G_ no campo _Server_. Em seguida, clique em _Update now_ (se ocorrer um erro, clique uma segunda vez), e o relógio do sistema deverá ser atualizado.
 +
 .Modificando o servidor NTP do Windows
 [#img-ntp-win-setserver]
-[caption="Figura 34: "]
 image::ntp-win-setserver.png[align="center"]
 
 === 3) Monitoramento de serviços
@@ -354,7 +348,6 @@ endif::gabarito[]
 +
 .Tela inicial do Cacti
 [#img-cacti-welcome]
-[caption="Figura 35: "]
 image::cacti-welcome.png[align="center"]
 +
 Clique em _Next_. Na tela seguinte, mantenha a escolha em _New Install_ e clique em _Next_. Verifique que todos os valores na tela a seguir estão corretos (texto em verde com os dizeres `OK: FILE FOUND`), e clique em _Finish_.
@@ -363,7 +356,6 @@ Você verá a tela de login do Cacti. Entre com o usuário `admin` e senha `admi
 +
 .Console do Cacti
 [#img-cacti-console]
-[caption="Figura 36: "]
 image::cacti-console.png[align="center"]
 
 3. Vamos instalar o agente SNMP na máquina _FWGW1-G_. Instale o pacote `snmpd`.
@@ -419,21 +411,18 @@ endif::gabarito[]
 +
 .Instalação da feature SNMP
 [#img-snmp-wininstall]
-[caption="Figura 37: "]
 image::snmp-wininstall.png[align="center"]
 
 7. Abra o gestor de serviços do Windows, via menu _Start_ > _Run..._ > `services.msc`. Encontre o serviço _SNMP Service_ e clique com o botão direto > _Properties_.
 +
 .Propriedades do serviço SNMP
 [#img-snmp-winprop]
-[caption="Figura 38: "]
 image::snmp-winprop.png[align="center"]
 +
 Na aba _Security_, caixa _Accepted community names_, clique em _Add..._ e adicione a comunidade `public` com permissões _READ ONLY_. Logo abaixo, na caixa _Accept SNMP packets from these hosts_, clique em _Add..._ e adicione o IP da máquina _LinServer-G_. Sua janela deverá ficar assim:
 +
 .Configurações do serviço SNMP
 [#img-snmp-winconfig]
-[caption="Figura 39: "]
 image::snmp-winconfig.png[align="center"]
 +
 Finalmente, clique com o botão direito no serviço _SNMP Service_ e em seguida em _Restart_.
@@ -442,61 +431,52 @@ Finalmente, clique com o botão direito no serviço _SNMP Service_ e em seguida 
 +
 .Adicionando device no Cacti, parte 1
 [#img-cacti-adddevice]
-[caption="Figura 40: "]
 image::cacti-adddevice.png[align="center"]
 +
 Na nova janela, informe o nome da máquina _FWGW1-G_ no campo _Description_, seu IP exposto à DMZ no campo _Hostname_, e escolha a opção _Local Linux Machine_ no campo _Host Template_. Verifique se sua janela está como se segue, e clique em _Create_.
 +
 .Adicionando device no Cacti, parte 2
 [#img-cacti-adddevice2]
-[caption="Figura 41: "]
 image::cacti-adddevice2.png[align="center"]
 +
 Verifique que as informações SNMP do _host_ _FWGW1-G_ figuram corretamente na seção _SNMP Information_ no topo da tela. Em seguida, clique em _Create Graphs for this Host_.
 +
 .Adicionando gráficos no Cacti, parte 1
 [#img-cacti-cgraphs]
-[caption="Figura 42: "]
 image::cacti-cgraphs.png[align="center"]
 +
 Na nova janela, selecione todos os _Graph Templates_ e _Data Queries_ disponíveis e clique em _Create_. Na janela que se segue, clique novamente em _Create_.
 +
 .Adicionando gráficos no Cacti, parte 2
 [#img-cacti-cgraphs2]
-[caption="Figura 43: "]
 image::cacti-cgraphs2.png[align="center"]
 +
 Agora, o passo final é adicionar os gráficos a uma árvore de gráficos. No menu à esquerda, clique em _Graph Trees_, e em seguida em _Default Tree_.
 +
 .Adicionando gráficos a árvores no Cacti, parte 1
 [#img-cacti-addtree]
-[caption="Figura 44: "]
 image::cacti-addtree.png[align="center"]
 +
 Na nova janela, em _Tree Items_, clique em _Add_.
 +
 .Adicionando gráficos a árvores no Cacti, parte 2
 [#img-cacti-addtree2]
-[caption="Figura 45: "]
 image::cacti-addtree2.png[align="center"]
 +
 Na nova janela, em _Tree Item Type_, altere o valor para _Host_. Novas opções irão surgir. Em _Host_, selecione a máquina _FWGW1-G_, e depois clique em _Create_.
 +
 .Adicionando gráficos a árvores no Cacti, parte 3
 [#img-cacti-addtree3]
-[caption="Figura 46: "]
 image::cacti-addtree3.png[align="center"]
 +
 Para visualizar os gráficos recém-criados, no menu superior acesse _graphs_, expanda a _Default Tree_ e clique no _host_ _FWGW1-G_. Pode demorar algum tempo para que os gráficos sejam populados.
 +
 .Visualizando gráficos no Cacti, máquina _FWGW1-G_
 [#img-cacti-viewgraph]
-[caption="Figura 47: "]
 image::cacti-viewgraph.png[align="center"]
 
 9. Faça o mesmo procedimento realizado no passo (8), mas agora com a máquina _WinServer-G_. A única diferença é que você irá apontar o IP da máquina _WinServer-G_ no campo _Hostname_, e o _Host Template_ como sendo _Windows 2000/XP Host_. Ao final do processo, os gráficos deverão ficar visíveis como se segue.
 +
 .Visualizando gráficos no Cacti, máquina _WinServer-G_
 [#img-cacti-viewgraph2]
-[caption="Figura 48: "]
 image::cacti-viewgraph2.png[align="center"]
