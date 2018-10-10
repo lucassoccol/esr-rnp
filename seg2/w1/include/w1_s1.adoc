@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 25-09-2018
+:revdate: 08-10-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -49,7 +49,7 @@ image::Topologia_SEG12_Semana2.png[align="center"]
 +
 Se ainda não foram, importe-as manualmente através do menu _File_ > _Import Appliance_. Navegue até a pasta onde se encontra o arquivo `.ova` com as imagens das máquinas virtuais e clique em _Next_. Na tela subsequente, marque a caixa _Reinitialize the MAC address of all network cards_ e só depois clique em _Import_.
 +
-Ao final do processo, você deve ter cinco VMs com as configurações que se seguem. Renomeie as máquinas virtuais com os nomes indicados na tabela abaixo, substituindo o `G` pela letra do seu grupo.
+Ao final do processo, você deve ter cinco VMs com as configurações que se seguem. Renomeie as máquinas virtuais com os nomes indicados na tabela abaixo, substituindo o `G` pela letra do seu grupo. Para renomear máquinas virtuais no Virtualbox, acesse _Settings_ > _General_ > _Name_ e altere o nome da VM (a mesma deve estar previamente desligada).
 +
 .VMs disponíveis no Virtualbox
 [options="header",width="50%"]
@@ -116,7 +116,7 @@ Agora, vamos configurar a rede de cada máquina virtual de acordo com as especif
 
 [WARNING]
 ====
-Observe que as máquinas virtuais da *DMZ* e *Intranet* ainda não terão acesso à Internet neste passo, pois ainda não configuramos o firewall. A próxima seção irá tratar deste tópico.
+Observe que as máquinas virtuais da *DMZ* e *Intranet* poderão ainda não ter acesso à Internet neste passo, pois ainda não configuramos o firewall. A próxima seção irá tratar deste tópico.
 ====
 
 [WARNING]
@@ -136,10 +136,10 @@ Nas perguntas que se seguem, responda:
 [options="header"]
 |===
 | Pergunta | Parâmetro
-| Keyboard model | Generic 105-key (Intl) PC
-| Keyboard layout | Other > Portuguese (Brazil) > Portuguese (Brazil)
-| Key to function as AltGr | Right Alt (AltGr)
-| Compose key | Right Logo key
+| Modelo do teclado | PC (Intl) Genérico de 105 teclas
+| Layout do teclado | Outro > Português (Brasil) > Português (Brasil)
+| Tecla para funcionar como AltGr | Alt Direito (AltGr)
+| Tecla Compose | Tecla Logo Direita
 |===
 +
 Finalmente, execute o comando que se segue. Volte a testar o teclado e verifique seu funcionamento.
@@ -148,7 +148,7 @@ Finalmente, execute o comando que se segue. Volte a testar o teclado e verifique
 # systemctl restart keyboard-setup.service
 ....
 +
-<<<
+Se ainda não estiver funcional, reinicie a VM e teste novamente.
 
 2. Ao longo do curso, iremos editar vários arquivos de texto em ambiente Linux. Há vários editores de texto disponíveis para a tarefa, como o `vi`, `emacs` ou `nano`. Caso você não esteja familiarizado com um editor de texto, recomendamos o uso do `nano`, que possui uma interface bastante amigável para usuários iniciantes. Para editar um arquivo com o `nano`, basta digitar `nano` seguido do nome do arquivo a editar -- não é necessário que o arquivo tenha sido criado previamente:
 +
@@ -190,20 +190,17 @@ root
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
-auto lo
+auto lo enp0s3 enp0s8 enp0s9
+
 iface lo inet loopback
 
-auto eth0 eth1 eth2
+iface enp0s3 inet dhcp
 
-iface eth0 inet dhcp
+iface enp0s8 inet static
+address 172.16.1.1/24
 
-iface eth1 inet static
-address 172.16.1.1
-netmask 255.255.255.0
-
-iface eth2 inet static
-address 10.1.1.1
-netmask 255.255.255.0
+iface enp0s9 inet static
+address 10.1.1.1/24
 ....
 +
 ....
@@ -213,14 +210,78 @@ netmask 255.255.255.0
 ....
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
-    inet 192.168.1.203/24 brd 192.168.1.255 scope global eth0
-    inet 172.16.1.1/24 brd 172.16.1.255 scope global eth1
-    inet 10.1.1.1/24 brd 10.1.1.255 scope global eth2
+    inet 192.168.29.107/24 brd 192.168.29.255 scope global enp0s3
+    inet 172.16.1.1/24 brd 172.16.1.255 scope global enp0s8
+    inet 10.1.1.1/24 brd 10.1.1.255 scope global enp0s9
 ....
 +
 <<<
 
-4. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
+4. Se você for membro do grupo `B`, altere o nome de _host_ da máquina _FWGW1-G_ para refletir corretamente seu grupo. Primeiro, altere o arquivo `/etc/hostname`:
++
+....
+# nano /etc/hostname
+(...)
+....
++
+....
+# cat /etc/hostname
+FWGW1-B
+....
++
+Faça o mesmo com o arquivo `/etc/hosts`:
++
+....
+# nano /etc/hosts
+(...)
+....
++
+....
+# cat /etc/hosts
+127.0.0.1       localhost
+127.0.1.1       FWGW1-B.intnet  FWGW1-B
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+....
++
+Agora, reinicie a máquina. Após o login como usuário `root`, você deverá ver que o _prompt_ do terminal mudou, como se segue:
++
+....
+root@FWGW1-B:~# hostname
+FWGW1-B
+....
++
+....
+# whoami
+root
+....
++
+Finalmente, vamos regerar as chaves de _host_ do `ssh` com o novo _hostname_. Execute:
++
+....
+# rm /etc/ssh/ssh_host_*
+....
++
+....
+# dpkg-reconfigure openssh-server
+Creating SSH2 RSA key; this may take some time ...
+2048 SHA256:NyWM8WE7wv2rWpPMN/w115eq4UeflKOm+jFSsHQ/Zwk root@FWGW1-B (RSA)
+Creating SSH2 ECDSA key; this may take some time ...
+256 SHA256:ZPxXhAgsnAdTuEbppgsxERp5WQNbQuNROAtatszyrlA root@FWGW1-B (ECDSA)
+Creating SSH2 ED25519 key; this may take some time ...
+256 SHA256:YBEQfhMSNz6sKvyDu/mRjNB/njj6PAim7xaLmGrcDEM root@FWGW1-B (ED25519)
+....
++
+....
+# systemctl restart ssh
+....
+
+5. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
++
+A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
 +
 ....
 # hostname
@@ -241,14 +302,12 @@ root
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
-auto lo
+auto lo enp0s3
+
 iface lo inet loopback
 
-auto eth0
-
-iface eth0 inet static
-address 172.16.1.10
-netmask 255.255.255.0
+iface enp0s3 inet static
+address 172.16.1.10/24
 gateway 172.16.1.1
 ....
 +
@@ -270,12 +329,12 @@ nameserver 8.8.4.4
 ....
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
-    inet 172.16.1.10/24 brd 172.16.1.255 scope global eth0
+    inet 172.16.1.10/24 brd 172.16.1.255 scope global enp0s3
 ....
 +
 <<<
 
-5. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
+6. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
 +
 Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais. Quando perguntado sobre o perfil da rede, escolha _Work_.
 +
@@ -285,19 +344,13 @@ image::Configuracao_Rede_WinServer.png[align="center"]
 +
 <<<
 
-6. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se tiver problemas com o mapa de teclado, abra um terminal e digite:
+7. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade, e reinicie a VM. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
 +
-....
-# gnome-control-center region
-....
-+
-Em _Input Sources_, clique no botão `+` para adicionar um novo mapa de teclado. Clique no símbolo `...` na parte de baixo da nova janela e procure o teclado _Portuguese (Brazil)_. Em seguida, clique em _Add_. Finalmente, apague o teclado original selecionando _English (US)_ e clicando no botão `-`.
-
-7. Ainda na máquina _KaliLinux-G_, edite as configurações de rede no arquivo `/etc/network/interfaces` e de DNS no arquivo `/etc/resolv.conf`. Reinicie a rede e verifique se tudo está funcionando:
+Em seguida, edite as configurações de rede no arquivo `/etc/network/interfaces` e de DNS no arquivo `/etc/resolv.conf`. Reinicie a rede e verifique se tudo está correto:
 +
 ....
 # hostname
-kali
+KaliLinux-A
 ....
 +
 ....
@@ -314,13 +367,12 @@ root
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
-auto lo
+auto lo eth0
+
 iface lo inet loopback
 
-auto eth0
 iface eth0 inet static
-address 172.16.1.30
-netmask 255.255.255.0
+address 172.16.1.30/24
 gateway 172.16.1.1
 ....
 +
@@ -361,35 +413,44 @@ O próximo passo é garantir que as VMs consigam acessar a internet através da 
 
 1. Antes de mais nada, observe que na máquina _FWGW1-G_ já existe uma configuração de _masquerading_ (um tipo de SNAT que veremos em maior detalhe na sessão 3) no arquivo `/etc/rc.local`:
 +
-.................
+....
 # hostname
 FWGW1-A
-
-# cat /etc/rc.local | grep -v '^#'
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-exit 0
-.................
-
-2. Isto significa dizer que a tradução de endereços das redes privadas já está configurado. Basta, então, habilitar o repasse de pacotes entre interfaces -- descomente a linha `net.ipv4.ip_forward=1` no arquivo `/etc/sysctl.conf` e, posteriormente, execute `# sysctl -p`:
+....
 +
-.................
-# sed -i 's/^#\(net.ipv4.ip_forward\)/\1/' /etc/sysctl.conf
+....
+# cat /etc/rc.local
+#!/bin/sh -e
 
+iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+exit 0
+....
+
+2. Isto significa dizer que a tradução de endereços das redes privadas já está configurado. Verifique se o repasse de pacotes entre interfaces está habilitado -- cheque se a linha `net.ipv4.ip_forward=1` no arquivo `/etc/sysctl.conf` está descomentada e, posteriormente, execute `# sysctl -p`:
++
+....
+# nano/etc/sysctl.conf
+(...)
+....
++
+....
 # grep 'net.ipv4.ip_forward' /etc/sysctl.conf
 net.ipv4.ip_forward=1
-
+....
++
+....
 # sysctl -p
 net.ipv4.ip_forward = 1
-.................
+....
 
 3. Verifique que o _masquerading_ está de fato habilitado no firewall:
 +
-.................
+....
 # iptables -L POSTROUTING -vn -t nat
 Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination
-    0     0 MASQUERADE  all  --  *      eth0    0.0.0.0/0            0.0.0.0/0
-.................
+   23  1640 MASQUERADE  all  --  *      enp0s3  0.0.0.0/0            0.0.0.0/0
+....
 +
 <<<
 
@@ -474,9 +535,9 @@ Em seguida, edite-o com o seguinte conteúdo:
 +
 ....
 # cat /etc/apt/sources.list
-deb http://ftp.br.debian.org/debian/ jessie         main contrib non-free
-deb http://ftp.br.debian.org/debian/ jessie-updates main contrib non-free
-deb http://security.debian.org/      jessie/updates main contrib non-free
+deb http://ftp.br.debian.org/debian/           stretch         main contrib non-free
+deb http://ftp.br.debian.org/debian/           stretch-updates main contrib non-free
+deb http://security.debian.org/debian-security stretch/updates main contrib non-free
 ....
 
 2. Em seguida, atualize os repositórios com o comando `apt-get update` e depois instale os pacotes `build-essential` e `module-assistant`, sem incluir recomendações:
@@ -510,8 +571,6 @@ Installing additional modules ...
 VirtualBox Guest Additions: Building the VirtualBox Guest Additions kernel modules.  This may take a while.
 VirtualBox Guest Additions: Starting.
 ....
-+
-<<<
 
 6. Finalmente, reinicie a máquina. Após o _reboot_, verifique que os módulos do _Virtualbox Guest Additions_ estão operacionais:
 +
@@ -527,13 +586,6 @@ vboxguest             221732  2 vboxsf
 ....
 
 7. Instale os módulos do _Virtualbox Guest Additions_ na máquina _LinServer-G_. O procedimento é idêntico ao que fizemos nos passos 1 - 6.
-
-[WARNING]
-====
-Não iremos instalar os módulos do _Virtualbox Guest Additions_ na máquina _KaliLinux-G_. Pelo fato de a VM estar um pouco desatualizada (jan/2016), o `apt` exige que um grande número de pacotes seja baixado antes que os _headers_ do kernel possam ser recuperados. Visto que o tempo de instalação e download desses pacotes é longo, vamos pular essa etapa.
-
-Não obstante, os passos de instalação são idênticos aos das máquinas _FWGW1-G_ e _LinServer-G_. O Kali Linux é baseado na distribuição Debian, que está sendo usado nessas duas VMs.
-====
 
 <<<
 
