@@ -108,6 +108,40 @@ As configurações de rede realizadas internamente em cada máquina virtual fora
 | WinClient-G | eth0 | Estático | 10.1.G.10/24 | 10.1.G.1 | 8.8.8.8 ; 8.8.4.4
 |===
 
+A partir do Debian 9, a nomenclatura padrão de interfaces de rede foi alterada. Ao invés de denotarmos as interfaces como `eth0`, `eth1` ou `eth2`, o `systemd/udev` utiliza, a partir da versão v197, um método de nomenclatura de interfaces usando _biosdevnames_, como documentado oficialmente em https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/ . Com efeito, esse novo sistema suporta cinco meios de nomeação de interfaces de rede:
+
+--
+1. Nomes incorporando números de índice providos pelo firmware/BIOS de dispositivos _on-board_ (p.ex.: `eno1`)
+2. Nomes incorporando números de índice providos pelo firmware/BIOS de encaixes _hotplug_ PCI Express (p.ex.: `ens1`)
+3. Nomes incorporando localização física/geográfica do conector do hardware (p.ex.: `enp2s0`)
+4. Nomes incorporando o endereço MAC da interface (p.ex.: `enx78e7d1ea46da`)
+5. Nomes clássicos, usando nomenclatura não-previsível nativa do kernel (p.ex.: `eth0`)
+--
+
+Como as máquinas _FWGW1-G_ e _LinServer-G_ são instalações do Debian 9, isso significa dizer que as entradas de interface na tabela anterior ficam da seguinte forma:
+
+.Nomenclatura de interfaces de máquinas Debian 9
+[options="header",cols="<.^,<.^,<.^",width="70%"]
+|===
+| VM Nome | Interface antiga | Interface nova
+.3+| FWGW1-G | eth0 | enp0s3
+| eth1 | enp0s8
+| eth2 | enp0s9
+| LinServer-G | eth0 | enp0s3
+|===
+
+Observe, por exemplo, como é feita a detecção de interfaces durante o _boot_ da máquina _FWGW1-G_:
+
+....
+# hostname
+FWGW1-A
+
+# dmesg | grep 'renamed from'
+[    1.667147] e1000 0000:00:09.0 enp0s9: renamed from eth2
+[    1.667995] e1000 0000:00:08.0 enp0s8: renamed from eth1
+[    1.668885] e1000 0000:00:03.0 enp0s3: renamed from eth0
+....
+
 <<<
 
 === 5) Configuração da máquinas virtuais

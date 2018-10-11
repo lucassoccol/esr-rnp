@@ -164,7 +164,7 @@ O _script shell_ abaixo irá tratar de configurar os aspectos descritos acima:
 +
 [source,bash]
 ----
-include::{srcdir}/s7/snortconfig.sh[]
+include::{srcdir}/s5/snortconfig.sh[]
 ----
 
 2. Iremos agora desabilitar (via comentários) todas as regras padrão do Snort já que iremos, em um passo futuro, usar o PulledPort para atualizar as regras pela Internet.
@@ -304,7 +304,7 @@ Crie o arquivo novo `/lib/systemd/system/snort.service`, com o seguinte conteúd
 +
 [source,bash]
 ----
-include::{srcdir}/s7/snort.service[]
+include::{srcdir}/s5/snort.service[]
 ----
 
 2. Verifique que as permissões, usuário e grupo dono do arquivo estão corretos. Em seguida, crie um _symlink_ do mesmo para o diretório `/etc/systemd/system`.
@@ -540,7 +540,7 @@ Pare todas as instâncias do Snort. Em seguida, inicie-o, e verifique seu uso de
 +
 [source,bash]
 ----
-include::{srcdir}/s7/pulledpork-cron[]
+include::{srcdir}/s5/pulledpork-cron[]
 ----
 +
 Verifique que o usuário/grupo dono e permissões do arquivo estão corretos.

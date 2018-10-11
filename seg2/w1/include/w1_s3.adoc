@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 25-09-2018
+:revdate: 11-10-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -77,12 +77,18 @@ ifdef::gabarito[]
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
-
+....
++
+....
 # iptables -P OUTPUT DROP
-
+....
++
+....
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca: forward host lookup failed: Host name lookup failure : Resource temporarily unavailable
 ....
@@ -94,7 +100,9 @@ ifdef::gabarito[]
 ....
 # iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
 # iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
-
+....
++
+....
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
 ....
@@ -105,19 +113,26 @@ ifdef::gabarito[]
 +
 ....
 # iptables -P INPUT DROP
-
+....
++
+....
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 Host name lookup failure
 ....
 +
-Apesar de o resultado parecer o mesmo obtido anteriormente, há uma diferente substancial -- as requisições DNS/HTTP estão sendo enviado com sucesso, porém a resposta de retorno está sendo bloqueada. Rode o `tcpdump` em outra sessão e monitore a interface de rede de saída (`eth0`), enquanto o comando `nc` acima é executado. A requisição DNS e enviada e sua resposta retorna, porém é descartada pelo kernel.
+Apesar de o resultado parecer o mesmo obtido anteriormente, há uma diferente substancial -- as requisições DNS/HTTP estão sendo enviado com sucesso, porém a resposta de retorno está sendo bloqueada. Rode o `tcpdump` em outra sessão e monitore a interface de rede de saída (`enp0s3`), filtrando apenas por pacotes oriundos/destinados ao IP dessa interface, enquanto o comando `nc` acima é executado. A requisição DNS e enviada e sua resposta retorna, porém é descartada pelo kernel.
 +
 ....
-# tcpdump -i eth0 -n src 192.168.1.203 or dst 192.168.1.203
+# ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}'
+192.168.29.107/24
+....
++
+....
+# tcpdump -i enp0s3 -n src 192.168.29.107 or dst 192.168.29.107
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
-21:52:28.135864 IP 192.168.1.203.33147 > 8.8.8.8.53: 48302+ A? obsd3.srv.ualberta.ca. (39)
-21:52:28.215508 IP 8.8.8.8.53 > 192.168.1.203.33147: 48302 1/0/0 A 129.128.5.194 (55)
+listening on enp0s3, link-type EN10MB (Ethernet), capture size 262144 bytes
+21:52:28.135864 IP 192.168.29.107.33147 > 8.8.8.8.53: 48302+ A? obsd3.srv.ualberta.ca. (39)
+21:52:28.215508 IP 8.8.8.8.53 > 192.168.29.107.33147: 48302 1/0/0 A 129.128.5.194 (55)
 ....
 endif::gabarito[]
 
@@ -127,7 +142,9 @@ ifdef::gabarito[]
 ....
 # iptables -A INPUT -p tcp --sport 80 -j ACCEPT
 # iptables -A INPUT -p udp --sport 53 -j ACCEPT
-
+....
++
+....
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
 ....
@@ -144,9 +161,13 @@ ifdef::gabarito[]
 +
 ....
 # iptables -F INPUT
-
+....
++
+....
 # iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
-
+....
++
+....
 # iptables -L
 Chain INPUT (policy DROP)
 target     prot opt source               destination
@@ -159,7 +180,9 @@ Chain OUTPUT (policy DROP)
 target     prot opt source               destination
 ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:http
 ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain
-
+....
++
+....
 # nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
 ....
@@ -218,7 +241,9 @@ Use o comando `tcpdump` para testar o funcionamento de suas regras.
 # iptables -P INPUT ACCEPT
 # iptables -P OUTPUT ACCEPT
 # iptables -F
-
+....
++
+....
 # iptables -L
 Chain INPUT (policy ACCEPT)
 target     prot opt source               destination
@@ -232,9 +257,9 @@ target     prot opt source               destination
 
 2. Agora, instale o pacote `iptables-persistent` para tornar suas configurações de firewall permanentes mesmo após o `reboot` da máquina.
 +
-.................
+....
 # apt-get install iptables-persistent
-.................
+....
 +
 Na instalação do pacote, quando perguntado, responda:
 +
@@ -277,7 +302,9 @@ ifdef::gabarito[]
 ....
 $ hostname
 LinServer-A
-
+....
++
+....
 $ ping -c1 172.16.1.1
 PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
 
@@ -312,7 +339,9 @@ ifdef::gabarito[]
 ....
 $ hostname
 LinServer-A
-
+....
++
+....
 $ ping -c1 172.16.1.1
 PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
 64 bytes from 172.16.1.1: icmp_seq=1 ttl=64 time=0.235 ms
@@ -332,15 +361,21 @@ Abaixo, temos um exemplo de conexão a partir da máquina física usando Cygwin/
 fbs@LOCAL-PC ~
 $ uname
 CYGWIN_NT-10.0
-
+....
++
+....
 fbs@LOCAL-PC ~
 $ ssh aluno@10.1.1.1
 No mail.
 Last login: Sun Aug 19 22:30:33 2018 from 10.1.1.254
-
+....
++
+....
 $ whoami
 aluno
-
+....
++
+....
 $ hostname
 FWGW1-A
 ....
@@ -394,8 +429,8 @@ FWGW1-A
 ....
 +
 ....
-# iptables -A FORWARD -s 172.16.1.0/24 -o eth0 -j ACCEPT
-# iptables -A FORWARD -s 10.1.1.0/24   -o eth0 -j ACCEPT
+# iptables -A FORWARD -s 172.16.1.0/24 -o enp0s3 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24   -o enp0s3 -j ACCEPT
 ....
 endif::gabarito[]
 
@@ -452,10 +487,10 @@ FWGW1-A
 ....
 +
 ....
-# iptables -A FORWARD -i eth0 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
-# iptables -A FORWARD -i eth0 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
-# iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443 -j ACCEPT
-# iptables -A FORWARD -i eth0 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT
 ....
 +
 Como a tradução dos números de porta já terá sido realizado quando as regras acima forem processadas, devemos utilizar os número de porta internos (ou de serviço, de acordo com a tabela) na configuração das regras de _forward_.
@@ -472,12 +507,12 @@ Utilizando os conceitos aprendidos, será necessário configurar o NAT no firewa
 1. Antes de configurar o SNAT para acesso DMZ/Intranet > Internet, será necessário remover a configuração de _masquerading_ preexistente, que fizemos na sessão 1. Edite o arquivo `/etc/rc.local` e remova ou comente a linha:
 +
 ....
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
 ....
 ifdef::gabarito[]
 +
 ....
-# sed -i 's/\(iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE\)/#\1/' /etc/rc.local
+# sed -i 's/\(iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE\)/#\1/' /etc/rc.local
 ....
 endif::gabarito[]
 
@@ -487,7 +522,7 @@ endif::gabarito[]
 # iptables -t nat -L POSTROUTING -vn --line-number
 Chain POSTROUTING (policy ACCEPT 2 packets, 104 bytes)
 num   pkts bytes target     prot opt in     out     source               destination
-1       70  5922 MASQUERADE  all  --  *      eth0    0.0.0.0/0            0.0.0.0/0
+1       70  5922 MASQUERADE  all  --  *      enp0s3    0.0.0.0/0            0.0.0.0/0
 ....
 +
 ....
@@ -498,8 +533,8 @@ num   pkts bytes target     prot opt in     out     source               destina
 ifdef::gabarito[]
 +
 ....
-# iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o eth0 -j MASQUERADE
-# iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o eth0 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE
 ....
 endif::gabarito[]
 
@@ -521,8 +556,8 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
-# iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10
+# iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
+# iptables -t nat -A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10
 ....
 endif::gabarito[]
 
@@ -549,9 +584,11 @@ Agora, temos que descobrir o IP público da máquina _FWGW1-G_:
 ....
 # hostname
 FWGW1-A
-
-# ip a s eth0 | grep '^ *inet '
-    inet 192.168.29.103/24 brd 192.168.29.255 scope global eth0
+....
++
+....
+# ip a s enp0s3 | grep '^ *inet '
+    inet 192.168.29.103/24 brd 192.168.29.255 scope global enp0s3
 ....
 +
 Finalmente, vamos acessar esse IP na porta 80 a partir da máquina física:
@@ -576,9 +613,9 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
-# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
-# iptables -t nat -A PREROUTING -i eth0 -p udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123
+# iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
+# iptables -t nat -A PREROUTING -i enp0s3 -p tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
+# iptables -t nat -A PREROUTING -i enp0s3 -p udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123
 ....
 endif::gabarito[]
 
@@ -611,6 +648,6 @@ Abaixo, temos a configuração final sugerida para o firewall:
 
 [source,bash]
 ----
-include::{srcdir}/s5/etc_iptables_rules.v4[]
+include::{srcdir}/s3/etc_iptables_rules.v4[]
 ----
 endif::gabarito[]

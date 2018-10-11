@@ -212,7 +212,7 @@ Versions:
 +
 [source,bash]
 ----
-include::{srcdir}/s9/squidconfig.sh[]
+include::{srcdir}/s7/squidconfig.sh[]
 ----
 
 4. O próximo passo é editar o arquivo de configuração do Squid, `/usr/local/etc/squid.conf`. O excerto abaixo mostra uma configuração válida para um proxy HTTP/HTTPS transparente que executa _bumping_ (ou seja, as inspeciona via técnica _man-in-the-middle_) em todas as conexões, exceto para os domínios que constam no arquivo `/usr/local/etc/whitelist.txt`, para os quais o proxy irá fazer _splicing_ (i.e., as conexões não serão inspecionadas pelo proxy, mas sim repassadas diretamente ao destino final).
@@ -221,7 +221,7 @@ O método de _bump_ seletivo implementado como descrito acima é feito através 
 +
 [source,bash]
 ----
-include::{srcdir}/s9/usr_local_etc_squid.conf[]
+include::{srcdir}/s7/usr_local_etc_squid.conf[]
 ----
 +
 Se você for membro do grupo B, lembre-se de alterar a `acl` `localnet` no arquivo de configuração acima.
@@ -461,7 +461,7 @@ This is going to take a long time
 +
 [source,bash]
 ----
-include::{srcdir}/s9/etc_openvpn_openvpn.conf[]
+include::{srcdir}/s7/etc_openvpn_openvpn.conf[]
 ----
 +
 Nas linhas `key` e `cert` , substitua a letra ao final do arquivo `/etc/openvpn/keys/FWGW1-G` pela que representa seu grupo.
@@ -547,7 +547,7 @@ Crie o arquivo `winclient-b.ovpn` no _Desktop_ do seu usuário na máquina _WinC
 +
 [source,bash]
 ----
-include::{srcdir}/s9/winclient-b.ovpn[]
+include::{srcdir}/s7/winclient-b.ovpn[]
 ----
 +
 Nas linhas `key` e `cert` , substitua a letra ao final do arquivo `WinClient-G` pela que representa seu grupo.

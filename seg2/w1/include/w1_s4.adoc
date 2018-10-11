@@ -51,7 +51,7 @@ Abaixo, mostramos o conteúdo do arquivo `/etc/syslog-ng/conf.d/rserver.conf`, q
 +
 [source,bash]
 ----
-include::{srcdir}/s6/linserver_etc_syslog-ng_conf.d_rserver.conf[]
+include::{srcdir}/s4/linserver_etc_syslog-ng_conf.d_rserver.conf[]
 ----
 +
 Depois, basta reiniciar o serviço:
@@ -75,7 +75,7 @@ A seguir, temos o arquivo `/etc/syslog-ng/conf.d/rclient.conf`, que envia os log
 +
 [source,bash]
 ----
-include::{srcdir}/s6/fwgw1_etc_syslog-ng_conf.d_rclient.conf[]
+include::{srcdir}/s4/fwgw1_etc_syslog-ng_conf.d_rclient.conf[]
 ----
 +
 Finalmente, basta reiniciar o `syslog-ng`:

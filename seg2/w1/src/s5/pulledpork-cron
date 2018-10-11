@@ -1,0 +1,4 @@
+#!/bin/sh
+
+test -x /usr/local/bin/pulledpork.pl || exit 0
+/usr/local/bin/pulledpork.pl -c /etc/snort/pulledpork.conf -l
