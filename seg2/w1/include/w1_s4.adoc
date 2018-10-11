@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 25-09-2018
+:revdate: 11-10-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -202,7 +202,7 @@ LinServer-A
 ....
 endif::gabarito[]
 
-2. Edite o arquivo `/etc/ntp.conf` e substitua o conteúdo das linhas 21-24 (que começam com a palavra-chave `server`) pelas que se seguem. Comente ou remova as linhas originais.
+2. Edite o arquivo `/etc/ntp.conf` e substitua o conteúdo das linhas 20-23 (que começam com a palavra-chave `pool`) pelas que se seguem. Comente ou remova as linhas originais.
 ifdef::gabarito[]
 +
 ....
@@ -232,7 +232,7 @@ ntpd: time slew +0.000090s
 +
 ....
 # date
-Mon Sep  3 19:36:26 EDT 2018
+qui out 11 15:25:50 -03 2018
 ....
 +
 ....
@@ -260,7 +260,7 @@ udp        0      0 0.0.0.0:123             0.0.0.0:*                           
 ....
 endif::gabarito[]
 
-5. Vamos configurar o cliente NTP Linux, na máquina _FWGW1-G_. Instale o pacote `ntp`; edite o arquivo `/etc/ntpd.conf` para consultar o servidor de hora _LinServer-G_; pare o serviço `ntp`, sincronize a hora imediatamente e reinicie-o.
+5. Vamos configurar o cliente NTP Linux, na máquina _FWGW1-G_. Instale o pacote `ntp`; edite o arquivo `/etc/ntp.conf` para consultar o servidor de hora _LinServer-G_; pare o serviço `ntp`, sincronize a hora imediatamente e reinicie-o.
 ifdef::gabarito[]
 +
 ....
@@ -293,7 +293,7 @@ ntpd: time slew -0.000270s
 +
 ....
 # date
-Mon Sep  3 19:44:04 EDT 2018
+qui out 11 15:28:12 -03 2018
 ....
 +
 ....
@@ -327,7 +327,6 @@ Nesta atividade prática, o software Cacti será configurado para monitorar os r
 1. Primeiro, vamos instalar o Cacti. Acesse a máquina _LinServer-G_ e instale o pacote `cacti`.
 +
 --
-* Quando perguntado sobre a senha para o usuário `root` do MySQL, informe `rnpesr123`.
 * Quando perguntado sobre o _web server_ para o qual o Cacti deve ser autoconfigurado, escolha `apache2`.
 * Quando perguntado se a base de dados do Cacti deve ser configurada usando o `dbconfig-common`, responda _Yes_. Para a senha do usuário administrativo da base de dados e a senha do aplicativo Cacti no MySQL, informe `rnpesr123` para ambas as perguntas.
 --
@@ -344,15 +343,7 @@ LinServer-A
 ....
 endif::gabarito[]
 
-2. Em sua máquina física, acesse a URL `http://172.16.1.10/cacti` para concluir a instalação do Cacti.
-+
-.Tela inicial do Cacti
-[#img-cacti-welcome]
-image::cacti-welcome.png[align="center"]
-+
-Clique em _Next_. Na tela seguinte, mantenha a escolha em _New Install_ e clique em _Next_. Verifique que todos os valores na tela a seguir estão corretos (texto em verde com os dizeres `OK: FILE FOUND`), e clique em _Finish_.
-+
-Você verá a tela de login do Cacti. Entre com o usuário `admin` e senha `admin`; quando solicitada mudança de senha, escolha `rnpesr` em ambos os campos e clique em _Save_. Você deverá acessar a tela principal de configuração do Cacti.
+2. Em sua máquina física, acesse a URL `http://172.16.1.10/cacti` para acessar a console administrativa do Cacti. Entre com o usuário `admin` e senha `rnpesr123`.
 +
 .Console do Cacti
 [#img-cacti-console]
