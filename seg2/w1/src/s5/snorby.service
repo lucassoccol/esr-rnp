@@ -1,0 +1,12 @@
+[Unit]
+Description=Snorby Snort web monitoring
+Requires=barnyard2.service
+
+[Service]
+Type=forking
+PIDFile=/root/src/snorby/tmp/pids/server.pid
+WorkingDirectory=/root/src/snorby
+ExecStart=/bin/bash -lc 'bundle exec rails server -e production -d'
+
+[Install]
+WantedBy=multi-user.target

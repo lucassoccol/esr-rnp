@@ -22,13 +22,11 @@ endif::oneof[]
 Todas as atividades desta sessão serão realizadas na máquina virtual _FWGW1-G_, com pequenas exceções destacadas no enunciado de cada exercício.
 ====
 
-As atividades apresentadas nesta seção foram baseadas no excelente tutorial de Don Mizutani, acessível em http://donmizutani.com/ , com adaptações para o cenário de laboratório deste curso.
-
 === 1) Instalação do Snort
 
 1. A seção 1.5 do manual oficial do Snort, _Packet Acquisition_, alerta para o fato que duas características de placas de rede e de processamento do kernel Linux podem afetar negativamente o funcionamento do IDS: LRO (_large receive offload_) e GRO (_generic receive offload_). Em particular, o fato de que as placas de rede podem remontar pacotes antes do processamento do kernel pode ser problemático, pois o Snort trunca pacotes maiores que o _snaplen_ de 1518 bytes; em adição a isso, essas _features_ podem causar problemas com a remontagem de fluxo orientada a alvo [1] do Snort.
 +
-Na máquina _FWGW1-G_, instale o pacote `ethtool` e desative as _features_ `lro` e `gro` da interface `eth0`. Se houver algum erro desativando as características, não se preocupe; siga para o próximo passo.
+Na máquina _FWGW1-G_, instale o pacote `ethtool` e desative as _features_ `lro` e `gro` da interface `enp0s3`. Se houver algum erro desativando as características, não se preocupe; siga para o próximo passo.
 +
 ....
 # hostname
@@ -40,184 +38,65 @@ FWGW1-A
 ....
 +
 ....
-# ethtool -K eth0 gro off
-# ethtool -K eth0 lro off
+# ethtool -K enp0s3 gro off
+# ethtool -K enp0s3 lro off
 Cannot change large-receive-offload
 ....
 
-2. Agora, vamos instalar o Snort. Mas, antes, um problema: note que o Snort não está disponível nos repositórios do `apt-get`:
+2. Agora, vamos instalar o Snort. Execute:
 +
 ....
-# apt-cache search snort | grep '^snort '
+# apt-get install snort
 ....
 +
-Assim sendo, vamos ter que fazer a instalação do Snort por código-fonte. Primeiro, vamos instalar as dependências de compilação. Quando perguntado: _Install these packages without verification? [y/N]_, responda `y`.
+Durante a configuração do pacote, responda as perguntas como se segue. Se sua máquina for do grupo `B`, customize as faixas de endereços IP mostradas na tabela.
++
+.Configurações do Snort durante a instalação
+[options="header"]
+|===
+| Pergunta | Parâmetro
+| Interface(s) que o Snort deve escutar | enp0s3
+| Gama de endereços para a rede local | 172.16.1.0/24,10.1.1.0/24
+|===
++
+O arquivo de configuração principal do Snort é o `/etc/snort/snort.conf`. No Debian, em particular, há também o arquivo `/etc/snort/snort.debian.conf` que define algumas variáveis em particular, como mostrado abaixo:
 +
 ....
-# apt-get install bison           \
-                  build-essential \
-                  ca-certificates \
-                  flex            \
-                  libdumbnet-dev  \
-                  libpcap-dev     \
-                  libpcre3-dev    \
-                  zlib1g-dev
-....
-+
-Crie um diretório para download dos fontes do Snort, no qual trabalharemos, e entre nesse diretório.
-+
-....
-# mkdir ~/src
-# cd ~/src
-# pwd
-/root/src
+# cat /etc/snort/snort.debian.conf | grep -v '^#'
+
+DEBIAN_SNORT_STARTUP="boot"
+DEBIAN_SNORT_HOME_NET="172.16.1.0/24,10.1.1.0/24"
+DEBIAN_SNORT_OPTIONS=""
+DEBIAN_SNORT_INTERFACE="enp0s3"
+DEBIAN_SNORT_SEND_STATS="true"
+DEBIAN_SNORT_STATS_RCPT="root"
+DEBIAN_SNORT_STATS_THRESHOLD="1"
 ....
 
-3. Vamos compilar a instalar o DAQ (_Data Acquisition Library_) do Snort, usado para I/O de pacotes. Essa biblioteca permite ao Snort substituir chamadas diretas a funções da `libpcap` com uma camada de abstração que facilita operações em uma quantidade variada de interfaces de hardware e software sem serem necessárias mudanças ao Snort em si.
-+
-Quando da escrita deste material, a versão mais recente da DAQ era a 2.0.6. Faça o (1) download, (2) extração, (3) configuração, (4) compilação e (5) instalação como indicam os passos a seguir.
-+
-....
-# wget https://www.snort.org/downloads/snort/daq-2.0.6.tar.gz
-(...)
-....
-+
-....
-# tar zxf daq-2.0.6.tar.gz
-# cd daq-2.0.6/
-....
-+
-....
-# ./configure
-....
-+
-....
-# make
-....
-+
-....
-# make install
-....
-
-4. Volte ao diretório-pai (`/root/src`) e proceda com a instalação do Snort em si. Quando da escrita deste material, a versão mais recente era a 2.9.11.1. Faça o (1) download, (2) extração, (3) configuração, (4) compilação e (5) instalação como indicam os passos a seguir.
-+
-....
-# cd ~/src
-....
-+
-....
-# wget https://www.snort.org/downloads/snort/snort-2.9.11.1.tar.gz
-(...)
-....
-+
-....
-# tar zxf snort-2.9.11.1.tar.gz
-# cd snort-2.9.11.1/
-....
-+
-....
-# ./configure --enable-sourcefire --enable-reload
-....
-+
-....
-# make
-....
-+
-....
-# make install
-....
-+
-Vamos recriar os links e a _cache_ para as bibliotecas dinâmicas do sistema, já que a instalação do Snort criou novas dessas bibliotecas. Em adição a isso, vamos criar um link simbólico apontando para o binário do Snort.
-+
-....
-# ldconfig
-# ln -s /usr/local/bin/snort /usr/sbin/snort
-....
-
-5. Teste o funcionamento do Snort.
+3. Teste o funcionamento do Snort.
 +
 ....
 # snort -V
 
    ,,_     -*> Snort! <*-
-  o"  )~   Version 2.9.11.1 GRE (Build 268)
+  o"  )~   Version 2.9.7.0 GRE (Build 149)
    ''''    By Martin Roesch & The Snort Team: http://www.snort.org/contact#team
-           Copyright (C) 2014-2017 Cisco and/or its affiliates. All rights reserved.
+           Copyright (C) 2014 Cisco and/or its affiliates. All rights reserved.
            Copyright (C) 1998-2013 Sourcefire, Inc., et al.
-           Using libpcap version 1.6.2
-           Using PCRE version: 8.35 2014-04-04
+           Using libpcap version 1.8.1
+           Using PCRE version: 8.39 2016-06-14
            Using ZLIB version: 1.2.8
 ....
 
 === 2) Configuração inicial do Snort
 
-1. Vamos agora fazer a configuração do Snort. Como o software foi instalado manualmente, via código-fonte, temos que fazer diversos passos que normalmente são realizados pelo gerenciador de pacotes da distribuição, quais sejam:
-+
---
-* Configurar uma conta de sistema não-privilegiada.
-* Criar arquivos e diretórios padrão, vazios.
-* Todos os arquivos de configuração serão salvos em `/etc/snort`, que será um _symlink_ para `/usr/local/etc/snort`.
-* Os registros de eventos serão gravados em `/var/log/snort`.
---
-+
-O _script shell_ abaixo irá tratar de configurar os aspectos descritos acima:
-+
-[source,bash]
-----
-include::{srcdir}/s5/snortconfig.sh[]
-----
-
-2. Iremos agora desabilitar (via comentários) todas as regras padrão do Snort já que iremos, em um passo futuro, usar o PulledPort para atualizar as regras pela Internet.
+1. Primeiramente, vamos desabilitar (via comentários) todas as regras padrão do Snort instaladas pelo gerenciador de pacotes. Iremos, em um passo futuro, usar o PulledPork para atualizar as regras pela Internet.
 +
 ....
 # sed -i 's/^\(include \$RULE\_PATH.*\)/#\1/' /etc/snort/snort.conf
 ....
 
-3. Edite o arquivo de configuração do Snort e configure as redes a serem protegidas (variável `HOME_NET`), e as redes consideradas externas (variável `EXTERNAL_NET`).
-+
-....
-# sed -i 's/^\(ipvar HOME\_NET\).*/\1 \[172.16.1.0\/24,10.1.1.0\/24\]/' /etc/snort/snort.conf
-....
-+
-....
-# grep '^ipvar HOME_NET' /etc/snort/snort.conf
-ipvar HOME_NET [172.16.1.0/24,10.1.1.0/24]
-....
-+
-....
-# sed -i 's/^\(ipvar EXTERNAL\_NET\).*/\1 \!\$HOME\_NET/' /etc/snort/snort.conf
-....
-+
-....
-# grep '^ipvar EXTERNAL_NET' /etc/snort/snort.conf
-ipvar EXTERNAL_NET !$HOME_NET
-....
-
-4. Agora, vamos corrigir os caminhos de busca de regras do Snort, que encontram-se incorretos no arquivo de configuração original.
-+
-....
-# sed -i 's/^\(var RULE\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
-# sed -i 's/^\(var SO\_RULE\_PATH\).*/\1 \/etc\/snort\/so\_rules/' /etc/snort/snort.conf
-# sed -i 's/^\(var PREPROC\_RULE\_PATH\).*/\1 \/etc\/snort\/preproc\_rules/' /etc/snort/snort.conf
-# sed -i 's/^\(var WHITE\_LIST\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
-# sed -i 's/^\(var BLACK\_LIST\_PATH\).*/\1 \/etc\/snort\/rules/' /etc/snort/snort.conf
-....
-+
-Verifique que as substituições funcionaram como esperado:
-+
-....
-# grep '^var [RULE_PATH\|SO_RULE_PATH\|PREPROC_RULE_PATH\|WHITE_LIST_PATH\|BLACK_LIST_PATH]' /etc/snort/snort.conf
-....
-+
-....
-var RULE_PATH /etc/snort/rules
-var SO_RULE_PATH /etc/snort/so_rules
-var PREPROC_RULE_PATH /etc/snort/preproc_rules
-var WHITE_LIST_PATH /etc/snort/rules
-var BLACK_LIST_PATH /etc/snort/rules
-....
-
-5. Finalmente, vamos descomentar a linha que habilita regras customizadas locais, que usaremos em breve para testar o funcionamento do Snort.
+2. Descomente a linha que habilita regras customizadas locais, que usaremos em breve para testar o funcionamento do Snort.
 +
 ....
 # sed -i 's/^\#\(include \$RULE\_PATH\/local\.rules\)/\1/' /etc/snort/snort.conf
@@ -228,7 +107,18 @@ var BLACK_LIST_PATH /etc/snort/rules
 include $RULE_PATH/local.rules
 ....
 
-6. Teste o arquivo de configuração do Snort procurando por erros de sintaxe. Se tudo estiver correto, a penúltima linha deverá dizer `Snort successfully validated the configuration!`.
+3. Remova a palavra-chave `nostamp` da saída de eventos do Snort, de forma que os arquivos de log sejam identificados pelo _timestamp_ de criação do arquivo.
++
+....
+# sed -i 's/^\(output unified2.*\) nostamp,\(.*\)/\1\2/'g /etc/snort/snort.conf
+....
++
+....
+# grep '^output unified2' /etc/snort/snort.conf
+output unified2: filename snort.log, limit 128, mpls_event_types, vlan_event_types
+....
+
+4. Teste o arquivo de configuração do Snort procurando por erros de sintaxe. Se tudo estiver correto, a penúltima linha deverá dizer `Snort successfully validated the configuration!`.
 +
 ....
 # snort -T -c /etc/snort/snort.conf
@@ -240,7 +130,7 @@ Snort successfully validated the configuration!
 Snort exiting
 ....
 
-7. Vamos criar uma regra customizada no Snort para testar se tudo está a contento. No arquivo `/etc/snort/rules/local.rules`, insira a linha:
+5. Vamos criar uma regra customizada no Snort para testar se tudo está a contento. No arquivo `/etc/snort/rules/local.rules`, insira a linha:
 +
 ....
 alert icmp any any -> any any (msg:"ICMP packet from all, to all"; sid:10000001; rev:001;)
@@ -248,17 +138,17 @@ alert icmp any any -> any any (msg:"ICMP packet from all, to all"; sid:10000001;
 +
 Esta regra irá simplesmente levantar um alerta se o Snort detectar um pacote ICMP vindo de qualquer IP, qualquer porta, para qualquer IP, qualquer porta.
 
-8. Descubra o IP público da máquina _FWGW1-G_:
+6. Descubra o IP público da máquina _FWGW1-G_:
 +
 ....
-# ip a s eth0 | grep '^ *inet ' | awk '{ print $2 }'
+# ip a s enp0s3 | grep '^ *inet ' | awk '{ print $2 }'
 192.168.29.103/24
 ....
 +
 Agora, vamos rodar o Snort em modo console e testar o funcionamento da regra.
 +
 ....
-# snort -A console -q -g snort -u snort -c /etc/snort/snort.conf -i eth0
+# snort -A console -q -g snort -u snort -c /etc/snort/snort.conf -i enp0s3
 ....
 +
 Em sua máquina física, envie alguns pacotes ICMP para o IP público da máquina _FWGW1-G_:
@@ -296,80 +186,7 @@ Observe, ainda, que os ICMP `echo-reply` enviados por sua máquina física não 
 +
 Finalize o Snort com CTRL+C, e comente a regra inserida no arquivo `/etc/snort/rules/local.rules`.
 
-=== 3) Habilitando o Snort no boot
-
-1. Ainda devido ao fato de termos instalado o Snort via código-fonte, não temos instalado nenhum script de inicialização que permita iniciar/reiniciar/parar o Snort de forma automática (via comando `systemctl`), bem como configurá-lo para ser iniciado durante o boot da máquina.
-+
-Crie o arquivo novo `/lib/systemd/system/snort.service`, com o seguinte conteúdo:
-+
-[source,bash]
-----
-include::{srcdir}/s5/snort.service[]
-----
-
-2. Verifique que as permissões, usuário e grupo dono do arquivo estão corretos. Em seguida, crie um _symlink_ do mesmo para o diretório `/etc/systemd/system`.
-+
-....
-# chown root.root /lib/systemd/system/snort.service
-# chmod 0644 /lib/systemd/system/snort.service
-....
-+
-....
-# ls -ld /lib/systemd/system/snort.service
--rw-r--r-- 1 root root 223 Sep  4 09:22 /lib/systemd/system/snort.service
-....
-+
-....
-# ln -s /lib/systemd/system/snort.service /etc/systemd/system/snort.service
-....
-+
-....
-# ls -ld /etc/systemd/system/snort.service
-lrwxrwxrwx 1 root root 33 Sep  4 09:24 /etc/systemd/system/snort.service -> /lib/systemd/system/snort.service
-....
-
-3. Recarregue as configurações de _daemons_ do `systemd`. Em seguida, tente iniciar/verificar o estado/parar o Snort de forma automática usando o _initsystem_ do sistema. Finalmente, adicione-o à sequência de boot.
-+
-....
-# systemctl daemon-reload
-....
-+
-....
-# systemctl start snort.service
-....
-+
-....
-# systemctl status snort.service
-● snort.service - Snort NIDS Daemon
-   Loaded: loaded (/lib/systemd/system/snort.service; linked)
-   Active: active (running) since Tue 2018-09-04 09:30:16 EDT; 4s ago
- Main PID: 5215 (snort)
-   CGroup: /system.slice/snort.service
-           └─5215 /usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth0 -D
-....
-+
-....
-# ps auxwm | grep '^snort'
-snort     5215  0.0  2.1 127420 44596 ?        -    09:30   0:00 /usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth0 -D
-snort        -  0.0    -      -     - -        Ssl  09:30   0:00 -
-snort        -  0.0    -      -     - -        Ssl  09:30   0:00 -
-....
-+
-....
-# systemctl stop snort.service
-....
-+
-....
-# systemctl enable snort.service
-Created symlink from /etc/systemd/system/multi-user.target.wants/snort.service to /lib/systemd/system/snort.service.
-....
-+
-....
-# systemctl is-enabled snort.service
-enabled
-....
-
-=== 4) Configurando atualizações de regras de forma automática
+=== 3) Configurando atualizações de regras de forma automática com o PulledPork
 
 1. O programa PulledPork nos permite receber definições de regras atualizadas periodicamente pela Internet, sempre que novas vulnerabilidade e _exploits_ forem descobertos e divulgados.
 +
@@ -381,10 +198,11 @@ apt-get install git                              \
                 liblwp-useragent-determined-perl
 ....
 
-2. Dentro do diretório `/root/src`, faça o download do código-fonte do PulledPork. Em seguida, copie seus binários e arquivos de configuração para os locais apropriados.
+2. Crie o diretório `/root/src`, se não existir, e faça o download do código-fonte do PulledPork. Em seguida, copie seus binários e arquivos de configuração para os locais apropriados.
 +
 ....
-# cd ~/src/
+# mkdir ~/src
+# cd ~/src
 ....
 +
 ....
@@ -448,8 +266,21 @@ Se tudo deu certo, você deverá ver seu _Oinkcode_ ao final da linha de regras 
 # grep 'rule_url=https://www.snort.org/reg-rules' /etc/snort/pulledpork.conf
 rule_url=https://www.snort.org/reg-rules/|snortrules-snapshot.tar.gz|13eba036f37e80d0efb689c60af9e6daae810763
 ....
++rm /
+Substitua todas as instâncias de `/usr/local/etc` por `/etc`, e `/usr/local/lib` por `/usr/lib`, para refletir corretamente o diretório de armazenamento de configurações e bibliotecas do Snort:
 +
-Falta substituir a distribuição-alvo padrão do PulledPork:
+....
+# sed -i 's/\/usr\/local\/etc/\/etc/g' /etc/snort/pulledpork.conf
+# sed -i 's/\/usr\/local\/lib/\/usr\/lib/g' /etc/snort/pulledpork.conf
+....
++
+Corrija o local do binário do Snort, de `/usr/local/bin/snort` para o valor correto, que é `/usr/sbin/snort`:
++
+....
+# sed -i 's/\/usr\/local\/bin\/snort/\/usr\/sbin\/snort/g' /etc/snort/pulledpork.conf
+....
++
+Finalmente, falta substituir a distribuição-alvo padrão do PulledPork:
 +
 ....
 # sed -i 's/^\(distro=\).*/\1Debian-6-0/' /etc/snort/pulledpork.conf
@@ -483,14 +314,14 @@ distro=Debian-6-0
 (...)
 
 Rule Stats...
-        New:-------33914
+        New:-------34178
         Deleted:---0
-        Enabled Rules:----10841
+        Enabled Rules:----10999
         Dropped Rules:----0
-        Disabled Rules:---23073
-        Total Rules:------33914
+        Disabled Rules:---23179
+        Total Rules:------34178
 IP Blacklist Stats...
-        Total IPs:-----1470
+        Total IPs:-----1382
 
 Done
 Please review /var/log/sid_changes.log for additional details
@@ -501,12 +332,12 @@ Se tudo deu certo, o PulledPork deve ter consolidado as regras baixadas no arqui
 +
 ....
 # du -sk /etc/snort/rules/snort.rules
-18380   /etc/snort/rules/snort.rules
+18432   /etc/snort/rules/snort.rules
 ....
 +
 ....
 # wc -l /etc/snort/rules/snort.rules
-38155 /etc/snort/rules/snort.rules
+38437 /etc/snort/rules/snort.rules
 ....
 
 8. Finalmente, basta indicar ao Snort que esse arquivo seja usado em sua inicialização. Insira a linha `include $RULE_PATH/snort.rules` ao final do arquivo `/etc/snort/snort.conf`.
@@ -515,11 +346,15 @@ Se tudo deu certo, o PulledPork deve ter consolidado as regras baixadas no arqui
 # echo 'include $RULE_PATH/snort.rules' >> /etc/snort/snort.conf
 ....
 +
-Pare todas as instâncias do Snort. Em seguida, inicie-o, e verifique seu uso de memória e processamento.
+Pare todas as instâncias do Snort, e remova os arquivos de log antigos. Em seguida, inicie-o, e verifique seu uso de memória.
 +
 ....
 # systemctl stop snort
 # ps auxwm | grep '^snort'
+....
++
+....
+# rm /var/log/snort/snort.log*
 ....
 +
 ....
@@ -528,12 +363,7 @@ Pare todas as instâncias do Snort. Em seguida, inicie-o, e verifique seu uso de
 +
 ....
 # ps -eo 'rss,comm' | grep 'snort$'
-548016 snort
-....
-+
-....
-# ps -eo 'cputime,comm' | grep 'snort$'
-00:00:18 snort
+995976 snort
 ....
 
 9. Para que as regras se mantenham atualizadas, é necessário atualizá-las periodicamente. Crie um novo arquivo no diretório `/etc/cron.daily` que atualize as regras diariamente, com o seguinte conteúdo:
@@ -549,6 +379,352 @@ Verifique que o usuário/grupo dono e permissões do arquivo estão corretos.
 # chown root.root /etc/cron.daily/pulledpork
 # chmod 0755 /etc/cron.daily/pulledpork
 ....
+
+=== 4) Processando arquivos de log do Snort com o Barnyard2
+
+1. Note que, por padrão, o Snort está fazendo o log de eventos registrados no arquivo `/var/log/snort/snort.log`:
++
+....
+# grep 'snort.log' /etc/snort/snort.conf | grep -v '^#'
+output unified2: filename snort.log, limit 128, mpls_event_types, vlan_event_types
+....
++
+Este arquivo está no formato `unified2` que, como documentado no manual oficial do Snort (http://manual-snort-org.s3-website-us-east-1.amazonaws.com/node21.html), é um formato de log binário que permite ao Snort maior nível de performance ao registrar os eventos em disco. O problema, evidentemente, é que esse arquivo de log não é legível diretamente.
+
+2. Iremos instalar e configurar o _Barnyard2_ para lidar com esses arquivos de log. Como de costume, o primeiro passo é instalar as dependências do pacote:
++
+....
+# apt-get install autoconf              \
+                  build-essential       \
+                  libdaq-dev            \
+                  libdumbnet-dev        \
+                  libmariadb-dev        \
+                  libmariadb-dev-compat \
+                  libpcap-dev           \
+                  libprelude-dev        \
+                  libtool               \
+                  mariadb-server
+....
++
+Em adição a isso, é necessário criar um link simbólico para a biblioteca `dumbnet.n`, como se segue:
++
+....
+# ln -s /usr/include/dumbnet.h /usr/include/dnet.h
+....
++
+....
+# ldconfig
+....
+
+3. Agora, volte ao diretório de download de códigos-fonte (`/root/src`), baixe o Barnyard2, compile-o e instale:
++
+....
+# cd ~/src
+....
++
+....
+# git clone https://github.com/firnsy/barnyard2.git
+....
++
+....
+# cd barnyard2/
+....
++
+....
+# autoreconf -fvi -I ./m4
+....
++
+....
+# ./configure --with-mysql --with-mysql-libraries=/usr/lib/x86_64-linux-gnu
+....
++
+....
+# make
+....
++
+....
+# make install
+....
+
+4. Vamos agora proceder à configuração do Barnyard2. Primeiramente, vamos criar arquivos e diretórios padrão com as permissões corretas:
++
+....
+# touch /var/log/snort/barnyard2.waldo
+....
++
+....
+# mkdir /var/log/barnyard2 /var/log/snort/archive
+....
++
+....
+# chown snort.snort /var/log/barnyard2/ /var/log/snort/archive/ /var/log/snort/barnyard2.waldo
+....
++
+Em seguida, crie e edite o arquivo de configuração `/etc/snort/barnyard2.conf`, com o seguinte conteúdo:
++
+[source,bash]
+----
+include::{srcdir}/s5/etc_snort_barnyard2.conf[]
+----
+
+=== 5) Visualizando eventos com o Snorby
+
+1. Precisamos de um método conveniente para visualizar e tratar os eventos registrados pelo Snort. Iremos instalar e configurar o _Snorby_, uma aplicação web criada em _Ruby on Rails_ para auxiliar no trabalho de monitoramento de ferramentas IDS populares como o Snort, Suricata e Sagan. Como de costume, o primeiro passo é instalar as dependências do pacote:
++
+....
+# apt-get install --no-install-recommends   \
+                bundler                     \
+                imagemagick                 \
+                libmariadbclient-dev        \
+                libmariadbclient-dev-compat \
+                libpq-dev                   \
+                libreadline-dev             \
+                libssl-dev                  \
+                libxml2-dev                 \
+                libxslt1-dev                \
+                libyaml-dev                 \
+                postgresql-server-dev-9.6   \
+                ruby                        \
+                ruby-dev                    \
+                wkhtmltopdf                 \
+                zlib1g-dev
+....
+
+2. Agora, volte ao diretório de download de códigos-fonte (`/root/src`), baixe o Snorby e instale suas dependências (no Ruby, conhecidas como _gems_):
++
+....
+# cd ~/src
+....
++
+....
+# git clone https://github.com/Snorby/snorby.git
+....
++
+....
+# cd snorby/
+....
++
+....
+# bundle install
+....
+
+3. Vamos agora proceder à configuração do Snorby. Copie e renomeie os arquivos de configuração de conexão com o banco de dados (`config/database.yml`), editando-o como se segue:
++
+....
+# cp config/database.yml.example config/database.yml
+....
++
+....
+# nano config/database.yml
+(...)
+....
++
+....
+# cat config/database.yml | grep '^ *username\|password' | grep -v '^#'
+  username: snorby
+  password: "snorby"
+....
++
+Faça o mesmo para a configuração principal do Snorby (`config/snorby_config.yml`), como mostrado abaixo:
++
+....
+# cp config/snorby_config.yml.example config/snorby_config.yml
+....
++
+....
+# nano config/snorby_config.yml
+(...)
+....
++
+....
+# cat config/snorby_config.yml | grep '^ *baseuri\|domain\|wkhtmltopdf\|mailer_sender\|time_zone' | head -n5
+  baseuri: ''
+  domain: 'snorby.FWGW1-A.intnet'
+  wkhtmltopdf: /usr/bin/wkhtmltopdf
+  mailer_sender: 'snorby@FWGW1-A.intnet'
+  time_zone: 'America/Sao_Paulo'
+....
++
+Edite apenas as configurações da seção `production:` do arquivo `config/snorby_config.yml`. As demais seções (`development:` e `test:`) não serão usadas.
+
+4. Vamos configurar o banco de dados. Primeiro, crie uma base de dados vazia e configure suas permissões:
++
+....
+# mysql -u root -e 'create database snorby'
+....
++
+....
+# mysql -u root
+....
++
+....
+MariaDB [(none)]> grant all on snorby.* to 'snorby'@'localhost' identified by 'snorby';
+Query OK, 0 rows affected (0.00 sec)
+....
++
+....
+MariaDB [(none)]> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+....
++
+....
+MariaDB [(none)]> quit
+Bye
+....
+
+5. Agora, invoque o script de _setup_ do Snorby para popular a base de dados:
++
+....
+# bundle exec rake snorby:setup
+....
+
+6. O Snorby irá rodar, por padrão, na porta TCP/3000. Como não há regra permitindo esse tipo de acesso direto ao firewall, crie-a:
++
+....
+# iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
+....
++
+....
+# iptables-save > /etc/iptables/rules.v4
+....
+
+=== 6) Integração dos serviços com o sistema
+
+Note que ainda não iniciamos nem o Barnyard2 nem o Snorby, recentemente instalados e configurados. Muito embora seja possível iniciá-los manualmente e gerenciar seus processos, isso rapidamente se orna bastante inconveniente à medida que o sistema aumenta em complexidade. Para facilitar a tarefa, iremos criar dois _scripts_ de inicialização para os serviços junto ao `systemctl`. Siga os passos:
+
+1. Crie um arquivo novo, `/etc/systemd/system/barnyard2.service`, com o seguinte conteúdo:
++
+[source,bash]
+----
+include::{srcdir}/s5/barnyard2.service[]
+----
+
+2. Faça o mesmo para o arquivo `/etc/systemd/system/snorby.service`:
++
+[source,bash]
+----
+include::{srcdir}/s5/snorby.service[]
+----
+
+3. Recarregue a lista de serviços do sistema com o comando:
++
+....
+# systemctl daemon-reload
+....
+
+4. Agora, inicie o serviço do Barnyard2, como se segue:
++
+....
+# systemctl start barnyard2.service
+....
++
+Em seguida, monitore seu início com o comando:
++
+....
+# journalctl -u barnyard2.service -f
+-- Logs begin at Mon 2018-10-15 15:59:29 -03.
+out 15 16:22:58 FWGW1-A systemd[1]: Started Barnyard2 Snort log spooler.
+out 15 16:22:58 FWGW1-A barnyard2[3739]: Running in Continuous mode
+(...)
+....
++
+O Barnyard pode demorar um certo tempo para iniciar, até cerca de três minutos. Observe os logs até que uma mensagem parecida com a que se segue apareça na tela:
++
+....
+out 15 16:25:53 FWGW1-A barnyard2[3739]: Opened spool file '/var/log/snort/snort.log.1539630818'
+out 15 16:25:53 FWGW1-A barnyard2[3739]: Waiting for new data
+....
++
+Feito isso, encerre o monitoramento dos registros com `CTRL + C` -- o Barnyard2 iniciou corretamente.
+
+5. Inicie o Snorby como mostrado abaixo:
++
+....
+# systemctl start snorby.service
+....
+
+6. Usando o navegador web em sua máquina física, acesse a URL `http://FWGW1-G:3000`, substituindo a palavra `FWGW1-G` pelo endereço IP externo do seu firewall (atrelado à interface `enp0s3`). Você verá a tela de login do Snorby; acesse com o usuário `snorby@example.com`, e senha `snorby`.
++
+Você verá o _dashboard_ principal do Snorby, como mostrado na imagem a seguir:
++
+.Dashboard do Snorby
+[#img-snorby1]
+image::snorby1.png[align="center"]
+
+=== 7) Gerando alertas para o IDS
+
+1. Vamos gerar alguns alertas para testar o funcionamento da solução. No Virtualbox, conecte a placa de rede da máquina _KaliLinux-G_ à rede externa, acessando _Settings_ > _Network 1_ > _Adapter 1_ > _Attached to: Bridged Adapter_. Em seguida, altere a configuração da interface para DHCP editando o arquivo `/etc/network/interfaces`:
++
+....
+# hostname
+KaliLinux-A
+....
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
+# cat /etc/network/interfaces | grep '^iface eth0'
+iface eth0 inet dhcp
+....
++
+....
+# systemctl restart networking
+....
++
+Ao final do processo, sua máquina _KaliLinux-G_ deverá ter um endereço IP da rede externa, como:
++
+....
+# ip a s eth0 | grep '^ *inet ' | awk '{print $2}'
+192.168.29.105/24
+....
+
+2. Execute alguns comandos para gerar tráfego suspeito na direção da máquina _FWGW1-G_. Nos exemplos abaixo, o IP público `192.168.29.103` está sendo usado como o endereço da interface `enp0s3` da máquina _FWGW1-G_.
++
+Primeiro, verifique que a máquina _LinServer-G_ está ligada e em seguida rode o `nikto`, um _scanner_ de servidores web:
++
+....
+# nikto -h 192.168.29.103
+....
++
+Use o `nmap` para realizar um _scan_ do tipo _Xmas tree_ na máquina _FWGW1-G_:
++
+....
+# nmap -sX 192.168.29.103 -p1-65535
+....
++
+Use o `nmap` com a opção de fragmentar pacotes para realizar um _scan_ na máquina _FWGW1-G_:
++
+....
+# nmap -Pn -sS -A -f 192.168.29.103
+....
++
+Existem vários outros testes que podem ser realizados para gerar tráfego suspeito e testar a eficácia do IDS. A página https://www.aldeid.com/wiki/Suricata-vs-snort contém uma excelente lista de ataques e ferramentas sugeridos para realizar uma inspeção nesse sentido.
+
+3. Vamos ver o que foi observado pelo Snort, através do Snorby. Acessando a aba _Events_, podemos observar que vários eventos foram gerados ao rodar a ferramenta `nikto`, como mostrado na imagem a seguir:
++
+.Listagem de eventos no Snorby
+[#img-snorby2]
+image::snorby2.png[align="center"]
+
+4. É possível clicar em um evento para explorar mais detalhes sobre o mesmo, incluindo hosts de origem/destino do ataque, assinatura que causou o _match_ no pacote, e até mesmo detalhes de seu _header_ e _payload_. A imagem a seguir ilustra a inspeção de um evento de baixa criticidade, identificado como uma inspeção HTTP usando método desconhecido:
++
+.Listagem de eventos no Snorby
+[#img-snorby3]
+image::snorby3.png[align="center"]
+
+5. Retorne a máquina _KaliLinux-G_ para a rede `DMZ`, restaurando suas configurações de rede originais.
+
+[WARNING]
+====
+Nesta sessão fizemos a instalação de todas as ferramentas (Snort, PulledPork, Barnyard2 e Snorby) dentro da mesma máquina, _FWGW1-G_. É muito comum, no entanto, não sobrecarregar a máquina responsável pela tarefa de IDS/IPS também com a tarefa de operação do banco de dados e do _frontend_ web, delegando essas tarefas a uma outra máquina.
+
+Nesse cenário, instalaríamos o Snort, PulledPork e Barnyard2 na máquina _FWGW1-G_, e o Barnyard2, Snorby e a base de dados MariaDB em outra máquina (dedicada e segmentada para este fim). A máquina _FWGW1-G_ se conectaria à base de dados remota para escrever os registros de eventos, sem ser necessário instalar nela uma série de dependências potencialmente perigosas, como o Ruby, compiladores e bibliotecas de desenvolvimento.
+
+A configuração desse cenário mais complexo fica a cargo do leitor, como um exercício avançado.
+====
 
 === Referências
 

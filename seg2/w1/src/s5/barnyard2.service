@@ -1,0 +1,11 @@
+[Unit]
+Description=Barnyard2 Snort log spooler
+After=snort.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/barnyard2 -D -c /etc/snort/barnyard2.conf -d /var/log/snort -w /var/log/snort/barnyard2.waldo -l /var/log/snort -a /var/log/snort/archive -f snort.log -u snort -g snort
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
