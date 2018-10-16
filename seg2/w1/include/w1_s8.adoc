@@ -211,7 +211,7 @@ Setting up nessus (7.1.3) ...
 Unpacking Nessus Core Components...
 
  - You can start Nessus by typing /etc/init.d/nessusd start
- - Then go to https://kali:8834/ to configure your scanner
+ - Then go to https://KaliLinux-A:8834/ to configure your scanner
 
 Processing triggers for systemd (238-4) ...
 ....
@@ -238,18 +238,24 @@ image::nessus-console.png[align="center"]
 
 [WARNING]
 ====
-Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_ e _LinServer-G_.
+Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_ e _LinServer-G-Debian8_.
 ====
 
-Vamos realizar um _scan_ na máquina _LinServer-G_, verificar as vulnerabilidades identificadas e tentar corrigi-las através da atualização do sistema. Antes de começar, verifique que a máquina _LinServer-G_ está ligada e acessível.
+Desligue a máquina _LinServer-G_, se estiver ligada. Em seu lugar, suba a máquina _LinServer-G-Debian8_, que é uma máquina Debian Linux 8 propositalmente desatualizada que utilizaremos nesta atividade. Configure a rede de forma idêntica à máquina _LinServer-G_, com as seguintes interfaces:
+
+--
+* `eth0`: conectada à rede `DMZ` com endereço IP 172.16.G.10/24.
+--
+
+Feito isso, vamos realizar um _scan_ na máquina _LinServer-G-Debian8_, verificar as vulnerabilidades identificadas e tentar corrigi-las através da atualização do sistema.
 
 1. Na console principal do Nessus, clique em _Create a new scan_. Na tela seguinte, selecione o _template_ _Basic Network Scan_.
 
 2. Em _Settings_ > _General_, configure:
 +
 --
-* _Name_: _LinServer-G_
-* _Description_: _Scan_ da máquina _LinServer-G_
+* _Name_: _LinServer-G-Debian8_
+* _Description_: _Scan_ da máquina _LinServer-G-Debian8_
 * _Targets_: 172.16.G.10/32
 --
 
@@ -267,7 +273,7 @@ Vamos realizar um _scan_ na máquina _LinServer-G_, verificar as vulnerabilidade
 
 4. Clique em _Save_. Na tela seguinte, clique no ícone _Launch_ (que parece um pequeno _play_) na parte à direita da tela. O _scan_ será iniciado, como mostrado abaixo.
 +
-.Scan inicial do LinServer-G no Nessus
+.Scan inicial do LinServer-G-Debian8 no Nessus
 [#img-nessus-linserver1]
 image::nessus-linserver1.png[align="center"]
 +
@@ -275,7 +281,7 @@ Aguarde o final do _scan_, e confira o resultado. Se quiser acompanhar o _scan_ 
 
 5. Após a conclusão do _scan_, cheque a página de resultados, como mostrado abaixo.
 +
-.Primeiro scan do LinServer-G no Nessus
+.Primeiro scan do LinServer-G-Debian8 no Nessus
 [#img-nessus-linserver2]
 image::nessus-linserver2.png[align="center"]
 +
@@ -287,7 +293,7 @@ image::nessus-linserver3.png[align="center"]
 +
 O Nessus apresenta várias informações úteis, como a natureza da vulnerabilidade, quais CVEs (_Common Vulnerabilities and Exposures_) são relevantes, e quais são as soluções mais indicadas. Do ponto de vista de gestão de riscos e vulnerabilidades em um parque com um grande número de máquinas instaladas, essas informações são importantíssimas.
 
-6. Vamos tentar corrigir algumas (ou, idealmente, todas) dessas vulnerabilidades. Entre na máquina _LinServer-G_ e faça uma atualização completa do sistema. Em seguida, reinicie a VM.
+6. Vamos tentar corrigir algumas (ou, idealmente, todas) dessas vulnerabilidades. Entre na máquina _LinServer-G-Debian8_ e faça uma atualização completa do sistema. Em seguida, reinicie a VM.
 +
 ....
 # hostname
@@ -308,7 +314,7 @@ LinServer-A
 
 7. De volta à console do Nessus, rode novamente o _scan_ criado nos passos [1-3]. Ao final, confira seus resultados:
 +
-.Scan do LinServer-G após atualização
+.Scan do LinServer-G-Debian8 após atualização
 [#img-nessus-linserver4]
 image::nessus-linserver4.png[align="center"]
 +
@@ -384,62 +390,46 @@ image::nessus-winserver5.png[align="center"]
 +
 A diferença para o panorama anterior é significativa: agora temos apenas 7 vulnerabilidades de médio impacto, 2 de baixo impacto e 27 de cunho informativo. De fato, as recomendações do MBSA e as atualizações de sistema fizeram uma diferença importante na segurança do sistema.
 
-=== 4) Efeitos de firewall e IDS em um *_scan_*
+=== 4) Efeitos do firewall em um *_scan_*
 
 [WARNING]
 ====
-Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_ e _FWGW1-G_.
+Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_ e _FWGW1-G-Debian8_.
 ====
 
-Vamos agora realizar um _scan_ na máquina _FWGW1-G_. Lembre-se, no entanto, que além de o firewall interno (especificamente, da _chain_ INPUT da tabela _filter_) ser bastante restritivo, temos o Snort alertando sobre comportamentos anômalos na rede. Qual será o efeito desses elementos em um _scan_ do Nessus?
+Desligue a máquina _FWGW1-G_, se estiver ligada. Em seu lugar, suba a máquina _FWGW1-G-Debian8_, que é uma máquina Debian Linux 8 propositalmente desatualizada que utilizaremos nesta atividade. Configure a rede de forma idêntica à máquina _FWGW1-G_, com as seguintes interfaces de rede:
+
+--
+* `eth0`: conectada via _bridge_ à rede externa, em modo DHCP.
+* `eth1`: conectada à rede `DMZ` com endereço IP 172.16.G.10/24.
+* `eth2`: conectada à rede `Intranet`, com endereço IP 10.1.G.1/24.
+--
+
+Realize a configuração de repasse de pacotes e de firewall de forma idêntica ao que fizemos na sessão 3. Instale o pacote `iptables-persistent` e utilize como referência o arquivo `/etc/iptables/rules.v4` da sua máquina _FWGW1-G_, que pode ser copiado de forma direta -- lembre-se apenas de substituir as ocorrências da interface `enp0s3` por `eth0`, dada a diferença de nomenclatura no Debian 8.
+
+Vamos agora realizar um _scan_ na máquina _FWGW1-G-Debian8_. Lembre-se, no entanto, que o firewall interno (especificamente, da _chain_ INPUT da tabela _filter_) é bastante restritivo. Qual será o efeito desse elemento em um _scan_ do Nessus?
 
 1. Na console principal do Nessus, clique em _Create a new scan_. Na tela seguinte, selecione o _template_ _Basic Network Scan_.
 
 2. Em _Settings_ > _General_, configure:
 +
 --
-* _Name_: _FWGW1-G_
-* _Description_: _Scan_ da máquina _FWGW1-G_
+* _Name_: _FWGW1-G-Debian8_
+* _Description_: _Scan_ da máquina _FWGW1-G-Debian8_
 * _Targets_: 172.16.G.1/32
 --
 
 3. Não iremos adicionar login via `ssh` para este _scan_, por dois motivos: primeiro, queremos testar o impacto das proteções de rede que empregamos na efetividade do _scan_ e, segundo, porque não há regra que permita logins `ssh` oriundos da rede 172.16.G.0/24.
 
-4. Clique em _Save_. Antes de iniciar o _scan_ propriamente dito, logue na máquina _FWGW1-G_ como usuário `root`. Queremos monitorar os logs do Snort durante o _scan_, para ver os alertas levantados pelo IDS. Só temos um problema -- no momento, o Snort está monitorando a interface `eth0`:
+4. Clique em _Save_. Em seguida, clique no ícone _Launch_ (que parece um pequeno _play_) na parte à direita da tela. O _scan_ será iniciado, como anteriormente. Após a conclusão do _scan_, cheque a página de resultados, como mostrado abaixo.
 +
-....
-# hostname
-FWGW1-A
-....
-+
-....
-# cat /etc/systemd/system/snort.service | grep ExecStart
-ExecStart=/usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth0 -D
-....
-+
-No entanto, a máquina _KaliLinux-G_ está conectada à rede DMZ, assim como a interface `eth1` do firewall. Pare a execução do Snort e inicie-o manualmente na interface `eth1`; em seguida, monitore seus alertas no arquivo `/var/log/snort/alert`:
-+
-....
-# systemctl stop snort
-....
-+
-....
-# /usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth1 -D
-....
-+
-....
-# tail -f -n0 /var/log/snort/alert
-....
-+
-Agora sim, clique no ícone _Launch_ (que parece um pequeno _play_) na parte à direita da tela. O _scan_ será iniciado, como anteriormente. Após a conclusão do _scan_, cheque a página de resultados, como mostrado abaixo.
-+
-.Primeiro scan do FWGW1-G no Nessus
+.Primeiro scan do FWGW1-G-Debian8 no Nessus
 [#img-nessus-fwgw1]
 image::nessus-fwgw1.png[align="center"]
 +
-Um resultado impressionante: apenas 6 vulnerabilidades informativas, e nenhum alerta levantado pelo Snort. Mas, será mesmo?
+Um resultado impressionante: apenas 6 vulnerabilidades informativas. Mas, será mesmo?
 
-5. Limpe as configurações de firewall da máquina _FWGW1-G_, permitindo todo tipo de conexão externa. Em seguida, reinicie o monitoramento do arquivo de log do Snort e rode o _scan_ novamente.
+5. Limpe as configurações de firewall da máquina _FWGW1-G-Debian8_, permitindo todo tipo de conexão externa. Em seguida, rode o _scan_ novamente.
 +
 ....
 # iptables -P INPUT ACCEPT
@@ -465,52 +455,15 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
  pkts bytes target     prot opt in     out     source               destination
 ....
 +
-....
-# tail -f -n0 /var/log/snort/alert
-....
+Feito isso, clique novamente no botão _Launch_ para iniciar um novo _scan_. Após o final do processo, temos o seguinte resultado:
 +
-Feito isso, clique novamente no botão _Launch_ para iniciar um novo _scan_. De imediato, os logs do Snort começam a acusar tráfego suspeito:
-+
-....
-[**] [129:15:1] Reset outside window [**]
-[**] [129:15:1] Reset outside window [**]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-09/08-06:43:38.018485 172.16.1.30:55498 -> 172.16.1.1:22
-09/08-06:43:38.018485 172.16.1.30:55498 -> 172.16.1.1:22
-TCP TTL:255 TOS:0x0 ID:2746 IpLen:20 DgmLen:40
-TCP TTL:255 TOS:0x0 ID:2746 IpLen:20 DgmLen:40
-*****R** Seq: 0x4766526D  Ack: 0x0  Win: 0x200  TcpLen: 20
-*****R** Seq: 0x4766526D  Ack: 0x0  Win: 0x200  TcpLen: 20
-
-[**] [129:15:1] Reset outside window [**]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-09/08-06:43:39.087546 172.16.1.30:55498 -> 172.16.1.1:22
-TCP TTL:255 TOS:0x0 ID:2746 IpLen:20 DgmLen:40
-*****R** Seq: 0x4766526D  Ack: 0x0  Win: 0x200  TcpLen: 20
-
-[**] [129:15:1] Reset outside window [**]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-09/08-06:43:39.087546 172.16.1.30:55498 -> 172.16.1.1:22
-TCP TTL:255 TOS:0x0 ID:2746 IpLen:20 DgmLen:40
-*****R** Seq: 0x4766526D  Ack: 0x0  Win: 0x200  TcpLen: 20
-
-[**] [128:4:1] (spp_ssh) Protocol mismatch [**]
-[Classification: Detection of a non-standard protocol or event] [Priority: 2]
-09/08-06:44:21.814817 172.16.1.30:55520 -> 172.16.1.1:22
-TCP TTL:64 TOS:0x0 ID:64890 IpLen:20 DgmLen:576 DF
-***AP*** Seq: 0x1196C581  Ack: 0x0  Win: 0x0  TcpLen: 32
-....
-+
-Após o final do _scan_, temos o seguinte resultado:
-+
-.Segundo scan do FWGW1-G no Nessus
+.Segundo scan do FWGW1-G-Debian8 no Nessus
 [#img-nessus-fwgw2]
 image::nessus-fwgw2.png[align="center"]
 +
 Agora temos uma vulnerabilidade de alto impacto, duas de médio impacto e 23 informativas. Talvez o servidor não esteja tão seguro quando imaginávamos... vamos tentar ir mais a fundo.
 
-6. Dentro do _scan_ do _FWGW1-G_, clique em _Configure_. Em _Credentials_ > _SSH_, configure:
+6. Dentro do _scan_ do _FWGW1-G-Debian8_, clique em _Configure_. Em _Credentials_ > _SSH_, configure:
 +
 --
 * _Authentication method_: _password_
@@ -522,96 +475,19 @@ Agora temos uma vulnerabilidade de alto impacto, duas de médio impacto e 23 inf
 * _Location of su (directory)_: `/bin`
 --
 +
-Clique em _Save_, e rode o _scan_ uma terceira vez. Perceba que os logs do Snort continuam alertando sobre tráfego suspeito, quase que exclusivamente direcionado à porta 22:
+Clique em _Save_, e rode o _scan_ uma terceira vez. Como ficou o resultado do _scan_?
 +
-....
-[**] [129:12:1] Consecutive TCP small segments exceeding threshold [**]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-09/08-06:52:33.667651 172.16.1.30:55974 -> 172.16.1.1:22
-TCP TTL:64 TOS:0x0 ID:45684 IpLen:20 DgmLen:104 DF
-***AP*** Seq: 0xFE2FB6F5  Ack: 0x9A8250FC  Win: 0x102  TcpLen: 32
-TCP Options (3) => NOP NOP TS: 4021996676 13125828
-
-[**] [129:12:1] Consecutive TCP small segments exceeding threshold [**]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-09/08-06:52:33.671810 172.16.1.30:55974 -> 172.16.1.1:22
-TCP TTL:64 TOS:0x0 ID:45689 IpLen:20 DgmLen:104 DF
-***AP*** Seq: 0xFE2FB7C5  Ack: 0x9A825278  Win: 0x102  TcpLen: 32
-TCP Options (3) => NOP NOP TS: 4021996680 13125829
-
-[**] [129:12:1] Consecutive TCP small segments exceeding threshold [**]
-[Classification: Potentially Bad Traffic] [Priority: 2]
-09/08-06:52:33.679830 172.16.1.30:55972 -> 172.16.1.1:22
-TCP TTL:64 TOS:0x0 ID:31597 IpLen:20 DgmLen:104 DF
-***AP*** Seq: 0xB5706A01  Ack: 0x397D0971  Win: 0x111  TcpLen: 32
-TCP Options (3) => NOP NOP TS: 4021996688 13125831
-....
-+
-Isso se deve ao fato de que a máquina _FWGW1-G_ possui pouquíssimos serviços escutando externamente:
-+
-....
-# netstat -tunlp | grep -v '127.0.0.1' | grep -v '^tcp6\|^udp6'
-Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      531/sshd
-udp        0      0 0.0.0.0:68              0.0.0.0:*                           417/dhclient
-udp        0      0 10.8.1.1:123            0.0.0.0:*                           576/ntpd
-udp        0      0 10.1.1.1:123            0.0.0.0:*                           576/ntpd
-udp        0      0 172.16.1.1:123          0.0.0.0:*                           576/ntpd
-udp        0      0 192.168.29.103:123      0.0.0.0:*                           576/ntpd
-udp        0      0 0.0.0.0:123             0.0.0.0:*                           576/ntpd
-udp        0      0 0.0.0.0:161             0.0.0.0:*                           629/snmpd
-udp        0      0 0.0.0.0:1194            0.0.0.0:*                           562/openvpn
-udp        0      0 0.0.0.0:55650           0.0.0.0:*                           629/snmpd
-udp        0      0 0.0.0.0:50561           0.0.0.0:*                           417/dhclient
-....
-+
-Dos serviços acima, apenas o `ssh` e o `openvpn` estão ativamente escutando por conexões externas (o `ntpd` apenas consulta o servidor de hora _LinServer-G_).
-+
-E como ficou o resultado do _scan_?
-+
-.Scan final do FWGW1-G no Nessus
+.Scan final do FWGW1-G-Debian8 no Nessus
 [#img-nessus-fwgw3]
 image::nessus-fwgw3.png[align="center"]
 +
-Com o login `ssh` ativado, o Nessus conseguiu, agora sim, encontrar 6 vulnerabilidades críticas, 44 de alto impacto, 36 de médio impacto, 4 de baixo impacto e 54 informativas. De fato, a segurança do servidor _FWGW1-G_ está no mesmo patamar da máquina _LinServer-G_ antes da sua atualização, o que seria esperado.
+Com o login `ssh` ativado, o Nessus conseguiu, agora sim, encontrar 6 vulnerabilidades críticas, 44 de alto impacto, 36 de médio impacto, 4 de baixo impacto e 54 informativas. De fato, a segurança do servidor _FWGW1-G-Debian8_ está no mesmo patamar da máquina _LinServer-G-Debian8_ antes da sua atualização, o que seria esperado.
 +
-Esse exercício serve para visualizarmos um fato relevante: firewalls e ferramentas IPS (no caso, nosso Snort está apenas atuando como IDS, no momento) podem mascarar problemas de segurança, que ficam latentes até que um atacante descubra um método de aproveitar-se delas. Sempre que for rodar ferramentas de análise de vulnerabilidades automatizadas em sua rede, lembre-se de criar regras de liberação relevantes nos firewalls para visualizar a real situação do seu parque.
+Esse exercício serve para visualizarmos um fato relevante: firewalls podem mascarar problemas de segurança, que ficam latentes até que um atacante descubra um método de aproveitar-se delas. Sempre que for rodar ferramentas de análise de vulnerabilidades automatizadas em sua rede, lembre-se de criar regras de liberação relevantes nos firewalls para visualizar a real situação do seu parque.
 
-7. Atualize a máquina _FWGW1-G_ e rode o _scan_ novamente, nos mesmos moldes que fizemos com o _LinServer-G_. Houve melhora significativa?
+7. Atualize a máquina _FWGW1-G-Debian8_ e rode o _scan_ novamente, nos mesmos moldes que fizemos com o _LinServer-G-Debian8_. Houve melhora significativa?
 
-8. Finalmente, recarregue as regras de firewall para seu estado original, pare o Snort e reinicie-o na interface `eth0` como usual.
-+
-....
-# systemctl restart netfilter-persistent.service
-....
-+
-....
-# iptables -vn -L
-Chain INPUT (policy DROP 53 packets, 14973 bytes)
- pkts bytes target     prot opt in     out     source               destination
-    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
-    0     0 REJECT     all  --  !lo    *       0.0.0.0/0            127.0.0.0/8          reject-with icmp-port-unreachable
-   89  4720 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
-    0     0 ACCEPT     tcp  --  *      *       10.1.1.0/24          0.0.0.0/0            tcp dpt:22 state NEW,ESTABLISHED
-
-(...)
-....
-+
-....
-# ps auxwm | grep '^snort '
-snort     1575  0.0 26.5 629172 545672 ?       -    06:26   0:00 /usr/local/bin/snort -q -u snort -g snort -c /etc/snort/snort.conf -i eth1 -D
-snort        -  0.0    -      -     - -        Ssl  06:26   0:00 -
-snort        -  0.0    -      -     - -        Ssl  06:26   0:00 -
-....
-+
-....
-# kill 1575
-....
-+
-....
-# systemctl start snort
-....
+8. Finalmente, desligue a máquina _FWGW1-G-Debian8_ e religue a máquina _FWGW1-G_. Faça o mesmo com as máquinas _LinServer-G-Debian8_ e _LinServer-G_.
 
 === 5) Auditoria de servidores web
 
@@ -629,18 +505,17 @@ Esta atividade será realizada nas máquinas virtuais _KaliLinux-G_, _LinServer-
 + Target IP:          172.16.1.10
 + Target Hostname:    172.16.1.10
 + Target Port:        80
-+ Start Time:         2018-09-08 08:21:38 (GMT-3)
++ Start Time:         2018-10-16 12:18:17 (GMT-3)
 ---------------------------------------------------------------------------
-+ Server: Apache/2.4.10 (Debian)
-+ Server leaks inodes via ETags, header found with file /, fields: 0x29cd 0x5744726bfc360
++ Server: Apache/2.4.25 (Debian)
++ Server leaks inodes via ETags, header found with file /, fields: 0x29cd 0x577f7e7da950c
 + The anti-clickjacking X-Frame-Options header is not present.
 + The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
 + The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
-+ Apache/2.4.10 appears to be outdated (current is at least Apache/2.4.12). Apache 2.0.65 (final release) and 2.2.29 are also current.
 + Allowed HTTP Methods: GET, HEAD, POST, OPTIONS
 + OSVDB-3233: /icons/README: Apache default file found.
-+ 26165 requests: 0 error(s) and 7 item(s) reported on remote host
-+ End Time:           2018-09-08 08:22:11 (GMT-3) (33 seconds)
++ 26165 requests: 0 error(s) and 6 item(s) reported on remote host
++ End Time:           2018-10-16 12:18:46 (GMT-3) (29 seconds)
 ---------------------------------------------------------------------------
 + 1 host(s) tested
 ....
