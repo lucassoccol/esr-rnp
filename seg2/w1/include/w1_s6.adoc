@@ -123,19 +123,19 @@ aluno
 +
 ....
 $ gpg --version | grep Pubkey
-Pubkey: RSA, RSA-E, RSA-S, ELG-E, DSA
+Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA
 ....
 endif::gabarito[]
 
-3. Vamos fazer um exercício de criptografia usando chaves assimétricas entre dois usuários fictícios, Alice (operando na máquina _FWGW1-G_) e Bobby (operando na máquina _LinServer-G_). Vamos começar por Alice -- gere um par de chaves assimétricas RSA padrão, com 4096 bits e sem data de expiração para ela, usando o programa `gpg`. O e-mail de Alice será alice@seg12.esr.rnp.br , e a senha de acesso à chave será `rnpesr123`.
+3. Vamos fazer um exercício de criptografia usando chaves assimétricas entre dois usuários fictícios, Alice (operando na máquina _FWGW1-G_) e Bobby (operando na máquina _LinServer-G_). Vamos começar por Alice -- gere um par de chaves assimétricas RSA padrão, com 4096 bits e sem data de expiração para ela, usando o programa `gpg` com a opção `--full-generate-key`. O e-mail de Alice será alice@seg12.esr.rnp.br , e a senha de acesso à chave será `rnpesr123`.
 ifdef::gabarito[]
 +
 ....
-$ gpg --gen-key
+$ gpg --full-generate-key
 ....
 +
 ....
-gpg (GnuPG) 1.4.18; Copyright (C) 2014 Free Software Foundation, Inc.
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
@@ -158,9 +158,7 @@ Key is valid for? (0) 0
 Key does not expire at all
 Is this correct? (y/N) y
 
-You need a user ID to identify your key; the software constructs the user ID
-from the Real Name, Comment and Email Address in this form:
-    "Heinrich Heine (Der Dichter) <heinrichh@duesseldorf.de>"
+GnuPG needs to construct a user ID to identify your key.
 
 Real name: Alice
 Email address: alice@seg12.esr.rnp.br
@@ -169,21 +167,18 @@ You selected this USER-ID:
     "Alice <alice@seg12.esr.rnp.br>"
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
-You need a Passphrase to protect your secret key.
 
 (...)
 
-gpg: /home/aluno/.gnupg/trustdb.gpg: trustdb created
-gpg: key 209411F7 marked as ultimately trusted
+gpg: key EB757978FB898C57 marked as ultimately trusted
+gpg: revocation certificate stored as '/home/aluno/.gnupg/openpgp-revocs.d/5A62CAF74E46B70509335DA7EB757978FB898C57.rev'
 public and secret key created and signed.
 
-gpg: checking the trustdb
-gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
-gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
-pub   4096R/209411F7 2018-09-06
-      Key fingerprint = 2D01 2274 8A9A 180C E269  B387 113A A4ED 2094 11F7
-uid                  Alice <alice@seg12.esr.rnp.br>
-sub   4096R/B2CCF948 2018-09-06
+pub   rsa4096 2018-10-16 [SC]
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+uid                      Alice <alice@seg12.esr.rnp.br>
+sub   rsa4096 2018-10-16 [E]
 ....
 endif::gabarito[]
 
@@ -216,22 +211,20 @@ aluno
 ....
 +
 ....
-$ gpg --gen-key
+$ gpg --full-generate-key
 (...)
 ....
 +
 ....
-gpg: /home/aluno/.gnupg/trustdb.gpg: trustdb created
-gpg: key EAD0CF1F marked as ultimately trusted
+gpg: key 6F4EC30E8E0D7290 marked as ultimately trusted
+gpg: revocation certificate stored as '/home/aluno/.gnupg/openpgp-revocs.d/89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290.rev'
 public and secret key created and signed.
 
-gpg: checking the trustdb
-gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
-gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
-pub   4096R/EAD0CF1F 2018-09-06
-      Key fingerprint = 23CF A392 6118 B50A 9115  B1D2 D42E AF5D EAD0 CF1F
-uid                  Bobby <bobby@seg12.esr.rnp.br>
-sub   4096R/4A677FB6 2018-09-06
+pub   rsa4096 2018-10-16 [SC]
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+uid                      Bobby <bobby@seg12.esr.rnp.br>
+sub   rsa4096 2018-10-16 [E]
 ....
 endif::gabarito[]
 
@@ -263,56 +256,51 @@ LinServer-A
 +
 ....
 $ gpg --import alice_public.asc
-gpg: key 209411F7: public key "Alice <alice@seg12.esr.rnp.br>" imported
+gpg: key EB757978FB898C57: public key "Alice <alice@seg12.esr.rnp.br>" imported
 gpg: Total number processed: 1
-gpg:               imported: 1  (RSA: 1)
+gpg:               imported: 1
 ....
 +
 *Valide* a chave recebida com o remetente (por exemplo, verficando que o _fingerprint_ está de fato correto), e posteriormente assine-a como mostrado a seguir.
 +
 ....
 $ gpg --edit-key Alice
-gpg (GnuPG) 1.4.18; Copyright (C) 2014 Free Software Foundation, Inc.
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 
-pub  4096R/209411F7  created: 2018-09-06  expires: never       usage: SC
-                     trust: unknown       validity: unknown
-sub  4096R/B2CCF948  created: 2018-09-06  expires: never       usage: E
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+pub  rsa4096/EB757978FB898C57
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+sub  rsa4096/CDDA806670DAA306
+     created: 2018-10-16  expires: never       usage: E
 [ unknown] (1). Alice <alice@seg12.esr.rnp.br>
 ....
 +
 ....
 gpg> fpr
-pub   4096R/209411F7 2018-09-06 Alice <alice@seg12.esr.rnp.br>
- Primary key fingerprint: 2D01 2274 8A9A 180C E269  B387 113A A4ED 2094 11F7
+pub   rsa4096/EB757978FB898C57 2018-10-16 Alice <alice@seg12.esr.rnp.br>
+ Primary key fingerprint: 5A62 CAF7 4E46 B705 0933  5DA7 EB75 7978 FB89 8C57
 ....
 +
 ....
 gpg> sign
 
-pub  4096R/209411F7  created: 2018-09-06  expires: never       usage: SC
-                     trust: unknown       validity: unknown
- Primary key fingerprint: 2D01 2274 8A9A 180C E269  B387 113A A4ED 2094 11F7
+pub  rsa4096/EB757978FB898C57
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+ Primary key fingerprint: 5A62 CAF7 4E46 B705 0933  5DA7 EB75 7978 FB89 8C57
 
      Alice <alice@seg12.esr.rnp.br>
 
 Are you sure that you want to sign this key with your
-key "Bobby <bobby@seg12.esr.rnp.br>" (EAD0CF1F)
+key "Bobby <bobby@seg12.esr.rnp.br>" (6F4EC30E8E0D7290)
 
 Really sign? (y/N) y
-
-You need a passphrase to unlock the secret key for
-user: "Bobby <bobby@seg12.esr.rnp.br>"
-4096-bit RSA key, ID EAD0CF1F, created 2018-09-06
-....
-+
-....
-gpg> check
-uid  Alice <alice@seg12.esr.rnp.br>
-sig!3        209411F7 2018-09-06  [self-signature]
-sig!         EAD0CF1F 2018-09-06  Bobby <bobby@seg12.esr.rnp.br>
 ....
 +
 ....
@@ -351,54 +339,46 @@ Agora, basta importar e assinar a chave:
 +
 ....
 $ gpg --import bobby_public.asc
-gpg: key EAD0CF1F: public key "Bobby <bobby@seg12.esr.rnp.br>" imported
+gpg: key 6F4EC30E8E0D7290: public key "Bobby <bobby@seg12.esr.rnp.br>" imported
 gpg: Total number processed: 1
-gpg:               imported: 1  (RSA: 1)
+gpg:               imported: 1
 ....
 +
 ....
 $ gpg --edit-key Bobby
-gpg (GnuPG) 1.4.18; Copyright (C) 2014 Free Software Foundation, Inc.
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 
-pub  4096R/EAD0CF1F  created: 2018-09-06  expires: never       usage: SC
-                     trust: unknown       validity: unknown
-sub  4096R/4A677FB6  created: 2018-09-06  expires: never       usage: E
+pub  rsa4096/6F4EC30E8E0D7290
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+sub  rsa4096/DC5CA71609A03084
+     created: 2018-10-16  expires: never       usage: E
 [ unknown] (1). Bobby <bobby@seg12.esr.rnp.br>
 ....
 +
 ....
 gpg> fpr
-pub   4096R/EAD0CF1F 2018-09-06 Bobby <bobby@seg12.esr.rnp.br>
- Primary key fingerprint: 23CF A392 6118 B50A 9115  B1D2 D42E AF5D EAD0 CF1F
+pub   rsa4096/6F4EC30E8E0D7290 2018-10-16 Bobby <bobby@seg12.esr.rnp.br>
+ Primary key fingerprint: 89AD 21B9 914F 4E7E 91AA  89D0 6F4E C30E 8E0D 7290
 ....
 +
 ....
 gpg> sign
 
-pub  4096R/EAD0CF1F  created: 2018-09-06  expires: never       usage: SC
-                     trust: unknown       validity: unknown
- Primary key fingerprint: 23CF A392 6118 B50A 9115  B1D2 D42E AF5D EAD0 CF1F
+pub  rsa4096/6F4EC30E8E0D7290
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+ Primary key fingerprint: 89AD 21B9 914F 4E7E 91AA  89D0 6F4E C30E 8E0D 7290
 
      Bobby <bobby@seg12.esr.rnp.br>
 
 Are you sure that you want to sign this key with your
-key "Alice <alice@seg12.esr.rnp.br>" (209411F7)
+key "Alice <alice@seg12.esr.rnp.br>" (EB757978FB898C57)
 
 Really sign? (y/N) y
-
-You need a passphrase to unlock the secret key for
-user: "Alice <alice@seg12.esr.rnp.br>"
-4096-bit RSA key, ID 209411F7, created 2018-09-06
-....
-+
-....
-gpg> check
-uid  Bobby <bobby@seg12.esr.rnp.br>
-sig!3        EAD0CF1F 2018-09-06  [self-signature]
-sig!         209411F7 2018-09-06  Alice <alice@seg12.esr.rnp.br>
 ....
 +
 ....
@@ -420,18 +400,20 @@ FWGW1-A
 ....
 $ gpg --list-keys
 gpg: checking the trustdb
-gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
 gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
 gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
-/home/aluno/.gnupg/pubring.gpg
+/home/aluno/.gnupg/pubring.kbx
 ------------------------------
-pub   4096R/209411F7 2018-09-06
-uid                  Alice <alice@seg12.esr.rnp.br>
-sub   4096R/B2CCF948 2018-09-06
+pub   rsa4096 2018-10-16 [SC]
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+uid           [ultimate] Alice <alice@seg12.esr.rnp.br>
+sub   rsa4096 2018-10-16 [E]
 
-pub   4096R/EAD0CF1F 2018-09-06
-uid                  Bobby <bobby@seg12.esr.rnp.br>
-sub   4096R/4A677FB6 2018-09-06
+pub   rsa4096 2018-10-16 [SC]
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+uid           [  full  ] Bobby <bobby@seg12.esr.rnp.br>
+sub   rsa4096 2018-10-16 [E]
 ....
 +
 Perfeito. Vamos criar um documento `asym.txt` com conteúdo qualquer e criptografá-lo com a chave pública de Bobby, e finalmente copiá-lo para a máquina _LinServer-G_:
@@ -468,12 +450,7 @@ asym.txt.gpg
 +
 ....
 $ gpg -o asym.txt -d asym.txt.gpg
-
-You need a passphrase to unlock the secret key for
-user: "Bobby <bobby@seg12.esr.rnp.br>"
-4096-bit RSA key, ID 4A677FB6, created 2018-09-06 (main key ID EAD0CF1F)
-
-gpg: encrypted with 4096-bit RSA key, ID 4A677FB6, created 2018-09-06
+gpg: encrypted with 4096-bit RSA key, ID DC5CA71609A03084, created 2018-10-16
       "Bobby <bobby@seg12.esr.rnp.br>"
 ....
 +
@@ -499,10 +476,6 @@ $ echo 'teste assinatura' > sign.txt
 +
 ....
 $ gpg --clearsign sign.txt
-
-You need a passphrase to unlock the secret key for
-user: "Bobby <bobby@seg12.esr.rnp.br>"
-4096-bit RSA key, ID EAD0CF1F, created 2018-09-06
 ....
 +
 ....
@@ -515,25 +488,24 @@ Note que tanto o conteúdo do arquivo quanto a assinatura estão em texto claro,
 ....
 $ cat sign.txt.asc
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hash: SHA256
 
 teste assinatura
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iQIcBAEBAgAGBQJbkQzSAAoJENQur13q0M8fuDIP/Rhid0LBw1jzir/gqNHHk4wy
-1gfubA7Rc8KG1DO7vK/KHbk3PCP+Z15xKNm5A3WV02XRWZYsy6rTolrJ8AkqBP9O
-k0sgmDeBOxIQwztfWiVXF/Nm5jPzmbczVvTloCY+nHWKVjnP4ryWWi9pAmXjFNG1
-7+ThOQbQAmLMBKxA8kivr2SF7DjcC8oC2HDpzc3+VIBi4TgPRLcu3caEyI94zqHH
-X5AKivyVi+G6/KywG3WNIYcg1VPvg7s8I0a6fdQF25bj/DUyN1lwfelPmST2A0Ap
-1u4vkWsRV7yMeNANtQ6+0DL/Vwv/JeZOJJOWTUwSJq/2QyFKPzDhAFgOkO6MIgCx
-caOd0tqeCElWolGfvBP+1j3Zo2dxR2BUSbelleKEn6n1D3uIsB325SPQzcm7FdDj
-9F77QjIPquKlGJzHVIjVv/GQoWYO5BWpGIhwUXW3SEnZjQi3UDD1IJJH/8GIxYFY
-TpMSi6DL9Q4SBYBeWwV/dZqebkNII4Ire56bxcKT3G9qko7ISv27WmlZ1TSUsKud
-S2Zprb7wMXgpJgXvFFw/+XrhNGTbPAzv9/I1khy1KmuxgQzpD7xXMJOXVEfkdQhK
-mbRf1EKVob9X+urzcmfbn/3FLtG6kPFa0Xxwv0OKhIPSpwgA2mhL0tMKqOmmO+bb
-mk0WjV3ZzHIWi7sZ2LHH
-=63dA
+iQIzBAEBCAAdFiEEia0huZFPTn6RqonQb07DDo4NcpAFAlvFs3oACgkQb07DDo4N
+cpB5CA/+JCdrJlc30UbFFuXhaIlK5uu73cc7Cy9pVAz0nZ9QNvQyAxF7EHOlsXM+
+NbohVHQRW3PU5nSKUzcybX/u3to0TJ8T2My4YyzS3xHktDdmoQZCSUqANG0aVpsd
+nuByu7Q0NX+yKETJlsVHskhBs/iQ7TXqxl80FmutfNHeh42EMD3wOajAsWS0YZbh
+YBwp1WGnyPmoEDeC+ijtsaNj2oXTQSQ0c208jeibQZC7v375ZwtU5dcfc+9WuA8G
+uG0eabHeINedQw0OWLDAvHCyC+uKI4Nny6vQYtS4PfDDWtxxl1UYQKyypcCIcwiN
+m5qKcMZED1/cxCWNKtopfbwaL5jPAGu1M+lGXwF1JQqI6o3gjP25w1kUkSXpB83F
+ljwYMzzZjSzk0XP1XRl/t4jTEdbDFIw4hzDMzlAu7ZljdMZ0+pkp73rPiZjvzexd
+z57jGZyYsR2y/VqctICEw8bQOv5OMvwUyCBQ6ucTtkPcsWKlIHZEKXXEKla3V3yD
+476t1ZkHQCquGI2MrOS1JMp3EFlHdkJeJoXrVmlsj5TmvPkvTjZPCPSXkMvgxkJQ
+grzQZcg3BSXpuHRkOvOYQIZXCpoJfMjREjqcqQW0cLEtVutjEYLcVEWglOLm49zS
+P26ADVE+YLgacS4EMIflK6qOELye/PKQrV3LZKEeKaOdrdJT4us=
+=zFNN
 -----END PGP SIGNATURE-----
 ....
 +
@@ -551,8 +523,9 @@ sign.txt.asc                                                            100%  88
 +
 ....
 $ gpg --verify sign.txt.asc
-gpg: Signature made Thu 06 Sep 2018 07:17:38 AM EDT using RSA key ID EAD0CF1F
-gpg: Good signature from "Bobby <bobby@seg12.esr.rnp.br>"
+gpg: Signature made ter 16 out 2018 06:46:34 -03
+gpg:                using RSA key 89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+gpg: Good signature from "Bobby <bobby@seg12.esr.rnp.br>" [full]
 ....
 endif::gabarito[]
 
@@ -572,10 +545,6 @@ $ echo 'teste assinatura e criptografia assimetrica' > sign-asym.txt
 +
 ....
 $ gpg -s -e -r Bobby sign-asym.txt
-
-You need a passphrase to unlock the secret key for
-user: "Alice <alice@seg12.esr.rnp.br>"
-4096-bit RSA key, ID 209411F7, created 2018-09-06
 ....
 +
 ....
@@ -597,15 +566,15 @@ LinServer-A
 +
 ....
 $ gpg -o sign-asym.txt -d sign-asym.txt.gpg
-
-You need a passphrase to unlock the secret key for
-user: "Bobby <bobby@seg12.esr.rnp.br>"
-4096-bit RSA key, ID 4A677FB6, created 2018-09-06 (main key ID EAD0CF1F)
-
-gpg: encrypted with 4096-bit RSA key, ID 4A677FB6, created 2018-09-06
+gpg: encrypted with 4096-bit RSA key, ID DC5CA71609A03084, created 2018-10-16
       "Bobby <bobby@seg12.esr.rnp.br>"
-gpg: Signature made Thu 06 Sep 2018 07:24:59 AM EDT using RSA key ID 209411F7
-gpg: Good signature from "Alice <alice@seg12.esr.rnp.br>"
+gpg: Signature made ter 16 out 2018 06:48:13 -03
+gpg:                using RSA key 5A62CAF74E46B70509335DA7EB757978FB898C57
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
+gpg: Good signature from "Alice <alice@seg12.esr.rnp.br>" [full]
 ....
 +
 ....
@@ -634,8 +603,12 @@ Vamos agora testar o procedimento de criptografia assimétrica usado na atividad
 .Adicionando uma conta de e-mail ao Thunderbird
 [#img-thunderbird-addaccount]
 image::thunderbird-addaccount.png[align="center"]
++
+Durante o processo de criação de conta, o _Thunderbird_ irá abrir uma janela para autenticação no GMail, solicitando autorização para integração. Digite a senha da conta definida no passo (1) e garanta as permissões solicitadas.
 
 5. No Thunderbird, navegue no menu localizado no canto superior direito. Clique em _Extensões_ > _Extensões_. No canto superior da janela, pesquise por `enigmail` e pressione ENTER. O primeiro resultado, a extensão _Enigmail_, é o que queremos: clique no botão _Adicionar ao Thunderbird_ > _Instalar agora_.
++
+Após a instalação do _Enigmail_, reinicie o _Thunderbird_ (feche e reabra o programa).
 
 6. Desde a versão 2.0.0 do `Enigmail`, lançada em março de 2018, o modo padrão de operação é o _Enigmail/PeP_. O _PeP_ (_pretty Easy privacy_ cujo website é https://www.pep.security/) é uma implementação de segurança para e-mails com o objetivo expresso de ser simples e de baixa configuração. Para o nosso cenário, isso significa:
 +
@@ -651,13 +624,29 @@ image::thunderbird-addaccount.png[align="center"]
 [#img-thunderbird-pep1]
 image::thunderbird-pep1.png[align="center"]
 +
-Clicando no botão _Seguro & Confiável_ na base da janela, o _Enigmail/PeP_ mostra que o envio de mensagens será feito de forma segura (i.e. criptografada) e confiável (i.e. assinada), como mostra a imagem a seguir:
+Logo abaixo, você visualizará o estado da privacidade como "Inseguro". Isso se deve ao fato de que você e seu colega ainda não fizeram a troca de chaves. O _Enigmail/PeP_ irá se encarregar de anexar sua chave pública automaticamente à mensagem. Envie o email.
+
+8. Na máquina do seu colega, a mensagem deverá ser recebida normalmente. Note que a mensagem está legível -- não há criptografia ainda, apenas assinatura. Clique no triângulo amarelo na lateral direita para observas as características de confiança da mensagem:
 +
-.Relação de confiança Enigmail/PeP no Thunderbird
+.Mensagem segura, não confiável
 [#img-thunderbird-pep2]
 image::thunderbird-pep2.png[align="center"]
 
-8. Teste o envio de mensagens entre você e seu colega. O _Enigmail/PeP_ está funcionando corretamente? O que você achou desse esquema facilitado de criptografia assimétrica?
+9. Clique no botão _Negociação..._ para confirmar a veracidade da chave. Você verá a tela a seguir:
++
+.Verificação de palavras confiáveis
+[#img-thunderbird-pep3]
+image::thunderbird-pep3.png[align="center"]
++
+Serão mostradas cinco palavras confiáveis, que devem ser confirmadas com o seu colega. Se corretas, significa que a chave pública anexada à mensagem original é, de fato, correspondente à chave privada sob posso do seu colega. Clique no botão _Confirme palavras-confiáveis_ para autenticar a chave.
+
+10. Logo após, você verá a tela a seguir:
++
+.Mensagem segura e confiável
+[#img-thunderbird-pep4]
+image::thunderbird-pep4.png[align="center"]
++
+A partir desse momento, a chave pública do seu colega é conhecida pelo _Enigmail/PeP_, e é possível enviar mensagens criptografadas para ele e verificar mensagens assinadas. Envie um email-resposta para a mensagem original, e repita os passos (8) e (9) para autenticar a chave no sentido oposto. A partir desse momento, será possível trocar mensagens seguras entre as duas partes.
 
 === 4) Criptografia de partições e volumes
 
