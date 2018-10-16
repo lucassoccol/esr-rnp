@@ -28,7 +28,7 @@ Nesta seção iremos fazer uma série de configurações de segurança básica e
 
 1. As ferramentas `chkrootkit` e `rkhunter` podem ser utilizadas para buscar por _rootkits_ em um sistema Linux. _Rootkits_, como vimos na teoria, são conjuntos de programas de computador desenhados para permitir acesso continuado a área não-autorizadas de um sistema, usualmente com permissões elevadas.
 +
-Instale os pacotes `chkrootkit` e `rkhunter` na máquina _LinServer-G_, e verifique se existem _rootkits_ instalados. Antes de executar o `rkhunter`, comente a linha `SCRIPTWHITELIST=/usr/bin/lwp-request` no arquivo `/etc/rkhunter.conf`.
+Instale os pacotes `chkrootkit` e `rkhunter` na máquina _LinServer-G_, e verifique se existem _rootkits_ instalados.
 ifdef::gabarito[]
 +
 ....
@@ -48,13 +48,7 @@ Execute o `chkrootkit`, e verifique seus resultados:
 (...)
 ....
 +
-Vamos comentar a linha solicitada pelo enunciado da atividade:
-+
-....
-# sed -i 's/^\(SCRIPTWHITELIST\=\/usr\/bin\/lwp\-request\)/#\1/' /etc/rkhunter.conf
-....
-+
-E, em seguida, rodar o `rkhunter`:
+Em seguida, vamos rodar o `rkhunter`:
 +
 ....
 # rkhunter -c
@@ -65,18 +59,17 @@ System checks summary
 =====================
 
 File properties checks...
-    Required commands check failed
-    Files checked: 139
+    Files checked: 143
     Suspect files: 0
 
 Rootkit checks...
-    Rootkits checked : 377
+    Rootkits checked : 378
     Possible rootkits: 0
 
 Applications checks...
     All checks skipped
 
-The system checks took: 43 seconds
+The system checks took: 30 seconds
 
 All results have been written to the log file: /var/log/rkhunter.log
 
@@ -110,7 +103,7 @@ ifdef::gabarito[]
 ....
 +
 ....
-# ghash="$( echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{p rint$NF}' )" ; echo "password_pbkdf2 admin ${ghash}" >> /etc/grub.d/40_custom ; unset ghash
+# ghash="$( echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$NF}' )" ; echo "password_pbkdf2 admin ${ghash}" >> /etc/grub.d/40_custom ; unset ghash
 ....
 +
 ....
@@ -163,14 +156,14 @@ ifdef::gabarito[]
 +
 Para conseguir o efeito desejado, é necessário editar o arquivo `/etc/grub.d/10_linux`. Na função `linux_entry()`, edite as duas linhas `echo "menuentry (...)`, inserindo a flag `--unrestricted` antes da variável `${CLASS}`.
 +
-Vamos ver um antes/depois para ficar mais claro. Veja como estão as linhas 130-132 do arquivo `/etc/grub.d/10_linux` antes da edição:
+Vamos ver um antes/depois para ficar mais claro. Veja como estão as linhas 132-134 do arquivo `/etc/grub.d/10_linux` antes da edição:
 +
 ./etc/grub.d/10_linux
 [source,bash]
 ....
-130       echo "menuentry '$(echo "$title" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
-131   else
-132       echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+132       echo "menuentry '$(echo "$title" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
 ....
 +
 Após a edição, elas devem ficar assim:
@@ -178,9 +171,9 @@ Após a edição, elas devem ficar assim:
 ./etc/grub.d/10_linux
 [source,bash]
 ....
-130       echo "menuentry '$(echo "$title" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
-131   else
-132       echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+132       echo "menuentry '$(echo "$title" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
 ....
 +
 Note a adição da `flag` `--unrestricted` na antes de `${CLASS}` nas linhas 130 e 132.
@@ -212,30 +205,41 @@ ifdef::gabarito[]
 Primeiro, vamos verificar os serviços TCP:
 +
 ....
-# netstat -tnlp
-Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      854/mysqld
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      416/sshd
-tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      1316/exim4
-tcp6       0      0 :::80                   :::*                    LISTEN      513/apache2
-tcp6       0      0 :::22                   :::*                    LISTEN      416/sshd
-tcp6       0      0 ::1:25                  :::*                    LISTEN      1316/exim4
+# ss -tnlp
+State      Recv-Q Send-Q        Local Address:Port                       Peer Address:Port
+LISTEN     0      80                127.0.0.1:3306                                  *:*
+users:(("mysqld",pid=540,fd=17))
+LISTEN     0      128                       *:22                                    *:*
+users:(("sshd",pid=457,fd=3))
+LISTEN     0      20                127.0.0.1:25                                    *:*
+users:(("exim4",pid=853,fd=3))
+LISTEN     0      128                      :::80                                   :::*
+users:(("apache2",pid=586,fd=4),("apache2",pid=585,fd=4),("apache2",pid=584,fd=4),("apache2",pid=583,fd=4),("apache2",pid=582,fd=4),("apache2",pid=550,fd=4))
+LISTEN     0      128                      :::22                                   :::*
+users:(("sshd",pid=457,fd=4))
+LISTEN     0      20                      ::1:25                                   :::*
+users:(("exim4",pid=853,fd=4))
 ....
 +
 Depois, UDP:
 +
 ....
-# netstat -unlp
-Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-udp        0      0 0.0.0.0:514             0.0.0.0:*                           374/syslog-ng
-udp        0      0 172.16.1.10:123         0.0.0.0:*                           427/ntpd
-udp        0      0 127.0.0.1:123           0.0.0.0:*                           427/ntpd
-udp        0      0 0.0.0.0:123             0.0.0.0:*                           427/ntpd
-udp6       0      0 fe80::a00:27ff:fec1:123 :::*                                427/ntpd
-udp6       0      0 ::1:123                 :::*                                427/ntpd
-udp6       0      0 :::123                  :::*                                427/ntpd
+# ss -unlp
+State      Recv-Q Send-Q        Local Address:Port                       Peer Address:Port
+UNCONN     0      0                         *:514                                   *:*
+users:(("syslog-ng",pid=320,fd=12))
+UNCONN     0      0               172.16.1.10:123                                   *:*
+users:(("ntpd",pid=546,fd=19))
+UNCONN     0      0                 127.0.0.1:123                                   *:*
+users:(("ntpd",pid=546,fd=18))
+UNCONN     0      0                         *:123                                   *:*
+users:(("ntpd",pid=546,fd=17))
+UNCONN     0      0      fe80::a00:27ff:fe15:71d%enp0s3:123                                  :::*
+          users:(("ntpd",pid=546,fd=21))
+UNCONN     0      0                       ::1:123                                  :::*
+users:(("ntpd",pid=546,fd=20))
+UNCONN     0      0                        :::123                                  :::*
+users:(("ntpd",pid=546,fd=16))
 ....
 endif::gabarito[]
 
@@ -255,10 +259,9 @@ ifdef::gabarito[]
 +
 ....
 # dpkg -l | grep exim
-ii  exim4                          4.84.2-2+deb8u5                    all          metapackage to ease Exim MTA (v4) installation
-ii  exim4-base                     4.84.2-2+deb8u5                    amd64        support files for all Exim MTA (v4) packages
-ii  exim4-config                   4.84.2-2+deb8u5                    all          configuration for the Exim MTA (v4)
-ii  exim4-daemon-light             4.84.2-2+deb8u5                    amd64        lightweight Exim MTA (v4) daemon
+ii  exim4-base                         4.89-2+deb9u3                  amd64        support files for all Exim MTA (v4) packages
+ii  exim4-config                       4.89-2+deb9u3                  all          configuration for the Exim MTA (v4)
+ii  exim4-daemon-light                 4.89-2+deb9u3                  amd64        lightweight Exim MTA (v4) daemon
 ....
 +
 ....
@@ -270,7 +273,7 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# netstat -tnlp | grep ':25 '
+# ss -tnlp | grep ':25 '
 ....
 endif::gabarito[]
 
