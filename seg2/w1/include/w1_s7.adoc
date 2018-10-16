@@ -30,11 +30,16 @@ Vamos usar a ferramenta `mitmproxy` para inspecionar conteúdo HTTPS na rede, at
 +
 ....
 # hostname
-kali
+KaliLinux-A
 ....
 +
 ....
-root@kali:~# cat /etc/network/interfaces
+# nano /etc/network/interfaces
+(...)
+....
++
+....
+# cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
 auto lo
@@ -47,16 +52,16 @@ gateway 10.1.1.1
 ....
 +
 ....
-root@kali:~# systemctl restart networking
+# systemctl restart networking
 ....
 +
 ....
-root@kali:~# ip a s eth0 | grep '^ *inet '
+# ip a s eth0 | grep '^ *inet '
     inet 10.1.1.30/24 brd 10.1.1.255 scope global eth0
 ....
 +
 ....
-root@kali:~# ping -c1 10.1.1.1
+# ping -c1 10.1.1.1
 PING 10.1.1.1 (10.1.1.1) 56(84) bytes of data.
 64 bytes from 10.1.1.1: icmp_seq=1 ttl=64 time=0.185 ms
 
@@ -163,23 +168,17 @@ Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _WinClient-G_.
 
 Na atividade anterior, fizemos um ataque _man-in-the-middle_ com o intuito de inspecionar tráfego HTTPS de uma vítima usando o `mitmproxy`, nos mesmos moldes que um atacante o faria no mundo real. Mas e se o objetivo for legítimo, como para inspecionar tráfego em uma rede corporativa?
 
-Iremos utilizar a funcionalidade _SslBump Peek and Splice_ (https://wiki.squid-cache.org/Features/SslPeekAndSplice) do Squid, disponível a partir da versão 3.5, para implementar um proxy HTTPS para os clientes da rede 10.1.G.0/24. Tendo em vista que a versão mais recente do Squid disponível nos repositórios do Debian 8, quando da escrita deste tutorial, é a 3.4.8-6, teremos que fazer a instalação através do código-fonte.
-
-....
-# hostname
-FWGW1-A
-....
-
-....
-# apt-cache showpkg squid3 | grep 'Versions' -A1
-Versions:
-3.4.8-6+deb8u5 (/var/lib/apt/lists/ftp.br.debian.org_debian_dists_jessie_main_binary-amd64_Packages) (/var/lib/apt/lists/security.debian.org_dists_jessie_updates_main_binary-amd64_Packages)
-....
+Iremos utilizar a funcionalidade _SslBump Peek and Splice_ (https://wiki.squid-cache.org/Features/SslPeekAndSplice) do Squid, disponível a partir da versão 3.5, para implementar um proxy HTTPS para os clientes da rede 10.1.G.0/24. Tendo em vista que a versão do Squid disponível nos repositórios do Debian 9 não está totalmente configurada para operar como um proxy SSL, iremos instalá-lo manualmente a partir do código-fonte.
 
 1. Na máquina _FWGW1-G_, instale as dependências de compilação:
 +
 ....
-# apt-get -y install build-essential libssl-dev
+# hostname
+FWGW1-A
+....
++
+....
+# apt-get -y install build-essential libssl-dev libssl1.0-dev
 ....
 
 2. A seguir, faça o download do código-fonte do Squid, sua configuração, compilação e instalação através dos comandos que se seguem. O passo de compilação (`make`) pode demorar um pouco, seja paciente.
@@ -241,8 +240,8 @@ Se você for membro do grupo B, lembre-se de alterar a `acl` `localnet` no arqui
 6. Finalmente, será necessário introduzir algumas regras no firewall da máquina _FWGW1-G_ para que o tráfego dos clientes seja automaticamente repassado ao proxy para tratamento. Além de regras usuais de FORWARD e MASQUERADE para permitir acesso internet através de NAT, será necessário inserir as seguintes regras:
 +
 ....
-# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 80 -j REDIRECT --to-port 8080
-# iptables -t nat -A PREROUTING -i eth2 -p tcp -m tcp --dport 443 -j REDIRECT --to-port 8443
+# iptables -t nat -A PREROUTING -i enp0s9 -p tcp -m tcp --dport 80 -j REDIRECT --to-port 8080
+# iptables -t nat -A PREROUTING -i enp0s9 -p tcp -m tcp --dport 443 -j REDIRECT --to-port 8443
 # iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp -m multiport --dports 8080,8443 -j ACCEPT
 ....
 +
@@ -315,6 +314,10 @@ FWGW1-A
 # cd /usr/share/easy-rsa
 ....
 +
+....
+# ln -s /usr/share/easy-rsa/openssl-1.0.0.cnf /usr/share/easy-rsa/openssl.cnf
+....
++
 Agora, edite o arquivo `/usr/share/easy-rsa/vars` com os dados dos campos de certificado a serem gerados. Altere os campos `KEY_COUNTRY`, `KEY_PROVINCE`, `KEY_CITY`, `KEY_ORG`, `KEY_EMAIL` e `KEY_OU` com os dados relevantes à sua organização. Por exemplo:
 +
 ....
@@ -348,8 +351,8 @@ Finalmente, utilize os seguintes comandos para gerar o certificado da CA:
 ....
 # ./build-ca
 Generating a 2048 bit RSA private key
-.........+++
-.....+++
+..........+++
+........+++
 writing new private key to 'ca.key'
 -----
 You are about to be asked to enter information that will be incorporated
@@ -505,13 +508,13 @@ tar: Removing leading `/' from member names
 Como não há regra no firewall que permita conexão via SSH ou HTTP vinda de fora, vamos inserir uma regra temporária para permitir a cópia remota:
 +
 ....
-# iptables -A INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT
+# iptables -A INPUT -i enp0s3 -p tcp -m tcp --dport 22 -j ACCEPT
 ....
 +
 Descubra o IP público da máquina _FWGW1-G_:
 +
 ....
-# ip a s eth0 | grep '^ *inet ' | awk '{print $2}'
+# ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}'
 192.168.29.103/24
 ....
 +
@@ -532,7 +535,7 @@ $ ls -ld ~/vpn-keys.tar.gz
 Ainda na máquina _FWGW1-G_, remova a regra de firewall temporária que criamos para a cópia remota, bem como o arquivo contendo as chaves no `/tmp`:
 +
 ....
-# iptables -D INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT
+# iptables -D INPUT -i enp0s3 -p tcp -m tcp --dport 22 -j ACCEPT
 ....
 +
 ....
@@ -570,7 +573,7 @@ FWGW1-A
 ....
 +
 ....
-# iptables -A INPUT -i eth0 -p udp -m udp --dport 1194 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A INPUT -i enp0s3 -p udp -m udp --dport 1194 -m state --state NEW,ESTABLISHED -j ACCEPT
 ....
 +
 Em seguida, inicie o OpenVPN e aguarde:
@@ -581,7 +584,7 @@ Fri Sep  7 10:21:24 2018 OpenVPN 2.3.4 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO]
 Fri Sep  7 10:21:24 2018 library versions: OpenSSL 1.0.1t  3 May 2016, LZO 2.08
 Fri Sep  7 10:21:24 2018 Diffie-Hellman initialized with 2048 bit key
 Fri Sep  7 10:21:24 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
-Fri Sep  7 10:21:24 2018 ROUTE_GATEWAY 192.168.29.1/255.255.255.0 IFACE=eth0 HWADDR=08:00:27:43:b1:9d
+Fri Sep  7 10:21:24 2018 ROUTE_GATEWAY 192.168.29.1/255.255.255.0 IFACE=enp0s3 HWADDR=08:00:27:43:b1:9d
 Fri Sep  7 10:21:24 2018 TUN/TAP device tun0 opened
 Fri Sep  7 10:21:24 2018 TUN/TAP TX queue length set to 100
 Fri Sep  7 10:21:24 2018 do_ifconfig, tt->ipv6=0, tt->did_ifconfig_ipv6_setup=0
