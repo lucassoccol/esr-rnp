@@ -176,7 +176,7 @@ Após a edição, elas devem ficar assim:
 134       echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
 ....
 +
-Note a adição da `flag` `--unrestricted` na antes de `${CLASS}` nas linhas 130 e 132.
+Note a adição da `flag` `--unrestricted` antes de `${CLASS}` nas linhas 132 e 134.
 +
 Refaça a configuração do GRUB, reinicie a máquina e teste o funcionamento.
 +

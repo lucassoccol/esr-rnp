@@ -1,0 +1,836 @@
+ifdef::oneof[]
+////
+= SEG10 - Sessão 1
+:Author: Felipe_Scarel
+:Author Initials: FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 17-10-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 1: A definir
+
+A segurança e o _hardening_ de um sistema Linux começa desde o primeiro momento: sua instalação. Mesmo antes de iniciarmos a preparação de uma máquina ou servidor, as considerações sobre segurança devem povoar a mente do administrador de sistemas, visando reduzir a superfície de ataque, facilitar procedimentos de auditoria e garantir que as melhores práticas de configuração serão aplicadas de forma fácil e homogênea em todo o parque computacional.
+
+Com o advento da virtualização, prevalente na maioria das organizações já há mais de dez anos, toma força o conceito de _one service per server_, ou um serviço por servidor. Nesse caso, o objetivo é que tenhamos vários servidores simples, muitas vezes com um único serviço operacional -- isso facilita enormemente a administração e diminiu a superfície de ataque de cada servidor, pois haverão poucos programas, bibliotecas e portas abertas a serem atacadas em cada máquina individual. O uso de _templates_ é especialmente vantajoso para garantir que essa premissa seja aplicada com sucesso; construindo imagens-base sólidas e regularmente atualizadas e homologadas pela equipe de segurança da organização, é muito mais fácil e conveniente garantir que as VMs derivadas desses _templates_ serão seguras.
+
+Por outro lado, com a virtualização tivemos também o surgimento do _virtual machinel sprawl_ -- um número crescente (e muitas vezes aparentemente incontrolável) de máquinas virtuais sendo criadas no _datacenter_, minando as vantagens da simplicidade e facilidade de configuração apresentadas anteriormente. Processo e controles são fundamentais para garantir que VMs sejam criadas apenas quando necessário, e que possuam um ciclo de vida que considere sua implantação, operação e descontinuação quando não mais relevantes.
+
+O primeiro passo para garantir que as várias máquinas em nosso ambiente estarão seguras é ser criterioso, portanto, com a criação dos _templates_ de máquina virtual. Nesta sessão iremos tratar dos aspectos de segurança relevantes na instalação de um sistema Debian Linux a ser usado como _template_ para derivação de VMs futuras a serem usadas neste curso, trabalhando aspectos relevantes da instalação de pacotes, gestão de discos e partições e criptografia de dados sensíveis.
+
+<<<
+
+=== 1) Criação de máquina virtual no Virtualbox
+
+1. Abra o _Oracle VM Virtualbox_. Para criar uma nova máquina virtual, clique em _New_. Na tela seguinte, você deverá escolher um nome, tipo e versão do sistema operacional a ser instalado na VM. Em _Name_, digite `debian-template`, em _Type_ escolha `Linux` e em _Version_ selecione `Debian (64-bit)`.
++
+.Criação de nova VM, parte 1
+[#img-vbox1]
+image::vbox1.png[align="center"]
++
+Em seguida, clique em _Next_.
+
+2. Na tela seguinte escolheremos a quantidade de memória RAM a ser usada pelo sistema. O Debian Linux é um sistema bastante frugal, com recomendações mínimas de memória da ordem de 512 MB. Como a máquina que estamos instalando será um _template_, é interessante que ela seja bastante enxuta, e que as VMs derivadas cresçam em capacidade de acordo com o _workload_ específico de cada aplicação.
++
+Aponte `768 MB` de RAM, e em seguida clique em _Next_.
++
+<<<
+
+3. Agora, iremos definir se iremos criar um novo disco rígido virtual para a VM (ou usar um preexistente), e definir seu tamanho. Nesta primeira tela, mantenha a seleção-padrão _Create a virtual hard disk now_. Clique em _Create_.
++
+.Criação de nova VM, parte 2
+[#img-vbox2]
+image::vbox2.png[align="center"]
++
+Na tela seguinte, de escolha do formato do disco virtual, mantenha a opção-padrão _VDI (VirtualBox Disk Image)_. Em casos específicos em que se deseje interoperabilidade da VM com outros ambientes de virtualização, como VMWare ou Hyper-V, pode ser interessante escolher o formato VMDK. Clique em _Next_.
++
+Agora, iremos selecionar se o espaço disco irá crescer à medida que for usado (_Dynamically allocated_), ou se será completamente alocado quando da sua criação (_Fixed size_). Em ambientes de produção, é geralmente recomendável selecionar a segunda opção, evitando que os dados do disco virtual fiquem fragmentados em pontos diferentes do disco físico, o que pode acarretar lentidão na leitura de dados, especialmente ao usar discos mecânicos. Neste exemplo, mantenha selecionada a opção _Dynamically allocated_ e clique em _Next_.
++
+Selecionaremos agora a localização do arquivo de disco virtual e seu tamanho. Não é necessário alterar a primeira opção -- já para a segunda, é importante considerar que um _template_ de máquina virtual será usado para criar vários tipos diferentes de servidores-alvo. Por esse motivo, é interessante que seu disco seja organizado de forma simples e seja facilmente extensível futuramente: a flexibilidade de adição de novos discos virtuais é especialmente vantajosa, pois permite que criemos uma instalação básica bastante enxuta, e a aumentemos conforme necessário.
++
+<<<
++
+Mantenha o valor-padrão de `8 GB` para o tamanho do disco virtual, e clique em _Create_.
++
+.Criação de nova VM, parte 3
+[#img-vbox3]
+image::vbox3.png[align="center"]
+
+4. Será criada uma nova máquina virtual com o nome `debian-template`. Vamos fazer uma rápida pós-configuração antes de iniciar o processo de instalação: clique com o botão direito sobre a VM, e em seguida em _Settings_.
++
+<<<
++
+Selecione _Storage_ > _Controller: IDE_ > _Empty_, e na parte à direita da janela clique no pequeno ícone de um CD em frente à opção _Optical Drive_. Em seguida, clique em _Choose Virtual Optical Disk File..._ e navegue pelo sistema de arquivos, selecionando a imagem ISO de instalação do Debian Linux como mostrado abaixo.
++
+.Configuração de nova VM
+[#img-vbox-conf1]
+image::vbox-conf1.png[align="center"]
++
+Em _Network_ > _Adapter 1_ > _Attached to_, altere a conexão de rede da máquina virtual para _Bridged Adapter_. Em _Name_, verifique que a placa de rede física conectada à rede externa está selecionada (isso é especialmente importante em máquinas que possuem múltiplas placas de rede ou interfaces _wireless_). Se desejar, expanda _Advanced_ e clique no pequeno círculo azul à direita de _MAC Address_ para randomizar um novo endereço físico para a placa de rede da máquina virtual, especialmente útil em casos de conflito de IP.
++
+Em _USB_, marque a caixa _USB 1.1 (OHCI Controller)_. Esta configuração evita que sejam levantados erros ao iniciar a VM caso as extensões do Virtualbox não estejam instaladas na máquina hospedeira.
++
+Finalmente, clique em _OK_.
+
+<<<
+
+=== 2) Instalação do Debian Linux
+
+1. Selecione a máquina virtual `debian-template` e clique no botão _Start_ para iniciá-la. Apos um curto período, você verá o menu de _boot_ do Debian Linux; selecione a opção _Install_ para começar o instalador no modo texto.
++
+.Instalação do Debian Linux, parte 1
+[#img-debinst1]
+image::debinst1.png[align="center"]
+
+2. No passo de seleção de idioma, selecione _Portuguese (Brazil)_. Em localidade, selecione _Brasil_. Para o mapa de teclado a ser usado, provavelmente será o _Português Brasileiro_ (verifique se há a tecla `ç` ao lado do caractere `l`).
++
+Os componentes do instalador serão carregados a seguir.
+
+3. Em seguida, o instalador irá tentar autoconfigurar a rede usando DHCP. Caso esse protocolo não esteja disponível em sua rede local, consulte o instrutor sobre como proceder com a configuração manual das interfaces de rede.
++
+Configurada a rede, iremos escolher o _hostname_ da máquina. Defina o mesmo nome usado para a máquina virtual, `debian-template`.
++
+Para o nome de domínio da rede, iremos usar a rede local fictícia `intnet` durante o curso.
++
+<<<
+
+4. Agora, iremos definir a senha do `root`, o superusuário em sistemas Linux. É bastante recomendado que se defina uma senha especialmente segura, já que esse usuário possui permissões totais sobre o sistema. Por simplicidade e homogeneidade no ambiente de curso, defina a senha como `rnpesr`.
++
+.Instalação do Debian Linux, parte 2
+[#img-debinst2]
+image::debinst2.png[align="center"]
++
+Na tela seguinte, confirme a senha.
+
+5. O próximo passo é criar um usuário não-privilegiado para tarefas corriqueiras do sistema. Para o nome completo do usuário, digite `aluno` -- este também será o nome de conta do usuário.
++
+Para a senha, defina de igual forma `rnpesr`.
+
+6. O instalador irá tentar obter a hora via Internet através do protocolo NTP. Em seguida, teremos que escolher um estado para definir o fuso horário do sistema. Escolha o estado em que você está realizando este curso.
+
+7. Agora, faremos o particionamento do disco. Temos quatro opções: particionamento assistido usando o disco inteiro, assistido usando o disco inteiro com LVM, assistido com o disco inteiro e LVM criptografado e particionamento manual. Se tivéssemos mais de um disco virtual conectado à máquina, o instalador ofereceria também a opção de configuração assistida de RAID (_Redundant Array of Independent Disks).
++
+Mas, o que é LVM?
++
+O _Logical Volume Manager_ (LVM) é um sistema de mapeamento de dispositivos do Linux que permite a criação e gestão de volumes lógicos de armazenamento. As utilidades da gestão de armazenamento via volumes lógicos são muitas, destacando-se:
++
+--
+* Criação de volumes lógicos únicos englobando diferentes volumes físicos ou discos físicos inteiros, permitindo redimensionamento dinâmico de volumes.
+* Gestão facilitada de grandes quantidades de discos físicos, permitindo que discos sejam adicionados ou substituídos sem _downtime_ ou impacto à disponibilidade -- especialmente útil quando combinado com hardware que suporta _hot swapping_.
+* Em pequenos sistemas (como _desktops_ e estações de trabalho) permite que o administrador não tenha que estimar no passo de instalação quão grande uma partição irá se tornar, permitindo redimensionamento dinâmico futuro.
+* Criação de backups consistentes através de _snapshots_ de volumes lógicos.
+* Criptografar múltiplas partições físicas com uma mesma senha.
+--
++
+Em essência, o LVM traz enorme flexibilidade ao administrador de sistemas, resolvendo muitos dos problemas de particionamento que tínhamos no passado. Ele possui alguns conceitos centrais, ilustrados pela imagem a seguir:
++
+.Organização do LVM
+[#img-lvm-layout]
+image::lvm-layout.png[align="center"]
++
+Na base do sistema temos os discos físicos conectados à máquina -- como `/dev/sdb` ou `/dev/sdc`, por exemplo -- que podem ser particionados (em formato MBR ou GPT) em múltiplas partições. Essas partições são denominadas volumes físicos (_Physical Volumes_, ou PVs). Vários PVs podem ser aglutinados para definir um grupo de volumes (_Volume Groups_, ou VGs), que é um agrupamento lógico desses PVs sob um mesmo nome. Pode-se então criar vários volumes lógicos (_Logical Volumes_, ou LVs) dentro desse VG, e finalmente formatar e montar diretórios dentro dos LVs, já no contexto do sistema de arquivos.
++
+A explicação acima é propositalmente sucinta; iremos entrar em maior detalhe com relação ao funcionamento e operação do LVM em atividades subsequentes.
++
+De volta ao instalador, iremos configurar um particionamento manual usando LVM. Por isso, na tela _Método de particionamento_, selecione _Manual_.
++
+.Instalação do Debian Linux, parte 3
+[#img-debinst3]
+image::debinst3.png[align="center"]
+
+8. Na tela seguinte, o primeiro passo é criar uma tabela de partições vazia no disco virtual `/dev/sda`. Coloque o cursor sobre o disco _SCSI1 (0,0,0) (sda) - 8.6 GB ATA VBOX HARDDISK_ e pressione `ENTER`. Em seguida, responda _Sim_ para a pergunta _Criar nova tabela de partições vazia neste dispositivo?_.
+
+9. Agora, iremos configurar o LVM. Selecione a opção _Configurar o Gerenciador de Volumes Lógicos_, e responda _Sim_ para a pergunta _Gravar as mudanças nos discos e configurar LVM?_.
++
+<<<
+
+10. Você verá a tela de configuração do LVM, como se segue.
++
+.Instalação do Debian Linux, parte 4
+[#img-debinst4]
+image::debinst4.png[align="center"]
++
+A qualquer momento, você pode selecionar a opção _Exibir detalhes de configuração_ para verificar o estado atual de configuração do LVM.
++
+<<<
++
+O primeiro passo é criar um VG, então escolhar _Criar grupo de volumes_. Para o nome do grupo, digite `vg-base`. Em seguida, marque com a tecla `Espaço` os volmes físicos que integrarão esse VG (no caso, apenas o dispositivo `/dev/sda` está disponível), e finalmente responda _Sim_ para a pergunta _Gravar as mudanças nos discos e configurar LVM?_. Ao exibir os detalhes de configuração após este passo, você deverá ver a tela a seguir:
++
+.Instalação do Debian Linux, parte 5
+[#img-debinst5]
+image::debinst5.png[align="center"]
+
+11. Todos os volumes físicos (PVs) foram alocados a grupos de volumes (VGs), então agora nos resta criar volumes lógicos (LVs). Com efeito, neste momento é como se estivéssemos particionando um disco no Linux em uma instalação tradicional. Iremos criar três LVs:
++
+--
+* `lv-boot`: LV que irá armazenar o diretório `/boot` do sistema, com tamanho de 256 MB. É interessante separar o `/boot` para reduzir a complexidade do sistema de arquivos em disco, bem como para aplicar configurações diferenciadas ao _filesystem_, como RAID por software, sistemas de arquivos não-usuais como ZFS, ou caso se deseje criptografar a raiz do sistema.
+* `lv-swap`: LV que irá servidor como área de troca (_swap_) do SO em caso de escassez de memória física. Como idealmente não queremos chegar nesse cenário, alocaremos apenas 512 MB para essa área.
+* `lv-root`: LV quer irá armazenar a raiz do sistema, `/`, com tamanho de 1280 MB. Pode parecer um valor pequeno, mas considere que iremos separar outros sistemas de arquivos posteriormente.
+--
++
+Imediatamente, podem surgir duas perguntas:
++
+--
+1. *Por que não estamos alocando a totalidade do disco?* O LVM nos permite grande flexibilidade, que será demonstrada em atividades subsequentes. Ao alocarmos [256 + 512 + 1280] = 2048 MB em um disco de 8 GB, deixamos (aproximadamente) 6 GB livres que poderão ser alocados de acordo com o tipo específico de uso de cada máquina. Em sentido estrito, a alocação que fizemos acima não é exatamente ideal para um _template_, mas iremos corrigir isso ao demonstrar as funcionalidades do LVM, a seguir.
+2. *Por que não criamos LVs para partições como* `/tmp`*,* `/usr` *ou* `/var`*?* De fato, é bastante recomendável separar essas partições em servidores, como veremos a seguir. Iremos criar esses LVs brevemente, após a instalação do SO.
+--
++
+Para criar um LV, selecione _Criar volume lógico_. Em seguida, selecione o grupo de volumes no qual será feita a alocação (no caso, apenas `vg-base` está disponível). Para o nome do primeiro volume lógico, digite `lv-boot`, como delineado acima. Para seu tamanho, defina 256 MB.
++
+Prossiga com a criação dos outros dois LVs, `lv-swap` e `lv-root`, com os tamanhos especificados acima. Ao exibir os detalhes de configuração após este passo, você deverá ver a tela a seguir:
++
+.Instalação do Debian Linux, parte 6
+[#img-debinst6]
+image::debinst6.png[align="center"]
++
+Se tudo estiver a contento, selecione _Finalizar_.
+
+12. Ainda não acabou! Neste momento, configuramos o LVM -- alocamos volumes físicos, criamos um grupo de volumes agrupando esses PVs e finalmente criamos 3 volumes lógicos dentro do VG. Falta informar ao sistema quais serão os pontos de montagem desses LVs, e quais sistemas de arquivos serão usados. Usaremos a seguinte configuração:
++
+--
+* `lv-boot`: montado sob o diretório `/boot`, formatado em `ext2`.
+* `lv-swap`: área de troca (_swap_).
+* `lv-root`: montado sob o diretório `/`, formatado em `ext4`.
+--
++
+Para fazer as configurações acima, selecione um dos LVs indicados (por exemplo, deixe o cursor sobre a linha `#1 255.9 MB`, logo abaixo de `lv-boot`), e pressione `ENTER`. Em _Usar como_, escolha _Sistema de arquivos ext2_, e em _Ponto de montagem_ selecione `/boot`. Finalmente, selecione _Finalizar a configuração da partição_.
++
+Prossiga com a configuração dos outros dois LVs, `lv-swap` e `lv-root`, de acordo com as características especificadas acima. Ao exibir os detalhes de configuração após este passo, você deverá ver a tela a seguir:
++
+.Instalação do Debian Linux, parte 7
+[#img-debinst7]
+image::debinst7.png[align="center"]
++
+Se tudo estiver a contento, selecione _Finalizar o particionamento e escrever as mudanças no disco_. Confirme a pergunta subsequente escolhendo _Sim_. Os discos serão formatados e o sistema-base do Debian será instalado.
+
+13. O próximo passo será a seleção e instalação de pacotes adicionais. Na pergunta _Selecionar um espelho de rede_, responda _Sim_. Em seguida, selecione _Brasil_ como o país do espelho e aponte o servidor `ftp.br.debian.org`. Quanto à informação do proxy HTTP a ser usado, deixe em branco (a menos que o contrário seja indicado pelo seu instrutor).
++
+O instalador irá fazer o download dos arquivos de índice do repositório de pacotes.
++
+Após algum tempo, surgirá a pergunta _Participar do concurso de utilização de pacotes_ -- responda _Não_. Em seguida, o `tasksel` será invocado. Nesta tela podemos escolher quais conjuntos de software iremos instalar no disco.
++
+Para servidores de rede, em linhas gerais, é usualmente recomendável não selecionar nada além do estritamente necessário nesta tela, e proceder com a instalação manual de pacotes posteriormente; o `tasksel` geralmente instala um conjunto de pacotes superior ao que objetivamos originalmente, aumentando a superfície de ataque e exposição do sistema. Para ambientes _desktop_, é perfeitamente razoável escolher o ambiente gráfico base e uma das opções de gerenciadores de janelas disponíveis.
++
+<<<
++
+Mantenha marcadas apenas as caixas _servidor SSH_ e _utilitários de sistema padrão_, e selecione _Continuar_.
++
+.Instalação do Debian Linux, parte 8
+[#img-debinst8]
+image::debinst8.png[align="center"]
++
+O instalador irá fazer o download e instalação dos pacotes selecionados.
+
+14. A última etapa é efetuar a instalação do carregador de inicialização, ou _bootloader_, no sistema. O Debian, assim como a maioria das demais distribuições, utiliza o GRUB (_GRand Unified Bootloader_) como _bootloader_ padrão.
++
+Responda _Sim_ para a pergunta _Instalar o carregador de inicialização GRUB no registro mestre de inicialização_, e em seguida selecione o dispositivo de instalação `/dev/sda` (o único disponível).
++
+<<<
+
+15. A instalação está concluída. Selecione _Continuar_ para reinicializar a VM no novo sistema instalado.
++
+Após o reboot, você deverá ver a tela de login abaixo:
++
+.Instalação do Debian Linux, concluída
+[#img-debinst9]
+image::debinst9.png[align="center"]
+
+=== 3) Ajustes pós-instalação
+
+Instalado nosso _template_, iremos continuar sua configuração para torná-lo, de fato, uma imagem-base de boa qualidade para ser usada em derivações de VMs futuras. Além de corrigir a situação dos volumes lógicos (que deixamos incompleta propositalmente durante a instalação), iremos também fazer algumas configurações de base com relação aos repositórios, atualização de pacotes e contas de usuário.
+
+1. Faça login na máquina `debian-template` como usuário `root`, usando a senha `rnpesr`. Imediatamente após o login, você verá uma mensagem parecida com a que se segue:
++
+....
+Linux debian-template 4.9.0-7-amd64 #1 SMP Debian 4.9.110-3+deb9u2 (2018-08-13) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+....
++
+Essa mensagem é definida no arquivo `/etc/motd`, conhecida como _message of the day_ (ou "mensagem do dia"). É interessante customizar essa mensagem para refletir o ambiente local, avisando o administrador sobre os requisitos legais para operar máquinas da organização, ou informando sobre onde encontrar documentação sobre os servidores. Lembre-se que, já que estamos mexendo no _template_, essa mensagem será copiada para todas as VMs derivadas desta imagem.
++
+Neste curso, vamos deixar o _motd_ vazio. Execute:
++
+....
+# echo "" > /etc/motd
+....
++
+Saia da sessão corrente usando `exit` ou `CTRL + D`, e logue novamente. Note que a mensagem anterior será suprimida.
+
+2. Ao longo do curso, iremos editar vários arquivos de texto em ambiente Linux. Há vários editores de texto disponíveis para a tarefa, como o `vi`, `emacs` ou `nano`. Caso você não esteja familiarizado com um editor de texto, recomendamos o uso do `nano`, que possui uma interface bastante amigável para usuários iniciantes. Para editar um arquivo com o `nano`, basta digitar `nano` seguido do nome do arquivo a editar -- não é necessário que o arquivo tenha sido criado previamente:
++
+....
+# nano teste
+....
++
+Digite livremente a seguir. Use as setas do teclado para navegar no texto, e `DELETE` ou `BACKSPACE` para apagar texto. O `nano` possui alguns atalhos interessantes, como:
++
+--
+* `CTRL + G`: Exibir a ajuda do editor
+* `CTRL + X`: Fechar o `buffer` de arquivo atual (que pode ser um texto sendo editado, ou o painel de ajuda), e sair do `nano`. Para salvar o arquivo, digite `Y` (_yes_) ou `S` (_sim_) para confirmar as mudanças ao arquivo, opcionalmente altere o nome do arquivo a ser escrito no disco, e digite `ENTER`.
+* `CTRL + O`: Salvar o arquivo no disco sem sair do editor.
+* `CTRL + W`: Buscar padrão no texto.
+* `CTRL + K`: Cortar uma linha inteira e salvar no `buffer` do editor.
+* `CTRL + U`: Colar o `buffer` do editor na posição atual do cursor. Pode ser usado repetidamente.
+--
++
+Para salvar e sair do texto sendo editado, como mencionado acima, utilize `CTRL + X`.
+
+3. A seguir, vamos checar a configuração dos repositórios de pacotes sendo usados pelo sistema. Cheque o conteúdo do arquivo `/etc/apt/sources.list`:
++
+....
+# cat /etc/apt/sources.list
+#
+
+# deb cdrom:[Debian GNU/Linux 9.5.0 _Stretch_ - Official amd64 xfce-CD Binary-1 20180714-10:25]/ stretch main
+
+deb cdrom:[Debian GNU/Linux 9.5.0 _Stretch_ - Official amd64 xfce-CD Binary-1 20180714-10:25]/ stretch main
+
+deb http://ftp.br.debian.org/debian/ stretch main
+deb-src http://ftp.br.debian.org/debian/ stretch main
+
+deb http://security.debian.org/debian-security stretch/updates main
+deb-src http://security.debian.org/debian-security stretch/updates main
+
+# stretch-updates, previously known as 'volatile'
+deb http://ftp.br.debian.org/debian/ stretch-updates main
+deb-src http://ftp.br.debian.org/debian/ stretch-updates main
+....
++
+Temos algumas linhas desnecessárias neste arquivo: primeiro, as entradas `deb cdrom` referem-se ao CD de instalação do Debian, que usamos durante a atividade (2) desta sessão; além dessas, as entradas `deb-src` referem-se a pacotes de código-fonte, que podem ser baixados com o comando `apt-get source` e posteriormente compilados pelo administrador. Via de regra, não usaremos quaisquer dessas entradas em um sistema de produção, então elas podem ser removidas com segurança.
++
+Sobre os componentes (ou seções) do repositório, note que apenas a `main` está incluída no arquivo acima. O Debian possui três seções principais:
++
+--
+* `main`: contém apenas software compatível com a DFSG (_Debian Free Software Guidelines_, ou diretivas de software livre do Debian), e não dependem de software fora desta seção para funcionar. Esses são os pacotes considerados parte integrante da distribuição de software do Debian.
+* `contrib`: contém pacotes compatíveis com a DFSG, mas que possuem dependências que não estão na seção `main`.
+* `non-free`: contém software incompatível com a DFSG.
+--
++
+Em geral, não há grandes restrições para incluir todas as três seções de software detalhadas acima em uma organização. Assim, iremos incluir as duas seções faltantes, `contrib` e `non-free`, no arquivo `/etc/apt/sources.list`. Edite-o usando o `vi` ou o `nano`:
++
+....
+# nano /etc/apt/sources.list
+(...)
+....
++
+Após a edição, seu conteúdo deverá ficar assim:
++
+....
+# cat /etc/apt/sources.list
+deb http://ftp.br.debian.org/debian/ stretch main contrib non-free
+deb http://security.debian.org/debian-security stretch/updates main contrib non-free
+deb http://ftp.br.debian.org/debian/ stretch-updates main contrib non-free
+....
+
+4. Atualize a lista de pacotes disponíveis nos repositórios remotos usando o comando:
++
+....
+# apt-get update
+....
++
+Em seguida, vamos garantir que nosso _template_ está plenamente atualizado com:
++
+....
+# apt-get dist-upgrade -y
+....
++
+Caso o kernel do sistema tenha sido atualizado no processo (pacotes com o nome `linux-image-*`), será necessário reiniciar a máquina para realizar o _boot_ com o novo kernel.
++
+Para remover os binários dos pacotes recentemente instalados do sistema, execute `apt-get clean`. Se quiser remover as dependências de pacotes que estão instaladas no sistema e já não são mais necessárias, rode `apt-get autoremove`.
++
+Para remover todos os kernels antigos do sistema (isto é, todos os kernels exceto o que está em execução no momento), você pode executar:
++
+....
+# dpkg -l | egrep 'linux-image-[0-9\.-]*-amd64' | awk '{print $2}' | grep -v $(uname -r) | xargs apt-get purge -y
+....
+
+5. Este é um bom momento para instalar pacotes que você acredita serem necessários em todas as máquinas a serem derivadas deste _template_. Pacotes como o `sudo` ou `vim` podem ser boas opções, dependendo das necessidades da sua organização.
++
+Neste momento, iremos instalar apenas o `rsync`, que será usado a seguir. Execute:
++
+....
+# apt-get install rsync
+....
+
+6. Pode ser interessante desabilitar a combinação de teclas `CTRL + ALT + DEL`; mesmo em um ambiente virtualizado, há casos em que o administrador se confunde e acaba enviando essa combinação de teclas para a console de um servidor aberto, causando seu _reboot_ inadvertidamente.
++
+Note que, por padrão, essa combinação de teclas aponta para o `reboot.target`, um _target_ (ou alvo) do `systemd` que é responsável pelo reinício do sistema operacional.
++
+....
+# ls -ld /lib/systemd/system/ctrl-alt-del.target
+lrwxrwxrwx 1 root root 13 jun 13 17:20 /lib/systemd/system/ctrl-alt-del.target -> reboot.target
+....
++
+Para desabilitar o `CTRL + ALT + DEL`, basta executar:
++
+....
+# systemctl mask ctrl-alt-del.target
+Created symlink /etc/systemd/system/ctrl-alt-del.target → /dev/null.
+....
+
+=== 4) Configuração do LVM
+
+1. Vamos prosseguir com a configuração do LVM, que fizemos apenas parcialmente durante a instalação -- para relembrar, configuramos três volumes lógicos (LVs), `lv-boot`, `lv-swap` e `lv-root`. Para verificar o estado dos volumes lógicos em um sistema Linux, execute o comando `lvdisplay`:
++
+....
+# lvdisplay | grep 'Logical volume\|LV Path\|LV Name\|LV Size'
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-boot
+  LV Name                lv-boot
+  LV Size                244,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-swap
+  LV Name                lv-swap
+  LV Size                488,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-root
+  LV Name                lv-root
+  LV Size                1,19 GiB
+....
++
+Para verificar o estado dos grupos de volumes (VGs), execute `vgdisplay`:
++
+....
+# vgdisplay
+  --- Volume group ---
+  VG Name               vg-base
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  4
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                3
+  Open LV               3
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               8,00 GiB
+  PE Size               4,00 MiB
+  Total PE              2047
+  Alloc PE / Size       488 / 1,91 GiB
+  Free  PE / Size       1559 / 6,09 GiB
+  VG UUID               t42fDH-Dnqm-m1b5-6Edx-SSqV-stH8-uDi3IZ
+....
++
+E, finalmente, para verificar o estado dos volumes físicos (PVs), execute `pvdisplay`:
++
+....
+# pvdisplay
+  --- Physical volume ---
+  PV Name               /dev/sda1
+  VG Name               vg-base
+  PV Size               8,00 GiB / not usable 2,00 MiB
+  Allocatable           yes
+  PE Size               4,00 MiB
+  Total PE              2047
+  Free PE               1559
+  Allocated PE          488
+  PV UUID               jRYDou-dvIq-HRZw-llOL-JGun-JZvP-4fAs7Q
+....
+
+2. Vamos criar três novos LVs, com as configurações que se seguem:
++
+--
+* `lv-tmp`: armazenará o diretório `/tmp`, com tamanho de 512 MB.
+* `lv-var`: armazenará o diretório `/var`, com tamanho de 1536 MB.
+* `lv-usr`: armazenará o diretório `/usr`, ocupando todo o tamanho restante do VG `vg-base`.
+--
++
+Para criá-los, execute os comandos:
++
+....
+# lvcreate -L 512M -n lv-tmp vg-base
+Logical volume "lv-tmp" created.
+....
++
+....
+# lvcreate -L 1536M -n lv-var vg-base
+Logical volume "lv-var" created.
+....
++
+....
+# lvcreate -l 100%FREE -n lv-usr vg-base
+  Logical volume "lv-usr" created.
+....
++
+Vamos verificar como ficou a situação dos nossos volumes lógicos:
++
+....
+# lvdisplay | grep 'Logical volume\|LV Path\|LV Name\|LV Size'
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-boot
+  LV Name                lv-boot
+  LV Size                244,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-swap
+  LV Name                lv-swap
+  LV Size                488,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-root
+  LV Name                lv-root
+  LV Size                1,19 GiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-tmp
+  LV Name                lv-tmp
+  LV Size                512,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-var
+  LV Name                lv-var
+  LV Size                1,50 GiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-usr
+  LV Name                lv-usr
+  LV Size                4,09 GiB
+....
++
+Naturalmente, o VG está ocupado em sua totalidade, agora:
++
+....
+# vgdisplay | grep PE
+  PE Size               4,00 MiB
+  Total PE              2047
+  Alloc PE / Size       2047 / 8,00 GiB
+  Free  PE / Size       0 / 0
+....
++
+O mesmo pode ser dito para o PV:
++
+....
+# pvdisplay | grep PE
+  PE Size               4,00 MiB
+  Total PE              2047
+  Free PE               0
+  Allocated PE          2047
+....
++
+Explicaremos em maior detalhe o que são PEs (_Physical Extents_) a seguir, na atividade de extensão do LVM.
+
+3. Apesar de termos criado os LVs para os diretórios `/tmp`, `/var` e `/usr`, nosso trabalho ainda não acabou -- temos que formatar esses diretórios, copiar o conteúdo dos diretórios atuais para dentro dos novos, configurar a montagem automática via `/etc/fstab` e apagar os diretórios antigos para liberar espaço.
++
+Primeiro, vamos formatar os LVs usando o sistema de arquivos `ext4`:
++
+....
+# mkfs.ext4 /dev/mapper/vg--base-lv--tmp
+(...)
+....
++
+....
+# mkfs.ext4 /dev/mapper/vg--base-lv--var
+(...)
+....
++
+....
+# mkfs.ext4 /dev/mapper/vg--base-lv--usr
+(...)
+....
++
+Apesar de não termos feito nos exemplos acima, este seria um excelente momento para customizar aspectos do sistema de arquivos para adequá-lo aos tipos específicos de arquivos que serão armazenados ali dentro. Por exemplo, pode ser interessante escolher um tamanho de _inode_ menor do que o padrão caso se deseje armazenar muitos arquivos pequenos, como é frequentemente o caso em servidores de e-mail, digamos.
++
+Por curiosidade, o tamanho padrão de _inodes_ de novos sistemas de arquivos formatados é definido em `/etc/mke2fs.conf`; este valor pode ser customizado através da _flag_ `-I` no comando `mkfs.ext*`.
+
+4. O próximo passo é montar esses sistemas de arquivo e sincronizar o conteúdo dos diretórios atuais (que estão dentro da raiz, `/`) com os novos diretórios. Crie um _shell script_, `/root/syncdirs.sh`, com o seguinte conteúdo:
++
+[source,bash]
+----
+include::{srcdir}/s1/syncdirs.sh[]
+----
++
+O script acima irá iterar sobre os nomes `tmp`, `var` e `usr`, com o nome `DIR`. Para cada um deles, fará os passos a seguir:
++
+--
+1. Criar o diretório `/mnt/DIR`, se não existir.
+2. Montar o volume lógico `lv-DIR` dentro do diretório `/mnt/DIR`.
+3. Usando o comando `rsync`, copiar o conteúdo do diretório `/DIR` para `/mnt/DIR`.
+4. Desmontar o volume lógigo `lv-DIR`.
+5. Remover a pasta `/mnt/DIR`, se vazia.
+--
++
+Execute o _script_:
++
+....
+# bash ~/syncdirs.sh
+
+(...)
+
+sent 551,267 bytes  received 2,023 bytes  368,860.00 bytes/sec
+total size is 409,038,950  speedup is 739.28
+....
+
+5. Vamos configurar a montagem automáticas dos novos volumes lógicos. Edite o arquivo `/etc/fstab` e adicione as linhas a seguir:
++
+....
+# nano /etc/fstab
+(...)
+....
++
+....
+# tail -n3 /etc/fstab
+/dev/mapper/vg--base-lv--tmp  /tmp  ext4  defaults  0  2
+/dev/mapper/vg--base-lv--var  /var  ext4  defaults  0  2
+/dev/mapper/vg--base-lv--usr  /usr  ext4  defaults  0  2
+....
++
+Note que estamos usando as opções de montagem `defaults`, no exemplo acima. Segundo a página de manual do comando `mount` (que pode ser acessada através do comando `man 8 mount`), essa opção equivale a `rw, suid, dev, exec, auto, nouser, async`.
++
+Considerando o uso das partições acima, pode ser interessante do ponto de vista de _hardening_ tornar a montagem um pouco mais restritiva. Considere as seguintes opções:
++
+--
+* `ro`: montar o sistema de arquivos em modo somente-leitura. Inviável para diretórios como `/tmp` ou `/var`, embora possa ser considerado para o `/usr`, por exemplo. O grande inconveniente dessa proteção é que a permissão de escrita terá que ser atribuída manualmente sempre que se quiser escrever no diretório (digamos, durante a instalação de um novo pacote), motivo pelo qual não faremos essa configuração neste curso.
+* `nosuid`: não permitir que _bits_ _setuid_ ou _setgid_ tenham efeito no sistema de arquivos. Antes de colocar em prática, é recomendável escanear o sistema de arquivos por binários desse tipo, como faremos a seguir.
+* `nodev`: não interpretar dispositivos especiais de bloco ou caractere nesse sistema de arquivos. Em geral, apenas o diretório `/dev` conterá arquivos dessa natureza.
+* `noexec`: não permitir execução direta de quaisquer binários no sistema de arquivos. Não é viável habilitar essa opção para o diretório `/usr`, por motivos óbvios, mas é uma boa opção para o `/tmp` por exemplo -- muitos _exploits_ simples de escalada de privilégio tentam escrever e executar binários a partir do `/tmp`, e esta proteção pode dificultar sua ação.
+--
++
+Antes de prosseguir com a customização das opções de montagem, vamos verificar quais binários possuem o _bit_ _suid_ ativo no sistema:
++
+....
+# find / -perm -4000 -exec ls {} \; 2> /dev/null
+/bin/mount
+/bin/ping
+/bin/umount
+/bin/su
+/usr/lib/openssh/ssh-keysign
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/eject/dmcrypt-get-device
+/usr/bin/newgrp
+/usr/bin/chsh
+/usr/bin/chfn
+/usr/bin/passwd
+/usr/bin/gpasswd
+....
++
+Note que temos executáveis nos diretórios `/bin` e `/usr/bin` -- assim, não é factível habilitar a opção `nosuid` no diretório `/usr`, neste momento.
++
+De posse do conhecimento acima, vamos editar as opções de montagem dos volumes lógicos no arquivo `/etc/fstab`:
++
+....
+# nano /etc/fstab
+(...)
+....
++
+....
+# tail -n3 /etc/fstab
+/dev/mapper/vg--base-lv--tmp  /tmp  ext4  defaults,nosuid,nodev,noexec  0  2
+/dev/mapper/vg--base-lv--var  /var  ext4  defaults,nosuid,nodev         0  2
+/dev/mapper/vg--base-lv--usr  /usr  ext4  defaults,nodev                0  2
+....
+
+6. O último passo é reiniciar o sistema e verificar se nossas configurações surtiram efeito. Antes disso, vamos registrar o tamanho ocupado por cada um dos diretórios (`tmp`, `var` e `usr`), e comparar com os tamanhos ocupados nos LVs após o _reboot_.
++
+....
+# du -sm /{tmp,var,usr}
+1       /tmp
+173     /var
+434     /usr
+....
++
+Perfeito. Reinicie a máquina:
++
+....
+# reboot
+....
++
+Após o _reboot_, logue como o usuário `root` e verifique que os volumes lógicos estão montados corretamente:
++
+....
+# mount | grep '/tmp\|/var\|/usr'
+/dev/mapper/vg--base-lv--usr on /usr type ext4 (rw,nodev,relatime,data=ordered)
+/dev/mapper/vg--base-lv--tmp on /tmp type ext4 (rw,nosuid,nodev,noexec,relatime,data=ordered)
+/dev/mapper/vg--base-lv--var on /var type ext4 (rw,nosuid,nodev,relatime,data=ordered)
+....
++
+Verifique, ainda, que o espaço ocupado dentro desses volumes é bastante próximo do tamanho dos diretórios dentro da raiz, `/`:
++
+....
+# df -m | sed -n '1p; /\/\(tmp\|var\|usr\)/p'
+Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
+/dev/mapper/vg--base-lv--tmp           488     1        452   1% /tmp
+/dev/mapper/vg--base-lv--var          1480   178       1210  13% /var
+/dev/mapper/vg--base-lv--usr          4059   457       3377  12% /usr
+....
+
+7. Faltou alguma coisa? Ah sim! Não apagamos o conteúdo dos diretórios `tmp`, `var` e `usr` de dentro da raiz, `/`. Note como o espaço ocupado ainda é bastante grande neste momento:
++
+....
+# df -m | sed -n '1p; /\/$/p'
+Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
+/dev/mapper/vg--base-lv--root         1169   863        230  79% /
+....
++
+Mas, como apagar esses diretórios? Não podemos simplesmente rodar um comando `rm -rf /usr`, pois estaríamos removendo os arquivos gravados dentro do volume lógico `/dev/mapper/vg--base-lv--usr`, e não dentro da raiz. O que fazer, então?
++
+A opção `bind` do comando `mount` (8) permite remontar um sistema de arquivos em outro ponto da hierarquia de diretórios, tornando seu conteúdo acessível em ambos os lugares. Monte, usando a opção `bind`, a raiz do sistema dentro do diretório `/mnt`:
++
+....
+# mount -o bind / /mnt
+....
++
+O diretório raiz, `/`, agora está acessível também abaixo de `/mnt`, como podemos observar:
++
+....
+# ls /mnt/
+bin   dev  home        initrd.img.old  lib64       media  opt   root  sbin  sys  usr  vmlinuz
+boot  etc  initrd.img  lib             lost+found  mnt    proc  run   srv   tmp  var  vmlinuz.old
+....
++
+O volume lógico `/dev/mapper/vg--base-lv--usr`, no entanto, está montado apenas abaixo do diretório `/usr`, e não abaixo de `/mnt/usr` -- em outras palavras, a pasta `/mnt/usr` referencia diretamente o conjunto de arquivos gravados dentro da raiz do sistema, os quais queremos apagar para liberar espaço.
++
+Faça um teste -- crie um arquivo dentro de `/usr` com o nome `teste`. Note que ele está acessível pelo caminho `/usr/teste`, mas não via `/mnt/usr/teste`:
++
+....
+# touch /usr/teste
+....
++
+....
+root@debian-template:~# ls -ld /usr/teste
+-rw-r--r-- 1 root root 0 out 18 15:48 /usr/teste
+....
++
+....
+root@debian-template:~# ls -ld /mnt/usr/teste
+ls: não foi possível acessar '/mnt/usr/teste': Arquivo ou diretório não encontrado
+....
++
+Perfeito! Apague o conteúdo dos diretórios `/mnt/tmp`, `/mnt/var` e `/mnt/usr`, que foram copiados para os volumes lógicos via `rsync` no passo (9) desta atividade e não são mais necessários. Não apague as pastas em si, pois elas são ponto de montagem desses LVs.
++
+....
+# for d in tmp var usr; do cd /mnt/${d} ; rm -rf ..?* .[!.]* *; done
+....
++
+Para referência, o comando acima irá entrar nas pastas `/mnt/tmp`, `/mnt/var` e `/mnt/usr`, e, em cada uma irá apagar todos os arquivos e diretórios:
++
+--
+* Não-ocultos (`*`)
+* Ocultos, cujo primeiro caractere seja `.` e o segundo caractere seja qualquer _exceto_ `.`
+* Ocultos, iniciados por dois caracteres `.` e seguidos obrigatoriamente por algum outro caractere qualquer
+--
++
+Com efeito, a expressão regular acima irá apagar todo o conteúdo da pasta exceto os _symlinks_ especiais `.` e `..`.
++
+Verifique que o espaço ocupado dentro do diretório raiz, `/`, reduziu significativamente:
++
+....
+# df -m | sed -n '1p; /\/$/p'
+Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
+/dev/mapper/vg--base-lv--root         1169   256        837  24% /
+....
++
+Reinicie a máquina virtual para verificar que suas alterações não causaram nenhum impacto à estabilidade do sistema.
+
+=== 5) Inserção de senha no *_bootloader_*
+
+Um aspecto que não pode ser esquecido é o _bootloader_, que faz a carga inicial do kernel -- se desprotegido, um atacante com acesso físico à máquina pode utilizá-lo para alterar a senha do usuário `root` e ter acesso irrestrito ao sistema, dentre outras possibilidades.
+
+Como vimos durante a instalação do Debian, o _bootloader_ em uso pela grande maioria das distribuições Linux atualmente é o GRUB (_GRand Unified Bootloader_). Vamos configurar uma senha de acesso ao GRUB para impedir que um atacante consiga ter acesso indevido ao sistema.
+
+1. Usando o comando `grub-mkpasswd-pbkdf2`, vamos gerar um hash para a senha `rnpesr123`.
++
+....
+# echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$N F}'
+grub.pbkdf2.sha512.10000.E025151B0DA98A3153BADD61FCDC2A6037A0505699B7C414D046D834380AB53D20532441EDAFF9B1E330E8496D2C7799E6EFB43C399CC6567D0AFD8961F70109.50A159E523E889A805937F5BB65B4067149D0FDAB0536061015B4345647350A2E09D19580D77D51E58BFDA3432FE2416AE61F90D7F84D1D834CFC979DCBA8F8D
+....
+
+2. Agora, vamos editar o arquivo `/etc/grub.d/40_custom` e inserir o superusuário `admin`, com senha idêntica ao hash gerado no passo anterior.
++
+....
+# echo 'set superusers="admin"' >> /etc/grub.d/40_custom
+....
++
+....
+# ghash="$( echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$NF}' )" ; echo "password_pbkdf2 admin ${ghash}" >> /etc/grub.d/40_custom ; unset ghash
+....
++
+....
+# tail -n2 /etc/grub.d/40_custom
+set superusers="admin"
+password_pbkdf2 admin grub.pbkdf2.sha512.10000.65E70B724A540A0AE79C2F6BB34AFC4397BB13952D20A9C209DD70A9F31FE462D301B733D8B1B308C67908A25B44AB09420CEB306EDAEEB15765905A7DEEB3BF.209A3080C89ED4C542716B9BE14162E8338DF8E36B68F9E0146BDC8E572CF41585F6BF67C2573AFF2645F0D851A8E9D5B6AA2E4608E4735E689FA84ECA815C14
+....
+
+3. Finalmente, vamos reconfigurar o GRUB com a nova combinação usuário/senha e reiniciar a máquina. Verifique se a configuração está funcionando.
++
+....
+# grub-mkconfig -o /boot/grub/grub.cfg
+Generating grub configuration file ...
+Imagem Linux encontrada: /boot/vmlinuz-4.9.0-8-amd64
+Imagem initrd encontrada: /boot/initrd.img-4.9.0-8-amd64
+concluído
+....
++
+....
+# reboot
+....
++
+Após o _boot_ da máquina, o menu do GRUB nos apresenta a possibilidade de editar a configuração apertando a tecla `e`:
++
+.Edição de opções no GRUB
+[#img-grub-passwd1]
+image::grub-passwd1.png[align="center"]
++
+Apertando `e` sobre a primeira opção, imediatamente o sistema requisita a combinação usuário/senha configurada anteriormente:
++
+.Inserção de usuário/senha no GRUB
+[#img-grub-passwd2]
+image::grub-passwd2.png[align="center"]
++
+Mediante a inserção da combinação correta, o menu de edição de opções de _boot_ é mostrado, como se segue.
++
+.Edição de opções de boot no GRUB
+[#img-grub-passwd3]
+image::grub-passwd3.png[align="center"]
++
+Note ainda que, com esta configuração, o _boot_ normal do sistema prossegue apenas se a combinação de usuário/senha correta for inserida no GRUB.
+
+4. Vamos editar a configuração do GRUB para que ele solicite senha *apenas* em caso de edição de entradas do menu, e que o _boot_ normal do sistema prossiga sem que haja necessidade de interação.
++
+Para conseguir o efeito desejado, é necessário editar o arquivo `/etc/grub.d/10_linux`. Na função `linux_entry()`, iremos editar as duas linhas `echo "menuentry (...)`, inserindo a flag `--unrestricted` antes da variável `${CLASS}`.
++
+Vamos ver um antes/depois para ficar mais claro. Veja como estão as linhas 132-134 do arquivo `/etc/grub.d/10_linux` antes da edição:
++
+./etc/grub.d/10_linux
+[source,bash]
+....
+132       echo "menuentry '$(echo "$title" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+....
++
+Após a edição, elas devem ficar assim:
++
+./etc/grub.d/10_linux
+[source,bash]
+....
+132       echo "menuentry '$(echo "$title" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+....
++
+Note a adição da `flag` `--unrestricted` antes de `${CLASS}` nas linhas 132 e 134.
++
+Refaça a configuração do GRUB, reinicie a máquina e teste o funcionamento.
++
+....
+# grub-mkconfig -o /boot/grub/grub.cfg
+Generating grub configuration file ...
+Imagem Linux encontrada: /boot/vmlinuz-4.9.0-8-amd64
+Imagem initrd encontrada: /boot/initrd.img-4.9.0-8-amd64
+concluído
+....
++
+....
+# reboot
+....

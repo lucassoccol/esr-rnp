@@ -1,0 +1,18 @@
+ifdef::oneof[]
+////
+= SEG10 - Sessão 10
+:Author: Felipe_Scarel
+:Author Initials: FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 17-10-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 10: A definir
