@@ -16,3 +16,6 @@ include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 10: A definir
+
+https://wiki.debian.org/UsingSCAP
+https://wiki.debian.org/SCAPGuide

@@ -8,11 +8,55 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 17-10-2018
+:revdate: 19-10-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 2: A definir
+== Sessão 2: Firewall
+
+Criar DMZ host-only faixa 10.0.0.0/24, ip host físico 10.0.0.254.
+
+---
+
+Clonar debian-template para `fw` com 2 interfaces de rede, 1 bridge dhcp e 2 host-only estático 10.0.0.1/24.
+
+---
+
+Renomear vm.
+# bash changehost.sh fw
+
+---
+
+Configurar rede.
+# cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo enp0s3 enp0s8
+
+iface lo inet loopback
+
+iface enp0s3 inet dhcp
+
+iface enp0s8 inet static
+address 10.0.0.1/24
+
+---
+
+Habilitar repasse.
+# sed -i '/net.ipv4.ip_forward/s/^#//' /etc/sysctl.conf
+# sysctl -p
+net.ipv4.ip_forward = 1
+
+---
+
+Habilitar nat.
+# iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o enp0s3 -j MASQUERADE
+
+---
+
+Instalar iptables-persistent.
+# apt-get install iptables-persistent -y
+Salvar regras.
