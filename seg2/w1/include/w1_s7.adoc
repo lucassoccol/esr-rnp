@@ -178,7 +178,7 @@ FWGW1-A
 ....
 +
 ....
-# apt-get -y install build-essential libssl-dev libssl1.0-dev
+# apt-get -y install build-essential libssl1.0-dev
 ....
 
 2. A seguir, faça o download do código-fonte do Squid, sua configuração, compilação e instalação através dos comandos que se seguem. O passo de compilação (`make`) pode demorar um pouco, seja paciente.
@@ -207,12 +207,18 @@ FWGW1-A
 # make install
 ....
 
-3. Feito isso, faremos a configuração inicial do Squid, incluindo criação de certificados para assinatura de conexões intermediárias, criação de usuários e permissionamento, via script que se segue:
+3. Feito isso, faremos a configuração inicial do Squid, incluindo criação de certificados para assinatura de conexões intermediárias, criação de usuários e permissionamento. Crie um arquivo novo, `/root/squidconfig.sh`, com o seguinte conteúdo:
 +
 [source,bash]
 ----
 include::{srcdir}/s7/squidconfig.sh[]
 ----
++
+Em seguida, execute-o com:
++
+....
+# bash ~/squidconfig.sh
+....
 
 4. O próximo passo é editar o arquivo de configuração do Squid, `/usr/local/etc/squid.conf`. O excerto abaixo mostra uma configuração válida para um proxy HTTP/HTTPS transparente que executa _bumping_ (ou seja, as inspeciona via técnica _man-in-the-middle_) em todas as conexões, exceto para os domínios que constam no arquivo `/usr/local/etc/whitelist.txt`, para os quais o proxy irá fazer _splicing_ (i.e., as conexões não serão inspecionadas pelo proxy, mas sim repassadas diretamente ao destino final).
 +

@@ -47,7 +47,7 @@ endif::gabarito[]
 Aproveitando-se desse fato, crie um novo arquivo com a extensão apropriada nesse diretório e configure o recebimento de logs remotos. Faça com que o `syslog-ng` escute por conexões na porta 514/UDP, e envie os arquivos de log de uma dado _host_ para o arquivo `/var/log/$HOST.log`. Finalmente, reinicie o `syslog-ng`.
 ifdef::gabarito[]
 +
-Abaixo, mostramos o conteúdo do arquivo `/etc/syslog-ng/conf.d/rserver.conf`, que cumpre os objetivos especificados:
+Crie o arquivo novo `/etc/syslog-ng/conf.d/rserver.conf`, que cumpre os objetivos especificados, com o seguinte conteúdo:
 +
 [source,bash]
 ----
@@ -71,7 +71,7 @@ FWGW1-A
 # apt-get install --no-install-recommends syslog-ng
 ....
 +
-A seguir, temos o arquivo `/etc/syslog-ng/conf.d/rclient.conf`, que envia os logs locais para o servidor remoto:
+Crie o arquivo novo `/etc/syslog-ng/conf.d/rclient.conf`, que envia os logs locais para o servidor remoto, com o seguinte conteúdo:
 +
 [source,bash]
 ----

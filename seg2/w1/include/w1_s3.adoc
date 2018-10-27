@@ -435,6 +435,8 @@ FWGW1-A
 endif::gabarito[]
 
 2. Teste sua configuração acessando uma página da Internet a partir da máquina _LinServer-G_.
++
+Observe que, se a regra de `MASQUERADE` inserida através do arquivo `/etc/rc.local` durante o _boot_ do sistema tiver sido removida durante a atividade (3) desta seção (comando `iptables -t nat -F`), o acesso acima não irá funcionar. Iremos reconfigurar regras que viabilizem a conexão logo a seguir, na atividade (4.1).
 ifdef::gabarito[]
 +
 ....
