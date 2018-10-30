@@ -15,4 +15,10 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 9: A definir
+== Sessão 9: Módulos de segurança do kernel
+
+Recompilação do kernel
+SELinux
+AppArmor
+Tomoyo
+grsecurity

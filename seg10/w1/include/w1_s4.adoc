@@ -15,4 +15,9 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 4: A definir
+== Sessão 4: Controles de segurança
+
+Busca de senhas fracas
+Quotas de disco
+ACLs
+sudo

@@ -15,4 +15,8 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 7: A definir
+== Sessão 7: Hardening de sistemas web
+
+nginx + php-fpm + MariaDB
+chroot manual
+balanceamento de carga (HAProxy)

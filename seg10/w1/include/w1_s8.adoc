@@ -15,4 +15,7 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 8: A definir
+== Sessão 8: Isolamento de processos e conteinerização
+
+Docker
+Orquestração de containers

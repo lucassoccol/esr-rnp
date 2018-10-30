@@ -15,7 +15,10 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 10: A definir
+== Sessão 10: Monitoramento de vulnerabilidades
 
+Pentesting automatizado
+Nessus
+OVAL/SCAP
 https://wiki.debian.org/UsingSCAP
 https://wiki.debian.org/SCAPGuide

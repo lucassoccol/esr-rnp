@@ -15,4 +15,9 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 5: A definir
+== Sessão 5: Registro e correlacionamento de eventos
+
+NTP
+Syslog centralizado
+Criptografia no envio via stunnel (ou outro)
+Graylog

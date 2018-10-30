@@ -15,4 +15,7 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 6: A definir
+== Sessão 6: Gestão de configuração
+
+Ansible
+(possivelmente) Versionamento de configuração com git
