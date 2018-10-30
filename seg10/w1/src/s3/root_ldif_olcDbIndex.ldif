@@ -1,0 +1,12 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcDbIndex
+olcDbIndex: cn pres,sub,eq
+olcDbIndex: sn pres,sub,eq
+olcDbIndex: uid pres,sub,eq
+olcDbIndex: displayName pres,sub,eq
+olcDbIndex: default sub
+olcDbIndex: uidNumber eq
+olcDbIndex: gidNumber eq
+olcDbIndex: mail,givenName eq,subinitial
+olcDbIndex: dc eq

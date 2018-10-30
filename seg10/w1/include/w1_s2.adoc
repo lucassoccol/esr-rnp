@@ -17,11 +17,12 @@ endif::oneof[]
 
 == Sessão 2: Firewall
 
-Criar DMZ host-only faixa 10.0.0.0/24, ip host físico 10.0.0.254.
+Criar DMZ      host-only faixa 10.0.42.0/24,    ip host físico 10.0.42.254.
+Criar Intranet host-only faixa 192.168.42.0/24, ip host físico 192.168.42.254.
 
 ---
 
-Clonar debian-template para `fw` com 2 interfaces de rede, 1 bridge dhcp e 2 host-only estático 10.0.0.1/24.
+Clonar debian-template para `fw` com 2 interfaces de rede, 1 bridge dhcp, 2 host-only estático 10.0.42.1/24, 3 host-only estático 192.168.42.1/24.
 
 ---
 
@@ -34,14 +35,17 @@ Configurar rede.
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
 
-auto lo enp0s3 enp0s8
+auto lo enp0s3 enp0s8 enp0s9
 
 iface lo inet loopback
 
 iface enp0s3 inet dhcp
 
 iface enp0s8 inet static
-address 10.0.0.1/24
+address 10.0.42.1/24
+
+iface enp0s9 inet static
+address 192.168.42.1/24
 
 ---
 
@@ -53,7 +57,8 @@ net.ipv4.ip_forward = 1
 ---
 
 Habilitar nat.
-# iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o enp0s3 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 10.0.42.0/24    -o enp0s3 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 192.168.42.0/24 -o enp0s3 -j MASQUERADE
 
 ---
 

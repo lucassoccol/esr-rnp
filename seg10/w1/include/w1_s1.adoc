@@ -430,11 +430,11 @@ Created symlink /etc/systemd/system/ctrl-alt-del.target → /dev/null.
 
 8. O _template_ atual (a máquina `debian-template`) será usada como base para várias VMs futuras, como estabelecido. Ao copiar a máquina, a primeira ação a ser realizada será sempre alterar o _hostname_ para o nome da nova máquina -- pode ser muito interessante ter um meio para automatizar essa tarefa, como um _shell script_.
 +
-Crie um novo arquivo `/root/changehost.sh`, com o seguinte conteúdo:
+Crie um novo arquivo `/root/scripts/changehost.sh` (crie o diretório `/root/scripts` se este não existir), com o seguinte conteúdo:
 +
-[source,bash]
+[source,bash,linenums]
 ----
-include::{srcdir}/s1/changehost.sh[]
+include::{srcdir}/s1/root_scripts_changehost.sh[]
 ----
 +
 O _script_ acima irá alterar o nome da máquina nos arquivos `/etc/hostname` e `/etc/hosts`, reiniciar as interfaces de rede e _daemons_ relevantes, e finalmente re-gerar as chaves de host do `ssh` com o novo nome da máquina.
@@ -599,11 +599,11 @@ Apesar de não termos feito nos exemplos acima, este seria um excelente momento 
 +
 Por curiosidade, o tamanho padrão de _inodes_ de novos sistemas de arquivos formatados é definido em `/etc/mke2fs.conf`; este valor pode ser customizado através da _flag_ `-I` no comando `mkfs.ext*`.
 
-4. O próximo passo é montar esses sistemas de arquivo e sincronizar o conteúdo dos diretórios atuais (que estão dentro da raiz, `/`) com os novos diretórios. Crie um _shell script_, `/root/syncdirs.sh`, com o seguinte conteúdo:
+4. O próximo passo é montar esses sistemas de arquivo e sincronizar o conteúdo dos diretórios atuais (que estão dentro da raiz, `/`) com os novos diretórios. Crie um _shell script_, `/root/scripts/syncdirs.sh`, com o seguinte conteúdo:
 +
-[source,bash]
+[source,bash,linenums]
 ----
-include::{srcdir}/s1/syncdirs.sh[]
+include::{srcdir}/s1/root_scripts_syncdirs.sh[]
 ----
 +
 O script acima irá iterar sobre os nomes `tmp`, `var` e `usr`, com o nome `DIR`. Para cada um deles, fará os passos a seguir:
@@ -619,7 +619,7 @@ O script acima irá iterar sobre os nomes `tmp`, `var` e `usr`, com o nome `DIR`
 Execute o _script_:
 +
 ....
-# bash ~/syncdirs.sh
+# bash ~/scripts/syncdirs.sh
 
 (...)
 
@@ -941,7 +941,7 @@ image::lvm-test-config.png[align="center"]
 +
 Clique em _OK_, e ligue a máquina `lvm-test`.
 
-3. Usando o script `/root/changehost.sh` que criamos anteriormente, renomeie a máquina:
+3. Usando o script `/root/scripts/changehost.sh` que criamos anteriormente, renomeie a máquina:
 +
 ....
 # hostname
@@ -949,7 +949,7 @@ debian-template
 ....
 +
 ....
-# bash ~/changehost.sh lvm-test
+# bash ~/scripts/changehost.sh lvm-test
 ....
 +
 ....
