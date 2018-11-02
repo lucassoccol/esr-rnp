@@ -295,6 +295,15 @@ include::{srcdir}/s3/etc_rsyslog.d_slapd.conf[]
 [19-10-2018 18:25:46] slapd debug  slapd starting
 ....
 
+6. A rotação de logs deve ser habilitada, caso contrário os arquivos de log poderão ficar excessivamente grandes. Crie o arquivo novo `/etc/logrotate.d/slapd`, com o seguinte conteúdo:
++
+[source,bash,linenums]
+----
+include::{srcdir}/s3/etc_logrotate.d_slapd[]
+----
++
+Como o `logrotate` é invocado via `cron`, não é necessário reiniciar nenhum serviço neste caso.
+
 === 4) Edição de índices e permissões no LDAP
 
 1. Para maior performance durante as consultas ao LDAP, é recomendável aumentar os parâmetros de indexação de alguns atributos. Crie o arquivo `/root/ldif/olcDbIndex.ldif`, com o seguinte conteúdo:
@@ -1377,7 +1386,7 @@ han
 Para evitar que o cliente `ssh` use nossa chave assinada, passe as opções abaixo para o comando. Em seguida, digite a senha correta do usuário `han`:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no ha n@10.0.42.1
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.1
 han@10.0.42.1's password:
 Linux fw 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
 Last login: Tue Oct 30 11:35:44 2018 from 192.168.42.2

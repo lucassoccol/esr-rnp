@@ -18,6 +18,7 @@ endif::oneof[]
 == Sessão 5: Registro e correlacionamento de eventos
 
 NTP
+=== 7) Registro de comandos digitados com SnoopyLog
 Syslog centralizado
 Criptografia no envio via stunnel (ou outro)
 Graylog

@@ -65,3 +65,7 @@ Habilitar nat.
 Instalar iptables-persistent.
 # apt-get install iptables-persistent -y
 Salvar regras.
+
+---
+
+CONSIDERAR ADIÇÃO DE DNS NESTA MÁQUINA
