@@ -220,13 +220,17 @@ Reinicie o `unbound`.
 # systemctl restart unbound
 ....
 
-Reconfigure o DNS _system-wide_.
+Reconfigure o DNS _system-wide_. Devido ao DHCP, torne o arquivo `/etc/resolv.conf` imutável.
 
 ....
 # cat /etc/resolv.conf
 domain intnet.
 search intnet.
 nameserver 127.0.0.1
+....
+
+....
+# chattr +i /etc/resolv.conf
 ....
 
 Teste a resolução de domínios internos e externos usando o `unbound`.
@@ -311,14 +315,19 @@ Crie as chaves de assinatura de zona (ZSK) e chave (KSK).
 
 # export KSK=`ldns-keygen -k -a RSASHA1-NSEC3-SHA1 -b 2048 intnet`
 
-# ls Kintnet.+007+* -1
-Kintnet.+007+50114.key
-Kintnet.+007+50114.private
-Kintnet.+007+64113.ds
-Kintnet.+007+64113.key
-Kintnet.+007+64113.private
-
 # rm Kintnet.+007+*.ds
+
+# ls -1 Kintnet.+007+*
+Kintnet.+007+04740.key
+Kintnet.+007+04740.private
+Kintnet.+007+12293.key
+Kintnet.+007+12293.private
+
+# echo $ZSK
+Kintnet.+007+12293
+
+# echo $KSK
+Kintnet.+007+04740
 ....
 
 Assine a zona `intnet.zone`.
@@ -433,4 +442,18 @@ Caso fosse desejável exportar a configuração DNS para um _registrar_ hierarqu
 # ldns-key2ds -n -1 intnet.zone.signed && ldns-key2ds -n -2 intnet.zone.signed
 intnet. 86400   IN      DS      48774 7 1 571d6a2b7822eb6c6989b8ede2e9c38d395ab5e9
 intnet. 86400   IN      DS      48774 7 2 57e574424987489e222ce4b3ad1abef58d6638c977193257f8202fc141944615
+....
+
+=== 5) Automatizando assinatura DNSSEC após alterações
+
+[source,bash,linenums]
+----
+include::{srcdir}/s2/etc_nsd_signzone-intnet.sh[]
+----
+
+....
+# bash /etc/nsd/signzone-intnet.sh
+reconfig start, read /etc/nsd/nsd.conf
+ok
+ok
 ....
