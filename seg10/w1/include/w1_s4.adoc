@@ -214,7 +214,7 @@ luke
 ....
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no l uke@10.0.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@10.0.42.2
 luke@10.0.42.2's password:
 Permission denied, please try again.
 luke@10.0.42.2's password:
@@ -226,7 +226,7 @@ Permission denied (publickey,password).
 Agora, tente logar com a senha correta -- note que seu acesso será negado:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no l uke@10.0.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@10.0.42.2
 luke@10.0.42.2's password:
 Permission denied, please try again.
 ....
@@ -1471,12 +1471,16 @@ O que estamos fazendo? Vamos ver:
 * Nas linhas [32-38] fazemos a "amarração" dos _aliases_ previamente definidos, atribuindo aos usuários/grupos em quais máquinas eles podem executar os comandos, como quais usuários, e quais são esses comandos.
 --
 
-4. Vamos testar o acesso de `leia` na máquina `fw`. Antes disso o primeiro passo, é claro, é criar o diretório `/config` e configurar sua montagem automática durante o _boot_ via `/etc/fstab`. Acesse `fw` como `root` e insira a linha a seguir no final do arquivo:
+4. Vamos testar o acesso de `leia` na máquina `fw`. Antes disso o primeiro passo, é claro, é criar o diretório `/config` e configurar sua montagem automática durante o _boot_ via `/etc/fstab`. Acesse `fw` como `root`, crie o diretório `/config` e insira a linha a seguir no final do arquivo:
 +
 ....
 # hostname ; whoami
 fw
 root
+....
++
+....
+# mkdir /config
 ....
 +
 ....
@@ -1626,7 +1630,7 @@ su: Falha de autenticação
 ....
 +
 ....
-$ sudo ---login
+$ sudo --login
 ....
 +
 ....

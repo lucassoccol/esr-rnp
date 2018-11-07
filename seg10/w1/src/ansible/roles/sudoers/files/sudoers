@@ -1,0 +1,43 @@
+Defaults        env_reset
+Defaults        mail_badpass
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+User_Alias ADMINS    = aluno,   \ 
+                       luke,    \
+                       han
+
+User_Alias FWUSERS   = leia
+
+User_Alias LDAPUSERS = %ldapadm
+
+Host_Alias FWHOSTS   = fw
+
+Host_Alias LDAPHOSTS = ldap
+
+Cmnd_Alias FWCMDS    = /sbin/iptables
+
+Cmnd_Alias LDAPCMDS  = /usr/sbin/ldapaddgroup,             \
+                       /usr/sbin/ldapadduser,              \
+                       /usr/sbin/ldapaddusertogroup,       \
+                       /usr/sbin/ldapdeletegroup,          \
+                       /usr/sbin/ldapdeleteuser,           \
+                       /usr/sbin/ldapdeleteuserfromgroup,  \
+                       /usr/sbin/ldapmodifygroup,          \
+                       /usr/sbin/ldapmodifymachine,        \
+                       /usr/sbin/ldapmodifyuser,           \
+                       /usr/sbin/ldaprenamegroup,          \
+                       /usr/sbin/ldaprenameuser,           \
+                       /usr/sbin/ldapsetpasswd,            \
+                       /usr/sbin/ldapsetprimarygroup
+
+root      ALL=(ALL:ALL)    ALL
+
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
+
+ADMINS    ALL=(ALL:ALL)    ALL
+
+FWUSERS   FWHOSTS=(root)   FWCMDS
+
+LDAPUSERS LDAPHOSTS=(root) LDAPCMDS
+
+#includedir /etc/sudoers.d

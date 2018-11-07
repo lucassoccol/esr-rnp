@@ -1,0 +1,14 @@
+[srv]
+fw
+ldap
+nfs
+log
+ansible
+www1
+www2
+db
+#lb
+
+[web]
+www1
+www2

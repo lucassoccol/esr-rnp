@@ -17,6 +17,47 @@ endif::oneof[]
 
 == Sessão 7: Hardening de sistemas web
 
+Clone www1, 10.0.42.6/24.
+Clone www2, 10.0.42.7/24.
+Clone db, 10.0.42.8/24.
+Clone lb, 10.0.42.9/24.
+
+Configurar DNS.
+
+Como `root@db`:
+
+....
+root@db:~# apt-get install mariadb-server --no-install-recommends
+
+MariaDB [(none)]> create database seg10;
+Query OK, 1 row affected (0.00 sec)
+
+MariaDB [(none)]> grant all on seg10.* to seg10@localhost identified by 'seg10';
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]> grant all on seg10.* to seg10@'10.0.42.%' identified by 'seg10';
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]> quit
+Bye
+....
+
+....
+# sed -i 's/^\(bind-address[\t ]*\=\).*/\1 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+....
+
+....
+# iptables -A INPUT -p tcp --dport 3306 -m iprange --src-range 10.0.42.6-10.0.42.7 -j ACCEPT
+# iptables -A INPUT -p tcp --dport 3306 -j DROP
+....
+
+....
+# systemctl restart mariadb
+....
+
 nginx + php-fpm + MariaDB
 chroot manual
 balanceamento de carga (HAProxy)

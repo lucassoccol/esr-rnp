@@ -1,0 +1,6 @@
+---
+- hosts: web
+  become: yes
+  become_user: root
+  roles:
+    - seg10-website

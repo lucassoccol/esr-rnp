@@ -769,7 +769,7 @@ Instale o pacote:
 3. Vamos configurar a máquina `ldap` para operar com a CA do `ssh`. Execute o _script_ criado no passo (1). Na pergunta `(sshca@10.0.42.2) Enter passphrase`, responda a senha do usuário `sshca` na máquina `10.0.42.2` (que deve ser `seg10sshca`); para cada pergunta `(CA private key) Enter passphrase`, informe a senha da chave `server_ca` (que deve ser `seg10_server_ca`).
 +
 ....
-# bash scripts/changehost.sh ldap
+# bash ~/scripts/sshsign.sh
 (sshca@10.0.42.2) Enter passphrase:
 # 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
 
@@ -1000,7 +1000,7 @@ Durante a instalação do pacote `nslcd`, informe as seguintes opções:
 +
 Durante a configuração do PAM, na pergunta "Perfis PAM para habilitar", mantenha todas as caixas marcadas e selecione OK.
 
-6. Finalmente, vamos alterar o _script_ `/root/script/changehost.sh`, criado durante a sessão (1) deste curso, para invocar automaticamente o _script_ `/root/scripts/sshsign.sh` ao final e reiniciar os _daemons_ do `nslcd` e `nscd`. Altere o conteúdo deste arquivo para:
+6. Finalmente, vamos alterar o _script_ `/root/scripts/changehost.sh`, criado durante a sessão (1) deste curso, para invocar automaticamente o _script_ `/root/scripts/sshsign.sh` ao final e reiniciar os _daemons_ do `nslcd` e `nscd`. Altere o conteúdo deste arquivo para:
 +
 [source,bash,linenums]
 ----
@@ -1193,13 +1193,13 @@ Execute-o:
 (sshca@10.0.42.2) Enter passphrase:
 # 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
 
-(CA private key) Enter passphrase: rnpesr
+(CA private key) Enter passphrase: seg10_server_ca
 Signed host key ssh_host_ecdsa_key-cert.pub: id "fw.intnet" serial 0 for fw,fw.intnet,192.168.29.105,10.0.42.1,192.168.42.1 valid from 2018-10-30T10:54:01 to 2021-10-29T10:59:01
 
-(CA private key) Enter passphrase: rnpesr
+(CA private key) Enter passphrase: seg10_server_ca
 Signed host key ssh_host_ed25519_key-cert.pub: id "fw.intnet" serial 0 for fw,fw.intnet,192.168.29.105,10.0.42.1,192.168.42.1 valid from 2018-10-30T10:54:03 to 2021-10-29T10:59:03
 
-(CA private key) Enter passphrase: rnpesr
+(CA private key) Enter passphrase: seg10_server_ca
 Signed host key ssh_host_rsa_key-cert.pub: id "fw.intnet" serial 0 for fw,fw.intnet,192.168.29.105,10.0.42.1,192.168.42.1 valid from 2018-10-30T10:54:04 to 2021-10-29T10:59:04
 ....
 
@@ -1575,7 +1575,7 @@ han
 Para disparar o filtro do Fail2ban, não poderemos usar o login via chaves assimétricas, que obterá sucesso. Faça login usando senha como mostrado no comando a seguir; digite senhas incorretas para ativar a detecção do Fail2ban:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no ha n@10.0.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.2
 han@10.0.42.2's password:
 Permission denied, please try again.
 han@10.0.42.2's password:
@@ -1587,7 +1587,7 @@ Permission denied (publickey,password).
 Tente logar novamente:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no ha n@10.0.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.2
 ssh: connect to host 10.0.42.2 port 22: Connection refused
 ....
 +
@@ -1645,7 +1645,7 @@ han
 ....
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no ha n@10.0.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.2
 han@10.0.42.2's password:
 Linux ldap 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
 Last login: Tue Oct 30 11:46:50 2018 from 192.168.42.2
