@@ -73,6 +73,8 @@ Selecione _Storage_ > _Controller: IDE_ > _Empty_, e na parte à direita da jane
 [#img-vbox-conf1]
 image::vbox-conf1.png[align="center"]
 +
+Em _Audio_, desmarque a caixa _Enable Audio_. Como iremos criar um conjunto de máquinas virtuais que atuarão exclusivamente como servidores, não há necessidade de dispor de áudio nas VMs.
++
 Em _Network_ > _Adapter 1_ > _Attached to_, altere a conexão de rede da máquina virtual para _Bridged Adapter_. Em _Name_, verifique que a placa de rede física conectada à rede externa está selecionada (isso é especialmente importante em máquinas que possuem múltiplas placas de rede ou interfaces _wireless_). Se desejar, expanda _Advanced_ e clique no pequeno círculo azul à direita de _MAC Address_ para randomizar um novo endereço físico para a placa de rede da máquina virtual, especialmente útil em casos de conflito de IP.
 +
 Em _USB_, marque a caixa _USB 1.1 (OHCI Controller)_. Esta configuração evita que sejam levantados erros ao iniciar a VM caso as extensões do Virtualbox não estejam instaladas na máquina hospedeira.
@@ -171,14 +173,14 @@ image::debinst5.png[align="center"]
 +
 --
 * `lv-boot`: LV que irá armazenar o diretório `/boot` do sistema, com tamanho de 256 MB. É interessante separar o `/boot` para reduzir a complexidade do sistema de arquivos em disco, bem como para aplicar configurações diferenciadas ao _filesystem_, como RAID por software, sistemas de arquivos não-usuais como ZFS, ou caso se deseje criptografar a raiz do sistema.
-* `lv-swap`: LV que irá servidor como área de troca (_swap_) do SO em caso de escassez de memória física. Como idealmente não queremos chegar nesse cenário, alocaremos apenas 512 MB para essa área.
-* `lv-root`: LV quer irá armazenar a raiz do sistema, `/`, com tamanho de 1280 MB. Pode parecer um valor pequeno, mas considere que iremos separar outros sistemas de arquivos posteriormente.
+* `lv-swap`: LV que irá servidor como área de troca (_swap_) do SO em caso de escassez de memória física. Como idealmente não queremos chegar nesse cenário, alocaremos apenas 256 MB para essa área.
+* `lv-root`: LV quer irá armazenar a raiz do sistema, `/`, com tamanho de 1536 MB. Pode parecer um valor pequeno, mas considere que iremos separar outros sistemas de arquivos posteriormente.
 --
 +
 Imediatamente, podem surgir duas perguntas:
 +
 --
-1. *Por que não estamos alocando a totalidade do disco?* O LVM nos permite grande flexibilidade, que será demonstrada em atividades subsequentes. Ao alocarmos [256 + 512 + 1280] = 2048 MB em um disco de 8 GB, deixamos (aproximadamente) 6 GB livres que poderão ser alocados de acordo com o tipo específico de uso de cada máquina. Em sentido estrito, a alocação que fizemos acima não é exatamente ideal para um _template_, mas iremos corrigir isso ao demonstrar as funcionalidades do LVM, a seguir.
+1. *Por que não estamos alocando a totalidade do disco?* O LVM nos permite grande flexibilidade, que será demonstrada em atividades subsequentes. Ao alocarmos [256 + 256 + 1536] = 2048 MB em um disco de 8 GB, deixamos (aproximadamente) 6 GB livres que poderão ser alocados de acordo com o tipo específico de uso de cada máquina. Em sentido estrito, a alocação que fizemos acima não é exatamente ideal para um _template_, mas iremos corrigir isso ao demonstrar as funcionalidades do LVM, a seguir.
 2. *Por que não criamos LVs para partições como* `/tmp`*,* `/usr` *ou* `/var`*?* De fato, é bastante recomendável separar essas partições em servidores, como veremos a seguir. Iremos criar esses LVs brevemente, após a instalação do SO.
 --
 +
@@ -312,6 +314,7 @@ source /etc/network/interfaces.d/*
 auto lo enp0s3
 
 iface lo inet loopback
+
 iface enp0s3 inet dhcp
 ....
 +
@@ -322,7 +325,7 @@ iface enp0s3 inet dhcp
 ....
 # ip a s | grep '^ *inet '
     inet 127.0.0.1/8 scope host lo
-    inet 192.168.29.100/24 brd 192.168.29.255 scope global enp0s3
+    inet 192.168.29.104/24 brd 192.168.29.255 scope global enp0s3
 ....
 +
 Desabilite a verificação de _hostnames_ remotos do `ssh` para agilizar o procedimento de login. Reinicie o _daemon_ posteriormente.
@@ -335,7 +338,68 @@ Desabilite a verificação de _hostnames_ remotos do `ssh` para agilizar o proce
 # systemctl restart ssh
 ....
 
-4. A seguir, vamos checar a configuração dos repositórios de pacotes sendo usados pelo sistema. Cheque o conteúdo do arquivo `/etc/apt/sources.list`:
+4. Durante as atividades deste curso iremos ter que digitar vários comandos no terminal das VMs, os quais serão mostrados nos cadernos de atividade de cada sessão. Alguns desses comandos serão bastante longos e/ou terão uma sintaxe complicada -- nesse caso, o ideal é que tenhamos a possibilidade de copiá-los diretamente do caderno para a console, evitando erros de digitação.
++
+O protocolo de login remoto SSH é ideal para solucionar essa tarefa. Em ambiente Windows, dois dos métodos mais populares para efetuar logins remotos via SSH são os programas PuTTY (https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) ou Cygwin (https://cygwin.com/install.html). Vamos, primeiro, visualizar os passos necessários usando o PuTTY.
++
+Em qualquer caso, o primeiro passo é sempre descobrir qual o endereço IP da máquina remota à qual queremos nos conectar. Para isso digite, na máquina `debian-template`:
++
+....
+# ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}' | cut -d'/' -f1
+192.168.29.104
+....
++
+O uso do *PuTTY*, por se tratar de um programa _standalone_ com o objetivo único de efetuar login via SSH, é mais simples. Faça o download do PuTTY em sua máquina física Windows, usando a URL informada acima. Em seguida, apenas abra o programa e digite na caixa _Host Name_ o endereço IP da máquina remota descoberto acima. Em seguida, clique em _Open_.
++
+.Login via SSH usando o PuTTY, parte 1
+[#img-ssh1]
+image::ssh1.png[align="center"]
++
+Será mostrado um alerta de segurança avisando que a chave do _host_ remoto não se encontra na _cache_ local, o que pode configurar um risco de segurança. Clique em _Yes_ para prosseguir com a tentativa de login.
++
+Em seguida, será solicitado o nome de usuário com o qual efetuar a conexão. Como, por padrão, o _daemon_ `sshd` do Debian não permite logins remotos usando o `root`, escolha o usuário `aluno`. Para a senha, informe `rnpesr`. Em caso de sucesso, você verá a tela a seguir:
++
+.Login via SSH usando o PuTTY, parte 2
+[#img-ssh2]
+image::ssh2.png[align="center"]
++
+Para tornar-se o superusuário `root`, agora, basta executar o comando `su -` e informar a senha correta, como se segue:
++
+....
+$ su -
+Senha:
+....
++
+....
+# whoami
+root
+....
++
+Para copiar/colar comandos no PuTTY, basta selecionar o texto desejado no ambiente da máquina física e digitar `CTRL + C`, e em seguida clicar com o botão direito na janela do PuTTY. O texto selecionado será colado na posição do cursor.
+
+5. O uso do Cygwin é um pouco mais envolvido, já que seu objetivo é mais complexo: prover, em ambiente Windows, funcionalidade equivalente à que temos disponível em uma distribuição Linux. Para começar, faça o download e execute o instalador do Cygwin em sua máquina física Windows.
++
+A instalação é, em grande parte, bastante similar à de qualquer aplicativo Windows. Na tela inicial, clique em _Next_. Em _Choose a Download Source_, mantenha marcada a caixa _Install from Internet_ e clique em _Next_. Em _Select Root Install Directory_, os valores padrão estão apropriados -- clique em _Next_. Na tela _Select Local Package Directory_, novamente, mantenha o valor padrão e clique em _Next_.
++
+Agora, vamos selecionar a fonte de pacotes. Em _Select Your Internet Connection_, a menos que haja um _proxy_ na rede local (informe-se com seu instrutor), mantenha marcada a caixa _Direct Connection_ e clique em _Next_. Será feito o download da lista de espelhos disponíveis para o Cygwin. Em _Choose A Download Site_, qualquer espelho irá funcionar, mas evidentemente é desejável que escolhamos um que possua maior velocidade de download -- o site http://linorg.usp.br é provavelmente uma boa opção, nesse caso. Clique em _Next_, e o instalador irá baixar a lista de pacotes disponíveis.
++
+Em adição ao sistema-base padrão, é necessário instalar o OpenSSH para efetuar logins remotos. Na caixa de busca _Search_, no topo da tela, digite o termo de busca `openssh`. Expanda a árvore `Net` e clique na palavra _Skip_ na linha do pacote `openssh: The OpenSSH server and client programs` -- ela irá alterar para a versão a ser instalada, `7.9p1-1` no caso da figura mostrada abaixo:
++
+.Instalação do OpenSSH no Cygwin
+[#img-ssh3]
+image::ssh3.png[align="center"]
++
+Clique em _Next_. Em _Review and confirm changes_, verifique que o Cygwin irá instalar o OpenSSH e todas as demais dependências do sistema-base Linux, como o _shell_ `bash` ou ferramentas como o `grep`, e clique em _Next_. O instalador irá fazer o download e instalação dos pacotes selecionados.
++
+Concluído o processo, procure pelo programa `Cygwin Terminal` no menu iniciar da sua máquina física Windows, e execute-o. Agora, tente fazer login via SSH normalmente, como se estivesse em um _shell_ Linux:
++
+.Login via SSH usando o Cygwin
+[#img-ssh4]
+image::ssh4.png[align="center"]
++
+Para copiar/colar comandos no Cygwin, basta selecionar o texto desejado no ambiente da máquina física e digitar `CTRL + C`, e em seguida mudar o foco para a janela do Cygwin e digitar a combinação `SHIFT + Insert`. Para copiar texto a partir da janela do Cygwin, selecione-o e use a combinação de teclas `CTRL + Insert`. Para encontrar os arquivos localizados em sua máquina física, o diretório `/cygdrive/X` pode ser usado para mapear para os discos da máquina local -- por exemplo, o diretório `/cygdrive/c` mapeia diretamente para o `C:\` da máquina Windows.
+
+6. A seguir, vamos checar a configuração dos repositórios de pacotes sendo usados pelo sistema. Cheque o conteúdo do arquivo `/etc/apt/sources.list`:
 +
 ....
 # cat /etc/apt/sources.list
@@ -378,11 +442,11 @@ Após a edição, seu conteúdo deverá ficar assim:
 ....
 # cat /etc/apt/sources.list
 deb http://ftp.br.debian.org/debian/ stretch main contrib non-free
-deb http://security.debian.org/debian-security stretch/updates main contrib non-free
 deb http://ftp.br.debian.org/debian/ stretch-updates main contrib non-free
+deb http://security.debian.org/debian-security stretch/updates main contrib non-free
 ....
 
-5. Atualize a lista de pacotes disponíveis nos repositórios remotos usando o comando:
+7. Atualize a lista de pacotes disponíveis nos repositórios remotos usando o comando:
 +
 ....
 # apt-get update
@@ -394,9 +458,9 @@ Em seguida, vamos garantir que nosso _template_ está plenamente atualizado com:
 # apt-get dist-upgrade -y
 ....
 +
-Caso o kernel do sistema tenha sido atualizado no processo (pacotes com o nome `linux-image-*`), será necessário reiniciar a máquina para realizar o _boot_ com o novo kernel.
+Caso o kernel do sistema tenha sido atualizado no processo (pacotes com o nome `linux-image-*`), será necessário reiniciar a máquina para realizar o _boot_ com o novo kernel. Faça isso, se for o caso, com o comando `reboot`.
 +
-Para remover os binários dos pacotes recentemente instalados do sistema, execute `apt-get clean`. Se quiser remover as dependências de pacotes que estão instaladas no sistema e já não são mais necessárias, rode `apt-get autoremove`.
+Após o reinício, logue novamente como o usuário `root`. Para remover os binários dos pacotes recentemente instalados do sistema, execute `apt-get clean`. Se quiser remover as dependências de pacotes que estão instaladas no sistema e já não são mais necessárias, rode `apt-get autoremove`.
 +
 Para remover todos os kernels antigos do sistema (isto é, todos os kernels exceto o que está em execução no momento), você pode executar:
 +
@@ -404,7 +468,7 @@ Para remover todos os kernels antigos do sistema (isto é, todos os kernels exce
 # dpkg -l | egrep 'linux-image-[0-9\.-]*-amd64' | awk '{print $2}' | grep -v $(uname -r) | xargs apt-get purge -y
 ....
 
-6. Este é um bom momento para instalar pacotes que você acredita serem necessários em todas as máquinas a serem derivadas deste _template_. Pacotes como o `sudo` ou `vim` podem ser boas opções, dependendo das necessidades da sua organização.
+8. Este é um bom momento para instalar pacotes que você acredita serem necessários em todas as máquinas a serem derivadas deste _template_. Pacotes como o `sudo` ou `vim` podem ser boas opções, dependendo das necessidades da sua organização.
 +
 Neste momento, iremos instalar apenas os pacotes `rsync`, `nfs-common` e `sudo`. Execute:
 +
@@ -412,7 +476,7 @@ Neste momento, iremos instalar apenas os pacotes `rsync`, `nfs-common` e `sudo`.
 # apt-get install rsync nfs-common sudo
 ....
 
-7. Pode ser interessante desabilitar a combinação de teclas `CTRL + ALT + DEL`; mesmo em um ambiente virtualizado, há casos em que o administrador se confunde e acaba enviando essa combinação de teclas para a console de um servidor aberto, causando seu _reboot_ inadvertidamente.
+9. Pode ser interessante desabilitar a combinação de teclas `CTRL + ALT + DEL`; mesmo em um ambiente virtualizado, há casos em que o administrador se confunde e acaba enviando essa combinação de teclas para a console de um servidor aberto, causando seu _reboot_ inadvertidamente.
 +
 Note que, por padrão, essa combinação de teclas aponta para o `reboot.target`, um _target_ (ou alvo) do `systemd` que é responsável pelo reinício do sistema operacional.
 +
@@ -428,7 +492,7 @@ Para desabilitar o `CTRL + ALT + DEL`, basta executar:
 Created symlink /etc/systemd/system/ctrl-alt-del.target → /dev/null.
 ....
 
-8. O _template_ atual (a máquina `debian-template`) será usada como base para várias VMs futuras, como estabelecido. Ao copiar a máquina, a primeira ação a ser realizada será sempre alterar o _hostname_ para o nome da nova máquina -- pode ser muito interessante ter um meio para automatizar essa tarefa, como um _shell script_.
+10. O _template_ atual (a máquina `debian-template`) será usada como base para várias VMs futuras, como estabelecido. Ao copiar a máquina, a primeira ação a ser realizada será sempre alterar o _hostname_ para o nome da nova máquina -- pode ser muito interessante ter um meio para automatizar essa tarefa, como um _shell script_.
 +
 Crie um novo arquivo `/root/scripts/changehost.sh` (crie o diretório `/root/scripts` se este não existir), com o seguinte conteúdo:
 +
@@ -437,7 +501,7 @@ Crie um novo arquivo `/root/scripts/changehost.sh` (crie o diretório `/root/scr
 include::{srcdir}/s1/root_scripts_changehost.sh[]
 ----
 +
-O _script_ acima irá alterar o nome da máquina nos arquivos `/etc/hostname` e `/etc/hosts`, reiniciar as interfaces de rede e _daemons_ relevantes, e finalmente re-gerar as chaves de host do `ssh` com o novo nome da máquina.
+O _script_ acima espera receber um único parâmetro: o novo _hostname_ a ser configurado para a máquina. Após checar se o parâmetro possui sintaxe válida, o _script_ irá alterar o nome da máquina nos arquivos `/etc/hostname` e `/etc/hosts`, reiniciar as interfaces de rede e _daemons_ relevantes, e finalmente re-gerar as chaves de host do `ssh` com o novo nome da máquina.
 
 === 4) Configuração do LVM
 
@@ -452,11 +516,11 @@ O _script_ acima irá alterar o nome da máquina nos arquivos `/etc/hostname` e 
   --- Logical volume ---
   LV Path                /dev/vg-base/lv-swap
   LV Name                lv-swap
-  LV Size                488,00 MiB
+  LV Size                244,00 MiB
   --- Logical volume ---
   LV Path                /dev/vg-base/lv-root
   LV Name                lv-root
-  LV Size                1,19 GiB
+  LV Size                1,43 GiB
 ....
 +
 Para verificar o estado dos grupos de volumes (VGs), execute `vgdisplay`:
@@ -482,7 +546,7 @@ Para verificar o estado dos grupos de volumes (VGs), execute `vgdisplay`:
   Total PE              2047
   Alloc PE / Size       488 / 1,91 GiB
   Free  PE / Size       1559 / 6,09 GiB
-  VG UUID               t42fDH-Dnqm-m1b5-6Edx-SSqV-stH8-uDi3IZ
+  VG UUID               hOXyJN-XA3n-i4RG-4mhJ-rDF5-edi7-xXS5f0
 ....
 +
 E, finalmente, para verificar o estado dos volumes físicos (PVs), execute `pvdisplay`:
@@ -498,7 +562,7 @@ E, finalmente, para verificar o estado dos volumes físicos (PVs), execute `pvdi
   Total PE              2047
   Free PE               1559
   Allocated PE          488
-  PV UUID               jRYDou-dvIq-HRZw-llOL-JGun-JZvP-4fAs7Q
+  PV UUID               ZnHHMn-Y37D-6Psd-oHei-K1Qd-wHjY-6gqFZ3
 ....
 
 2. Vamos criar três novos LVs, com as configurações que se seguem:
@@ -537,11 +601,11 @@ Vamos verificar como ficou a situação dos nossos volumes lógicos:
   --- Logical volume ---
   LV Path                /dev/vg-base/lv-swap
   LV Name                lv-swap
-  LV Size                488,00 MiB
+  LV Size                244,00 MiB
   --- Logical volume ---
   LV Path                /dev/vg-base/lv-root
   LV Name                lv-root
-  LV Size                1,19 GiB
+  LV Size                1,43 GiB
   --- Logical volume ---
   LV Path                /dev/vg-base/lv-tmp
   LV Name                lv-tmp
@@ -595,9 +659,9 @@ Primeiro, vamos formatar os LVs usando o sistema de arquivos `ext4`:
 (...)
 ....
 +
-Apesar de não termos feito nos exemplos acima, este seria um excelente momento para customizar aspectos do sistema de arquivos para adequá-lo aos tipos específicos de arquivos que serão armazenados ali dentro. Por exemplo, pode ser interessante escolher um tamanho de _inode_ menor do que o padrão caso se deseje armazenar muitos arquivos pequenos, como é frequentemente o caso em servidores de e-mail, digamos.
+Apesar de não termos feito nos exemplos acima, este seria um excelente momento para customizar aspectos do sistema de arquivos para adequá-lo aos tipos específicos de arquivos que serão armazenados ali dentro. Por exemplo, pode ser interessante escolher um tamanho de _inode_ menor do que o padrão caso se deseje armazenar muitos arquivos pequenos, como é frequentemente o caso em servidores de e-mail, digamos. Para mais informações, consulte a página de manual `man 8 mke2fs`.
 +
-Por curiosidade, o tamanho padrão de _inodes_ de novos sistemas de arquivos formatados é definido em `/etc/mke2fs.conf`; este valor pode ser customizado através da _flag_ `-I` no comando `mkfs.ext*`.
+Uma curiosidade: o tamanho padrão de _inodes_ de novos sistemas de arquivos formatados é definido em `/etc/mke2fs.conf`; este valor pode ser customizado através da _flag_ `-I` no comando `mkfs.ext*`.
 
 4. O próximo passo é montar esses sistemas de arquivo e sincronizar o conteúdo dos diretórios atuais (que estão dentro da raiz, `/`) com os novos diretórios. Crie um _shell script_, `/root/scripts/syncdirs.sh`, com o seguinte conteúdo:
 +
@@ -691,8 +755,8 @@ De posse do conhecimento acima, vamos editar as opções de montagem dos volumes
 ....
 # du -sm /{tmp,var,usr}
 1       /tmp
-173     /var
-434     /usr
+181     /var
+463     /usr
 ....
 +
 Perfeito. Reinicie a máquina:
@@ -705,9 +769,9 @@ Após o _reboot_, logue como o usuário `root` e verifique que os volumes lógic
 +
 ....
 # mount | grep '/tmp\|/var\|/usr'
-/dev/mapper/vg--base-lv--usr on /usr type ext4 (rw,nodev,relatime,data=ordered)
 /dev/mapper/vg--base-lv--tmp on /tmp type ext4 (rw,nosuid,nodev,relatime,data=ordered)
 /dev/mapper/vg--base-lv--var on /var type ext4 (rw,nosuid,nodev,relatime,data=ordered)
+/dev/mapper/vg--base-lv--usr on /usr type ext4 (rw,nodev,relatime,data=ordered)
 ....
 +
 Verifique, ainda, que o espaço ocupado dentro desses volumes é bastante próximo do tamanho dos diretórios dentro da raiz, `/`:
@@ -716,8 +780,8 @@ Verifique, ainda, que o espaço ocupado dentro desses volumes é bastante próxi
 # df -m | sed -n '1p; /\/\(tmp\|var\|usr\)/p'
 Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
 /dev/mapper/vg--base-lv--tmp           488     1        452   1% /tmp
-/dev/mapper/vg--base-lv--var          1480   178       1210  13% /var
-/dev/mapper/vg--base-lv--usr          4059   457       3377  12% /usr
+/dev/mapper/vg--base-lv--var          1480   186       1203  14% /var
+/dev/mapper/vg--base-lv--usr          4059   486       3348  13% /usr
 ....
 
 7. Faltou alguma coisa? Ah sim! Não apagamos o conteúdo dos diretórios `tmp`, `var` e `usr` de dentro da raiz, `/`. Note como o espaço ocupado ainda é bastante grande neste momento:
@@ -725,7 +789,7 @@ Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
 ....
 # df -m | sed -n '1p; /\/$/p'
 Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
-/dev/mapper/vg--base-lv--root         1169   863        230  79% /
+/dev/mapper/vg--base-lv--root         1409   900        421  69% /
 ....
 +
 Mas, como apagar esses diretórios? Não podemos simplesmente rodar um comando `rm -rf /usr`, pois estaríamos removendo os arquivos gravados dentro do volume lógico `/dev/mapper/vg--base-lv--usr`, e não dentro da raiz. O que fazer, então?
@@ -783,7 +847,7 @@ Verifique que o espaço ocupado dentro do diretório raiz, `/`, reduziu signific
 ....
 # df -m | sed -n '1p; /\/$/p'
 Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
-/dev/mapper/vg--base-lv--root         1169   256        837  24% /
+/dev/mapper/vg--base-lv--root         1409   258       1063  20% /
 ....
 +
 Reinicie a máquina virtual para verificar que suas alterações não causaram nenhum impacto à estabilidade do sistema.
@@ -880,7 +944,7 @@ Note a adição da `flag` `--unrestricted` antes de `${CLASS}` nas linhas 132 e 
 Refaça a configuração do GRUB, reinicie a máquina e teste o funcionamento.
 +
 ....
-# grub-mkconfig -o /boot/grub/grub.cfg
+# update-grub
 Generating grub configuration file ...
 Imagem Linux encontrada: /boot/vmlinuz-4.9.0-8-amd64
 Imagem initrd encontrada: /boot/initrd.img-4.9.0-8-amd64
@@ -997,7 +1061,7 @@ Desses, sabemos que o dispositivo `/dev/sda` é o disco original que criamos dur
   Total PE              2047
   Free PE               0
   Allocated PE          2047
-  PV UUID               n3dXDL-gCma-P258-pl31-Ow9A-Spcp-2mjsCG
+  PV UUID               ZnHHMn-Y37D-6Psd-oHei-K1Qd-wHjY-6gqFZ3
 ....
 +
 Restam, então, os discos `/dev/sdb` e `/dev/sdc`. Em tese, poderíamos usar a diferença de tamanho entre os discos para intuir qual deles é o volume `lvm-pv2`, e qual é o `lvm-crypt`. Contudo, ambos possuem o mesmo tamanho, 8 GB. O que fazer, então?
@@ -1190,7 +1254,7 @@ Sist. Arq.                     Tam. Usado Disp. Uso% Montado em
 +
 E assim, concluímos nossa seção sobre o LVM. É um sistema muito poderoso, que oferece grande flexibilidade na gestão de armazenamento no Linux. Imagine: qual teria sido a dificuldade em estender o espaço disponível para o `/var` em um sistema sem o uso do LVM?
 +
-Outros aspectos avançados do LVM, como gestão de volumes _striped_ (concatenados) e _mirrored_ (espelhados), provisionamento dinâmico de espaço e _snapshots_ não foram trabalhados aqui. Convidamos o aluno a investigar essas capacidades, e testar suas funcionalidades em ambiente de laboratório.
+Outros aspectos avançados do LVM, como gestão de volumes _striped_ (concatenados) e _mirrored_ (espelhados), provisionamento dinâmico de espaço e _snapshots_ não foram trabalhados aqui. Convidamos o aluno a investigar essas capacidades, e testar suas funcionalidades em ambiente de laboratório. A documentação do Red Hat Enterprise Linux sobre o LVM é um excelente recurso para começar: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/logical_volume_manager_administration/lv_overview
 
 === 8) Criptografia de partições
 
@@ -1280,7 +1344,7 @@ Digite a senha:
 Verificar senha:
 ....
 +
-Escolha uma senha forte para proteger os dados. Neste laboratório, recomendamos a senha `rnpesr123`, por conveniência.
+Digite _YES_ em letras maiúsculas para confirmar sobrescrita dos dados. Escolha uma senha forte para proteger os dados. Neste laboratório, recomendamos a senha `rnpesr123`, por conveniência.
 
 6. Como saber que uma partição está criptografada? E, de fato, como saber o tipo de uma partição qualquer? O comando `lsblk` é especialmente útil nesse cenário:
 +

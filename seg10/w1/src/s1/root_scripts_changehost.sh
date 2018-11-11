@@ -1,9 +1,29 @@
 #!/bin/bash
 
-[ -z $1 ] && { echo "Usage: $0 NEWHOSTNAME"; exit 1; }
 
-sed -i "s/debian-template/$1/g" /etc/hosts
-sed -i "s/debian-template/$1/g" /etc/hostname
+usage() {
+  echo "  Usage: $0 HOSTNAME"
+  exit 1
+}
+
+
+# testar parametros
+[ -z $1 ] && usage
+
+# testar sintaxe valida
+if [[ "$1" =~ [^a-z0-9] ]]; then
+  echo "  HOSTNAME must be lowercase alphanumeric: [a-z0-9]*"
+  usage
+elif [ ${#1} -gt 63 ]; then
+  echo "  HOSTNAME must have <63 chars"
+  usage
+fi
+
+chost="$( hostname -s )"
+
+# alterar hostname local
+sed -i "s/${chost}/${1}/g" /etc/hosts
+sed -i "s/${chost}/${1}/g" /etc/hostname
 
 invoke-rc.d hostname.sh restart
 invoke-rc.d networking force-reload
