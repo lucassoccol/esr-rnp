@@ -16,4 +16,4 @@ ldns-signzone -n \
 nsd-control reconfig
 nsd-control reload intnet
 nsd-control reload 42.0.10.in-addr.arpa
-unbound-control reload
+unbound-control flush_zone intnet.

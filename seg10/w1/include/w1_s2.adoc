@@ -214,6 +214,9 @@ Já tratamos do caso da _chain_ OUTPUT, e não faz sentido falarmos em tráfego 
 +
 ....
 # iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+....
++
+....
 # iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
 ....
 
@@ -255,6 +258,9 @@ A regra fica assim:
 +
 ....
 # iptables -P INPUT DROP
+....
++
+....
 # iptables -P FORWARD DROP
 ....
 
@@ -388,7 +394,13 @@ O Unbound, por outro lado, é um _resolver_ DNS com funções de validação, _c
 # apt-get install nsd unbound dnsutils
 ....
 
-2. Vamos começar configurando o *NSD*. O programa pode ser controlado no terminal usando o comando `nsd-control` -- para tanto, é necessário gerar as chaves TLS de controle com o comando:
+2. Vamos começar configurando o *NSD*. Primeiro, pare o _daemon_:
++
+....
+# systemctl stop nsd
+....
++
+O programa pode ser controlado no terminal usando o comando `nsd-control` -- para tanto, é necessário gerar as chaves TLS de controle com o comando:
 +
 ....
 # nsd-control-setup
@@ -498,14 +510,13 @@ Nada muito diferente neste arquivo em relação ao anterior -- note apenas que o
 Agora, basta reiniciar o serviço e verificar sua correta operação:
 +
 ....
-# systemctl restart nsd
+# nsd-control start
 ....
 +
 ....
-# tail /var/log/nsd.log -n3
-[2018-11-12 09:14:57.853] nsd[581]: warning: signal received, shutting down...
-[2018-11-12 09:14:57.868] nsd[646]: notice: nsd starting (NSD 4.1.14)
-[2018-11-12 09:14:57.887] nsd[647]: notice: nsd started (NSD 4.1.14), pid 646
+# tail /var/log/nsd.log
+[2018-11-13 17:17:26.763] nsd[2012]: notice: nsd starting (NSD 4.1.14)
+[2018-11-13 17:17:26.780] nsd[2014]: notice: nsd started (NSD 4.1.14), pid 2013
 ....
 +
 ....
@@ -573,7 +584,28 @@ Excelente! Todas as seções de resposta parecem corretas, tanto ANSWER quando A
 ;; MSG SIZE  rcvd: 107
 ....
 
-8. Agora que o NSD está configurado, vamos implementar o *Unbound*. Faça um backup do arquivo de configuração original `/etc/unbound/unbound.conf`:
+8. Agora que o NSD está configurado, vamos implementar o *Unbound*. Primeiro, pare o _daemon_ se estiver rodando:
++
+....
+# systemctl stop unbound
+....
++
+Assim como no caso do NSD, o Unbound pode ser controlado via `unbound-control` -- gere as chaves de controle:
++
+....
+# unbound-control-setup
+setup in directory /etc/unbound
+unbound_server.key exists
+unbound_control.key exists
+create unbound_server.pem (self signed certificate)
+create unbound_control.pem (signed client certificate)
+Signature ok
+subject=CN = unbound-control
+Getting CA Private Key
+Setup success. Certificates created.
+....
++
+Faça um backup do arquivo de configuração original `/etc/unbound/unbound.conf`:
 +
 ....
 # mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.orig
@@ -598,26 +630,7 @@ Abaixo, destacamos e explicamos algumas das diretivas mais relevantes do arquivo
 * `forward-zone` e `forward-zone/forward-addr`: define servidores nos quais o Unbound irá buscar recursão caso não consiga resolver um nome. Como está sendo declarado o nome de zona `"."`,  todas as pesquisas serão redirecionadas para os servidores indicados em `forward-addr`.
 --
 
-9. Vamos preparar a máquina local para atender requisições. Pare o Unbound, se estiver rodando:
-+
-....
-# systemctl stop unbound
-....
-+
-Assim como no caso do NSD, o Unbound pode ser controlado via `unbound-control` -- gere as chaves de controle e inicie-o:
-+
-....
-# unbound-control-setup
-setup in directory /etc/unbound
-unbound_server.key exists
-unbound_control.key exists
-create unbound_server.pem (self signed certificate)
-create unbound_control.pem (signed client certificate)
-Signature ok
-subject=CN = unbound-control
-Getting CA Private Key
-Setup success. Certificates created.
-....
+9. Vamos verificar o funcionamento do _daemon_. Inicie o Unbound usando o `unbound-control`:
 +
 ....
 # unbound-control start
@@ -627,10 +640,9 @@ Verifique seu funcionamento usando o `ss`:
 +
 ....
 # ss -unlp | grep :53
-UNCONN     0      0      192.168.42.1:53                       *:*                   users:(("unbound",pid=950,fd=7))
-
-UNCONN     0      0      10.0.42.1:53                       *:*                   users:(("unbound",pid=950,fd=5))
-UNCONN     0      0      127.0.0.1:53                       *:*                   users:(("unbound",pid=950,fd=3))
+UNCONN     0      0      192.168.42.1:53                    *:*                   users:(("unbound",pid=2084,fd=7))
+UNCONN     0      0      10.0.42.1:53                       *:*                   users:(("unbound",pid=2084,fd=5))
+UNCONN     0      0      127.0.0.1:53                       *:*                   users:(("unbound",pid=2084,fd=3))
 ....
 +
 Reconfigure o DNS _system-wide_, no arquivo `/etc/resolv.conf`.
@@ -878,11 +890,14 @@ intnet.                 86400 IN DNSKEY 257 3 10 (
 ;; MSG SIZE  rcvd: 587
 ....
 +
-Perfeito! Aparentemente, nossas chaves foram registradas e estão sendo utilizadas com sucesso. Agora, reinicie o Unbound e em seguida teste uma resolução de nome direta usando DNSSEC:
+Perfeito! Aparentemente, nossas chaves foram registradas e estão sendo utilizadas com sucesso. O Unbound, no entanto, ainda possui algumas entradas na _cache_ desatualizadas, prévias à configuração do DNSSEC, que foram mantidas pelas consultas anteriores. Para limpá-las, basta usar o comando `unbound-control flush_zone`:
 +
 ....
-# systemctl restart unbound
+# unbound-control flush_zone intnet.
+ok removed 4 rrsets, 2 messages and 0 key entries
 ....
++
+Agora sim, faça uma consulta via Unbound usando DNSSEC:
 +
 ....
 # dig fw.intnet +dnssec +multiline +noquestion
@@ -955,11 +970,12 @@ Note que é necessário substituir as variáveis `ZSKSTUB` e `KSKSTUB` com os va
 2. Teste a assinatura de zonas usando o _script_:
 +
 ....
-# bash /root/scripts/signzone-intnet.sh
+# bash scripts/signzone-intnet.sh
 reconfig start, read /etc/nsd/nsd.conf
 ok
 ok
 ok
+ok removed 4 rrsets, 2 messages and 0 key entries
 ....
 
 [NOTE]
@@ -1075,6 +1091,8 @@ A configuração do NSD como um servidor DNS secundário é bastante similar à 
 ....
 # apt-get install nsd unbound dnsutils
 ....
++
+Durante a pós-configuração do Unbound o sistema pode demorar um pouco a retornar para o _shell_ -- seja paciente, em alguns segundos a instalação será concluída.
 
 2. Primeiro, o *NSD*. Queremos copiar o arquivo `/etc/nsd/nsd.conf` da máquina `ns1` e fazer as alterações necessárias -- no entanto, o acesso SSH à essa máquina pela DMZ está proibido pelas configurações de firewall que fizemos no começo desta sessão. Assim sendo, vamos fazer a cópia no sentido oposto: da máquina `ns1` para a máquina `ns2`.
 +
@@ -1098,13 +1116,32 @@ nsd.conf                                                                        
 +
 Perfeito, o arquivo foi copiado para `/home/aluno/nsd.conf` na máquina `ns2` -- note que não fizemos o login remoto com o usuário `root` pois esse acesso não é permitido pela política padrão do _daemon_ `sshd` no Debian.
 
-3. De volta à máquina `ns2` como o usuário `root`, vamos fazer o backup do arquivo de configuração original:
+3. De volta à máquina `ns2` como o usuário `root`, pare o NSD e gere as chaves TLS de controle:
 +
 ....
 # hostname ; whoami
 ns2
 root
 ....
++
+....
+# systemctl stop nsd
+....
++
+....
+# nsd-control-setup
+setup in directory /etc/nsd
+nsd_server.key exists
+nsd_control.key exists
+create nsd_server.pem (self signed certificate)
+create nsd_control.pem (signed client certificate)
+Signature ok
+subject=CN = nsd-control
+Getting CA Private Key
+Setup success. Certificates created.
+....
++
+Vamos fazer o backup do arquivo de configuração original:
 +
 ....
 # mv /etc/nsd/nsd.conf /etc/nsd/nsd.conf.orig
@@ -1189,17 +1226,19 @@ O que esses comandos fizeram, afinal? O comando `diff` pode ser usado para compa
    zonefile: "10.0.42.zone"
 ....
 +
-Remova o arquivo `/home/aluno/nsd.conf` e reinicie o _daemon_ do NSD:
+Não se esqueça de remover o arquivo `/home/aluno/nsd.conf`:
 +
 ....
 # rm /home/aluno/nsd.conf
 ....
+
+4. Inicie o _daemon_ do NSD usando o `nsd-control`:
 +
 ....
-# systemctl restart nsd
+# nsd-control start
 ....
 +
-Note que não criamos o diretório de zonas no servidor secundário, `/etc/nsd/zones`, já que as zonas transferidas ficam mantidas no diretório `/var/lib/nsd`:
+Note que não foi necessário criar o diretório de zonas no servidor secundário, `/etc/nsd/zones`, já que as zonas transferidas ficam mantidas no diretório `/var/lib/nsd`:
 +
 ....
 # ls -1 /var/lib/nsd
@@ -1207,54 +1246,7 @@ nsd.db
 xfrd.state
 ....
 +
-O estado da transferência pode ser visualizado no arquivo `/var/lib/nsd/xfrd.state`:
-+
-....
-# grep -v '^#' /var/lib/nsd/xfrd.state
-NSDXFRD2
-
-filetime: 1542063397    # Mon Nov 12 20:56:37 2018
-
-numzones: 2
-
-zone:   name: 42.0.10.in-addr.arpa
-        state: 0 # OK
-        master: 0
-        next_master: -1
-        round_num: -1
-        next_timeout: 27585     # = 7h 39m 45s
-        backoff: 16
-        soa_nsd_acquired: 1542063027    # was 6m 10s ago
-        soa_nsd: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111000 14400 1800 1209600 3600
-        # refresh = 4h retry = 30m expire = 14d minimum = 1h
-        soa_disk_acquired: 1542063027   # was 6m 10s ago
-        soa_disk: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111000 14400 1800 1209600 3600
-        # refresh = 4h retry = 30m expire = 14d minimum = 1h
-        soa_notify_acquired: 1542063027 # was 6m 10s ago
-        soa_notify: 0 0 0 0 . . 0 0 0 0 0
-        # refresh = 0s retry = 0s expire = 0s minimum = 0s
-
-zone:   name: intnet
-        state: 0 # OK
-        master: 0
-        next_master: -1
-        round_num: -1
-        next_timeout: 1713      # = 28m 33s
-        backoff: 1
-        soa_nsd_acquired: 1542063027    # was 6m 10s ago
-        soa_nsd: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111200 14400 1800 1209600 3600
-        # refresh = 4h retry = 30m expire = 14d minimum = 1h
-        soa_disk_acquired: 1542063027   # was 6m 10s ago
-        soa_disk: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111200 14400 1800 1209600 3600
-        # refresh = 4h retry = 30m expire = 14d minimum = 1h
-        soa_notify_acquired: 1542063027 # was 6m 10s ago
-        soa_notify: 6 1 86400 1792 ns1.intnet. admin.intnet. 0 14400 1800 1209600 3600
-        # refresh = 4h retry = 30m expire = 14d minimum = 1h
-
-NSDXFRD2
-....
-
-4. Vamos testar? Tente efetuar uma resolução direta de nomes no servidor local usando a ferramenta `dig`, também testando o funcionamento do DNSSEC:
+Vamos testar? Tente efetuar uma resolução direta de nomes no servidor local usando a ferramenta `dig`, também testando o funcionamento do DNSSEC:
 +
 ....
 # dig @127.0.0.1 -p 8053 ns1.intnet +dnssec +noadditional +noquestion +multiline +noauthority
@@ -1332,13 +1324,32 @@ unbound.conf                                                                    
 +
 O arquivo foi copiado para `/home/aluno/unbound.conf` na máquina `ns2`, como objetivado.
 
-6. De volta a `ns2` como o usuário `root`, faça o backup do arquivo de configuração original:
+6. De volta a `ns2` como o usuário `root`, pare o _daemon_ do Unbound e configure as chaves de controle:
 +
 ....
 # hostname ; whoami
 ns2
 root
 ....
++
+....
+# systemctl stop unbound
+....
++
+....
+# unbound-control-setup
+setup in directory /etc/unbound
+unbound_server.key exists
+unbound_control.key exists
+create unbound_server.pem (self signed certificate)
+create unbound_control.pem (signed client certificate)
+Signature ok
+subject=CN = unbound-control
+Getting CA Private Key
+Setup success. Certificates created.
+....
++
+Faça o backup do arquivo de configuração original:
 +
 ....
 # mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.orig
@@ -1385,27 +1396,14 @@ Use o comando `diff` para verificar as diferenças entre o arquivo original e as
 
    access-control: 127.0.0.0/8 allow
 ....
++
+Remova o arquivo de configuração do Unbound no diretório `/home/aluno`:
++
+....
+# rm /home/aluno/unbound.conf
+....
 
-7. Vamos proceder aos testes. Pare o Unbound, se estiver rodando:
-+
-....
-# systemctl stop unbound
-....
-+
-Gere as chaves de controle para o comando `unbound-control` inicie o Unbound:
-+
-....
-# unbound-control-setup
-setup in directory /etc/unbound
-unbound_server.key exists
-unbound_control.key exists
-create unbound_server.pem (self signed certificate)
-create unbound_control.pem (signed client certificate)
-Signature ok
-subject=CN = unbound-control
-Getting CA Private Key
-Setup success. Certificates created.
-....
+7. Vamos proceder aos testes. Inicie o Unbound usando o comando `unbound-control`:
 +
 ....
 # unbound-control start
