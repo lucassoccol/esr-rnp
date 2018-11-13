@@ -1,8 +1,8 @@
 #!/bin/bash
 
-ZSK="Kintnet.+007+12293"
-KSK="Kintnet.+007+04740"
-ZONE_FILE="intnet.zone"
+ZSK="ZSKSTUB"
+KSK="KSKSTUB"
+ZONE_FILE="/etc/nsd/zones/intnet.zone"
 
 cd /etc/nsd
 
@@ -16,3 +16,4 @@ ldns-signzone -n \
 nsd-control reconfig
 nsd-control reload intnet
 nsd-control reload 42.0.10.in-addr.arpa
+unbound-control reload

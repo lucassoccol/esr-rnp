@@ -17,21 +17,104 @@ endif::oneof[]
 
 == Sessão 2: Firewall
 
-=== 1) Configuração inicial do firewall
+=== 1) Topologia desta sessão
 
-Criar DMZ      host-only faixa 10.0.42.0/24,    ip host físico 10.0.42.254.
-Criar Intranet host-only faixa 192.168.42.0/24, ip host físico 192.168.42.254.
+A figura abaixo mostra a topologia de rede que será utilizada nesta sessão, com as máquinas relevantes em destaque.
 
-Clonar debian-template para `fw` com 2 interfaces de rede, 1 bridge dhcp, 2 host-only estático 10.0.42.1/24, 3 host-only estático 192.168.42.1/24.
+.Topologia de rede desta sessão
+[#img-topologia]
+image::Topologia_SEG10_S2.png[align="center"]
 
-Renomear vm.
+Teremos apenas duas máquinas, por enquanto:
 
+* `ns1`, atuando como firewall de rede e DNS primário, e
+* `ns2`, atuando como DNS secundário e localizada na DMZ (_Demilitarized Zone_, ou zona desmilitarizada).
+
+1. Antes de começarmos, precisamos configurar corretamente as redes virtuais no Virtualbox. Acesse o menu _File_ > _Host Network Manager_ e crie as seguintes redes:
++
+.Redes _host-only_ no Virtualbox
+[options="header",width="100%"]
+|===
+| Rede | Endereço IPv4 | Máscara de rede | Servidor DHCP
+| Virtualbox Host-Only Ethernet Adapter #2 | 10.0.42.254 | 255.255.255.0 | Desabilitado
+| Virtualbox Host-Only Ethernet Adapter #3 | 192.168.42.254 | 255.255.255.0 | Desabilitado
+|===
++
+Visualmente, sua janela deve ficar parecida com o seguinte:
++
+.Redes host-only no Virtualbox
+[#img-vbox-networks]
+image::vbox-networks.png[align="center"]
++
+É possível que os números específicos das redes (`#2` para a DMZ e `#3` para a Intranet, na imagem acima) não fiquem exatamente iguais aos exemplificados. Nesse caso, faça uma anotação indicando qual número de rede _host-only_ corresponde a cada uma das redes configuradas. Verifique, ainda, que o servidor DHCP interno do Virtualbox está desabilitado em ambas as redes.
++
+<<<
+
+2. As configurações de rede realizadas internamente em cada máquina virtual foram apresentados de forma sucinta na topologia desta sessão. Iremos detalhar as configurações logo abaixo:
++
+.Configurações de rede de cada VM
+[options="header",cols="<.^,<.^,<.^,<.^,<.^",width="100%"]
+|===
+| VM Nome | Interface | Modo | Endereço | Gateway
+.3+| ns1 | enp0s3 | DHCP | Automático | Automático
+| enp0s8 | Estático | 10.0.42.1/24 | n/a
+| enp0s9 | Estático | 192.168.42.1/24 | n/a
+| ns2 | enp0s3 | Estático | 10.0.42.2/24 | 10.0.42.1
+|===
++
+A partir do Debian 9, a nomenclatura padrão de interfaces de rede foi alterada. Ao invés de denotarmos as interfaces como `eth0`, `eth1` ou `eth2`, o `systemd/udev` utiliza, a partir da versão v197, um método de nomenclatura de interfaces usando _biosdevnames_, como documentado oficialmente em https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/ . Com efeito, esse novo sistema suporta cinco meios de nomeação de interfaces de rede:
++
+--
+1. Nomes incorporando números de índice providos pelo firmware/BIOS de dispositivos _on-board_ (p.ex.: `eno1`)
+2. Nomes incorporando números de índice providos pelo firmware/BIOS de encaixes _hotplug_ PCI Express (p.ex.: `ens1`)
+3. Nomes incorporando localização física/geográfica do conector do hardware (p.ex.: `enp2s0`)
+4. Nomes incorporando o endereço MAC da interface (p.ex.: `enx78e7d1ea46da`)
+5. Nomes clássicos, usando nomenclatura não-previsível nativa do kernel (p.ex.: `eth0`)
+--
++
+Todas as VMs utilizadas neste curso serão derivadas da máquina `debian-template`, configurada com o Debian 9. A equivalência da nova nomenclatura de interfaces de rede, se comparada com a antiga, ficaria assim:
++
+.Nomenclatura de interfaces de máquinas Debian 9
+[options="header",cols="<.^,<.^",width="50%"]
+|===
+| Interface antiga | Interface nova
+| eth0 | enp0s3
+| eth1 | enp0s8
+| eth2 | enp0s9
+|===
++
+Observe, por exemplo, como é feita a detecção de interfaces durante o _boot_ da máquina `ns1`, que criaremos a seguir:
++
 ....
-# bash ~/changehost.sh fw
+# dmesg | grep 'renamed from'
+[    1.658908] e1000 0000:00:09.0 enp0s9: renamed from eth2
+[    1.659807] e1000 0000:00:08.0 enp0s8: renamed from eth1
+[    1.660711] e1000 0000:00:03.0 enp0s3: renamed from eth0
 ....
 
-Configurar rede.
+=== 2) Criação da VM de firewall e DNS primário
 
+Iremos agora criar a primeira máquina virtual efetiva de nosso _datacenter_ simulado, a máquina `ns1`. Essa máquina atuará como um firewall de borda e DNS primário da rede, como configuraremos a seguir. Por se tratar de um firewall, é necessário que ela possua ao menos duas (ou, em nosso caso específico, três) interfaces de rede interconectando redes distintas.
+
+1. Clone a máquina `debian-template` seguindo os mesmos passos da atividade (6) da sessão 1. Para o nome da máquina, escolha `ns1`.
+
+2. Após a clonagem, na janela principal do Virtualbox, clique com o botão direito sobre a VM `ns1` e depois em _Settings_.
++
+Em _Network_ > _Adapter 1_ > _Attached to_, mantenha escolhida a opção _Bridged Adapter_, já que esta será a interface de conexão externa da máquina.
++
+Em _Adapter 2_, marque a caixa _Enable Network Adapter_ e em _Attached to_ selecione _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a *DMZ*, como indicado na atividade (1) desta sessão. Seguindo o exemplo mostrado na figura da atividade, a rede escolhida seria portanto a `Virtualbox Host-Only Ethernet Adapter #2`.
++
+Em _Adapter 3_, marque a caixa _Enable Network Adapter_ e em _Attached to_ selecione _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a *Intranet*, como indicado na atividade (1) desta sessão. Seguindo o exemplo da figura, escolheríamos então `Virtualbox Host-Only Ethernet Adapter #3`.
++
+Clique em _OK_, e ligue a máquina `ns1`.
+
+3. Após o _boot_, faça login como o usuário `root`. Primeiro, vamos configurar a rede: edite o arquivo `/etc/network/interfaces` como se segue:
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
 ....
 # cat /etc/network/interfaces
 source /etc/network/interfaces.d/*
@@ -48,412 +131,1315 @@ address 10.0.42.1/24
 iface enp0s9 inet static
 address 192.168.42.1/24
 ....
++
+Para garantir que nenhum endereço IP antigo, primário, se mantenha alocado às interfaces, execute o comando `flush` e em seguida reinicie a rede do sistema:
++
+....
+# ip addr flush label 'enp0s*' ; systemctl restart networking
+....
++
+Verifique que as interfaces estão com os endereços corretamente alocados:
++
+....
+# ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}'
+192.168.29.104/24 enp0s3
+10.0.42.1/24 enp0s8
+192.168.42.1/24 enp0s9
+....
 
-Habilitar repasse.
+4. Usando o script `/root/scripts/changehost.sh` que criamos anteriormente, renomeie a máquina:
++
+....
+# hostname
+debian-template
+....
++
+....
+# bash ~/scripts/changehost.sh ns1
+....
++
+....
+# hostname
+ns1
+....
 
+=== 3) Configuração inicial do firewall
+
+Para garantir a segurança da rede iremos configurar o firewall de forma extremamente restritiva, como se segue:
+
+--
+a. Tráfego oriundo do firewall (_chain_ OUTPUT) será permitido.
+b. Todo o tráfego na interface _loopback_ será permitido.
+c. Serão permitidos pacotes destinados ao firewall (_chain_ INPUT) ou passando pelo firewall (_chain_ FORWARD) cujo estado seja relacionado ou estabelecido.
+d. Serão permitidos pacotes ICMP oriundos das redes DMZ e Intranet com destino ao firewall _FWGW1-G_.
+e. Será permitida gerência via `ssh` do firewall a partir de máquinas da Intranet.
+f. Será autorizado o tráfego na Internet das máquinas da DMZ e Intranet *exclusivamente* nas portas TCP/80 e TCP/443.
+g. Todos os demais acessos serão bloqueados.
+--
+
+À medida que novas regras forem necessárias, nas sessões seguintes, iremos criar regras de exceção pontualmente durante a execução das atividades, explicando os motivos das liberações. Vamos, ponto a ponto, realizar as configurações explicitadas acima:
+
+1. Primeiro, como em qualquer firewall de rede, devemos habilitar o repasse de pacotes entre interfaces. Para isso, edite o arquivo `/etc/sysctl.conf` e descomente a linha com a diretiva `net.ipv4.ip_forward`, como se segue:
++
 ....
 # sed -i '/net.ipv4.ip_forward/s/^#//' /etc/sysctl.conf
 ....
-
++
+Processe as alterações no arquivo com:
++
 ....
 # sysctl -p
 net.ipv4.ip_forward = 1
 ....
++
+Observe que esse arquivo é lido durante o _boot_ do sistema, o que garante que nossa configuração perdurará mesmo após reiniciarmos a máquina.
 
-Habilitar nat.
-
+2. Agora, vamos retomar as diretivas informadas no início desta atividade: para a requisição (a) não precisamos fazer nada, já que a política da _chain_ OUTPUT encontra-se em ACCEPT:
++
 ....
-# iptables -t nat -A POSTROUTING -s 10.0.42.0/24    -o enp0s3 -j MASQUERADE
-....
-
-....
-# iptables -t nat -A POSTROUTING -s 192.168.42.0/24 -o enp0s3 -j MASQUERADE
-....
-
-Instalar iptables-persistent, salvar regras.
-
-....
-# apt-get install iptables-persistent -y
+# iptables -L OUTPUT
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
 ....
 
-=== 2) Configuração do servidor DNS
+3. A diretiva (b) pode ser atendida com a regra que se segue:
++
+....
+# iptables -A INPUT -i lo -j ACCEPT
+....
++
+Já tratamos do caso da _chain_ OUTPUT, e não faz sentido falarmos em tráfego na interface _loopback_ na _chain_ FORWARD.
 
-Instale os pacotes.
+4. Para a diretiva (c) devemos usar uma regra de estados nas _chains_ INPUT e FORWARD, da seguinte forma:
++
+....
+# iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+# iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+....
 
+5. Como a diretiva (d) diz especificamente de pacotes "com destino ao firewall", fica claro que devemos adicionar uma regra à _chain_ INPUT. Note ainda que a diretiva é precisa em especificar que *apenas* o tráfego ICMP das redes DMZ e Intranet deve ser autorizado, e nenhum outro. Finalmente, não é especificado qual tipo de pacote ICMP será aceito, o que nos permite deduzir que todos serão aceitos.
++
+Para inserir uma regra que inclua ambas as redes de origem, basta separá-las com vírgula, como se segue:
++
+....
+# iptables -A INPUT -s 10.0.42.0/24,192.168.42.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
+....
+
+6. A diretiva (e) é clara ao especificar que a gerência será via `ssh` (portanto, na porta 22 do protocolo TCP), a ser feita no firewall (ou seja, _chain_ INPUT), e apenas a partir de máquinas da Intranet. Podemos atender a esse requisito com a seguinte regra:
++
+....
+# iptables -A INPUT -s 192.168.42.0/24 -p tcp -m tcp --dport 22 -j ACCEPT
+....
+
+7. A diretiva (f) diz que o tráfego na Internet das máquinas da DMZ e Intranet deve ser autorizado apenas nas portas TCP/80 e TCP/443. O requisito de IP de origem é bastante claro, mas o de destino não -- de fato, máquinas na Internet podem ter, a princípio, qualquer endereço IP. Faz sentido, então, indicarmos a interface de saída dos pacotes, `enp0s3`.
++
+Outro aspecto a ser observado é que os pacotes desta vez não se destinam ao firewall, mas sim passam por ele para atingir máquinas na Internet, indicando que a regra deve ser inserida na _chain_ FORWARD.
++
+Podemos ainda usar o módulo `multiport` para evitar a digitação de duas regras similares. Então, execute:
++
+....
+# iptables -A FORWARD -s 10.0.42.0/24,192.168.42.0/24 -o enp0s3 -p tcp -m multiport --dports 80,443 -j ACCEPT
+....
++
+Há ainda que se considerar a necessidade de realizar a tradução dos endereços de saída, pois não é possível que as máquinas da DMZ/Intranet naveguem com seus IPs em faixas privadas. Temos que criar uma regra de SNAT para permitir a navegação -- levando em conta que o endereço da interface `enp0s3` é dinâmico, faz sentido usar o alvo MASQUERADE, nesse caso.
++
+Um adendo final: podemos fazer uma regra tão restritiva quanto a que fizemos na _chain_ FORWARD acima, especificando também o protocolo e porta em que o SNAT será realizado. Tenha em mente apenas que, em caso de adição de exceções futuras, será necessário adicionar o protocolo/porta de exceção em *ambas* as _chains_, `filter/FORWARD` e `nat/POSTROUTING`.
++
+A regra fica assim:
++
+....
+# iptables -t nat -A POSTROUTING -s 10.0.42.0/24,192.168.42.0/24 -o enp0s3 -p tcp -m multiport --dports 80,443 -j MASQUERADE
+....
+
+8. Atender a diretiva (g) final é bastante fácil: basta alterar a política das _chains_ INPUT e FORWARD para DROP:
++
+....
+# iptables -P INPUT DROP
+# iptables -P FORWARD DROP
+....
+
+9. Verifique a configuração final do firewall, comparando com os requisitos iniciais. Consulte primeiro a tabela _filter_:
++
+....
+# iptables -L -vn
+Chain INPUT (policy DROP 189 packets, 52988 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+  982 67024 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     icmp --  *      *       10.0.42.0/24         0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     icmp --  *      *       192.168.42.0/24      0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     tcp  --  *      *       192.168.42.0/24      0.0.0.0/0            tcp dpt:22
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    0     0 ACCEPT     tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
+
+Chain OUTPUT (policy ACCEPT 16 packets, 1264 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+....
++
+E, depois, a tabela _nat_:
++
+....
+# iptables -L -vn -t nat
+Chain PREROUTING (policy ACCEPT 10 packets, 1485 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain INPUT (policy ACCEPT 6 packets, 1012 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 MASQUERADE  tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    0     0 MASQUERADE  tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
+....
+
+10. As configurações realizadas até aqui estão todas em memória -- em caso de _reboot_ da máquina `ns1`, elas serão perdidas. Para gravar as regras e integrá-las ao sistema de _init_ do SO, o pacote `iptables-persistent` é uma excelente opção. Instale-o com:
++
+....
+# apt-get install iptables-persistent
+....
++
+Na instalação do pacote, quando perguntado, responda:
++
+.Configurações do iptables-persistent
+[options="header",width="65%"]
+|===
+| Pergunta | Resposta
+| Salvar as regras IPv4 atuais? | Sim
+| Salvar as regras IPv6 atuais? | Sim
+|===
++
+As regras IPv4 e IPv6 serão gravadas nos arquivos `/etc/iptables/rules.v4` e `/etc/iptables/rules.v6`, respectivamente. Em caso de alterações futuras nas configurações do firewall, é possível gravá-las de forma fácil com o comando:
++
+....
+# /etc/init.d/netfilter-persistent save
+[....] Saving netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+done.
+....
++
+Se quiser limpar todas as regras de firewall e começar do zero, execute:
++
+....
+# /etc/init.d/netfilter-persistent flush
+[....] Flushing netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables flush
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables flush
+done.
+....
++
+....
+# iptables -L -vn
+Chain INPUT (policy ACCEPT 13 packets, 1558 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 11 packets, 1068 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+....
++
+Se cometer qualquer erro durante o processo de configuração ou simplesmente quiser recarregar o conjunto de regras gravado em `/etc/iptables/rules.v4`, execute:
++
+....
+# /etc/init.d/netfilter-persistent reload
+[....] Loading netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables start
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables start
+done.
+....
++
+....
+# iptables -L -vn
+Chain INPUT (policy DROP 70 packets, 19740 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+  111  5861 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     icmp --  *      *       10.0.42.0/24         0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     icmp --  *      *       192.168.42.0/24      0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     tcp  --  *      *       192.168.42.0/24      0.0.0.0/0            tcp dpt:22
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    0     0 ACCEPT     tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
+
+Chain OUTPUT (policy ACCEPT 120 packets, 12617 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+....
+
+=== 4) Configuração do servidor DNS primário
+
+Iremos agora configurar a máquina `ns1` como o servidor DNS primário da rede; para tanto, usaremos os programas NSD e Unbound.
+
+O NSD (_Name Server Daemon_) é um servidor DNS _open-source_ desenvolvido pela NLNet de Amsterdã em parceria com a RIPE NCC, o registro regional de Internet da Europa, oeste da Ásia e ex-países da União Soviética. Ele foi projetado para atuar exclusivamente como um servidor DNS autoritativo, não implementando portanto funções de _cache_ recursiva como sua contraparte mais famosa, o BIND. A ideia por trás disso é aumentar a variabilidade de implementações DNS disponíveis, aumentando a resiliência do sistema DNS contra falhas de software e _exploits_.
+
+O Unbound, por outro lado, é um _resolver_ DNS com funções de validação, _cache_ e recursividade também implementado pela NLNet Labs. Como se pode observar, então, ele faz as funções complementares às do NSD. Por sua percepção como sendo um software mais moderno, enxuto e seguro que seus concorrentes, o Unbound foi adotado como o _resolver_ padrão do sistema-base dos sistemas FreeBSD e OpenBSD em 2014.
+
+1. O primeiro passo, naturalmente, é instalar os pacotes dos programas mencionados:
++
 ....
 # apt-get install nsd unbound dnsutils
 ....
 
-Configure as chaves TLS de controle.
-
+2. Vamos começar configurando o *NSD*. O programa pode ser controlado no terminal usando o comando `nsd-control` -- para tanto, é necessário gerar as chaves TLS de controle com o comando:
++
 ....
 # nsd-control-setup
+setup in directory /etc/nsd
+nsd_server.key exists
+nsd_control.key exists
+create nsd_server.pem (self signed certificate)
+create nsd_control.pem (signed client certificate)
+Signature ok
+subject=CN = nsd-control
+Getting CA Private Key
+Setup success. Certificates created.
+....
++
+Verifique a criação das chaves com o comando:
++
+....
+# ls -1 /etc/nsd | grep '.key\|.pem'
+nsd_control.key
+nsd_control.pem
+nsd_server.key
+nsd_server.pem
 ....
 
-Gerar chave TSIG aleatória para transferência de zona.
-
+3. Faça um backup do arquivo de configuração original `/etc/nsd/nsd.conf`:
++
 ....
-# dd if=/dev/random of=/dev/stdout count=1 bs=32 | base64
-1+0 registros de entrada
-1+0 registros de saída
-twjSFcE/A1sBoNfNgdv+Gy3z9GLV9yC8SgobK5hyaVg=
-32 bytes copiados, 0,000523239 s, 61,2 kB/s
+# mv /etc/nsd/nsd.conf /etc/nsd/nsd.conf.orig
 ....
-
-Crie o arquivo `/etc/nsd/nsd.conf`. Obs.: não configuraremos DNS secundário por razões de tempo).
-
++
+Em seguida, crie o arquivo novo `/etc/nsd/nsd.conf` com o seguinte conteúdo:
++
 [source,bash,linenums]
 ----
 include::{srcdir}/s2/etc_nsd_nsd.conf[]
 ----
++
+Abaixo, destacamos e explicamos algumas das diretivas mais relevantes do arquivo acima:
++
+--
+* `server/ip-address`: define os endereços de rede nos quais o NSD irá escutar -- atenderemos requisições de _localhost_ e do servidor DNS secundário, que será instalado na DMZ a seguir. O controle de quais _hosts_ estarão autorizados a consultar o NSD será feito via diretivas `notify` e `provide-xfr`, bem como restrição via regra de firewall.
+* `server/port`: define a porta em que o NSD irá escutar; como iremos instalar o Unbound na mesma máquina (escutando na porta 53/UDP), escolhemos a porta alternativa 8053 para evitar conflitos de _bind_.
+* `server/username`: usuário com o qual o NSD irá operar. É possível aplicar um controle adicional além da redução de privilégios para um usuário comum, o uso de _chroot_, que não faremos nesta atividade.
+* `server/zonesdir`: diretório em que serão armazenados os arquivos de zonas do NSD.
+* `server/hide-version`, `server/version` e `server/identity`: os três controles objetivam mascarar o software rodando na máquina local, dificultando a tarefa de _banner grabbing_ e identificação de _exploits_ por parte de eventuais atacantes.
+* `remote-control/control-enable` e `remote-control/interface`: define que o NSD poderá ser controlado "remotamente", mas logo depois restringe o IP de escuta para 127.0.0.1, efetivamente autorizando conexão de controle exclusivamente a partir de _localhost_.
+* `key/secret`: define uma chave secreta que servidores primário e secundário deverão possuir em comum para que a transferência de zona seja feita com sucesso. Faremos a geração dessa chave e sua substituição de forma automática no arquivo a seguir.
+* `pattern`: define um conjunto de diretivas que serão inseridas em diversas zonas a seguir (efetivamente, como uma _macro_). No caso, estamos indicando que o servidor 10.0.42.2 será notificado de alterações de zona (`notify`), e transferências de zona partir desse endereço serão autorizadas (`provide-xfr`).
+* `zone/intnet`: define um arquivo de zona direta para o qual o servidor NSD será autoritativo, o nome de domínio `intnet`. A sintaxe do arquivo é idêntica à usada no software BIND.
+* `zone/42.0.10-in-addr.arpa`: define um arquivo de zona reversa para o qual o servidor NSD será autoritativo, a faixa de endereços `10.0.42.0/24`. A sintaxe do arquivo é idêntica à usada no software BIND.
+--
++
+A transferência de zonas entre servidor primário e secundário é assegurada, além dos controles de interface de escuta e regras de firewall, por uma chave secreta TSIG (_Transaction SIGnature_) em formato Base64. Para inseri-la no arquivo use o comando:
++
+....
+# tsigkey_t=$( dd if=/dev/urandom of=/dev/stdout count=1 bs=32 2> /dev/null| base64 ); sed -i "s|TSIGKEY|$tsigkey_t|" /etc/nsd/nsd.conf ; unset tsigkey_t
+....
++
+Verifique a inserção da chave com:
++
+....
+# grep 'secret:' /etc/nsd/nsd.conf
+  secret: "i7IoB5VDHVOCW9wvuOGQuFLNu8hzfAblVAbCD1SbPL4="
+....
++
+Lembre-se que precisaremos dessa mesma chave quando estivermos configurando o servidor secundário.
 
-Crie o arquivo de zona direta `/etc/nsd/intnet.zone`.
-
+4. Crie o diretório de zonas `/etc/nsd/zones`:
++
+....
+# mkdir /etc/nsd/zones
+....
++
+Agora, crie o arquivo novo `/etc/nsd/zones/intnet.zone`, com as configuração de zona direta para o domínio `intnet.`, com o seguinte conteúdo:
++
 [source,bash,linenums]
 ----
-include::{srcdir}/s2/etc_nsd_intnet.zone[]
+include::{srcdir}/s2/etc_nsd_zones_intnet.zone[]
 ----
++
+A sintaxe é exatamente a mesma utilizada para um arquivo de zonas do BIND. Note que:
++
+--
+* Definimos a máquina `ns1.intnet.` como o servidor autoritativo para o domínio `intnet.`, com email de contato `admin@intnet`.
+* O serial é `2018111000` -- este é um número que deve identificar a versão do arquivo de zonas, e incrementado a cada atualização. O formato escolhido para esse _serial_ foi `ANO-MES-DIA-VERSAO`, de forma que versões do arquivo em datas futuras terão sempre um valor superior ao de versões antigas.
+* Os servidores DNS responsáveis pelo domínio são `ns1.intnet` e `ns2.intnet.`.
+* Os servidores de e-mail (MX -- _mail exchange_) do domínio são `mx1.intnet.` e `mx2.intnet.`. Ambos são servidores fictícios, que não implantaremos neste curso, e mostrados aqui apenas para demonstrar a sintaxe desse tipo de entrada no arquivo de zonas.
+* Configuram-se registros A (_address_) para as máquinas mencionadas.
+* Configura-se um registro CNAME (_canonical name_) para a máquina `ns1.intnet.`, `fw.intnet.`. Com isso, os usuário poderão referir-se a essa máquina também pelo seu "apelido".
+--
 
-Crie o arquivo de zona reversa `/etc/nsd/10.0.42.zone`.
-
+5. Vamos para o arquivo de zona reversa. Crie o arquivo novo `/etc/nsd/zones/10.0.42.zone` com o seguinte conteúdo:
++
 [source,bash,linenums]
 ----
-include::{srcdir}/s2/etc_nsd_10.0.42.zone[]
+include::{srcdir}/s2/etc_nsd_zones_10.0.42.zone[]
 ----
++
+Nada muito diferente neste arquivo em relação ao anterior -- note apenas que os registros inseridos aqui são do tipo PTR (_pointer_), fazendo o mapeamento reverso entre endereços IP e nomes de domínio. Note, ainda, que o _ORIGIN_ do arquivo é definido como `42.0.10.in-addr.arpa.`, já que somos o servidor autoritativo para a faixa 10.0.42.0/24.
 
-Cheque a configuração, inicie o serviço e verifique se está rodando.
-
+6. Vamos verificar se a sintaxe dos arquivos de configuração não possui erros:
++
 ....
 # nsd-checkconf /etc/nsd/nsd.conf
 ....
-
++
+Agora, basta reiniciar o serviço e verificar sua correta operação:
++
 ....
 # systemctl restart nsd
 ....
-
++
 ....
-# tail /var/log/nsd.log
-[2018-11-03 12:12:25.905] nsd[1820]: notice: nsd starting (NSD 4.1.14)
-[2018-11-03 12:12:25.923] nsd[1821]: notice: nsd started (NSD 4.1.14), pid 1820
+# tail /var/log/nsd.log -n3
+[2018-11-12 09:14:57.853] nsd[581]: warning: signal received, shutting down...
+[2018-11-12 09:14:57.868] nsd[646]: notice: nsd starting (NSD 4.1.14)
+[2018-11-12 09:14:57.887] nsd[647]: notice: nsd started (NSD 4.1.14), pid 646
 ....
-
++
 ....
 # ss -tunlp | grep 8053
-udp    UNCONN     0      0      192.168.42.1:8053                  *:*                   users:(("nsd",pid=2821,fd=6),("nsd",pid=2820,fd=6),("nsd",pid=2819,fd=6))
-udp    UNCONN     0      0      10.0.42.1:8053                  *:*                   users:(("nsd",pid=2821,fd=5),("nsd",pid=2820,fd=5),("nsd",pid=2819,fd=5))
-udp    UNCONN     0      0      127.0.0.1:8053                  *:*                   users:(("nsd",pid=2821,fd=4),("nsd",pid=2820,fd=4),("nsd",pid=2819,fd=4))
-tcp    LISTEN     0      128    192.168.42.1:8053                  *:*                   users:(("nsd",pid=2821,fd=9),("nsd",pid=2820,fd=9),("nsd",pid=2819,fd=9))
-tcp    LISTEN     0      128    10.0.42.1:8053                  *:*                   users:(("nsd",pid=2821,fd=8),("nsd",pid=2820,fd=8),("nsd",pid=2819,fd=8))
-tcp    LISTEN     0      128    127.0.0.1:8053                  *:*                   users:(("nsd",pid=2821,fd=7),("nsd",pid=2820,fd=7),("nsd",pid=2819,fd=7))
+udp    UNCONN     0      0      10.0.42.1:8053                  *:*                   users:(("nsd",pid=648,fd=5),("nsd",pid=647,fd=5),("nsd",pid=646,fd=5))
+udp    UNCONN     0      0      127.0.0.1:8053                  *:*                   users:(("nsd",pid=648,fd=4),("nsd",pid=647,fd=4),("nsd",pid=646,fd=4))
+tcp    LISTEN     0      128    10.0.42.1:8053                  *:*                   users:(("nsd",pid=648,fd=7),("nsd",pid=647,fd=7),("nsd",pid=646,fd=7))
+tcp    LISTEN     0      128    127.0.0.1:8053                  *:*                   users:(("nsd",pid=648,fd=6),("nsd",pid=647,fd=6),("nsd",pid=646,fd=6))
 ....
 
-Teste a resolução direta e reversa.
-
+7. Vamos colocar o servidor à prova: teste a resolução direta de nomes usando a ferramenta `dig`. Lembre-se que o NSD está operando na porta 8053/UDP, e não na porta padrão:
++
 ....
-# dig @127.0.0.1 -p 8053 ldap.intnet +noadditional
+# dig @127.0.0.1 -p 8053 fw.intnet +noadditional +noquestion
 
-; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 -p 8053 ldap.intnet +noadditional
+; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 -p 8053 fw.intnet +noadditional +noquestion
 ; (1 server found)
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 49827
-;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 3
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 64874
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 2, ADDITIONAL: 2
 ;; WARNING: recursion requested but not available
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;ldap.intnet.                   IN      A
-
 ;; ANSWER SECTION:
-ldap.intnet.            86400   IN      A       10.0.42.2
+fw.intnet.              86400   IN      CNAME   ns1.intnet.
+ns1.intnet.             86400   IN      A       10.0.42.1
 
 ;; AUTHORITY SECTION:
-intnet.                 86400   IN      NS      fw.intnet.
+intnet.                 86400   IN      NS      ns1.intnet.
 intnet.                 86400   IN      NS      ns2.intnet.
 
 ;; Query time: 0 msec
 ;; SERVER: 127.0.0.1#8053(127.0.0.1)
-;; WHEN: Sat Nov 03 13:05:06 -03 2018
-;; MSG SIZE  rcvd: 123
+;; WHEN: Mon Nov 12 09:19:30 -02 2018
+;; MSG SIZE  rcvd: 120
 ....
-
++
+Excelente! Todas as seções de resposta parecem corretas, tanto ANSWER quando AUTHORITY. Vamos verificar a resolução reversa:
++
 ....
-# dig @127.0.0.1 -p 8053 -x 10.0.42.3 +noadditional
+# dig @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
 
-; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 -p 8053 -x 10.0.42.3 +noadditional
+; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
 ; (1 server found)
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 23418
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 4272
 ;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
 ;; WARNING: recursion requested but not available
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;3.42.0.10.in-addr.arpa.                IN      PTR
-
 ;; ANSWER SECTION:
-3.42.0.10.in-addr.arpa. 86400   IN      PTR     nfs.intnet.
+2.42.0.10.in-addr.arpa. 86400   IN      PTR     ns2.intnet.
 
 ;; AUTHORITY SECTION:
-42.0.10.in-addr.arpa.   86400   IN      NS      fw.intnet.
+42.0.10.in-addr.arpa.   86400   IN      NS      ns1.intnet.
 42.0.10.in-addr.arpa.   86400   IN      NS      ns2.intnet.
 
 ;; Query time: 0 msec
 ;; SERVER: 127.0.0.1#8053(127.0.0.1)
-;; WHEN: Sat Nov 03 13:05:51 -03 2018
-;; MSG SIZE  rcvd: 110
+;; WHEN: Mon Nov 12 09:19:47 -02 2018
+;; MSG SIZE  rcvd: 107
 ....
 
-Crie o arquivo `/etc/unbound/unbound.conf`.
-
+8. Agora que o NSD está configurado, vamos implementar o *Unbound*. Faça um backup do arquivo de configuração original `/etc/unbound/unbound.conf`:
++
+....
+# mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.orig
+....
++
+Em seguida, crie o arquivo novo `/etc/unbound/unbound.conf` com o seguinte conteúdo:
++
 [source,bash,linenums]
 ----
 include::{srcdir}/s2/etc_unbound_unbound.conf[]
 ----
++
+Abaixo, destacamos e explicamos algumas das diretivas mais relevantes do arquivo acima:
++
+--
+* `server/interface`: define os endereços de rede nos quais o Unbound irá escutar -- atenderemos requisições de _localhost_ e das sub-redes DMZ e Intranet.
+* `server/port`: o Unbound irá escutar na porta padrão, 53/UDP.
+* `server/access-control`: define que as sub-redes declaradas (_localhost_, DMZ e Intranet, novamente) terão permissão para utilizar os serviços de resolução de nomes.
+* `server/local-zone` e `server/domain-insecure`: define opções para as zonais locais `intnet.` e `42.0.10.in-addr.arpa.`, e que a cadeia de confiança DNSSEC não será verificada para esses domínios.
+* `server/hide-version` e `server/hide-identity`: controles que objetivam mascarar o software rodando na máquina local, dificultando a tarefa de _banner grabbing_ e identificação de _exploits_ por parte de eventuais atacantes.
+* `stub-zone` e `stub-zone/stub-addr`: declara zonas autoritativas locais que devem ser consultadas para os domínios especificados, para as quais o registro público DNS não será usado. Usaremos o servidor NSD rodando em _localhost_, consultando a porta 8053/UDP.
+* `forward-zone` e `forward-zone/forward-addr`: define servidores nos quais o Unbound irá buscar recursão caso não consiga resolver um nome. Como está sendo declarado o nome de zona `"."`,  todas as pesquisas serão redirecionadas para os servidores indicados em `forward-addr`.
+--
 
-Reinicie o `unbound`.
-
+9. Vamos preparar a máquina local para atender requisições. Pare o Unbound, se estiver rodando:
++
 ....
-# systemctl restart unbound
+# systemctl stop unbound
 ....
++
+Assim como no caso do NSD, o Unbound pode ser controlado via `unbound-control` -- gere as chaves de controle e inicie-o:
++
+....
+# unbound-control-setup
+setup in directory /etc/unbound
+unbound_server.key exists
+unbound_control.key exists
+create unbound_server.pem (self signed certificate)
+create unbound_control.pem (signed client certificate)
+Signature ok
+subject=CN = unbound-control
+Getting CA Private Key
+Setup success. Certificates created.
+....
++
+....
+# unbound-control start
+....
++
+Verifique seu funcionamento usando o `ss`:
++
+....
+# ss -unlp | grep :53
+UNCONN     0      0      192.168.42.1:53                       *:*                   users:(("unbound",pid=950,fd=7))
 
-Reconfigure o DNS _system-wide_. Devido ao DHCP, torne o arquivo `/etc/resolv.conf` imutável.
-
+UNCONN     0      0      10.0.42.1:53                       *:*                   users:(("unbound",pid=950,fd=5))
+UNCONN     0      0      127.0.0.1:53                       *:*                   users:(("unbound",pid=950,fd=3))
+....
++
+Reconfigure o DNS _system-wide_, no arquivo `/etc/resolv.conf`.
++
+....
+# nano /etc/resolv.conf
+(...)
+....
++
 ....
 # cat /etc/resolv.conf
 domain intnet.
 search intnet.
-nameserver 127.0.0.1
+nameserver 10.0.42.1
+nameserver 10.0.42.2
 ....
-
++
+Devido ao fato de estarmos usando DHCP na interface de saída (`enp0s3`), o arquivo `/etc/resolv.conf` poderá ser sobrescrito sempre que as interfaces de rede forem reiniciadas, ou após o _reboot_ da máquina. Para evitar isso, marque o arquivo como imutável:
++
 ....
 # chattr +i /etc/resolv.conf
 ....
 
-Teste a resolução de domínios internos e externos usando o `unbound`.
-
+10. Feito! Vamos testar a resolução de domínios internos `unbound` com a ferramenta `dig`.
++
 ....
-# dig fw.intnet
+# dig fw.intnet +noquestion +noadditional
 
-; <<>> DiG 9.10.3-P4-Debian <<>> fw.intnet
+; <<>> DiG 9.10.3-P4-Debian <<>> fw.intnet +noquestion +noadditional
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14190
-;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 63613
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;fw.intnet.                     IN      A
-
 ;; ANSWER SECTION:
-fw.intnet.              86400   IN      A       10.0.42.1
+fw.intnet.              86400   IN      CNAME   ns1.intnet.
+ns1.intnet.             86400   IN      A       10.0.42.1
 
 ;; Query time: 0 msec
-;; SERVER: 127.0.0.1#53(127.0.0.1)
-;; WHEN: Sat Nov 03 13:09:15 -03 2018
-;; MSG SIZE  rcvd: 54
+;; SERVER: 10.0.42.1#53(10.0.42.1)
+;; WHEN: Mon Nov 12 09:39:55 -02 2018
+;; MSG SIZE  rcvd: 72
 ....
-
++
+E quanto a nomes de domínio externos, usando recursão? Vejamos:
++
 ....
-# dig openbsd.org
+# dig openbsd.org +noquestion +noadditional
 
-; <<>> DiG 9.10.3-P4-Debian <<>> openbsd.org
+; <<>> DiG 9.10.3-P4-Debian <<>> openbsd.org +noquestion +noadditional
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 20180
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 5694
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;openbsd.org.                   IN      A
-
 ;; ANSWER SECTION:
 openbsd.org.            21599   IN      A       129.128.5.194
 
-;; Query time: 482 msec
-;; SERVER: 127.0.0.1#53(127.0.0.1)
-;; WHEN: Sat Nov 03 13:09:21 -03 2018
+;; Query time: 420 msec
+;; SERVER: 10.0.42.1#53(10.0.42.1)
+;; WHEN: Mon Nov 12 09:40:33 -02 2018
 ;; MSG SIZE  rcvd: 56
 ....
 
-=== 3) Configuração da VM template
+11. Ainda não acabou! Lembre-se que nossas regras de firewall configuradas no começo desta sessão estão extremamente restritivas, então temos que criar exceções para que a consulta de nomes funcione. Vamos ver os tipos de acesso que precisamos liberar:
++
+--
+a. O NSD será consultado apenas pelo Unbound em _localhost_ (não é necessário criar regras neste caso), e pelo servidor DNS secundário em 10.0.42.2. Como nesse caso será feita transferência de zonas entre os servidores, é necessário liberar tráfego nos protocolos TCP e UDP na porta 8053.
+b. O Unbound local será consultado por todas as máquinas da DMZ e Intranet, na porta 53/UDP.
+c. Os clientes da Intranet devem conseguir consultar o Unbound rodando no servidor DNS secundário, porta 53/UDP. Não é necessário criar uma regra para a DMZ, neste caso, pois as máquinas estão na mesma sub-rede e portanto seu tráfego não passa pelo firewall (na _chain_ FORWARD).
+--
++
+Vamos ao requisito (a):
++
+....
+# iptables -A INPUT -s 10.0.42.2/32 -p tcp -m tcp --dport 8053 -j ACCEPT
+....
++
+....
+# iptables -A INPUT -s 10.0.42.2/32 -p udp -m udp --dport 8053 -j ACCEPT
+....
++
+Agora, o requisito (b):
++
+....
+# iptables -A INPUT -s 10.0.42.0/24,192.168.42.0/24 -p udp -m udp --dport 53 -j ACCEPT
+....
++
+E, finalmente, o critério (c) estabelecido inicialmente:
++
+....
+# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.2/32 -p udp -m udp --dport 53 -j ACCEPT
+....
++
+Salve as regras na configuração do firewall local:
++
+....
+# /etc/init.d/netfilter-persistent save
+[....] Saving netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+done.
+....
 
-Ligue a VM `debian-template` e reconfigure o DNS padrão.
+=== 5) Configuração do DNSSEC
 
+Vamos agora configurar o DNSSEC em nosso servidor autoritativo, de forma a produzir consultas assinadas digitalmente. Evidentemente, como estamos configurando um domínio fictício não iremos conseguir propagar a assinatura pela cadeia de confiança raiz, mas esta atividade servirá como um exemplo caso você queira fazê-lo em sua organização posteriormente.
+
+1. Primeiro, vamos instalar as ferramentas de suporte para gestão/geração de chaves DNSSEC:
++
+....
+# apt-get install ldnsutils haveged
+....
+
+2. Vamos criar as chaves de assinatura de zona (ZSK, ou _Zone Signing Key_) e chave (KSK, ou _Key Signing Key_). O KSK é um par de chaves público/privada usado para gerar uma assinatura digital para o ZSK. O ZSK, por sua vez, é um par de chaves público/privada para gerar uma assinatura digital conhecida como RRSIG (_Resource Record Signature_) para cada um dos RRSETs (_Resource Record Sets_) da zona. O website da Cloudflare (https://www.cloudflare.com/dns/dnssec/how-dnssec-works/) possui uma excelente explicação sobre o sistema DNSSEC que pode ser usada para consulta.
++
+Primeiro, entre no diretório `/etc/nsd`:
++
+....
+# cd /etc/nsd/
+....
++
+Agora, vamos gerar o ZSK/KSK e armazenar seus nomes em uma variável temporária. Os algoritmos escolhidos estão de acordo com as melhores práticas recomendadas na RFC 6944 (https://tools.ietf.org/html/rfc6944).
++
+....
+# export ZSK=$( ldns-keygen -a RSASHA512 -b 2048 intnet )
+....
++
+....
+# export KSK=$( ldns-keygen -k -a RSASHA512 -b 2048 intnet )
+....
++
+Podemos remover o registro DS (_Delegation of Signing_) auto-gerado, já que iremos regerá-lo futuramente sob demanda.
++
+....
+# rm Kintnet.*.ds
+....
++
+Vejamos como ficaram as chaves ZSK/KSK para o domínio:
++
+....
+# ls -1 Kintnet.*
+Kintnet.+010+14936.key
+Kintnet.+010+14936.private
+Kintnet.+010+42867.key
+Kintnet.+010+42867.private
+....
++
+Para identificar qual dessas chaves é a ZSK e qual é a KSK, consulte as variáveis do _shell_:
++
+....
+# echo $ZSK
+Kintnet.+010+14936
+....
++
+....
+# echo $KSK
+Kintnet.+010+42867
+....
+
+3. Agora, vamos assinar a zona `intnet.zone` com o comando `ldns-signzone`:
++
+....
+# ldns-signzone -n -p -s $(head -n 1000 /dev/urandom | sha1sum | cut -b 1-16) /etc/nsd/zones/intnet.zone $ZSK $KSK
+....
++
+O que ocorreu? Verifique o conteúdo do diretório `/etc/nsd/zones`:
++
+....
+# ls -1 /etc/nsd/zones
+10.0.42.zone
+intnet.zone
+intnet.zone.signed
+....
++
+Vamos configurar o NSD para usar a zona assinada. Para isso, basta substituir o caminho de busca do arquivo de zona direta `/etc/nsd/zones/intnet.zone` por sua contraparte assinada:
++
+....
+# sed -i 's/intnet\.zone/intnet\.zone\.signed/' /etc/nsd/nsd.conf
+....
++
+....
+# grep -B3 intnet.zone.signed /etc/nsd/nsd.conf
+zone:
+  name: "intnet"
+  include-pattern: "inslave"
+  zonefile: "intnet.zone.signed"
+....
++
+Para informar ao NSD que o arquivo de zonas mudou, basta usar o programa `nsd-control` como mostrado a seguir:
++
+....
+# nsd-control reconfig
+reconfig start, read /etc/nsd/nsd.conf
+ok
+....
++
+....
+# nsd-control reload intnet
+ok
+....
+
+4. Vamos testar se nossa configuração surtiu efeito. Primeiro, pesquise pelos registros DNSKEY do domínio no NSD em _localhost_, verificando as chaves ZSK e KSK:
++
+....
+# dig -p 8053 @localhost DNSKEY intnet. +multiline +norec +noquestion
+
+; <<>> DiG 9.10.3-P4-Debian <<>> -p 8053 @localhost DNSKEY intnet. +multiline +norec +noquestion
+; (2 servers found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 18768
+;; flags: qr aa; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+intnet.                 86400 IN DNSKEY 256 3 10 (
+                                AwEAAerseiw1VUd7L90iBA4IgztUXpkw/k/6kKIHx5Qm
+                                Cm1HvtLTT/dSFk9JOHVBoQ2Rpk0LQBc+WZsnqz6dQZJn
+                                b9FkGzsAh39BnP8gOA1d+SfaGGkceEteQfgi3rKz5dnk
+                                EWgOonWk2vGOJ5oPDvcy4aUQqfTACY9Tk0qeWZT7enfy
+                                gdrg4AjaTKBdJ4kruBj2z3FKXBolDYO3HTPmosKe94Xr
+                                muiLQa3uHFvFvu6k/X0mH1kCS+lb91R/OF60mG40iW4/
+                                z8aLNSKPUuwJNddvZ0I14F7SwN7YGaVpoY11DAsxmbS5
+                                1lGxp6Fc0fWQpAfT4WG9/mbyHj29kZnP/Oxktsk=
+                                ) ; ZSK; alg = RSASHA512; key id = 14936
+intnet.                 86400 IN DNSKEY 257 3 10 (
+                                AwEAAdIo8BoUEY6ab3YBbs24FEj8Vt9aRByAFyKJk0sH
+                                BiNIy9I1vXZIGB+5wlIKPzT4ZVd3oYO3MDExxDYZ1HVS
+                                D1magCRBzLF2oeTCWY3kLz/9ls23RV9r5IMY68aPHMg0
+                                tDBJ8IZTC9SbO+os3L9jazwpoL22Akl34YN6iIC6kXpQ
+                                gN3TtNorzD8DIHkBvJ9NrpKYJjzt0g8oTyg0La3xTNcO
+                                6q51Q4eVBnlcXbbJ6gquSFzAnoJ9qzq5JUnbvAB9I4yv
+                                Spo3RGCX3lZFmsDvsDfnwkXShyeEPdGTr6m/mbqPrceW
+                                R53QLOWnZq1KrczPwTlKjgtzwg+F7ol8YDdQOwU=
+                                ) ; KSK; alg = RSASHA512; key id = 42867
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 11:13:56 -02 2018
+;; MSG SIZE  rcvd: 587
+....
++
+Perfeito! Aparentemente, nossas chaves foram registradas e estão sendo utilizadas com sucesso. Agora, reinicie o Unbound e em seguida teste uma resolução de nome direta usando DNSSEC:
++
+....
+# systemctl restart unbound
+....
++
+....
+# dig fw.intnet +dnssec +multiline +noquestion
+
+; <<>> DiG 9.10.3-P4-Debian <<>> fw.intnet +dnssec +multiline +noquestion
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 47390
+;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags: do; udp: 4096
+;; ANSWER SECTION:
+fw.intnet.              86355 IN CNAME ns1.intnet.
+fw.intnet.              86355 IN RRSIG CNAME 10 2 86400 (
+                                20181210130559 20181112130559 14936 intnet.
+                                u2DBcjAp91qYSYvspczvWiW8QuIX24aAoFTzfM8hJdUQ
+                                3VcjekyJeQQfNPIM4+rE9ZdTywADS4nKCFl/XqkHwFST
+                                kitVm9So17I4GBJ+sgpKkpoKEwh6IfbUB563Mmfj9jIQ
+                                SvuR0dP0ot9QV+DXWCFLD02tvXTOBSltBT9Nogx1h926
+                                5lkSZ0F+5x0Ss1Law5Rpn8ZKyAAwCYS0UNJIqB8XzIqb
+                                eSblG5Q4Si7Qwrccv7Ll6DscBbh1gjmnCAYCE63XF3SN
+                                s0N9SgTgfzibgVaVGw+S1SoVYjvxDVd5ZW/tpQxhx4kY
+                                Wt/c+541nj7xmFT58/dnoo8t6Meo/JCKgw== )
+ns1.intnet.             86297 IN A 10.0.42.1
+ns1.intnet.             86297 IN RRSIG A 10 2 86400 (
+                                20181210130559 20181112130559 14936 intnet.
+                                bmwQPD9b/GwUX2ZvpP6baOzyEXNW/ghcc9rqzZSWwUYn
+                                VfX+UqRwzon/2lxJfYO1uJh0v8noO2S5+zb7saroDsCi
+                                9/Oaukw+iAvwrZh6VO1dHDr6WjAlS4hi9MxmfJ94NwD7
+                                txB5WLG39KM0V/EpH+v4L6ser4v+oYFSer7a6EsZxCcD
+                                nfciKtN5L/QUWVMacduxpRM16+MI83bEf/ulC82xIThf
+                                2cVVdsDA4xfZvAOcYS/IXUauYXaj9fkE2TlVoyIC1UIM
+                                XE6CSbulo2iWc+V+lj5tkP9kctmqit3rfegWXJlQ4es3
+                                4fsxR64+Weqre/iTMpVxVss/TLus7g7OiA== )
+
+;; Query time: 0 msec
+;; SERVER: 10.0.42.1#53(10.0.42.1)
+;; WHEN: Mon Nov 12 11:17:12 -02 2018
+;; MSG SIZE  rcvd: 660
+....
++
+Caso fosse desejável exportar a configuração DNS para um _registrar_ hierarquicamente superior (fechando a cadeia de verificação DNS), pode-se gerar os registros DS das chaves com o comando abaixo.
++
+....
+# ldns-key2ds -n -1 /etc/nsd/zones/intnet.zone.signed && ldns-key2ds -n -2 /etc/nsd/zones/intnet.zone.signed
+intnet. 86400   IN      DS      42867 10 1 5b8c2c011bd011618f7e339667c075587e65ab05
+intnet. 86400   IN      DS      42867 10 2 424bcf7d7c09df8be1520c4230680b5c33a63598b4c6185c7884592ad3bce63b
+....
+
+=== 6) Automatizando assinatura DNSSEC após alterações
+
+1. É claro, seria muito inconveniente ter que realizar todos os passos que fizemos na atividade (5) a cada alteração no servidor DNS. Vamos automatizar a assinatura de zonas e reinício dos _daemons_ relevantes com um _script shell_. Crie o arquivo novo `/root/scripts/signzone-intnet.sh` com o seguinte conteúdo:
++
+[source,bash,linenums]
+----
+include::{srcdir}/s2/root_scripts_signzone-intnet.sh[]
+----
++
+Note que é necessário substituir as variáveis `ZSKSTUB` e `KSKSTUB` com os valores da variáveis `$ZSK` e `$KSK` no seu _shell_ corrente, como se segue:
++
+....
+# sed -i "s/ZSKSTUB/${ZSK}/" /root/scripts/signzone-intnet.sh
+....
++
+....
+# sed -i "s/KSKSTUB/${KSK}/" /root/scripts/signzone-intnet.sh
+....
+
+2. Teste a assinatura de zonas usando o _script_:
++
+....
+# bash /root/scripts/signzone-intnet.sh
+reconfig start, read /etc/nsd/nsd.conf
+ok
+ok
+ok
+....
+
+[NOTE]
+====
+Ao atualizar arquivos de zona, não se esqueça que além de adicionar registros A, CNAME ou PTR conforme necessário, é também *imprescindível* incrementar o valor do _serial_ do arquivo, próximo do topo no registro SOA. Se isso não for feito, o NSD não irá detectar que o arquivo de zona foi atualizado e suas modificações não serão propagadas.
+====
+
+=== 7) Reconfiguração da VM *_debian-template_*
+
+Agora que temos um firewall e servidores DNS na rede é interessante que alteremos a configuração padrão da VM `debian-template` para que as novas máquinas, clonadas a partir dela, já estejam corretamente ajustadas para operar em nosso _datacenter_ simulado.
+
+1. Ligue a máquina `debian-template` e acesse o terminal como o usuário `root`.
++
 ....
 # hostname ; whoami
 debian-template
 root
 ....
 
+2. Com a máquina `debian-template` ligada, acesse na janela principal do Virtualbox o menu _Settings_ > _Network_ > _Adapter 1_ > _Attached to_ e altere a opção para _Host-only Adapter_. O nome da rede _host-only_ escolhido deve ser o mesmo alocado para a interface de rede da máquina virtual `ns1` que está conectada à DMZ. Seguindo o exemplo mostrado no início desta sessão, portanto, a rede escolhida seria a `Virtualbox Host-Only Ethernet Adapter #2`.
+
+3. De volta ao terminal da máquina `debian-template`, vamos configurar a rede: edite o arquivo `/etc/network/interfaces` como se segue:
++
+....
+# nano /etc/network/interfaces
+(...)
+....
++
+....
+# cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo enp0s3
+
+iface lo inet loopback
+
+iface enp0s3 inet static
+address 10.0.42.253/24
+gateway 10.0.42.1
+....
++
+Para garantir que nenhum endereço IP antigo, primário, se mantenha alocado às interfaces, execute o comando `flush` e em seguida reinicie a rede do sistema:
++
+....
+# ip addr flush label 'enp0s*' ; systemctl restart networking
+....
++
+Verifique que as interfaces estão com os endereços corretamente alocados:
++
+....
+# ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}'
+10.0.42.253/24 enp0s3
+....
+
+4. Agora, configure a resolução de nomes no arquivo `/etc/resolv.conf`:
++
+....
+# nano /etc/resolv.conf
+(...)
+....
++
 ....
 # cat /etc/resolv.conf
 domain intnet.
 search intnet.
 nameserver 10.0.42.1
+nameserver 10.0.42.2
 ....
 
-=== 4) Configuração do DNSSEC
+5. Vamos alterar o _script_ `/root/scripts/changehost.sh` para que possamos configurar, de uma vez só, informações como endereço IP e _hostname_ na máquina clonada. Apague todo o conteúdo do _script_ original e substitua-o pelo seguinte:
++
+[source,bash,linenums]
+----
+include::{srcdir}/s2/root_scripts_changehost.sh[]
+----
++
+Em relação ao _script_ original, algumas diferenças: adicionou-se um _loop_ para leitura de opções a partir da linha de comando (_hostname_, endereço IP e _gateway_ a serem utilizados pela nova máquina), verificação de sintaxe dessas opções e efetiva alteração do endereço IP e _gateway_ no arquivo `/etc/network/interfaces`.
++
+Feito isso, desligue a máquina `debian-template`.
 
-Instale as ferramentas de suporte.
+=== 8) Criação da VM de DNS secundário
 
+Vamos agora criar a segunda máquina de nosso _datacenter_ simulado, a máquina `ns2`. Ela atuará como um servidor DNS secundário sob o endereço IP 10.0.42.2/24, dentre outras funções que serão configuradas em sessões posteriores.
+
+1. Clone a máquina `debian-template` seguindo os mesmos passos da atividade (6) da sessão 1. Para o nome da máquina, escolha `ns2`.
+
+2. Ligue a máquina `ns2` e, após o _boot_, faça login como o usuário `root`. Usando o script `/root/scripts/changehost.sh`, efetue a configuração automática da máquina:
++
 ....
-# apt-get install ldnsutils haveged
+# ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}' ; hostname ; whoami
+10.0.42.253/24 enp0s3
+debian-template
+root
 ....
-
-Crie as chaves de assinatura de zona (ZSK) e chave (KSK).
-
++
 ....
-# cd /etc/nsd/
-
-# export ZSK=`ldns-keygen -a RSASHA1-NSEC3-SHA1 -b 2048 intnet`
-
-# export KSK=`ldns-keygen -k -a RSASHA1-NSEC3-SHA1 -b 2048 intnet`
-
-# rm Kintnet.+007+*.ds
-
-# ls -1 Kintnet.+007+*
-Kintnet.+007+04740.key
-Kintnet.+007+04740.private
-Kintnet.+007+12293.key
-Kintnet.+007+12293.private
-
-# echo $ZSK
-Kintnet.+007+12293
-
-# echo $KSK
-Kintnet.+007+04740
+# bash ~/scripts/changehost.sh -h ns2 -i 10.0.42.2 -g 10.0.42.1
 ....
-
-Assine a zona `intnet.zone`.
-
++
 ....
-# ldns-signzone -n -p -s $(head -n 1000 /dev/random | sha1sum | cut -b 1-16) intnet.zone $ZSK $KSK
-
-# ls intnet.zone* -1
-intnet.zone
-intnet.zone.signed
+# ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}' ; hostname ; whoami
+10.0.42.2/24 enp0s3
+debian-template
+ns2
 ....
 
-Configure o `nsd` para usar a zona assinada.
+=== 9) Configuração do DNS secundário
 
+A configuração do NSD como um servidor DNS secundário é bastante similar à do servidor primário, com algumas poucas diferenças na seção `pattern` do arquivo original. Já a configuração do Unbound, por outro lado, é absolutamente idêntica. Vamos ao trabalho:
+
+1. Instale os pacotes relevantes:
++
 ....
-# cat /etc/nsd/nsd.conf | grep intnet.zone.signed -B3
-zone:
-  name: "intnet"
-  include-pattern: "inslave"
-  zonefile: "intnet.zone.signed"
-
-# nsd-control reconfig
-reconfig start, read /etc/nsd/nsd.conf
-ok
-
-# nsd-control reload intnet
-ok
+# apt-get install nsd unbound dnsutils
 ....
 
-Pesquise os registros DNSKEY do domínio no `nsd`, verificando as chaves ZSK e KSK.
-
+2. Primeiro, o *NSD*. Queremos copiar o arquivo `/etc/nsd/nsd.conf` da máquina `ns1` e fazer as alterações necessárias -- no entanto, o acesso SSH à essa máquina pela DMZ está proibido pelas configurações de firewall que fizemos no começo desta sessão. Assim sendo, vamos fazer a cópia no sentido oposto: da máquina `ns1` para a máquina `ns2`.
++
+Logue como `root` na máquina `ns1` e copie o arquivo usando o `scp`, como se segue:
++
 ....
-# dig DNSKEY intnet. @localhost +multiline +norec -p 8053
+# hostname ; whoami
+ns1
+root
+....
++
+....
+# scp /etc/nsd/nsd.conf aluno@ns2:~
+The authenticity of host 'ns2 (10.0.42.2)' can't be established.
+ECDSA key fingerprint is SHA256:jxd7SPFgwNSsaMS7ApIEMpdAmxEnWeJ83s/K4h2XV5o.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'ns2,10.0.42.2' (ECDSA) to the list of known hosts.
+aluno@ns2's password:
+nsd.conf                                                                           100%  909     2.5MB/s   00:00
+....
++
+Perfeito, o arquivo foi copiado para `/home/aluno/nsd.conf` na máquina `ns2` -- note que não fizemos o login remoto com o usuário `root` pois esse acesso não é permitido pela política padrão do _daemon_ `sshd` no Debian.
 
-; <<>> DiG 9.10.3-P4-Debian <<>> DNSKEY intnet. @localhost +multiline +norec -p 8053
+3. De volta à máquina `ns2` como o usuário `root`, vamos fazer o backup do arquivo de configuração original:
++
+....
+# hostname ; whoami
+ns2
+root
+....
++
+....
+# mv /etc/nsd/nsd.conf /etc/nsd/nsd.conf.orig
+....
++
+Copie o arquivo `/home/aluno/nsd.conf` para a pasta `/etc/nsd` e ajuste suas permissões:
++
+....
+# cp /home/aluno/nsd.conf /etc/nsd
+....
++
+....
+# chown root. /etc/nsd/nsd.conf
+....
++
+....
+# ls -ld /etc/nsd/nsd.conf
+-rw-r--r-- 1 root root 909 nov 12 12:14 /etc/nsd/nsd.conf
+....
++
+Excelente. Temos agora que editar o arquivo com as configurações do servidor secundário, o que faremos através do uso do `sed` nos comandos a seguir:
++
+....
+# sed -i 's/^\( *ip-address:\) 10\.0\.42\.1/\1 10\.0\.42\.2/' /etc/nsd/nsd.conf
+....
++
+....
+# sed -i '/^ *zonesdir:/d' /etc/nsd/nsd.conf
+....
++
+....
+# sed -i 's/\"inslave\"/\"inmaster\"/' /etc/nsd/nsd.conf
+....
++
+....
+# sed -i 's/^\( *\)notify:[0-9@. ]*\(.*\)/\1allow-notify: 10\.0\.42\.1 \2/' /etc/nsd/nsd.conf
+....
++
+....
+# sed -i 's/^\( *\)provide-xfr:[0-9. ]*\(.*\)/\1request-xfr: AXFR 10\.0\.42\.1@8053 \2/' /etc/nsd/nsd.conf
+....
++
+O que esses comandos fizeram, afinal? O comando `diff` pode ser usado para comparar arquivos, evidenciando as diferenças entre eles:
++
+....
+# diff -u /home/aluno/nsd.conf /etc/nsd/nsd.conf
+--- /home/aluno/nsd.conf        2018-11-12 20:51:45.040000000 -0200
++++ /etc/nsd/nsd.conf   2018-11-12 20:55:34.156000000 -0200
+@@ -1,10 +1,9 @@
+ server:
+   ip-address: 127.0.0.1
+-  ip-address: 10.0.42.1
++  ip-address: 10.0.42.2
+   do-ip4: yes
+   port: 8053
+   username: nsd
+-  zonesdir: "/etc/nsd/zones"
+
+   logfile: "/var/log/nsd.log"
+   pidfile: "/run/nsd/nsd.pid"
+@@ -27,17 +26,17 @@
+   secret: "i7IoB5VDHVOCW9wvuOGQuFLNu8hzfAblVAbCD1SbPL4="
+
+ pattern:
+-  name: "inslave"
+-  notify: 10.0.42.2@8053 inkey
+-  provide-xfr: 10.0.42.2 inkey
++  name: "inmaster"
++  allow-notify: 10.0.42.1 inkey
++  request-xfr: AXFR 10.0.42.1@8053 inkey
+
+ zone:
+   name: "intnet"
+-  include-pattern: "inslave"
++  include-pattern: "inmaster"
+   zonefile: "intnet.zone.signed"
+
+ zone:
+   name: "42.0.10.in-addr.arpa"
+-  include-pattern: "inslave"
++  include-pattern: "inmaster"
+   zonefile: "10.0.42.zone"
+....
++
+Remova o arquivo `/home/aluno/nsd.conf` e reinicie o _daemon_ do NSD:
++
+....
+# rm /home/aluno/nsd.conf
+....
++
+....
+# systemctl restart nsd
+....
++
+Note que não criamos o diretório de zonas no servidor secundário, `/etc/nsd/zones`, já que as zonas transferidas ficam mantidas no diretório `/var/lib/nsd`:
++
+....
+# ls -1 /var/lib/nsd
+nsd.db
+xfrd.state
+....
++
+O estado da transferência pode ser visualizado no arquivo `/var/lib/nsd/xfrd.state`:
++
+....
+# grep -v '^#' /var/lib/nsd/xfrd.state
+NSDXFRD2
+
+filetime: 1542063397    # Mon Nov 12 20:56:37 2018
+
+numzones: 2
+
+zone:   name: 42.0.10.in-addr.arpa
+        state: 0 # OK
+        master: 0
+        next_master: -1
+        round_num: -1
+        next_timeout: 27585     # = 7h 39m 45s
+        backoff: 16
+        soa_nsd_acquired: 1542063027    # was 6m 10s ago
+        soa_nsd: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111000 14400 1800 1209600 3600
+        # refresh = 4h retry = 30m expire = 14d minimum = 1h
+        soa_disk_acquired: 1542063027   # was 6m 10s ago
+        soa_disk: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111000 14400 1800 1209600 3600
+        # refresh = 4h retry = 30m expire = 14d minimum = 1h
+        soa_notify_acquired: 1542063027 # was 6m 10s ago
+        soa_notify: 0 0 0 0 . . 0 0 0 0 0
+        # refresh = 0s retry = 0s expire = 0s minimum = 0s
+
+zone:   name: intnet
+        state: 0 # OK
+        master: 0
+        next_master: -1
+        round_num: -1
+        next_timeout: 1713      # = 28m 33s
+        backoff: 1
+        soa_nsd_acquired: 1542063027    # was 6m 10s ago
+        soa_nsd: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111200 14400 1800 1209600 3600
+        # refresh = 4h retry = 30m expire = 14d minimum = 1h
+        soa_disk_acquired: 1542063027   # was 6m 10s ago
+        soa_disk: 6 1 86400 1792 ns1.intnet. admin.intnet. 2018111200 14400 1800 1209600 3600
+        # refresh = 4h retry = 30m expire = 14d minimum = 1h
+        soa_notify_acquired: 1542063027 # was 6m 10s ago
+        soa_notify: 6 1 86400 1792 ns1.intnet. admin.intnet. 0 14400 1800 1209600 3600
+        # refresh = 4h retry = 30m expire = 14d minimum = 1h
+
+NSDXFRD2
+....
+
+4. Vamos testar? Tente efetuar uma resolução direta de nomes no servidor local usando a ferramenta `dig`, também testando o funcionamento do DNSSEC:
++
+....
+# dig @127.0.0.1 -p 8053 ns1.intnet +dnssec +noadditional +noquestion +multiline +noauthority
+
+; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 -p 8053 ns1.intnet +dnssec +noadditional +noquestion +multiline +noauthority
+; (1 server found)
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 37343
-;; flags: qr aa; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 29660
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 3, ADDITIONAL: 3
+;; WARNING: recursion requested but not available
 
 ;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;intnet.                        IN DNSKEY
-
+; EDNS: version: 0, flags: do; udp: 4096
 ;; ANSWER SECTION:
-intnet.                 86400 IN DNSKEY 256 3 7 (
-                                AwEAAc2pUUOTiK7+pW0bz6ovwIPFcbbNkwhltxaIVCuX
-                                OpS2uGufu9m15AW6hKb8JHLNlRMNbkeDcwRW996cpRqz
-                                QWt/Ya1e4xfbyUkdoE6+YolAt6SBgkH1Nsi7MGtiz0w3
-                                C8GORqJSF6WvreEJyEAdcxP8A+6a8zqZ69Y44udafpiu
-                                nSh773i1txNgNER0gLzQbdvQujXRmork/HCtjeDCNWzg
-                                1xqhXqnD4IVeIjGeB05uxcTpFZ6SLN25cfoECesqk/zs
-                                VafUJdCPxqaGd3szaDvTVhZ37eGfY1pZNXNL826NRNVF
-                                UdNCfeWGVL13gGAyFvxUxfR/Bwtpkr8Y1Ts/4Pc=
-                                ) ; ZSK; alg = NSEC3RSASHA1; key id = 25253
-intnet.                 86400 IN DNSKEY 257 3 7 (
-                                AwEAAcLaf9zFlDEL5dWhB4HzWx6iptWnj42WOUIZmT6f
-                                7GEOwgBBUuT88Q3dZQwWSvydveH16TNUtt7/7JJJPk4H
-                                JjUS79lmLbahUvDEgTwnyphiKEFGWmcVo449o6oqB5mo
-                                1kiWkMepq51QYFATHEjG2kRib47LDejZQ6VrnjeHEq0w
-                                jnRQbp1rrp217LuvayFgKBVJgpswQBNI8yaqmZO4oPjd
-                                i21oH2CyjnFW2x/FWoWlv373l/r426QxQL8OfOqa4EC+
-                                a1tBOoIsZanlqViOOzHdhYhaxumZhou0Q7/AsPZveFfu
-                                BSCAyFX4tJIClxI51uES6hB6obNaOT5OoOMzOss=
-                                ) ; KSK; alg = NSEC3RSASHA1; key id = 48774
+ns1.intnet.             86400 IN A 10.0.42.1
+ns1.intnet.             86400 IN RRSIG A 10 2 86400 (
+                                20181210223558 20181112223558 14936 intnet.
+                                TdK1Ivm1Ykdk1MBaMQSqNHANV14FQbfdBCgiOznMc7wT
+                                vqZPa2TBMTe2GYvcjbWd2WzH4o88pOAzwmCxMnnAxGJ4
+                                7IglUx4GlQKTG/hx/5vxpFYgczJLAKpt/HEMfrInYVyP
+                                qvCFpCyUudgA7kV8w05+BvBiK4IQAWZCiH8GcC3ERFoC
+                                B/ZNE/f8YnMyi2sNqdN8Mhtkgz2vMZnACiLrifnV7hlI
+                                3uvqn0fQetnDWLF/xSeHoAE4WMZ6KwMgutUT1H9lQwOg
+                                Ci5PemGKnOn2Va4ARzvQeTzBdLHZlVi04X25NHIeKZTj
+                                8Sx1vRnBwPfT8qlyI1oaOozuiLSyrII3Mw== )
 
 ;; Query time: 0 msec
 ;; SERVER: 127.0.0.1#8053(127.0.0.1)
-;; WHEN: Sat Nov 03 16:13:34 -03 2018
-;; MSG SIZE  rcvd: 587
+;; WHEN: Mon Nov 12 20:58:05 -02 2018
+;; MSG SIZE  rcvd: 985
 ....
-
-Teste uma resolução de nome direta, via `unbound`, usando DNSSEC.
-
++
+Excelente. E quanto à resolução reversa?
++
 ....
-# dig nfs.intnet +dnssec +multiline
+# dig @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
 
-; <<>> DiG 9.10.3-P4-Debian <<>> nfs.intnet +dnssec +multiline
+; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
+; (1 server found)
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 30386
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 44932
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+2.42.0.10.in-addr.arpa. 86400   IN      PTR     ns2.intnet.
+
+;; AUTHORITY SECTION:
+42.0.10.in-addr.arpa.   86400   IN      NS      ns1.intnet.
+42.0.10.in-addr.arpa.   86400   IN      NS      ns2.intnet.
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 20:58:17 -02 2018
+;; MSG SIZE  rcvd: 107
+....
+
+5. Agora, vamos configurar o *Unbound*. Como feito anteriormente, logue como `root` na máquina `ns1` e copie desta vez o arquivo `/etc/unbound/unbound.conf` usando o `scp`, como se segue:
++
+....
+# hostname ; whoami
+ns1
+root
+....
++
+....
+# scp /etc/unbound/unbound.conf aluno@ns2:~
+aluno@ns2's password:
+unbound.conf                                                                       100%  820     2.4MB/s   00:00
+....
++
+O arquivo foi copiado para `/home/aluno/unbound.conf` na máquina `ns2`, como objetivado.
+
+6. De volta a `ns2` como o usuário `root`, faça o backup do arquivo de configuração original:
++
+....
+# hostname ; whoami
+ns2
+root
+....
++
+....
+# mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.orig
+....
++
+Copie o arquivo `/home/aluno/unbound.conf` para a pasta `/etc/unbound` e ajuste suas permissões:
++
+....
+# cp /home/aluno/unbound.conf /etc/unbound
+....
++
+....
+# chown root. /etc/unbound/unbound.conf
+....
++
+....
+# ls -ld /etc/unbound/unbound.conf
+-rw-r--r-- 1 root root 820 nov 12 22:15 /etc/unbound/unbound.conf
+....
++
+Edite o arquivo com as configurações do servidor secundário via `sed`, como se segue:
++
+....
+# sed -i 's/^\( *interface: 10\.0\.42\.\)1/\12/' /etc/unbound/unbound.conf
+....
++
+....
+# sed -i '/^ *interface: 192.*/d' /etc/unbound/unbound.conf
+....
++
+Use o comando `diff` para verificar as diferenças entre o arquivo original e as alterações feitas com o `sed`:
++
+....
+# diff -u /home/aluno/unbound.conf /etc/unbound/unbound.conf
+--- /home/aluno/unbound.conf    2018-11-12 22:13:47.276000000 -0200
++++ /etc/unbound/unbound.conf   2018-11-12 22:24:48.564000000 -0200
+@@ -1,7 +1,6 @@
+ server:
+   interface: 127.0.0.1
+-  interface: 10.0.42.1
+-  interface: 192.168.42.1
++  interface: 10.0.42.2
+   port: 53
+
+   access-control: 127.0.0.0/8 allow
+....
+
+7. Vamos proceder aos testes. Pare o Unbound, se estiver rodando:
++
+....
+# systemctl stop unbound
+....
++
+Gere as chaves de controle para o comando `unbound-control` inicie o Unbound:
++
+....
+# unbound-control-setup
+setup in directory /etc/unbound
+unbound_server.key exists
+unbound_control.key exists
+create unbound_server.pem (self signed certificate)
+create unbound_control.pem (signed client certificate)
+Signature ok
+subject=CN = unbound-control
+Getting CA Private Key
+Setup success. Certificates created.
+....
++
+....
+# unbound-control start
+....
++
+Teste uma resolução direta qualquer no servidor Unbound local, solicitando DNSSEC:
++
+....
+# dig @127.0.0.1 mx1.intnet +dnssec +multiline +noquestion +noadditional
+
+; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 mx1.intnet +dnssec +multiline +noquestion +noadditional
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 53007
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags: do; udp: 4096
-;; QUESTION SECTION:
-;nfs.intnet.            IN A
-
 ;; ANSWER SECTION:
-nfs.intnet.             86385 IN A 10.0.42.3
-nfs.intnet.             86385 IN RRSIG A 7 2 86400 (
-                                20181201191314 20181103191314 25253 intnet.
-                                SldCjrjnb8iQ+ozjJBIOh8t+BNX7iqRffJ6qSQtj32W9
-                                2FCmxW/TCkrMZ4RM1ViqzMVnsY3yCmqD+8jHVvVH3Bp6
-                                Jon1iEYAfhUPq4NcXH4mjsZU8Ite8lnox3krpeF9DhRr
-                                mvNibmJyq6clwNu6MIoOySY2odHrwmW7rg0vYmdtQTLs
-                                vuBdaZ+bOs959Cf0lGoUItHPVKGBirWoTf9i0qC5QdSK
-                                miMNUgBdCWxRRe+zCPLdV8p1adW3yFKA+LQoy6IV5w7y
-                                0srO/dNzpmBGYIpWXbygYFaJ26zBlIViO9GI09TDcvoc
-                                4t2t+FvSwKmSa3tP7Q9ZSoMMSQXy89uauQ== )
+mx1.intnet.             86388 IN A 10.0.42.91
+mx1.intnet.             86388 IN RRSIG A 10 2 86400 (
+                                20181210223558 20181112223558 14936 intnet.
+                                YPluG8EXq3WwlKIlMpeXc+C1C3AZhC+P1ej+6I5ax9Aw
+                                xQ+Zp6lwMXz64e7nPN2mjNa1PcAVuUNc8gE77U5dohhI
+                                Al++b4+1mPHLzN6EY4UuSsWqkE5NacSaUngmhV52Mrwj
+                                cwXtmJgJm9vhSTLKnUSYhSwFWZlC2FxI96kTQhtzJuDd
+                                KI7SVpYsNZPGiKwj5r9F8Wr/sKpCc0PgVnseewyPmNGY
+                                5pJEV3Ox6XgzQk0qjatoO4IxSj3CqX6ghU+MykcU2L+n
+                                56LfqqrV+R6TzzVst9/bFC7UgSXjF4v9eDKvPc86mcGn
+                                J9giG3w+07D2+jv7Ap6RfQWnx1zBy5CWFA== )
 
 ;; Query time: 0 msec
 ;; SERVER: 127.0.0.1#53(127.0.0.1)
-;; WHEN: Sat Nov 03 16:18:02 -03 2018
+;; WHEN: Mon Nov 12 22:45:11 -02 2018
 ;; MSG SIZE  rcvd: 349
-....
-
-Caso fosse desejável exportar a configuração DNS para um _registrar_ hierarquicamente superior (fechando a cadeia de verificação DNS), pode-se gerar os registros DS -- _delegation of signing_ -- das chaves com o comando abaixo.
-
-....
-# ldns-key2ds -n -1 intnet.zone.signed && ldns-key2ds -n -2 intnet.zone.signed
-intnet. 86400   IN      DS      48774 7 1 571d6a2b7822eb6c6989b8ede2e9c38d395ab5e9
-intnet. 86400   IN      DS      48774 7 2 57e574424987489e222ce4b3ad1abef58d6638c977193257f8202fc141944615
-....
-
-=== 5) Automatizando assinatura DNSSEC após alterações
-
-[source,bash,linenums]
-----
-include::{srcdir}/s2/etc_nsd_signzone-intnet.sh[]
-----
-
-....
-# bash /etc/nsd/signzone-intnet.sh
-reconfig start, read /etc/nsd/nsd.conf
-ok
-ok
 ....

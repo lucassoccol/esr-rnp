@@ -19,9 +19,8 @@ elif [ ${#1} -gt 63 ]; then
   usage
 fi
 
-chost="$( hostname -s )"
-
 # alterar hostname local
+chost="$( hostname -s )"
 sed -i "s/${chost}/${1}/g" /etc/hosts
 sed -i "s/${chost}/${1}/g" /etc/hostname
 
@@ -29,5 +28,6 @@ invoke-rc.d hostname.sh restart
 invoke-rc.d networking force-reload
 hostnamectl set-hostname $1
 
+# re-gerar chaves SSH
 rm -f /etc/ssh/ssh_host_* 2> /dev/null
 dpkg-reconfigure openssh-server &> /dev/null

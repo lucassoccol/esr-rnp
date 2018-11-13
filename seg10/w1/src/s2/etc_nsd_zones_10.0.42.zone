@@ -1,24 +1,22 @@
 $TTL 86400 ; (1 day)
 $ORIGIN 42.0.10.in-addr.arpa.
 
-@       IN   SOA   fw.intnet.   admin.intnet. (
-                   2018110300   ;serial (YYYYMMDDnn)
+@       IN   SOA   ns1.intnet.  admin.intnet. (
+                   2018111000   ;serial (YYYYMMDDnn)
                    14400        ;refresh (4 hours)
                    1800         ;retry (30 minutes)
                    1209600      ;expire (2 weeks)
                    3600         ;negative cache TTL (1 hour)
                    )
 
-@       IN   NS                 fw.intnet.
+@       IN   NS                 ns1.intnet.
 @       IN   NS                 ns2.intnet.
 
 @       IN   MX    10           mx1.intnet.
 @       IN   MX    20           mx2.intnet.
 
-1       IN   PTR                fw.intnet.
-2       IN   PTR                ldap.intnet.
-3       IN   PTR                nfs.intnet.
+1       IN   PTR                ns1.intnet.
+2       IN   PTR                ns2.intnet.
 
-11      IN   PTR                ns2.intnet.
-12      IN   PTR                mx1.intnet.
-13      IN   PTR                mx2.intnet.
+91      IN   PTR                mx1.intnet.
+92      IN   PTR                mx2.intnet.
