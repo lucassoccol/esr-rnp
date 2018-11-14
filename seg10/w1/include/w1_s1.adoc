@@ -470,10 +470,10 @@ Para remover todos os kernels antigos do sistema (isto é, todos os kernels exce
 
 8. Este é um bom momento para instalar pacotes que você acredita serem necessários em todas as máquinas a serem derivadas deste _template_. Pacotes como o `sudo` ou `vim` podem ser boas opções, dependendo das necessidades da sua organização.
 +
-Neste momento, iremos instalar apenas os pacotes `rsync`, `nfs-common` e `sudo`. Execute:
+Neste momento, iremos instalar apenas os pacotes listados abaixo. Execute:
 +
 ....
-# apt-get install rsync nfs-common sudo
+# apt-get install rsync nfs-common sudo dirmngr
 ....
 
 9. Pode ser interessante desabilitar a combinação de teclas `CTRL + ALT + DEL`; mesmo em um ambiente virtualizado, há casos em que o administrador se confunde e acaba enviando essa combinação de teclas para a console de um servidor aberto, causando seu _reboot_ inadvertidamente.

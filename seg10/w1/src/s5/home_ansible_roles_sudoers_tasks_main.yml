@@ -1,0 +1,11 @@
+---
+- name: Propagate sudoers configuration
+  become: yes
+  become_user: root
+  become_method: su
+  copy:
+    src: sudoers
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0440

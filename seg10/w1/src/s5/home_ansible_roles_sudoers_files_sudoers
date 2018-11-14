@@ -10,9 +10,9 @@ User_Alias FWUSERS   = leia
 
 User_Alias LDAPUSERS = %ldapadm
 
-Host_Alias FWHOSTS   = fw
+Host_Alias FWHOSTS   = ns1
 
-Host_Alias LDAPHOSTS = ldap
+Host_Alias LDAPHOSTS = ns2
 
 Cmnd_Alias FWCMDS    = /sbin/iptables
 
@@ -31,6 +31,8 @@ Cmnd_Alias LDAPCMDS  = /usr/sbin/ldapaddgroup,             \
                        /usr/sbin/ldapsetprimarygroup
 
 root      ALL=(ALL:ALL)    ALL
+
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
 
 ADMINS    ALL=(ALL:ALL)    ALL
 

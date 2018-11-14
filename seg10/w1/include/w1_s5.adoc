@@ -17,202 +17,395 @@ endif::oneof[]
 
 == Sessão 5: Gestão de configuração
 
-=== 1) Instalação do Ansible
+Algo que já deve ter ficado claro, a este ponto, é que a configuração manual de múltiplas máquinas é um processo tedioso, demorado, e ainda oferece o risco de configuração incorreta por parte do administrador durante o processo. Fica ainda mais evidente a dimensão do problema quando observamos que nosso _datacenter_ simulado possui até o momento apenas três servidores -- imagine o tamanho do problema se tivéssemos dezenas ou centenas de VMs!
 
-Clonar template para `ansible`, 10.0.42.5/24. Renomear e integrar no LDAP/SSH-ca como de costume. Criar entradas no DNS direto/reverso para `ansible.intnet`.
+As ferramentas de gestão de configuração oferecem uma alternativa: através delas, podemos ter um processo de implementação sistemática de mudanças em um (ou vários) sistemas de forma a manter sua integridade. A ideia básica por trás dessas ferramentas é a gestão de *estados desejados*: criamos artefatos de configuração que definem um estado-alvo para um grupo de sistemas, e o sistema de gestão de configuração se encarrega de checar se esse estado está atendido -- caso positivo, nada precisa ser feito; e, caso negativo, as alterações de configuração previstas nos artefatos de configuração serão aplicadas nos sistemas.
 
-Como `root@ldap`, crie um usuário para o Ansible, membro dos grupos `setup` e `fwadm`:
+Outro conceito central é o *comportamento idempotente* desse tipo de ferramenta: mesmo com aplicações sucessivas dos artefatos de configuração, o sistema se encarrega de verificar se o estado-alvo está atendido, não reaplicando mudanças desnecessárias. Podemos citar também como vantagens desses sistemas de gestão a existência de _frameworks_ de automação que facilitam o trabalho do administrador, uso de _templates_ para aproveitar e customizar configuração entre diferentes grupos de máquinas, e grande extensibilidade de capacidades através de módulos e _plugins_ de terceiros.
 
+Nesta sessão iremos trabalhar com o Ansible, uma ferramenta de gestão de configuração _open-source_ criada por Michael DeHaan em 2012 e atualmente mantida pela Red Hat. O Ansible possibilita também a automatização de provisionamento de software e _deployment_ de aplicações, conectando-se via SSH ou PowerShell aos servidores-alvo em um arquitetura que dispensa a instalação de agentes (_agentless_). Usando o Ansible, iremos solucionar a gestão centralizada do arquivo `/etc/sudoers`, problema que encontramos no final da sessão anterior. Finalmente, iremos usar a ferramenta de controle de versão Git para gerenciar as mudanças que faremos nos conjuntos de _scripts_ e artefatos do Ansible ao longo das sessões.
+
+=== 1) Topologia desta sessão
+
+A figura abaixo mostra a topologia de rede que será utilizada nesta sessão, com as máquinas relevantes em destaque.
+
+.Topologia de rede desta sessão
+[#img-topologia5]
+image::Topologia_SEG10_S5.png[align="center"]
+
+1. Praticamente não há mudanças em relação à topologia da sessão anterior -- a única diferença é que a máquina `nfs` possuirá um novo _alias_, `git`, já que atuará como servidor da solução de controle de versão Git. Vamos ajustar o DNS: acesse a máquina `ns1` como o usuário `root`:
++
+....
+# hostname ; whoami
+ns1
+root
+....
++
+Edite o arquivo de zonas `/etc/nsd/zones/intnet.zone`, inserindo uma entrada CNAME para a máquina `nfs`, como se segue. *Não se esqueça* de incrementar o valor do serial no topo do arquivo!
++
+....
+# nano /etc/nsd/zones/intnet.zone
+(...)
+....
++
+....
+# grep git /etc/nsd/zones/intnet.zone
+git     IN    CNAME             nfs
+....
++
+Assine o arquivo de zonas usando o _script_ criado anteriormente:
++
+....
+# bash /root/scripts/signzone-intnet.sh
+reconfig start, read /etc/nsd/nsd.conf
+ok
+ok
+ok
+ok removed 0 rrsets, 0 messages and 0 key entries
+....
++
+Verifique a criação das entradas usando o comando `dig`:
++
+....
+# dig git.intnet +short
+nfs.intnet.
+10.0.42.3
+....
+
+=== 2) Instalação e configuração inicial do Ansible
+
+Um dos aspectos mais interessantes do Ansible é sua simplicidade -- dependendo apenas do interpretador Python para operar (o qual já vem instalado no sistema-base do Debian), sua instalação é bastante simples. Outro fator relevante: como o sistema dispensa a instalação de agentes, não é necessário criar um servidor dedicado para usar o Ansible, de forma que iremos usar a máquina `client` como um conveniente ponto de partida para os logins remotos.
+
+Vamos, no entanto, criar um usuário específico para o Ansible no servidor LDAP, gerenciando suas permissões de forma granular via `sudo`.
+
+1. Acesse a máquina `ns2` como o usuário `root` e crie um usuário para o Ansible, membro dos grupos `setup` (primário) e `fwadm`, com senha `seg10ansible`:
++
+....
+# hostname ; whoami
+ns2
+root
+....
++
 ....
 # ldapadduser ansible setup
+Successfully added user ansible to LDAP
+Successfully set password for user ansible
+....
++
+....
 # ldapaddusertogroup ansible setup
+Successfully added user ansible to group cn=setup,ou=Groups,dc=intnet
+....
++
+....
 # ldapaddusertogroup ansible fwadm
+Successfully added user ansible to group cn=fwadm,ou=Groups,dc=intnet
+....
++
+....
+# ldapsetpasswd ansible
+Changing password for user uid=ansible,ou=People,dc=intnet
+New Password:
+Retype New Password:
+Successfully set password for user uid=ansible,ou=People,dc=intnet
 ....
 
-Como `root@nfs`, permita ao usuário `ansible` executar quaisquer comandos como `root` sem digitar senha:
-
+2. Agora, acesse a máquina `client` como o usuário `root` e instale o Ansible seguindo os passos abaixo. Todas as instruções a seguir referenciam o passo-a-passo da documentação oficial do Ansible, acessível em https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-debian .
++
 ....
-# grep ansible /config/sudoers
-ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
+# hostname ; whoami
+client
+root
 ....
-
-Como `root@ansible`, instale o Ansible no servidor:
-
++
+Primeiro, adicione o repositório de pacotes do Ansible à lista de fontes do `apt-get`:
++
 ....
 # echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list
-# apt-get install dirmngr
-# apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+....
++
+Em seguida, adicione à lista de chaves confiáveis para instalação de pacotes a _pubkey_ dos mantenedores do pacote do Ansible:
++
+....
+# apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 93C4A3FD7BB9C367
+Executing: /tmp/apt-key-gpghome.UOSyzarqGQ/gpg.1.sh --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 93C4A3FD7BB9C367
+gpg: key 93C4A3FD7BB9C367: public key "Launchpad PPA for Ansible, Inc." imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+....
++
+Agora, basta atualizar a lista de pacotes disponíveis nos repositórios remotos e instalar o Ansible usando o `apt-get`:
++
+....
 # apt-get update
+....
++
+....
 # apt-get install ansible
 ....
 
-=== 2) Execução de comandos simples
+=== 3) Execução de comandos simples
 
-Como `ansible@ansible`, assine um par de chaves para logar nos servidores integrados no sistema LDAP/SSH-CA:
-
+1. Começaremos utilizando as funções mais básicas do Ansible. Antes de mais nada, no entanto, precisamos configurar o acesso para os diversos servidores do _datacenter_ simulado usando o sistema de autenticação LDAP/SSH-CA.
++
+Acesse a máquina `client` como o usuário `ansible`:
++
 ....
-$ bash scripts/sshsign_user.sh
-(sshca@10.0.42.2) Enter passphrase:
-# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
-
-(CA private key) Enter passphrase: seg10_user_ca
-Signed user key id_rsa-cert.pub: id "ansible" serial 0 for ansible valid from 2018-11-06T13:25:23 to 2021-11-05T12:30:23
+$ hostname ; whoami ; pwd
+client
+ansible
+/home/ansible
+....
++
+Agora, use o script `~/scripts/sshsign_user.sh` para assine um par de chaves e conseguir logar nos servidores:
++
+....
+$ bash ~/scripts/sshsign_user.sh
+Signing ~/.ssh/id_rsa.pub key...
+All done!
 ....
 
-Crie um diretório `~/ansible`, e um arquivo de hosts identificando as máquinas a gerenciar.
-
+2. Como estabelecido, o Ansible consegue trabalhar com múltiplos sistemas em uma infraestrutura ao mesmo tempo -- para isso, ele seleciona conjuntos de máquinas em seu *inventário*. O inventário é um arquivo texto em formato INI ou YAML que lista as máquinas e grupos a serem gerenciados.
++
+Crie o arquivo novo `/home/ansible/hosts` com o seguinte conteúdo:
++
 ....
-$ mkdir ~/ansible
-$ cd ~/ansible
-....
-
-....
-$ nano ~/ansible/hosts
+$ nano ~/hosts
 (...)
 ....
-
++
 ....
-$ cat ~/ansible/hosts
+$ cat hosts
 [srv]
-fw
-ldap
+ns1
+ns2
 nfs
-log
-ansible
 ....
++
+No arquivo acima criamos um único grupo, `srv`, contendo todos os servidores do _datacenter_ simulado criados até aqui.
 
-Execute um comando simples em todas as máquinas gerenciadas pelo Ansible.
-
+3. Vamos testar? Execute um comando simples em todas as máquinas gerenciadas pelo Ansible:
++
 ....
-$ ansible -i ~/ansible/hosts srv -b --become-user=root -m shell -a 'hostname ; whoami'
-ansible | CHANGED | rc=0 >>
+$ ansible -i ~/hosts srv -m shell -a 'hostname --fqdn ; whoami'
+ns2 | CHANGED | rc=0 >>
+ns2.intnet
 ansible
-root
 
-fw | CHANGED | rc=0 >>
-fw
-root
-
-ldap | CHANGED | rc=0 >>
-ldap
-root
+ns1 | CHANGED | rc=0 >>
+ns1.intnet
+ansible
 
 nfs | CHANGED | rc=0 >>
-nfs
-root
+nfs.intnet
+ansible
+....
++
+O que aconteceu? Vejamos:
++
+--
+* Com `ansible`, invocamos o Ansible para executar uma única tarefa, com parâmetros passados diretamente via linha de comando.
+* Depois, `-i ~/hosts` define o arquivo de inventário a ser usado, `/home/ansible/hosts`.
+* O grupo `srv` é indicado a seguir, falando para o Ansible qual dos grupos disponíveis no arquivo de inventário será o alvo dos comandos que se seguem.
+* Com `-m shell` carregamos o módulo _shell_ do Ansible, que permite execução de comandos diretamente pelo interpretador `/bin/sh` (ou outro à sua escolha) nas máquinas remotas.
+* Finalmente, `-a 'hostname --fqdn ; whoami'` indica quais comandos o _shell_ sendo executado em cada uma das máquinas-membros do grupo `srv` irá operar.
+--
++
+Analise a saída, agora: note que o Ansible loga em cada uma das máquinas do grupo `srv` (`ns2`, `ns1` e `nfs`) e executa os comandos indicados, mostrando claramente o _hostname_ local e usuário logado. Observe, ainda, que a ordem das máquinas escrita no arquivo `/home/ansible/hosts` não foi respeitada -- o Ansible inicia conexões nos servidores de forma paralela, e as respostas podem vir fora de ordem.
++
+Um último adendo: mencionamos o uso do módulo `shell` no comando acima, mas quais outros módulos existem? Há muitos outros -- mesmo. Confira a lista completa na página https://docs.ansible.com/ansible/latest/modules/modules_by_category.html .
 
-log | CHANGED | rc=0 >>
-log
-root
+4. A próxima pergunta que pode surgir neste momento é: Ok, conseguimos executar um comando remoto com um usuário não-privilegiado. E se quisermos executar como o `root`? Para isso, podemos executar a escalação de privilégios usando o `become`. Veja:
++
+....
+$ ansible -i ~/hosts srv --become --become-user=root --become-method=su --ask-become-pass -m shell -a 'hostname --fqdn ; head -n1 /etc/shadow'
+SU password:
+ns1 | CHANGED | rc=0 >>
+ns1.intnet
+root:$6$s7Gt1cd.$UXQf67CVYxR7HP..h2wvhOx4nOtBT7do28R1uChYdMpZc.uLi43OKdtentrWD2zSTKv9EyB7Bdqcpwr6nAlNo.:17848:0:99999:7:::
+
+ns2 | CHANGED | rc=0 >>
+ns2.intnet
+root:$6$s7Gt1cd.$UXQf67CVYxR7HP..h2wvhOx4nOtBT7do28R1uChYdMpZc.uLi43OKdtentrWD2zSTKv9EyB7Bdqcpwr6nAlNo.:17848:0:99999:7:::
+
+nfs | CHANGED | rc=0 >>
+nfs.intnet
+root:$6$s7Gt1cd.$UXQf67CVYxR7HP..h2wvhOx4nOtBT7do28R1uChYdMpZc.uLi43OKdtentrWD2zSTKv9EyB7Bdqcpwr6nAlNo.:17848:0:99999:7:::
+....
++
+Quais as diferenças para o comando anterior?
++
+--
+* `--become` indica que desejamos executar comandos como outro usuário -- esta opção não implica qual usuário, método ou senha serão usados, mas apenas que haverá a alteração de usuário efetivo.
+* Em seguida, `--become-user=root` informa que o usuário a se tornar nas máquinas remotas será, de fato, o `root`.
+* A opção `--become-method=su` configura o método de escalada de privilégio usado. Como ainda não configuramos o `sudo` nas máquinas remotas, iremos usar o `su`.
+* `--ask-become-pass` solicita ao Ansible que pergunte a senha de escalação de privilégio antes de executar os comandos, evitando que tenhamos que digitá-la diretamente no terminal.
+* Por fim, `'hostname --fqdn ; head -n1 /etc/shadow'` visa identificar a máquina remota e depois executar um comando que apenas o `root` conseguiria fazer.
+--
++
+Excelente! Estamos conseguindo controlar remotamente todos os servidores com sucesso. Mas e se quisermos fazer mais que apenas rodar comandos simples?
+
+=== 4) Uso de roles no Ansible
+
+Caso queiramos fazer mais que executar poucos comandos num _shell_ remoto, o uso de _roles_ (ou papéis) é fundamental para organizar tarefas complexas, cópia remota de arquivos e gerência de dependências entre serviços. Vamos usar _roles_ no Ansible para solucionar o problema de gestão centralizada do arquivo `/etc/sudoers`, apresentado no final da sessão anterior.
+
+1. Crie um diretório para armazenar as _roles_ que serão criadas, `/home/ansible/roles`. Em seguida, entre nesse diretório.
++
+....
+$ mkdir ~/roles
+....
++
+....
+$ cd ~/roles/
 ....
 
-=== 3) Uso de roles no Ansible
-
-Vamos usar roles (papéis) no Ansible para configurar o sudo de forma local, mais segura. Crie o diretório `~/ansible/roles`, e inicialize o papel `sudoers`:
-
+2. O comando `ansible-galaxy` nos permite realizar uma série de operações relacionadas a _roles_, desde a criação de simples papéis locais até a busca e importação de _roles_ criadas por outros usuários do Ansible e acessíveis na Internet pelo website https://galaxy.ansible.com/ . Recomendamos ao aluno que pesquise por tarefas usuais nesse site -- provavelmente já existe uma _role_ para solucionar esse problema!
++
+Para manter a simplicidade das atividades executadas no curso, iremos criar _roles_ manualmente. Use o `ansible-galaxy` para criar uma estrutura de diretórios padrão para a _role_ `sudoers`:
++
 ....
-$ mkdir ~/ansible/roles
-$ cd ~/ansible/roles/
-....
-
-....
-$ ansible-galaxy init sudoers
+$ ansible-galaxy init --init-path ~/roles/ sudoers
 - sudoers was created successfully
 ....
-
++
+O que foi criado? Vejamos:
++
 ....
-$ ls -R sudoers/
-sudoers/:
+$ ls -R ~/roles/sudoers/
+/home/ansible/roles/sudoers/:
 defaults  files  handlers  meta  README.md  tasks  templates  tests  vars
 
-sudoers/defaults:
+/home/ansible/roles/sudoers/defaults:
 main.yml
 
-sudoers/files:
+/home/ansible/roles/sudoers/files:
 
-sudoers/handlers:
+/home/ansible/roles/sudoers/handlers:
 main.yml
 
-sudoers/meta:
+/home/ansible/roles/sudoers/meta:
 main.yml
 
-sudoers/tasks:
+/home/ansible/roles/sudoers/tasks:
 main.yml
 
-sudoers/templates:
+/home/ansible/roles/sudoers/templates:
 
-sudoers/tests:
+/home/ansible/roles/sudoers/tests:
 inventory  test.yml
 
-sudoers/vars:
+/home/ansible/roles/sudoers/vars:
 main.yml
 ....
++
+Cada um dos diretórios criados possui uma função específica, a saber:
++
+--
+* `defaults`: contém variáveis-padrão a serem usadas na _role_.
+* `files`: contém arquivos que serão copiados através desta _role_.
+* `handlers`: contém funções especiais denominadas _handlers_. Essas funções são bastante parecida com _tasks_, mas são invocadas de forma indireta e servem para automatizar tarefas recorrentes, como o _reload_ de _daemons_ de serviços.
+* `meta`: contém metadados sobre a _role_, como a definição de dependências entre _roles_ em um mesmo diretório.
+* `tasks`: contém a lista principais de tarefas a serem executados pela _role_.
+* `templates`: contém _templates_ que podem ser copiados através desta _roles_ -- _templates_ podem basicamente ser entendidos como arquivos que se utilizam de variáveis para customizar seu estado final.
+* `tests`: permite a criação de testes para verificar a correta execução de aspectos da _role_ corrente. Frequentemente não é necessário desenvolver (muitos) testes no Ansible, já que o sistema de configuração modela um estado-alvo desejado, de forma declarativa.
+* `vars`: define outras variáveis para a _role_, que têm precedência sobre as variáveis em `defaults`.
+--
 
-Copie o arquivo `sudoers` do NFS para a pasta `files`:
+3. Retomemos o problema central, a configuração do arquivo `/etc/sudoers` de forma centralizada:
++
+--
+* A colaboradora `leia` acaba de se juntar à equipe de `han`, o grupo `fwadm` em nosso sistema LDAP. Imagine que ela ficará responsável por editar regras no firewall de borda, a máquina `ns1`. Mas, por estar começando agora na empresa, `han` quer restringir o conjunto de comandos que `leia` pode executar na máquina, liberando apenas a edição do firewall via `iptables`. Sua senha será `seg10leia`. Nas demais máquinas (`ns2` e `nfs`) `leia` não deve ter qualquer acesso especial, apenas como um usuário regular.
+* O colaborador `chewie` foi contratado para auxiliar na manutenção da base LDAP da empresa. Para desempenhar suas tarefas, iremos colocá-lo em um novo grupo `ldapadm`. Os membros desse grupo devem ter acesso aos principais comandos de edição do LDAP (criação, modificação e deleção de usuários e grupos) na máquina `ns2`. Sua senha será `seg10chewie`. Nas demais máquinas (`ns1` e `nfs`) `chewie` não deve ter qualquer acesso especial, apenas como um usuário regular.
+* Os usuários atuais, `luke` e `han`, terão permissão para executar qualquer comando como o usuário `root`, em qualquer máquina.
+--
++
+A criação de usuários e grupos já foi tratada no passo (1) da atividade (9) da sessão anterior, como visto. Foquemos, então, apenas arquivo `sudoers`. Como o `sudo` é um programa estático (isto é, não depende de nenhum _daemon_ executando para funcionar), o único requerimento para uma _role_ que configure o arquivo `/etc/sudoers` é copiar o arquivo corretamente para as máquinas, e ajustar suas permissões.
++
+Crie o arquivo novo `/home/ansible/roles/sudoers/files/sudoers`, com o seguinte conteúdo:
++
+[source,bash,linenums]
+----
+include::{srcdir}/s5/home_ansible_roles_sudoers_files_sudoers[]
+----
++
+O que esse arquivo faz? Vamos ver:
++
+--
+* Nas linhas [5-11] definimos _aliases_ (apelidos) de usuários para agrupar os elementos que serão configurados para usar o `sudo`. Criamos um _alias_ `ADMINS` para agrupar os usuários `aluno`, `luke` e `han`, `FWUSERS` para `leia` e `LDAPUSERS` para o *grupo* `ldapadm`. É especialmente importante manter um _alias_ apontando para um usuário local, como o usuário `aluno`, caso haja problemas com o sistema de autenticação LDAP.
+* Nas linhas [13-15] definimos _aliases_ para máquinas, `ns1` e `ns2`. Também poderíamos usar endereços IP, se desejado.
+* Nas linhas [17-31] definimos _aliases_ de comandos: para a máquina `ns1`, apenas o comando `/sbin/iptables` é suficiente; já para a máquina `ns2` configuramos uma lista detalhada dos comandos que o _alias_ `LDAPUSERS` poderá usar.
+* Nas linhas [33-41] fazemos a "amarração" dos _aliases_ previamente definidos, atribuindo aos usuários/grupos em quais máquinas eles podem executar os comandos, como quais usuários, e quais são esses comandos. Note que ao usuário `ansible` é permitido executar qualquer comando como `root` em todas as máquinas sem a necessidade de digitação de senha, de forma bastante conveniente para a automação de tarefas via Ansible como faremos em sessões futuras.
+--
++
+Compare as regras sendo definidas pelos _aliases_ no arquivo `sudoers` acima e os requisitos de acesso definidos no começo deste passo -- todos estão sendo atendidos a contento. É claro, seria possível organizar os usuários/grupos de forma diferente -- em particular, poderia ser interessante agrupar os usuário `han` e `luke` em um grupo dedicado de "super-admins" -- mas funciona como uma boa prova de conceito.
 
-....
-$ cp /config/sudoers ~/ansible/roles/sudoers/files/
-....
+[WARNING]
+====
+Para o aluno atento, é claro observar que o conjunto de programas que estão sendo autorizados para o usuário `chewie` (de fato, todo o grupo `ldapadm`) garante a ele uma permissão efetiva *muito* maior que a prevista no escopo inicial do problema. Afinal, bastaria ao usuário `chewie` adicionar-se a si mesmo no grupo `fwadm` (via comando `ldapaddusertogroup`) para acessar a máquina `ns1`, ou alterar a senha dos usuários `han` ou `luke` (via comando `ldapsetpasswd`) e entrar como esses usuários em máquinas que permitam login via senha. Iremos "ignorar" esse problema nesta atividade, em nome da simplicidade.
 
-Observe as permissões do arquivo `sudoers` original. Com isso em mente, edite o arquivo `~/ansible/roles/sudoers/tasks/main.yml` como se segue:
+De fato, fica aqui também um desafio: qual seria o conjunto adequado de programas e permissões garantidas via `sudoers` que permitiria ao usuário `chewie` executar seu trabalho de manutenção de contas no LDAP da empresa, e ao mesmo tempo controlar seu acesso de forma efetiva? Lembre-se que o `sudoers` permite ao administrador definir não apenas quais comandos serão autorizados, mas também parâmetros específicos de linha de comando, se desejado.
+====
 
+4. Criado o arquivo `sudoers` que atende aos requisitos iniciais, temos que criar a tarefa que irá distribuí-lo. Antes disso, observe as permissões do arquivo `sudoers` original:
++
 ....
-$ ls -ld /etc/sudoers.old
--r--r----- 1 root root 669 jun  5  2017 /etc/sudoers.old
+$ ls -ld /etc/sudoers
+-r--r----- 1 root root 669 jun  5  2017 /etc/sudoers
 ....
++
+Com essas permissões em mente, edite o arquivo `/home/ansible/roles/sudoers/tasks/main.yml` com o seguinte conteúdo:
++
+[source,yaml,linenums]
+----
+include::{srcdir}/s5/home_ansible_roles_sudoers_tasks_main.yml[]
+----
++
+Definimos uma tarefa de propagação do arquivo `sudoers`, com as seguintes características: iremos rodar a tarefa como o usuário `root`, usando o `su` para escalada de privilégio; será copiado o arquivo `sudoers` (do diretório `files/`, implícito aqui) para a pasta `/etc` na máquina remota, com `root` como usuário e grupo donos, e permissões `r--r-----`.
 
+5. Tudo pronto? Vamos executar! Crie o arquivo `/home/ansible/srv.yml` para fazer a amarração entre o grupo de _hosts_ e a nova _role_:
++
 ....
-$ cat ~/ansible/roles/sudoers/tasks/main.yml
----
-- name: Propagate sudoers configuration
-  become: yes
-  become_user: root
-  copy:
-    src: sudoers
-    dest: /etc
-    owner: root
-    group: root
-    mode: 0440
+$ nano ~/srv.yml
+(...)
 ....
-
-Crie o arquivo `~/ansible/srv.yml` para amarrar os hosts à nova role.
-
++
 ....
-$ cat ~/ansible/srv.yml
+$ cat ~/srv.yml
 ---
 - hosts: srv
   roles:
     - sudoers
 ....
-
-Execute a role.
-
++
+Como ainda *não* configuramos o `sudo`, e estamos usando o comando `su` para escalada de privilégio, iremos passar novamente a opção `--ask-become-pass` para que o Ansible solicite a senha do usuário `root` para escalada de privilégio nas máquinas remotas. Execute a role:
++
 ....
-$ ansible-playbook -i ~/ansible/hosts ~/ansible/srv.yml
+$ ansible-playbook -i ~/hosts ~/srv.yml --ask-become-pass
+SUDO password:
 
-PLAY [srv] *********************************************************************
+PLAY [srv] **********************************************************************************************************
 
-TASK [Gathering Facts] *********************************************************
+
+TASK [Gathering Facts] **********************************************************************************************
+
+ok: [ns2]
+ok: [ns1]
 ok: [nfs]
-ok: [ldap]
-ok: [fw]
-ok: [ansible]
-ok: [log]
 
-TASK [sudoers : Propagate sudoers configuration] *******************************
-changed: [fw]
-changed: [ldap]
+TASK [sudoers : Propagate sudoers configuration] ********************************************************************
+
+changed: [ns2]
+changed: [ns1]
 changed: [nfs]
-changed: [ansible]
-changed: [log]
 
-PLAY RECAP *********************************************************************
-ansible                    : ok=2    changed=1    unreachable=0    failed=0
-fw                         : ok=2    changed=1    unreachable=0    failed=0
-ldap                       : ok=2    changed=1    unreachable=0    failed=0
-log                        : ok=2    changed=1    unreachable=0    failed=0
+PLAY RECAP **********************************************************************************************************
+
 nfs                        : ok=2    changed=1    unreachable=0    failed=0
+ns1                        : ok=2    changed=1    unreachable=0    failed=0
+ns2                        : ok=2    changed=1    unreachable=0    failed=0
 ....
+
+STOPHERE
 
 Verifique que o arquivo `/etc/sudoers` é lido localmente, agora.
 
@@ -235,15 +428,7 @@ $ ls -ld /etc/sudoers
 ----
 include::{srcdir}/s4/config_sudoers[]
 ----
-+
-O que estamos fazendo? Vamos ver:
-+
---
-* Nas linhas [5-10] definimos _aliases_ (apelidos) de usuários para agrupar os elementos que serão configurados para usar o `sudo`. Criamos um _alias_ `ADMINS` para agrupar os usuários `aluno`, `luke` e `han`, `FWUSERS` para `leia` e `LDAPUSERS` para o *grupo* `ldapadm`. É especialmente importante manter um _alias_ apontando para um usuário local, como o usuário `aluno`, caso haja problemas com o LDAP.
-* Nas linhas [12-14] definimos _aliases_ para máquinas, `ns1` e `ns2`. Também poderíamos usar endereços IP, se desejado.
-* Nas linhas [16-30] definimos _aliases_ de comandos: para a máquina `ns1`, apenas o comando `/sbin/iptables` é suficiente; já para a máquina `ns2` configuramos uma lista detalhada dos comandos que o _alias_ `LDAPUSERS` poderá usar.
-* Nas linhas [32-38] fazemos a "amarração" dos _aliases_ previamente definidos, atribuindo aos usuários/grupos em quais máquinas eles podem executar os comandos, como quais usuários, e quais são esses comandos.
---
+
 
 2. Vamos testar o acesso de `leia` na máquina `ns1`. Antes disso o primeiro passo, é claro, é criar o diretório `/config` e configurar sua montagem automática durante o _boot_ via `/etc/fstab`. Acesse `ns1` como `root`, crie o diretório `/config` e insira a linha a seguir no final do arquivo:
 +
