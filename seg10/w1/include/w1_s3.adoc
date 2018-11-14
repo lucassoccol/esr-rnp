@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 17-10-2018
+:revdate: 13-11-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -25,93 +25,98 @@ Sistemas de autenticação centralizados, como NIS (_Network Information Service
 
 Nesta sessão, iremos configurar um sistema de autenticação centralizado para o nosso laboratório usando LDAP, no qual gerenciaremos usuários e grupos, e faremos a integração desse sistema de autenticação com o Linux através do PAM (_Pluggable Authentication Modules_). Em lugar de fazer o controle de senhas dos usuários diretamente via `/etc/shadow` ou no LDAP, criaremos um sistema de autoridade certificadora (_Certificate Authority_) para o SSH, com o qual os usuários farão login nos servidores usando chaves assimétricas assinadas pela CA. Finalmente, para controlar ataques de força-bruta contra os servidores, usaremos o programa Fail2Ban para realizar o bloqueio automático de atacantes no firewall de host das máquinas.
 
-=== 1) Criação da VM para o servidor LDAP
+=== 1) Topologia desta sessão
 
-1. Clone a máquina `debian-template` seguindo os mesmos passos da atividade (6) da sessão 1. Para o nome da máquina, escolha `ldap`.
+A figura abaixo mostra a topologia de rede que será utilizada nesta sessão, com as máquinas relevantes em destaque.
 
-2. Após a clonagem, na janela principal do Virtualbox, clique com o botão direito sobre a VM `ldap` e depois em _Settings_.
-+
-Em _Network_ > _Adapter 1_ > _Attached to_, escolha _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a interface de rede da máquina virtual `fw`, configurada durante a sessão 2, que está conectada à DMZ.
-+
-Clique em _OK_, e ligue a máquina `ldap`.
+.Topologia de rede desta sessão
+[#img-topologia3]
+image::Topologia_SEG10_S3.png[align="center"]
 
-3. Logue como o usuário `root` e usando o script `/root/scripts/changehost.sh` que criamos anteriormente, renomeie a máquina:
-+
-....
-# hostname
-debian-template
-....
-+
-....
-# bash ~/scripts/changehost.sh ldap
-....
-+
-....
-# hostname
-ldap
-....
+Teremos três máquinas:
 
-4. Em seguida, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
+* `ns1`, com _alias_ `firewall`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
+* `ns2`, com _alias_ `ns2`, localizada na DMZ e atuando como DNS secundário, servidor LDAP de autenticação centralizada e repositório de chaves SSH-CA. Endereço IP 10.0.42.2/24.
+* `client`, localizada na Intranet e usada a partir de agora como ponto de partida para logins remotos nos diferentes servidores do _datacenter_ simulado. Endereço IP 192.168.42.2/24.
+
+1. Observe que a topologia acima prevê a criação de um novo _alias_ de rede para a máquina `ns2`, o nome `ns2`. Antes de começar, vamos ajustar nossa configuração DNS para refletir essa situação: acesse a máquina `ns1` como o usuário `root`:
 +
 ....
-# nano /etc/network/interfaces
+# hostname ; whoami
+ns1
+root
+....
++
+Edite o arquivo de zonas `/etc/nsd/zones/intnet.zone`, inserindo uma entrada CNAME para a máquina `ns2`, como se segue. *Não se esqueça* de incrementar o valor do serial no topo do arquivo!
++
+....
+# nano /etc/nsd/zones/intnet.zone
 (...)
 ....
 +
 ....
-# cat /etc/network/interfaces
-source /etc/network/interfaces.d/*
+# grep '^ldap ' /etc/nsd/zones/intnet.zone
+ldap    IN    CNAME             ns2
+....
++
+Assine o arquivo de zonas usando o _script_ criado na sessão anterior:
++
+....
+# bash /root/scripts/signzone-intnet.sh
+reconfig start, read /etc/nsd/nsd.conf
+ok
+ok
+ok
+ok removed 0 rrsets, 0 messages and 0 key entries
+....
++
+Verifique que a entrada foi criada com sucesso, usando o comando `dig`:
++
+....
+# dig @127.0.0.1 ldap.intnet +noall +answer
 
-auto lo enp0s3
+; <<>> DiG 9.10.3-P4-Debian <<>> @127.0.0.1 ldap.intnet +noall +answer
+; (1 server found)
+;; global options: +cmd
+ldap.intnet.            86138   IN      CNAME   ns2.intnet.
+ns2.intnet.             86138   IN      A       10.0.42.2
+....
++
+Certifique-se que a transferência de zonas entre o servidor DNS primário e secundário está funcionando corretamente -- repita a consulta, desta vez no servidor `ns2`:
++
+....
+# dig @10.0.42.2 ldap.intnet +noquestion
 
-iface lo inet loopback
+; <<>> DiG 9.10.3-P4-Debian <<>> @10.0.42.2 ldap.intnet +noquestion
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 48391
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
 
-iface enp0s3 inet static
-address 10.0.42.2/24
-gateway 10.0.42.1
-....
-+
-....
-# systemctl restart networking
-....
-+
-....
-# ip a s | grep '^ *inet '
-    inet 127.0.0.1/8 scope host lo
-    inet 10.0.42.2/24 brd 10.0.42.255 scope global enp0s3
-....
-+
-Verifique o roteamento:
-+
-....
-# ip r s
-default via 10.0.42.1 dev enp0s3 onlink
-10.0.42.0/24 dev enp0s3 proto kernel scope link src 10.0.42.2
-....
-+
-Verifique, ainda, a configuração de DNS do sistema:
-+
-....
-# nano /etc/resolv.conf
-(...)
-....
-+
-....
-# cat /etc/resolv.conf
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-....
-+
-Finalmente, teste o funcionamento da conexão de rede:
-+
-....
-# nc -zv obsd3.srv.ualberta.ca 80
-obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+ldap.intnet.            86207   IN      CNAME   ns2.intnet.
+ns2.intnet.             86207   IN      A       10.0.42.2
+
+;; Query time: 0 msec
+;; SERVER: 10.0.42.2#53(10.0.42.2)
+;; WHEN: Tue Nov 13 18:28:16 -02 2018
+;; MSG SIZE  rcvd: 74
 ....
 
 === 2) Configuração do servidor LDAP
 
-1. Vamos, primeiramente, instalar o servidor LDAP através dos pacotes:
+1. O servidor LDAP, como explicitado na topologia desta sessão, será a máquina `ns2`. Acesse-a como o usuário `root`:
++
+....
+# hostname ; whoami
+ns2
+root
+....
++
+Vamos, primeiramente, instalar o servidor LDAP através dos pacotes:
 +
 ....
 # apt-get install slapd ldap-utils ldapscripts
@@ -287,12 +292,12 @@ include::{srcdir}/s3/etc_rsyslog.d_slapd.conf[]
 5. Verifique que os registros de eventos do `slapd` estão sendo, de fato, enviados para o arquivo `/var/log/slapd.log`:
 +
 ....
-# tail /var/log/slapd.log
-[19-10-2018 18:25:46] slapd debug  daemon: shutdown requested and initiated.
-[19-10-2018 18:25:46] slapd debug  slapd shutdown: waiting for 0 operations/tasks to finish
-[19-10-2018 18:25:46] slapd debug  slapd stopped.
-[19-10-2018 18:25:46] slapd debug  @(#) $OpenLDAP: slapd  (May 23 2018 04:25:19) $#012#011Debian OpenLDAP Maintainers <pkg-openldap-devel@lists.alioth.debian.org>
-[19-10-2018 18:25:46] slapd debug  slapd starting
+tail /var/log/slapd.log
+[13-11-2018 18:35:18] slapd debug  daemon: shutdown requested and initiated.
+[13-11-2018 18:35:18] slapd debug  slapd shutdown: waiting for 0 operations/tasks to finish
+[13-11-2018 18:35:18] slapd debug  slapd stopped.
+[13-11-2018 18:35:18] slapd debug  @(#) $OpenLDAP: slapd  (May 23 2018 04:25:19) $#012#011Debian OpenLDAP Maintainers <pkg-openldap-devel@lists.alioth.debian.org>
+[13-11-2018 18:35:18] slapd debug  slapd starting
 ....
 
 6. A rotação de logs deve ser habilitada, caso contrário os arquivos de log poderão ficar excessivamente grandes. Crie o arquivo novo `/etc/logrotate.d/slapd`, com o seguinte conteúdo:
@@ -528,6 +533,10 @@ luke : sysadm
 +
 ....
 # ssh luke@localhost
+The authenticity of host 'localhost (::1)' can't be established.
+ECDSA key fingerprint is SHA256:mI2LM9Nxt5ltC7/VnlEgB+JBdqFbKxUj1FhhvLijcv4.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'localhost' (ECDSA) to the list of known hosts.
 luke@localhost's password:
 Creating directory '/home/luke'.
 ....
@@ -585,13 +594,12 @@ Até o momento, instalamos e configuramos uma base LDAP, e testamos sua integra�
 
 Nesta atividade iremos configurar uma autoridade certificadora para o `ssh`, com a qual assinaremos pares de chaves de _hosts_ e de usuários. De posse dessas chaves, não será mais necessário informar senhas durante o login, tornando o processo significativamente mais seguro (desde que se tome cuidado para não perder a chave privada, como veremos).
 
-1. Primeiro, verifique que você está logado como usuário `root` na máquina `ldap`:
+1. Primeiro, verifique que você está logado como usuário `root` na máquina `ns2`:
 +
 ....
-# hostname ; whoami ; pwd
-ldap
+# hostname ; whoami
+ns2
 root
-/root
 ....
 
 2. Vamos adicionar um novo usuário à base LDAP, `sshca`, que será responsável por realizar os processos de assinaturas de chaves de _hosts_ e usuários. Esse usuário irá pertencer ao grupo `setup`, um grupo especial para atividades de configuração de sistemas. Sua senha será `seg10sshca`.
@@ -648,30 +656,28 @@ $ pwd
 
 4. Vamos criar dois pares de chaves para a CA (_Certificate Authority_, ou autoridade certificadora) do `ssh`: uma para assinar chaves de _hosts_, denominada `server_ca`, e outra para assinar chaves de usuários, denominada `user_ca`. Iremos criar chaves RSA de 4096 bits, e devemos escolher uma senha bastante segura para a chave privada -- já que, com ela, pode-se assinar quaisquer chaves `ssh` que autorizarão máquinas a se passarem por membros do nosso _datacenter_ e usuários a logarem em qualquer servidor integrado.
 +
-Como estamos em um ambiente de laboratório, vamos escolher senhas um pouco mais inseguras para facilitar a execução das atividades. Para a chave `server_ca`, defina como senha `seg10_server_ca`, e para a chave `user_ca`, defina como senha `seg10_user_ca`.
+Como estamos em um ambiente de laboratório, não iremos utilizar senhas para as chaves privadas de modo a agilizar a execução das atividades.
 +
 Para criar a chave de assinatura de _hosts_, `server_ca`, execute:
 +
 ....
-$ ssh-keygen -f server_ca -t rsa -b 4096
+$ ssh-keygen -f server_ca -t rsa -b 4096 -N ''
 Generating public/private rsa key pair.
-Enter passphrase (empty for no passphrase):
-Enter same passphrase again:
 Your identification has been saved in server_ca.
 Your public key has been saved in server_ca.pub.
 The key fingerprint is:
-SHA256:ToVgkUzfkVQsZwwdKavtkE4O28U1tcaIKzsZcuSbXrg sshca@ldap
+SHA256:op2g5J5DN/1pPy8RUHxnAdh51NHP/2Pmyo3Vq5Qlvjo sshca@ns2
 The key's randomart image is:
 +---[RSA 4096]----+
-|     o=o .+Boo   |
-|     .oo o+.B .  |
-|        o oB + . |
-|        ..o + +  |
-|       oS= o o   |
-|      ooX.=      |
-|       Xo@.      |
-|      . Xo.      |
-|       .E.       |
+|         o.o.+o+o|
+|        . o + + o|
+|         . . + ..|
+|          .     o|
+|  . ... S  . . ..|
+| o..o+.o  . . + o|
+| .o...o. . . + .o|
+| ...    + oEo =+o|
+|  o.   . ..=+**+.|
 +----[SHA256]-----+
 ....
 +
@@ -685,25 +691,23 @@ server_ca  server_ca.pub
 Para criar a chave de assinatura de usuários, `user_ca`, execute:
 +
 ....
-$ ssh-keygen -f user_ca -t rsa -b 4096
+$ ssh-keygen -f user_ca -t rsa -b 4096 -N ''
 Generating public/private rsa key pair.
-Enter passphrase (empty for no passphrase):
-Enter same passphrase again:
 Your identification has been saved in user_ca.
 Your public key has been saved in user_ca.pub.
 The key fingerprint is:
-SHA256:AJ7kC3EAI+TXTNUJgywCUOSYUSK9AOfF4mBZu6tgnyQ sshca@ldap
+SHA256:T6dFFMQiJnbGCLg0rj1tzaT4mfqagBn80YQaBGuWpuM sshca@ns2
 The key's randomart image is:
 +---[RSA 4096]----+
-|/BX+*.o+o .      |
-|*&oO*=  .o       |
-|+====o.          |
-|  +... .         |
-|   ..   S        |
-|    .            |
-|.E o             |
-|o = .            |
-| . o             |
+|o. ... o   o+.   |
+|..= . + * ...    |
+|.O + o = . ..    |
+|* = o .    .     |
+|+= + *  S . o    |
+|++= = o  o +     |
+|+E = o    o      |
+| . .+            |
+|  ++.            |
 +----[SHA256]-----+
 ....
 +
@@ -728,7 +732,15 @@ $ ls -l *_ca*
 
 === 8) Configurando a SSH-CA no servidor LDAP
 
-1. Vamos configurar o servidor LDAP para interoperar com a CA `ssh` que configuramos na atividade anterior. Crie um novo arquivo, `/root/scripts/sshsign.sh` com o seguinte conteúdo:
+1. Vamos configurar o servidor LDAP para interoperar com a CA `ssh` que configuramos na atividade anterior. Volte ao usuário `root` na máquina `ns2`:
++
+....
+# hostname ; whoami
+ns2
+root
+....
++
+Crie um novo arquivo, `/root/scripts/sshsign.sh` com o seguinte conteúdo:
 +
 [source,bash,linenums]
 ----
@@ -738,52 +750,39 @@ include::{srcdir}/s3/root_scripts_sshsign.sh[]
 Você deve estar se perguntando: o que esse _script_ faz? Vamos ver:
 +
 --
-1. (Linhas 3-4) Definimos o usuário `sshca` e o IP `10.0.42.2` (o servidor `ldap` local no qual estamos logados no momento) como a origem das chaves da CA que utilizaremos a seguir.
-2. (Linhas 8-10) Solicitamos ao usuário a senha do usuário `sshca@10.0.42.2`, armazenando-a em memória na variável `$pass`. Como faremos vários logins ao longo do _script_, faz sentido que armazenemos esta senha para evitar ter que digitá-la múltiplas vezes.
-3. (Linhas 13-16) Escaneamos a chave do servidor `10.0.42.2` e armazenamos no arquivo `~/.ssh/known_hosts`, evitando que o usuário tenha que confirmar que confia no _host_ remoto antes de logar.
-4. (Linhas 19-22) Testamos se a senha informada no passo (2) está correta usando o comando `sshpass` -- instalaremos esta dependência a seguir.
-5. (Linhas 25-27) Iteramos sobre todas as chaves públicas no diretório `/etc/ssh` (RSA, ECDSA e ED25519), extraindo _strings_ para usar à frente.
-6. (Linhas 30-31) Copiamos a chave pública do _host_ sendo processadao pelo _loop_ para o servidor da CA.
-7. (Linhas 34-44) Assinamos a chave pública do _host_ sendo processadao pelo _loop_ usando a chave `server_ca`, com validade de 3 anos.
-8. (Linhas 47-48) Copiamos a chave pública assinada sendo processadao pelo _loop_ de volta para a máquina local.
-9. (Linhas 51-53) Removemos chaves pública não-assinada e assinada sendo processadao pelo _loop_ da pasta do usuário `sshca` no servidor `10.0.42.2`, para evitar confusão em assinaturas futuras.
-10. (Linhas 56-57) Removemos a chave pública sendo processadao pelo _loop_ não-assinada e mantemos apenas a assinada, configurando o servidor `ssh` para apresentá-la para clientes.
-11. (Linha 61) Configuramos a chave `server_ca.pub` como uma CA confiável para _hosts_ remotos; a partir deste momento, quaisquer logins de cliente `ssh` da máquina local para _hosts_ assinados não terão que confirmar relação de confiança antes de prosseguir.
-12. (Linhas 64-66) Copiamos a chave `user_ca.pub` e a configuramos como uma CA confiável para usuários; a partir deste momento, qualquer usuário que apresente uma chave assinada pela CA terá seu login autorizado sem necessitar digitação de senha.
-13. (Linha 68) Reiniciamos o servidor `ssh` para aplicar as configurações realizadas.
+1. (Linhas 3-6) Definimos o usuário `sshca` e o IP `10.0.42.2` (o servidor `ns2` local no qual estamos logados no momento) como a origem das chaves da CA que utilizaremos a seguir. Configuramos a senha do usuário `sshca` de forma _hardcoded_ para agilizar o processo de execução do _script_ e informamos que os logins SSH serão feitos sempre via senha, não chaves assimétricas.
+2. (Linhas 9-20) Função que reseta a situação do SSH no servidor para um estado conhecido, em caso de falha ou encerramento abrupto do usuário durante a execução do _script_.
+3. (Linhas 27-30) Escaneamos a chave do servidor `10.0.42.2` e armazenamos no arquivo `~/.ssh/known_hosts`, evitando que o usuário tenha que confirmar que confia no _host_ remoto antes de logar.
+4. (Linhas 33-35) Iteramos sobre todas as chaves públicas no diretório `/etc/ssh` (RSA, ECDSA e ED25519), extraindo _strings_ para usar à frente.
+5. (Linhas 39-40) Copiamos a chave pública do _host_ sendo processadao pelo _loop_ para o servidor da CA.
+6. (Linhas 43-52) Assinamos a chave pública do _host_ sendo processadao pelo _loop_ usando a chave `server_ca`, com validade de 3 anos.
+7. (Linhas 55-56) Copiamos a chave pública assinada sendo processadao pelo _loop_ de volta para a máquina local.
+8. (Linhas 59-61) Removemos chaves pública não-assinada e assinada sendo processadao pelo _loop_ da pasta do usuário `sshca` no servidor `10.0.42.2`, para evitar confusão em assinaturas futuras.
+9. (Linhas 64-65) Removemos a chave pública sendo processadao pelo _loop_ não-assinada e mantemos apenas a assinada, configurando o servidor `ssh` para apresentá-la para clientes.
+10. (Linha 70) Configuramos a chave `server_ca.pub` como uma CA confiável para _hosts_ remotos; a partir deste momento, quaisquer logins de cliente `ssh` da máquina local para _hosts_ assinados não terão que confirmar relação de confiança antes de prosseguir.
+11. (Linhas 74-76) Copiamos a chave `user_ca.pub` e a configuramos como uma CA confiável para usuários; a partir deste momento, qualquer usuário que apresente uma chave assinada pela CA terá seu login autorizado sem necessitar digitação de senha.
+12. (Linha 79) Reiniciamos o servidor `ssh` para aplicar as configurações realizadas.
 --
 
-2. Vamos instalar o `sshpass`, dependência para que o _script_ acima funcione corretamente. Logado como `root`:
-+
-....
-# whoami
-root
-....
-+
-Instale o pacote:
+2. Vamos instalar o `sshpass`, dependência para que o _script_ acima funcione corretamente.
 +
 ....
 # apt-get install sshpass
 ....
 
-3. Vamos configurar a máquina `ldap` para operar com a CA do `ssh`. Execute o _script_ criado no passo (1). Na pergunta `(sshca@10.0.42.2) Enter passphrase`, responda a senha do usuário `sshca` na máquina `10.0.42.2` (que deve ser `seg10sshca`); para cada pergunta `(CA private key) Enter passphrase`, informe a senha da chave `server_ca` (que deve ser `seg10_server_ca`).
+3. Vamos configurar a máquina `ns2` para operar com a CA do `ssh`: execute o _script_ criado no passo (1).
 +
 ....
 # bash ~/scripts/sshsign.sh
-(sshca@10.0.42.2) Enter passphrase:
-# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_ecdsa_key-cert.pub: id "ldap.intnet" serial 0 for ldap,ldap.intnet,10.0.42.2 valid from 2018-10-30T10:09:23 to 2021-10-29T10:14:23
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_ed25519_key-cert.pub: id "ldap.intnet" serial 0 for ldap,ldap.intnet,10.0.42.2 valid from 2018-10-30T10:09:26 to 2021-10-29T10:14:26
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_rsa_key-cert.pub: id "ldap.intnet" serial 0 for ldap,ldap.intnet,10.0.42.2 valid from 2018-10-30T10:09:28 to 2021-10-29T10:14:28
+Signing ssh_host_ecdsa_key.pub key...
+Signing ssh_host_ed25519_key.pub key...
+Signing ssh_host_rsa_key.pub key...
+Configuring host key trust...
+Configuring user key trust...
+All done!
 ....
 +
-Note que não foi necessário passar quaisquer parâmetros de linha de comando para o _script_. Ele autodetecta o _hostname_ e endereços da máquina local e os configura como _principals_ (conjunto de endereços/_hostnames_ válidos para uma determinada chave; linha 34 do _script_).
+Note que não foi necessário passar quaisquer parâmetros de linha de comando para o _script_. Ele autodetecta o _hostname_ e endereços da máquina local e os configura como _principals_ (conjunto de endereços/_hostnames_ válidos para uma determinada chave; linha 44 do _script_).
 
 4. Vamos verificar que o _script_ fez seu trabalho corretamente. Cheque as linhas finais do arquivo `/etc/ssh/sshd_config`:
 +
@@ -808,12 +807,12 @@ Compare o conteúdo dos arquivos de chave pública `/home/sshca/server_ca.pub` e
 +
 ....
 # cat /etc/ssh/ssh_known_hosts
-@cert-authority * ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCbhWR/iPDscvZm9/RL2aiauZq3yGbbZMcoHM2eKCLabjfpk2VqEk8rqo5cdO2XsvnKL6OAE69TG7FU1pY9jxKODYtgdQAGEBgfycR8I8AcSZ0t1DEvvXxdA0j6rIcWm458swdGYySAQsjFBAxrclqGBC/0i7JzKqdTi1r4GfulD0Hf4T4CVkIYgWF3f4OH3RvebbLS2eQHPfMX46uYCjT9xYjM8M21ftMe5h/Jt/rio5pnN5S6lL0XuKHg0e+wBDOJLbjjXSZmaSiVDMxsYWcuJjlMZ+Ew1VSgRNayX9yyoN4fPEAM7NOGeEerqwrk/ZSRzChLH1t0LhORDbybya8wA5+XJyGDDWYpkCMAyClPRT3lAkR+WtJw6thJEF+mcY8G6zzAyoAD+riy5P9pqLsu14Hj6A8HXwlGDlNT35kt/Al/4SJia8XE0zXnAHKDloMJHBIwNsI6dG5Bglar/0dd9tVNnhsY/gMR5kjk07Yn0gIiThZ+e0K6SIrugVn1mQwldsMWLZFkHiyb3Ko7zQSFWJMr13XK5aTkXxTn4C7L3jaAGu+EgyQLANXzpN8HNNgift55s2NbbJWRcLFQ7LGQRKwMhSvDRIiZcf2o9WxHxGCV7TMq5LleBQJNrchBDqEtJyyvrg78lfkRH+u0dWt5AxhU8xCg6ItCYMH+7FHPww== sshca@ldap
+@cert-authority * ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+ZP47AOiRPcakZiLm+szvxWF5HKNa+BauaYXt5A6XjuUUJIYXXdTdzrq+d4rx379jxk5E+RHvPls1Y+5Cvn2/EpBgx20TXoT9+O0Nn7pemHd7qkDb2JqPzoHzjViG033L8UociItit13UVMlvB2+miW4RPMHhLjJpJT2BoWzvkBtJdukO/SA+3EYpIZAj8kyFfkp9+2A/A+OCREWoh5EkcjREAQRay+pc/j3sWDYrymu65OamPwGAe3Ih9/TmflUiwdHaNfJMY0BqpJsdFyUJeS36asjRhLtZltfLNTyY1gOq3XglLZb76YaQWOoIhzwqQ2WNSt72cY7s8p97loX5LTBSjNw6Kq0rOpKY3XmkyP2A5+L+CFxRxpl0obOkqiZqK/oT4cFE72EBaSg0XfFej19rd/AqqFSEHpbK4GjZzBAEID932DrgcR6ud74k1TDemQgWZ5dge0wEKMfeNVzUXhAPuxeIyQ6E+DxuayHIrUKZ7T36ZVz5N56TXnr+iaaejqpJfuSKZxC8YT9ZmRiHeZ+edze+R6QPiV76QUIQqzocO+OlWPHUZ2zVINV76DZARqxzZuKWW7JzA1+kTJ3VW3zGaOs53n36lfThb39ULHplsJUPfUGiun8cK7onzIbkRibbVu/kmrNG8nr2Z4GHMGpQ6KvYyGZNFIwioGMu6Q== sshca@ns2
 ....
 +
 ....
 # cat /home/sshca/server_ca.pub
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCbhWR/iPDscvZm9/RL2aiauZq3yGbbZMcoHM2eKCLabjfpk2VqEk8rqo5cdO2XsvnKL6OAE69TG7FU1pY9jxKODYtgdQAGEBgfycR8I8AcSZ0t1DEvvXxdA0j6rIcWm458swdGYySAQsjFBAxrclqGBC/0i7JzKqdTi1r4GfulD0Hf4T4CVkIYgWF3f4OH3RvebbLS2eQHPfMX46uYCjT9xYjM8M21ftMe5h/Jt/rio5pnN5S6lL0XuKHg0e+wBDOJLbjjXSZmaSiVDMxsYWcuJjlMZ+Ew1VSgRNayX9yyoN4fPEAM7NOGeEerqwrk/ZSRzChLH1t0LhORDbybya8wA5+XJyGDDWYpkCMAyClPRT3lAkR+WtJw6thJEF+mcY8G6zzAyoAD+riy5P9pqLsu14Hj6A8HXwlGDlNT35kt/Al/4SJia8XE0zXnAHKDloMJHBIwNsI6dG5Bglar/0dd9tVNnhsY/gMR5kjk07Yn0gIiThZ+e0K6SIrugVn1mQwldsMWLZFkHiyb3Ko7zQSFWJMr13XK5aTkXxTn4C7L3jaAGu+EgyQLANXzpN8HNNgift55s2NbbJWRcLFQ7LGQRKwMhSvDRIiZcf2o9WxHxGCV7TMq5LleBQJNrchBDqEtJyyvrg78lfkRH+u0dWt5AxhU8xCg6ItCYMH+7FHPww== sshca@ldap
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+ZP47AOiRPcakZiLm+szvxWF5HKNa+BauaYXt5A6XjuUUJIYXXdTdzrq+d4rx379jxk5E+RHvPls1Y+5Cvn2/EpBgx20TXoT9+O0Nn7pemHd7qkDb2JqPzoHzjViG033L8UociItit13UVMlvB2+miW4RPMHhLjJpJT2BoWzvkBtJdukO/SA+3EYpIZAj8kyFfkp9+2A/A+OCREWoh5EkcjREAQRay+pc/j3sWDYrymu65OamPwGAe3Ih9/TmflUiwdHaNfJMY0BqpJsdFyUJeS36asjRhLtZltfLNTyY1gOq3XglLZb76YaQWOoIhzwqQ2WNSt72cY7s8p97loX5LTBSjNw6Kq0rOpKY3XmkyP2A5+L+CFxRxpl0obOkqiZqK/oT4cFE72EBaSg0XfFej19rd/AqqFSEHpbK4GjZzBAEID932DrgcR6ud74k1TDemQgWZ5dge0wEKMfeNVzUXhAPuxeIyQ6E+DxuayHIrUKZ7T36ZVz5N56TXnr+iaaejqpJfuSKZxC8YT9ZmRiHeZ+edze+R6QPiV76QUIQqzocO+OlWPHUZ2zVINV76DZARqxzZuKWW7JzA1+kTJ3VW3zGaOs53n36lfThb39ULHplsJUPfUGiun8cK7onzIbkRibbVu/kmrNG8nr2Z4GHMGpQ6KvYyGZNFIwioGMu6Q== sshca@ns2
 ....
 +
 Observer, finalmente, que os arquivos `/home/sshca/user_ca.pub` e `/etc/ssh/user_ca.pub` também devem ser idênticos:
@@ -825,6 +824,8 @@ Observer, finalmente, que os arquivos `/home/sshca/user_ca.pub` e `/etc/ssh/user
 [NOTE]
 ====
 Note que tanto no caso de assinatura de chaves de _host_ como de chaves de usuário, futuramente, estamos fazendo o acesso no sentido *máquina remota* -> *servidor da CA*, que não é o ideal. Em produção, o correto seria tornar o acesso ao servidor da CA o mais controlado possível, e fazer as assinaturas de chaves apenas de forma local, ou com acessos no sentido *servidor da CA* -> *máquina remota*.
+
+Outro aspecto relevante de segurança que sacrificamos em nosso cenário para agilizar a execução das atividades foi a configuração das chaves privadas de assinatura de _hosts_ e usuários sem senha: em produção, é altamente recomendado que essas chaves sejam criadas com senhas fortes, para mitigar a possibilidade de assinatura indevida de chaves em caso de vazamento das mesmas.
 ====
 
 === 9) Automatizando a assinatura de chaves SSH de usuários
@@ -833,7 +834,7 @@ Note que tanto no caso de assinatura de chaves de _host_ como de chaves de usuá
 +
 --
 1. Deve-se estar logado com o mesmo nome do usuário com o qual se deseja assinar a chave.
-2. Deve-se ter conectividade com o servidor `ldap`, no endereço `10.0.42.2`.
+2. Deve-se ter conectividade com o servidor `ns2`, no endereço `10.0.42.2`.
 3. O nome de chave será fixo (`~/.ssh/id_rsa`).
 --
 +
@@ -853,13 +854,19 @@ include::{srcdir}/s3/etc_skel_scripts_sshsign_user.sh[]
 Como o _script_ guarda grandes semelhanças com o anterior, iremos destacar apenas os pontos de divergência:
 +
 --
-1. (Linhas 8-11) Testamos se a chave RSA do usuário já foi assinada anteriormente; se positivo, o programa se encerra.
-2. (Linha 31) Caso o usuário não possua um par de chaves criado, cria-se automaticamente um par RSA de 4096 bits, sem senha.
-3. (Linhas 38-46) A chave usada para assinar a chave pública do usuário desta vez é a `user_ca`. A validade é ajustada para um ano.
-4. (Linha 58) De forma similar ao que foi feito anteriormente, copia-se a chave `server_ca.pub` como uma CA confiável para _hosts_ remotos; a partir deste momento, logins de cliente `ssh` deste usuário para _hosts_ assinados não terão que confirmar relação de confiança antes de prosseguir.
+1. (Linhas 9-12) Testamos se a chave RSA do usuário já foi assinada anteriormente; se positivo, o programa se encerra.
+2. (Linha 22) Caso o usuário não possua um par de chaves criado, cria-se automaticamente um par RSA de 4096 bits, sem senha.
+3. (Linhas 30-37) A chave usada para assinar a chave pública do usuário desta vez é a `user_ca`. A validade é ajustada para um ano.
+4. (Linha 49) De forma similar ao que foi feito anteriormente, copia-se a chave `server_ca.pub` como uma CA confiável para _hosts_ remotos; a partir deste momento, logins de cliente `ssh` deste usuário para _hosts_ assinados não terão que confirmar relação de confiança antes de prosseguir.
 --
 
-2. Vamos testar o funcionamento do _script_ com o usuário `luke`, então logue-se como este usuário:
+2. Vamos testar o funcionamento do _script_ com o usuário `luke`. Remova o diretório dele para garantir que o conteúdo do `/etc/skel` será copiado no próximo login:
++
+....
+# rm -rf /home/luke
+....
++
+Agora, logue como o usuário `luke` usando os comandos `su` ou `ssh`:
 +
 ....
 $ whoami ; pwd
@@ -867,32 +874,17 @@ luke
 /home/luke
 ....
 +
-Como o diretório `/home/luke` já existia antes de criarmos o _script_ no `/etc/skel`, iremos refazer a mesma estrutura de diretórios. Crie a pasta `/home/luke/scripts`:
-+
-....
-$ mkdir ~/scripts
-....
-+
-E copie para dentro dela o _script_ criado no passo (1) desta atividade:
-+
-....
-$ cp /etc/skel/scripts/sshsign_user.sh ~/scripts
-....
-+
 ....
 $ ls ~/scripts
 sshsign_user.sh
 ....
 
-3. Execute o _script_. Na pergunta `(sshca@10.0.42.2) Enter passphrase`, responda a senha do usuário `sshca` na máquina `10.0.42.2` (que deve ser `seg10sshca`); para a pergunta `(CA private key) Enter passphrase`, informe a senha da chave `user_ca` (que deve ser `seg10_user_ca`).
+3. Execute o _script_:
 +
 ....
 $ bash ~/scripts/sshsign_user.sh
-(sshca@10.0.42.2) Enter passphrase:
-# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
-
-(CA private key) Enter passphrase: seg10_user_ca
-Signed user key id_rsa-cert.pub: id "luke" serial 0 for luke valid from 2018-10-29T09:03:00 to 2021-10-28T09:08:00
+Signing ~/.ssh/id_rsa.pub key...
+All done!
 ....
 +
 Note que, novamente, não foi necessário passar quaisquer parâmetros de linha de comando para o _script_. Ele utiliza o _username_ do usuário informado pelo comando `whoami` como _principal_ da chave.
@@ -907,24 +899,31 @@ id_rsa  id_rsa-cert.pub  known_hosts
 Cheque o conteúdo do arquivo `~/.ssh/known_hosts`, que deve conter informações da CA `ssh` para chaves de _host_ assinadas:
 +
 ....
-$ tail -n1 ~/.ssh/known_hosts
-@cert-authority * ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCbhWR/iPDscvZm9/RL2aiauZq3yGbbZMcoHM2eKCLabjfpk2VqEk8rqo5cdO2XsvnKL6OAE69TG7FU1pY9jxKODYtgdQAGEBgfycR8I8AcSZ0t1DEvvXxdA0j6rIcWm458swdGYySAQsjFBAxrclqGBC/0i7JzKqdTi1r4GfulD0Hf4T4CVkIYgWF3f4OH3RvebbLS2eQHPfMX46uYCjT9xYjM8M21ftMe5h/Jt/rio5pnN5S6lL0XuKHg0e+wBDOJLbjjXSZmaSiVDMxsYWcuJjlMZ+Ew1VSgRNayX9yyoN4fPEAM7NOGeEerqwrk/ZSRzChLH1t0LhORDbybya8wA5+XJyGDDWYpkCMAyClPRT3lAkR+WtJw6thJEF+mcY8G6zzAyoAD+riy5P9pqLsu14Hj6A8HXwlGDlNT35kt/Al/4SJia8XE0zXnAHKDloMJHBIwNsI6dG5Bglar/0dd9tVNnhsY/gMR5kjk07Yn0gIiThZ+e0K6SIrugVn1mQwldsMWLZFkHiyb3Ko7zQSFWJMr13XK5aTkXxTn4C7L3jaAGu+EgyQLANXzpN8HNNgift55s2NbbJWRcLFQ7LGQRKwMhSvDRIiZcf2o9WxHxGCV7TMq5LleBQJNrchBDqEtJyyvrg78lfkRH+u0dWt5AxhU8xCg6ItCYMH+7FHPww== sshca@ldap
+$ cat ~/.ssh/known_hosts
+@cert-authority * ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+ZP47AOiRPcakZiLm+szvxWF5HKNa+BauaYXt5A6XjuUUJIYXXdTdzrq+d4rx379jxk5E+RHvPls1Y+5Cvn2/EpBgx20TXoT9+O0Nn7pemHd7qkDb2JqPzoHzjViG033L8UociItit13UVMlvB2+miW4RPMHhLjJpJT2BoWzvkBtJdukO/SA+3EYpIZAj8kyFfkp9+2A/A+OCREWoh5EkcjREAQRay+pc/j3sWDYrymu65OamPwGAe3Ih9/TmflUiwdHaNfJMY0BqpJsdFyUJeS36asjRhLtZltfLNTyY1gOq3XglLZb76YaQWOoIhzwqQ2WNSt72cY7s8p97loX5LTBSjNw6Kq0rOpKY3XmkyP2A5+L+CFxRxpl0obOkqiZqK/oT4cFE72EBaSg0XfFej19rd/AqqFSEHpbK4GjZzBAEID932DrgcR6ud74k1TDemQgWZ5dge0wEKMfeNVzUXhAPuxeIyQ6E+DxuayHIrUKZ7T36ZVz5N56TXnr+iaaejqpJfuSKZxC8YT9ZmRiHeZ+edze+R6QPiV76QUIQqzocO+OlWPHUZ2zVINV76DZARqxzZuKWW7JzA1+kTJ3VW3zGaOs53n36lfThb39ULHplsJUPfUGiunhistory8cK7onzIbkRibbVu/kmrNG8nr2Z4GHMGpQ6KvYyGZNFIwioGMu6Q== sshca@ns2
 ....
 
 5. Agora sim, vamos testar. Tente logar na máquina local usando o endereço IP ou _hostname_ (o endereço especial _localhost_ não é registrado como um _principal_ válido na chave de _host_).
 +
 ....
-$ ssh luke@ldap
-Linux ldap 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Mon Oct 29 09:10:00 2018 from 127.0.0.1
-luke@ldap:~$
+$ ssh luke@ns2
+Linux ns2 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+Last login: Tue Nov 13 18:40:31 2018 from ::1
+luke@ns2:~$
 ....
 +
 Perfeito! Não tivemos que digitar a senha do usuário ou confirmar a relação de confiança com o servidor, como esperado.
 
-6. Todos as características do sistema que queríamos testar estão funcionais. Claro que devemos levar em consideração que todos os testes foram feitos dentro da máquina `ldap` -- não testamos o funcionamento de contas de usuário via LDAP na rede, ou a autenticação de login remoto usando a CA do `ssh`.
+6. Todos as características do sistema que queríamos testar estão funcionais. Claro que devemos levar em consideração que todos os testes foram feitos dentro da máquina `ns2` -- não testamos o funcionamento de contas de usuário via LDAP na rede, ou a autenticação de login remoto usando a CA do `ssh`.
 +
-Remova o diretório do usuário `luke` da máquina `ldap`. Vamos prosseguir com a configuração do _template_ e de um cliente Linux para testar as funcionalidades.
+Retorne ao usuário `root` na máquina `ns2` e remova o diretório do usuário `luke`. Vamos prosseguir com a configuração do _template_ e de um cliente Linux para testar as funcionalidades.
++
+....
+# hostname ; whoami
+ns2
+root
+....
 +
 ....
 # rm -rf /home/luke
@@ -982,7 +981,7 @@ Durante a instalação do pacote `nslcd`, informe as seguintes opções:
 [options="header"]
 |===
 | Pergunta | Opção
-| URI do servidor LDAP | ldap://10.0.42.2/
+| URI do servidor LDAP | ldap://ldap.intnet/
 | Base de buscas do servidor LDAP | dc=intnet
 | Serviços de nome para configurar | passwd, group, shadow
 |===
@@ -1007,86 +1006,72 @@ Durante a configuração do PAM, na pergunta "Perfis PAM para habilitar", manten
 include::{srcdir}/s3/root_scripts_changehost.sh[]
 ----
 +
-Ao invocar este _script_ após a criação de uma nova VM, iremos não apenas alterar seu _hostname_ mas também integrá-la com o sistema de autenticação remota do LDAP e SSH-CA em um único comando, como veremos a seguir.
+Ao invocar este _script_ após a criação de uma nova VM, iremos não apenas alterar seu endereço IP, _gateway_ e _hostname_ mas também integrá-la com o sistema de autenticação remota do LDAP e SSH-CA em um único comando, como veremos a seguir.
++
+Findo este passo, desligue a máquina `debian-template`.
 
-=== 11) Configurando um cliente Linux
+=== 11) Ajuste das regras de firewall
 
-Nesta atividade iremos criar uma máquina cliente Linux para utilizarmos como ponto de partida para os logins `ssh` nos diferentes servidores que configuraremos durante este curso. Iremos integrá-la com os sistemas de autenticação do LDAP e SSH-CA, e testar login remoto na máquina `ldap`.
+1. Observando os acessos feitos pelo _script_ em `/root/scripts/sshsign.sh`, note que a máquina efetuando as assinaturas de chave necessita conseguir alcançar a máquina `ns2` pela rede, e logar via SSH com o usuário `sshca`. Mais além, as autenticações via rede são feitas junto ao servidor OpenLDAP, operando com o _daemon_ `slapd`. Nenhum desses requisitos foi previsto em nossas regras de firewall originais, então temos que ajustá-las para permitir que máquinas da DMZ e Intranet consigam realizar esses acessos.
++
+Vamos listar os requerimentos de regras:
++
+--
+a. Máquinas na DMZ devem conseguir acessar a máquina `ns2` nas portas 22/TCP (SSH) e 389/TCP (LDAP). Como essas máquinas estão todas na mesma sub-rede, os acessos não passam pelo firewall e nenhuma configuração adicional se faz necessária.
+b. Máquinas na Intranet devem conseguir acessar a máquina `ns2` nas portas 22/TCP (SSH) e 389/TCP (LDAP). Como esse tráfego passa *através do* firewall, devemos inserir regras na _chain_ FORWARD.
+--
++
+Logue como `root` na máquina `ns1`:
++
+....
+# hostname ; whoami
+ns1
+root
+....
++
+Basta criar uma regra para atender o requisito (b), como se segue:
++
+....
+# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.2/32 -p tcp -m multiport --dports 22,389 -j ACCEPT
+....
++
+Salve as regras na configuração do firewall local:
++
+....
+# /etc/init.d/netfilter-persistent save
+[....] Saving netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+done.
+....
+
+=== 12) Configurando um cliente Linux
+
+Nesta atividade iremos criar uma máquina cliente Linux para utilizarmos como ponto de partida para os logins `ssh` nos diferentes servidores que configuraremos durante este curso. O nome da máquina será `client`, alocada para a Intranet com o endereço IP 192.168.42.2/24. Iremos integrá-la com os sistemas de autenticação do LDAP e SSH-CA, e testar login remoto na máquina `ns2`.
 
 1. Clone a máquina `debian-template` seguindo os mesmos passos da atividade (6) da sessão 1. Para o nome da máquina, escolha `client`.
 
 2. Após a clonagem, na janela principal do Virtualbox, clique com o botão direito sobre a VM `client` e depois em _Settings_.
 +
-Em _Network_ > _Adapter 1_ > _Attached to_, escolha _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a interface de rede da máquina virtual `fw`, configurada durante a sessão 2, que está conectada à Intranet.
+Em _Network_ > _Adapter 1_ > _Attached to_ > _Host-only Adapter_, altere o nome da rede _host-only_ para o mesmo da interface da VM `ns1` que está alocada à Intranet. Seguindo o exemplo mostrado no início da sessão 2, a rede escolhida seria a `Virtualbox Host-Only Ethernet Adapter #3`.
 +
 Clique em _OK_, e ligue a máquina `client`.
 
-3. Logue como o usuário `root`; o primeiro login irá demorar um pouco, pois o sistema irá tentar fazer o _lookup_ de contas no servidor LDAP e não obterá sucesso, já que a rede ainda não está configurada.
-+
-Em seguida, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
+3. Logue como o usuário `root` -- o primeiro login poderá demorar um pouco até que a tentativa de autenticação via rede no servidor LDAP, neste momento inatingível, incorra em _timeout_. Feito o login, use o script `/root/scripts/changehost.sh` para configurar a máquina de forma automática:
 +
 ....
-# nano /etc/network/interfaces
-(...)
-....
-+
-....
-# cat /etc/network/interfaces
-source /etc/network/interfaces.d/*
-
-auto lo enp0s3
-
-iface lo inet loopback
-
-iface enp0s3 inet static
-address 192.168.42.2/24
-gateway 192.168.42.1
-....
-+
-....
-# systemctl restart networking
-....
-+
-Teste a conectividade com o servidor LDAP:
-+
-....
-# ping -c3 10.0.42.2
-PING 10.0.42.2 (10.0.42.2) 56(84) bytes of data.
-64 bytes from 10.0.42.2: icmp_seq=1 ttl=64 time=0.010 ms
-64 bytes from 10.0.42.2: icmp_seq=2 ttl=64 time=0.024 ms
-64 bytes from 10.0.42.2: icmp_seq=3 ttl=64 time=0.025 ms
-
---- 10.0.42.2 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2052ms
-rtt min/avg/max/mdev = 0.010/0.019/0.025/0.008 ms
-....
-+
-E também com um _host_ na Internet:
-+
-....
-# nc -zv obsd3.srv.ualberta.ca 80
-obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open
-....
-
-4. Usando o script `/root/scripts/changehost.sh` que criamos anteriormente, renomeie a máquina:
-+
-....
-# hostname
+# hostname ; whoami
 debian-template
+root
 ....
 +
 ....
-# bash ~/scripts/changehost.sh client
-(sshca@10.0.42.2) Enter passphrase:
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_ecdsa_key-cert.pub: id "client.intnet" serial 0 for client,client.intnet,192.168.42.2 valid from 2018-10-30T10:28:23 to 2021-10-29T10:33:23
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_ed25519_key-cert.pub: id "client.intnet" serial 0 for client,client.intnet,192.168.42.2 valid from 2018-10-30T10:28:25 to 2021-10-29T10:33:25
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_rsa_key-cert.pub: id "client.intnet" serial 0 for client,client.intnet,192.168.42.2 valid from 2018-10-30T10:28:27 to 2021-10-29T10:33:27
+# bash ~/scripts/changehost.sh -h client -i 192.168.42.2 -g 192.168.42.1
+Signing ssh_host_ecdsa_key.pub key...
+Signing ssh_host_ed25519_key.pub key...
+Signing ssh_host_rsa_key.pub key...
+Configuring host key trust...
+Configuring user key trust...
+All done!
 ....
 +
 ....
@@ -1094,7 +1079,7 @@ Signed host key ssh_host_rsa_key-cert.pub: id "client.intnet" serial 0 for clien
 client
 ....
 
-5. Se tudo tiver funcionado corretamente, a máquina `client` já estará integrada aos sistemas de autenticação LDAP e SSH-CA. Faça login como o usuário `luke`:
+4. Se tudo tiver funcionado corretamente, a máquina `client` já estará integrada aos sistemas de autenticação LDAP e SSH-CA. Faça login como o usuário `luke` usando os comandos `su` ou `ssh`:
 +
 ....
 $ hostname ; whoami ; pwd
@@ -1103,45 +1088,45 @@ luke
 /home/luke
 ....
 
-6. Vamos criar um par de chaves para esse usuário e assiná-las. Como o conteúdo do diretório _home_ foi copiado diretamente do `/etc/skel`, temos à disposição o _script_ para essa tarefa na pasta `~/scripts/sshsign_user.sh`; execute-o:
+5. Vamos criar um par de chaves para esse usuário e assiná-las. Como o conteúdo do diretório _home_ foi copiado diretamente do `/etc/skel`, temos à disposição o _script_ para essa tarefa na pasta `~/scripts/sshsign_user.sh`. Execute-o:
 +
 ....
 $ bash ~/scripts/sshsign_user.sh
-(sshca@10.0.42.2) Enter passphrase:
-# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
-
-(CA private key) Enter passphrase: seg10_user_ca
-Signed user key id_rsa-cert.pub: id "luke" serial 0 for luke valid from 2018-10-30T10:30:59 to 2021-10-29T10:35:59
+Signing ~/.ssh/id_rsa.pub key...
+All done!
 ....
 
-7. Vamos testar? Tente logar usando o usuário `luke` na máquina `ldap` (cujo endereço IP é o 10.0.42.2):
+6. Vamos testar? Tente logar usando o usuário `luke` na máquina `ns2`:
 +
 ....
-$ ssh luke@10.0.42.2
-Linux ldap 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Tue Oct 30 10:27:01 2018 from 127.0.0.1
+$ ssh luke@ns2
+Creating directory '/home/luke'.
+Linux ns2 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+Last login: Tue Nov 13 21:05:01 2018 from 127.0.0.1
+luke@ns2:~$
 ....
 +
 ....
 $ hostname ; whoami ; pwd
-ldap
+ns2
 luke
 /home/luke
 ....
 +
 Excelente! Conseguimos logar sem ter que confirmar a relação de confiança com o servidor e sem digitar senha, como esperado.
 
-=== 12) Configurando o firewall para funcionar com LDAP/SSH-CA
+=== 13) Configurando o firewall para funcionar com LDAP/SSH-CA
 
 Suponha, agora, que queremos integrar o firewall no sistema de autenticação LDAP/SSH-CA, mas com um maior nível de restrição. Sendo uma máquina crítica, não podemos permitir que qualquer usuário faça login nessa máquina, sendo necessário implementar controles mais estritos.
 
 O primeiro passo, naturalmente, é fazer a integração com os sistemas de autenticação. Vamos fazer isso:
 
-1. Logue como usuário `root` na máquina `fw`:
+1. Logue como usuário `root` na máquina `ns1`:
 +
 ....
 # hostname ; whoami
-fw
+ns1
 root
 ....
 
@@ -1156,16 +1141,18 @@ Novamente, durante a instalação do pacote `nslcd`, informe as seguintes opçõ
 [options="header"]
 |===
 | Pergunta | Opção
-| URI do servidor LDAP | ldap://10.0.42.2/
+| URI do servidor LDAP | ldap://ldap.intnet/
 | Base de buscas do servidor LDAP | dc=intnet
 | Serviços de nome para configurar | passwd, group, shadow
 |===
 
-3. Configure a criação automática de diretórios, com o arquivo novo `/usr/share/pam-configs/mkhomedir`; cole dentro dele o mesmo conteúdo usado nas atividades anteriores.
+3. Configure a criação automática de diretórios, com o arquivo novo `/usr/share/pam-configs/mkhomedir`. Para maior conveniência, você pode copiar o arquivo diretamente da máquina `ns2` para o local apropriado usando o comando `scp`, como se segue:
 +
 ....
-# nano /usr/share/pam-configs/mkhomedir
-(...)
+# scp -o StrictHostKeyChecking=no aluno@ns2:/usr/share/pam-configs/mkhomedir /usr/share/pam-configs/
+Warning: Permanently added 'ns2,10.0.42.2' (ECDSA) to the list of known hosts.
+aluno@ns2's password:
+mkhomedir                                                                          100%  170   449.4KB/s   00:00
 ....
 +
 ....
@@ -1183,35 +1170,30 @@ Durante a configuração do PAM, na pergunta "Perfis PAM para habilitar", manten
 +
 ....
 # ls /root/scripts/
-changehost.sh  sshsign.sh  syncdirs.sh
+changehost.sh  signzone-intnet.sh  sshsign.sh  syncdirs.sh
 ....
 +
 Execute-o:
 +
 ....
 # bash ~/scripts/sshsign.sh
-(sshca@10.0.42.2) Enter passphrase:
-# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_ecdsa_key-cert.pub: id "fw.intnet" serial 0 for fw,fw.intnet,192.168.29.105,10.0.42.1,192.168.42.1 valid from 2018-10-30T10:54:01 to 2021-10-29T10:59:01
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_ed25519_key-cert.pub: id "fw.intnet" serial 0 for fw,fw.intnet,192.168.29.105,10.0.42.1,192.168.42.1 valid from 2018-10-30T10:54:03 to 2021-10-29T10:59:03
-
-(CA private key) Enter passphrase: seg10_server_ca
-Signed host key ssh_host_rsa_key-cert.pub: id "fw.intnet" serial 0 for fw,fw.intnet,192.168.29.105,10.0.42.1,192.168.42.1 valid from 2018-10-30T10:54:04 to 2021-10-29T10:59:04
+Signing ssh_host_ecdsa_key.pub key...
+Signing ssh_host_ed25519_key.pub key...
+Signing ssh_host_rsa_key.pub key...
+Configuring host key trust...
+Configuring user key trust...
+All done!
 ....
 
-=== 13) Restringindo login por grupos e usuários
+=== 14) Restringindo login por grupos e usuários
 
 Agora sim, com a integração concluída, imagine o seguinte cenário: não queremos que usuários do grupo `sysadm`, do qual faz parte o usuário `luke`, possam logar no firewall. Esse permissão será dada apenas a membros do grupo `fwadm`, que criaremos a seguir. Um desses usuários é o colaborador `han`, cuja senha será `seg10han`. Como configurar esse tipo de restrição?
 
-1. Primeiro, vamos criar o grupo e usuário. Logue na máquina `ldap` como usuário `root`:
+1. Primeiro, vamos criar o grupo e usuário. Logue na máquina `ns2` como usuário `root`:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 
@@ -1251,14 +1233,14 @@ Successfully set password for user uid=han,ou=People,dc=intnet
 +
 ....
 # hostname ; whoami
-fw
+ns1
 root
 ....
 +
 Edite o arquivo `/etc/nslcd.conf`, configurando a opção `pam_authz_search`. Essa opção permite que sejam definidos filtros de busca para o `nslcd`, através dos quais podemos restringir que usuários e/ou grupos podem logar na máquina local. No caso, queremos que apenas membros do grupo `fwadm` possam logar, portanto adicionamos a seguinte linha ao final do arquivo:
 +
 ....
-# echo "pam_authz_search (&(objectClass=posixGroup)(cn=fwadm)(memberUid=$username))" >> /etc/nslcd.conf
+# echo 'pam_authz_search (&(objectClass=posixGroup)(cn=fwadm)(memberUid=$username))' >> /etc/nslcd.conf
 ....
 +
 Podemos customizar o filtro acima para incluir apenas usuários específicos, ou mesmo DNs que possuam um atributo qualquer (por exemplo, e-mails com um determinado sufixo). Tome sempre cuidado para não filtrar todos os usuários disponíveis no LDAP acidentalmente -- é importante, nesses casos, sempre manter uma conta local (como `aluno` ou `root`, no nosso caso específico) com acesso ao sistema.
@@ -1311,10 +1293,10 @@ client
 luke
 ....
 +
-Tente logar via `ssh` na máquina `fw`, cujo endereço IP é o 10.0.42.1:
+Tente logar via `ssh` na máquina `ns1`:
 +
 ....
-$ ssh luke@10.0.42.1
+$ ssh luke@ns1
 LDAP authorisation check failed
 Authentication failed.
 ....
@@ -1340,24 +1322,23 @@ Como é a primeira vez que estamos usando este usuário, gere um par de chaves a
 +
 ....
 $ bash ~/scripts/sshsign_user.sh
-(sshca@10.0.42.2) Enter passphrase:
-# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
+Signing ~/.ssh/id_rsa.pub key...
+All done!
+....
++
+Tente logar via `ssh` na máquina `ns1`:
++
+....
+$ ssh han@ns1
+Creating directory '/home/han'.
+Linux ns1 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
 
-(CA private key) Enter passphrase: seg10_user_ca
-Signed user key id_rsa-cert.pub: id "han" serial 0 for han valid from 2018-10-30T11:27:43 to 2021-10-29T11:32:43
-....
-+
-Tente logar via `ssh` na máquina `fw`, cujo endereço IP é o 10.0.42.1:
-+
-....
-$ ssh han@10.0.42.1
-Linux fw 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Mon Oct 29 11:49:38 2018 from 127.0.0.1
+han@ns1:~$
 ....
 +
 ....
 $ hostname ; whoami ; pwd
-fw
+ns1
 han
 /home/han
 ....
@@ -1371,9 +1352,9 @@ nslcd: [138641] <authz="han"> DEBUG: ldap_result(): cn=fwadm,ou=Groups,dc=intnet
 nslcd: [138641] <authz="han"> DEBUG: pam_authz_search found "cn=fwadm,ou=Groups,dc=intnet"
 ....
 
-=== 14) Restringindo logins SSH apenas via chaves assimétricas
+=== 15) Restringindo logins SSH apenas via chaves assimétricas
 
-Apesar de o controle que aplicamos na atividade anterior ser interessante, ainda não resolvemos o problema completamente. Como é possível tentar login na máquina `fw` usando senha, é possível que um atacante tente login por força-bruta, adivinhando a senha do usuário `han`, até conseguir. Vamos resolver isso.
+Apesar de o controle que aplicamos na atividade anterior ser interessante, ainda não resolvemos o problema completamente. Como é possível tentar login na máquina `ns1` usando senha, é possível que um atacante tente login por força-bruta, adivinhando a senha do usuário `han`, até conseguir. Vamos resolver isso.
 
 1. Primeiro, vamos constatar o problema. Logue na máquina `client` como o usuário `han`:
 +
@@ -1386,25 +1367,27 @@ han
 Para evitar que o cliente `ssh` use nossa chave assinada, passe as opções abaixo para o comando. Em seguida, digite a senha correta do usuário `han`:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.1
-han@10.0.42.1's password:
-Linux fw 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Tue Oct 30 11:35:44 2018 from 192.168.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@ns1
+han@ns1's password:
+Linux ns1 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+Last login: Wed Nov 14 00:26:13 2018 from 192.168.42.2
+han@ns1:~$
 ....
 +
 ....
 $ hostname ; whoami
-fw
+ns1
 han
 ....
 +
 Note que conseguimos fazer o login usando senha normalmente, sem usar a chave assinada pela CA.
 
-2. Logue como `root` na máquina `fw`:
+2. Logue como `root` na máquina `ns1`:
 +
 ....
 # hostname ; whoami
-fw
+ns1
 root
 ....
 +
@@ -1431,38 +1414,39 @@ han
 Tente novamente logar usando senha:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.1
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@ns1
 Permission denied (publickey).
 ....
 +
 Note que a permissão foi negada, pois apenas o método `publickey` é aceito para autenticação. Remova as opções do `ssh` e tente novamente, desta vez usando chaves:
 +
 ....
-$ ssh han@10.0.42.1
-Linux fw 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Tue Oct 30 11:36:09 2018 from 192.168.42.2
+$ ssh han@ns1
+Linux ns1 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+Last login: Wed Nov 14 00:27:39 2018 from 192.168.42.2
+han@ns1:~$
 ....
 +
 ....
 $ hostname ; whoami
-fw
+ns1
 han
-
 ....
 
-=== 15) Bloqueando tentativas de brute force contra o SSH
+=== 16) Bloqueando tentativas de brute force contra o SSH
 
-Não podemos aplicar o mesmo tipo de controle que fizemos na máquina `fw` no servidor `ldap` -- nosso _script_ de assinatura de chaves de _host_ e de usuário utiliza login via senha com o usuário `sshca` para operar. A alteração dos _scripts_ para usarem chaves e a correspondente restrição a login usando senhas teria implicações muito negativas na segurança da máquina, neste momento. Vamos implementar um controle diferente, então: proteção contra ataques de força-bruta usando a ferramenta Fail2ban.
+Não podemos aplicar o mesmo tipo de controle que fizemos na máquina `ns1` (o firewall da rede) no servidor `ns2` (o servidor LDAP) -- nosso _script_ de assinatura de chaves de _host_ e de usuário utiliza login via senha com o usuário `sshca` para operar. A alteração dos _scripts_ para usarem chaves e a correspondente restrição a login usando senhas teria implicações muito negativas na segurança do sistema, neste momento. Vamos implementar um controle diferente, então: proteção contra ataques de força-bruta usando a ferramenta Fail2ban.
 
-O Fail2ban opera através da análise de eventos de log (normalmente registrados no diretório `/var/log`) e seu processamento através de expressões regulares. Caso um evento "case" (ou seja, ocorra um _match_) com uma expressão regular configurada, o Fail2ban irá adicionar uma unidade ao contador de violações de um determinado _host_ remoto. Se esse _host_ ultrapassar o número de violações configuradas em um dado período, o Fail2ban irá então tomar alguma ação configurada pelo administrador (logar um evento nos logs, enviar um e-mail para o administrador ou até mesmo bloquear de forma automática o _host_ no firewall local).
+O Fail2ban opera através da análise de eventos de log (normalmente registrados no diretório `/var/log`) e seu processamento através de expressões regulares. Caso um evento "case" (ou seja, ocorra um _match_) com uma expressão regular configurada, o Fail2ban irá adicionar uma unidade ao contador de violações de um determinado _host_ remoto. Se esse _host_ ultrapassar o número de violações configuradas em um dado período, o Fail2ban irá então tomar alguma ação configurada pelo administrador (registrar um evento nos logs, enviar um e-mail para o administrador ou até mesmo bloquear de forma automática o _host_ no firewall local).
 
 Várias expressões regulares já vêm pré-configuradas no Fail2ban, para as ferramentas mais populares (como o `sshd`, o servidor web Apache ou o servidor SMTP Postfix). Caso se deseje configurar expressões regulares para ferramentas customizadas, também é possível fazê-lo.
 
-1. Logue como o usuário `root` na máquina `ldap`:
+1. Logue como o usuário `root` na máquina `ns2`:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 
@@ -1558,10 +1542,11 @@ Agora, vamos fazer uma simulação de ataque ao `sshd`. Monitore o arquivo `/var
 +
 ....
 # tail -n5 -f /var/log/fail2ban.log
-2018-10-30 12:13:28,292 fail2ban.filter         [6876]: INFO    Added logfile = /var/log/auth.log
-2018-10-30 12:13:28,293 fail2ban.actions        [6876]: INFO    Set banTime = 600
-2018-10-30 12:13:28,293 fail2ban.filter         [6876]: INFO    Set maxlines = 10
-2018-10-30 12:13:28,323 fail2ban.server         [6876]: INFO    Jail sshd is not a JournalFilter instance 2018-10-30 12:13:28,327 fail2ban.jail           [6876]: INFO    Jail 'sshd' started
+2018-11-14 00:31:44,246 fail2ban.filter         [2099]: INFO    Set findtime = 600
+2018-11-14 00:31:44,246 fail2ban.filter         [2099]: INFO    Set jail log file encoding to UTF-8
+2018-11-14 00:31:44,246 fail2ban.filter         [2099]: INFO    Set maxlines = 10
+2018-11-14 00:31:44,277 fail2ban.server         [2099]: INFO    Jail sshd is not a JournalFilter instance
+2018-11-14 00:31:44,281 fail2ban.jail           [2099]: INFO    Jail 'sshd' started
 ....
 
 9. Logue na máquina `client` como o usuário `han`, por exemplo:
@@ -1572,42 +1557,42 @@ client
 han
 ....
 +
-Para disparar o filtro do Fail2ban, não poderemos usar o login via chaves assimétricas, que obterá sucesso. Faça login usando senha como mostrado no comando a seguir; digite senhas incorretas para ativar a detecção do Fail2ban:
+Para disparar o filtro do Fail2ban na máquina `ns2`, não poderemos usar o login via chaves assimétricas, que obterá sucesso. Faça login usando senha como mostrado no comando a seguir; digite senhas incorretas para ativar a detecção do Fail2ban:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.2
-han@10.0.42.2's password:
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@ns2
+han@ns2's password:
 Permission denied, please try again.
-han@10.0.42.2's password:
+han@ns2's password:
 Permission denied, please try again.
-han@10.0.42.2's password:
+han@ns2's password:
 Permission denied (publickey,password).
 ....
 +
 Tente logar novamente:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.2
-ssh: connect to host 10.0.42.2 port 22: Connection refused
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@ns2
+ssh: connect to host ns2 port 22: Connection refused
 ....
 +
 A máquina foi bloqueada, como esperado.
 
-10. De volta à máquina `ldap`, como o usuário `root`:
+10. De volta à máquina `ns2`, como o usuário `root`:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 +
 Note que os eventos de senha incorreta foram registrados pelo Fail2ban, bem como o banimento:
 +
 ....
-2018-10-30 12:18:21,775 fail2ban.filter         [6876]: INFO    [sshd] Found 192.168.42.2
-2018-10-30 12:18:27,825 fail2ban.filter         [6876]: INFO    [sshd] Found 192.168.42.2
-2018-10-30 12:18:33,151 fail2ban.filter         [6876]: INFO    [sshd] Found 192.168.42.2
-2018-10-30 12:18:33,892 fail2ban.actions        [6876]: NOTICE  [sshd] Ban 192.168.42.2
+2018-11-14 00:34:01,944 fail2ban.filter         [2099]: INFO    [sshd] Found 192.168.42.2
+2018-11-14 00:34:04,830 fail2ban.filter         [2099]: INFO    [sshd] Found 192.168.42.2
+2018-11-14 00:34:08,081 fail2ban.filter         [2099]: INFO    [sshd] Found 192.168.42.2
+2018-11-14 00:34:08,534 fail2ban.actions        [2099]: NOTICE  [sshd] Ban 192.168.42.2
 ....
 +
 Observe que a regra de REJECT foi inserida automaticamente pelo Fail2ban no firewall local:
@@ -1645,14 +1630,16 @@ han
 ....
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@10.0.42.2
-han@10.0.42.2's password:
-Linux ldap 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Tue Oct 30 11:46:50 2018 from 192.168.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no han@ns2
+han@ns2's password:
+Creating directory '/home/han'.
+Linux ns2 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+han@ns2:~$
 ....
 +
 ....
 $ hostname ; whoami
-ldap
+ns2
 han
 ....

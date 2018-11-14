@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 17-10-2018
+:revdate: 14-11-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -17,13 +17,90 @@ endif::oneof[]
 
 == Sessão 4: Controles de segurança
 
-Estando configurado nosso sistema de autenticação centralizado, quais seriam os próximos passos para realizar o _hardening_ do ambiente? Nesta sessão, iremos tratar de algumas configurações mais simples, num escopo particular, mas que somadas tornarão o _datacenter_ muito mais resiliente contra ataques, além de mais funcional. Iremos verificar se as senhas escolhidas pelos usuários são de fato seguras, implementar _quotas_ de disco em um servidor de arquivos Linux, permitir controle mais granular de permissões de arquivos através de ACLs (_Access Control Lists_), controle mais granular de autorização administrativa usando o comando `sudo` e, finalmente, registrar os comandos digitados pelos usuários em logs do sistema.
+Estando configurado nosso sistema de autenticação centralizado, quais seriam os próximos passos para realizar o _hardening_ do ambiente? Nesta sessão, iremos tratar de algumas configurações mais simples, num escopo particular, mas que somadas tornarão o _datacenter_ muito mais resiliente contra ataques, além de mais funcional. Iremos verificar se as senhas escolhidas pelos usuários são de fato seguras, implementar _quotas_ de disco em um servidor de arquivos Linux, permitir controle mais granular de permissões de arquivos através de ACLs (_Access Control Lists_) e realizar um controle refinado de autorizações administrativas usando o comando `sudo`.
 
 Vamos ao trabalho?
 
-=== 1) Requisitos de senha na base LDAP
+=== 1) Topologia desta sessão
 
-Uma preocupação frequente dos analistas de segurança é quanto às senhas dos usuários: será que elas tem um tamanho apropriado, não utilizam palavras constantes em _wordlists_, contém caracteres especiais? Apesar de termos configurado o acesso aos nossos servidores usando chaves assimétricas via SSH-CA (e, no caso da máquina `fw`, aplicado restrição de acesso exclusivamente via chaves), não é interessante que nos despreocupemos totalmente da segurança de senhas dos usuários -- afinal, os logins na máquina `ldap` ainda podem usar senhas, por exemplo.
+A figura abaixo mostra a topologia de rede que será utilizada nesta sessão, com as máquinas relevantes em destaque.
+
+.Topologia de rede desta sessão
+[#img-topologia4]
+image::Topologia_SEG10_S4.png[align="center"]
+
+Teremos agora quatro máquinas:
+
+* `ns1`, com _alias_ `firewall`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
+* `ns2`, com _alias_ `ns2`, localizada na DMZ e atuando como DNS secundário, servidor LDAP de autenticação centralizada e repositório de chaves SSH-CA. Endereço IP 10.0.42.2/24.
+* `nfs`, com _alias_ `files`, localizada na DMZ e atuando como servidor de arquivos NFS. Endereço IP 10.0.42.3/24.
+* `client`, localizada na Intranet e usada como ponto de partida para logins remotos nos diferentes servidores do _datacenter_ simulado. Endereço IP 192.168.42.2/24.
+
+1. Na topologia há a previsão de criação de dois novos registros DNS, um mapeamento direto para o nome `nfs` e um _alias_ dessa mesma máquina para o nome `files`. Vamos ajustar o DNS: acesse a máquina `ns1` como o usuário `root`:
++
+....
+# hostname ; whoami
+ns1
+root
+....
++
+Edite o arquivo de zonas `/etc/nsd/zones/intnet.zone`, inserindo uma entrada A e outra CNAME para a máquina `nfs`, como se segue. *Não se esqueça* de incrementar o valor do serial no topo do arquivo!
++
+....
+# nano /etc/nsd/zones/intnet.zone
+(...)
+....
++
+....
+# grep nfs /etc/nsd/zones/intnet.zone
+nfs     IN    A                 10.0.42.3
+files   IN    CNAME             nfs
+....
++
+Desta vez também será necessário alterar o arquivo de mapeamento reverso `/etc/nsd/zones/10.0.42.zone` com um registro PTR para a nova máquina. Novamente, lembre-se de incrementar o *serial* neste arquivo também.
++
+....
+# nano /etc/nsd/zones/10.0.42.zone
+(...)
+....
++
+....
+# grep nfs /etc/nsd/zones/10.0.42.zone
+3       IN   PTR                nfs.intnet.
+....
++
+Assine o arquivo de zonas usando o _script_ criado anteriormente:
++
+....
+# bash /root/scripts/signzone-intnet.sh
+reconfig start, read /etc/nsd/nsd.conf
+ok
+ok
+ok
+ok removed 0 rrsets, 0 messages and 0 key entries
+....
++
+Verifique que as entradas foram criadas com sucesso, usando o comando `dig`:
++
+....
+# dig nfs.intnet +short
+10.0.42.3
+....
++
+....
+# dig files.intnet +short
+nfs.intnet.
+10.0.42.3
+....
++
+....
+# dig -x 10.0.42.3 +short
+nfs.intnet.
+....
+
+=== 2) Requisitos de senha na base LDAP
+
+Uma preocupação frequente dos analistas de segurança é quanto às senhas dos usuários: será que elas tem um tamanho apropriado, não utilizam palavras constantes em _wordlists_, contém caracteres especiais? Apesar de termos configurado o acesso aos nossos servidores usando chaves assimétricas via SSH-CA (e, no caso da máquina `ns1`, aplicado restrição de acesso exclusivamente via chaves), não é interessante que nos despreocupemos totalmente da segurança de senhas dos usuários -- afinal, os logins na máquina `ns2` ainda podem usar senhas, por exemplo.
 
 Podemos utilizar o _policy overlay_ do `slapd` (documentação em https://www.openldap.org/doc/admin24/overlays.html ou `man 5 slapo-ppolicy`) para implementar alguns controles no diretório LDAP para exigir aspectos mínimos de qualidade das senhas dos usuários, tais como:
 
@@ -36,11 +113,11 @@ Podemos utilizar o _policy overlay_ do `slapd` (documentação em https://www.op
 * `pwdCheckQuality`: Define uma função externa para checagem de qualidade da senha do usuário -- esta é uma extensão não-padrão da política de senhas do diretório LDAP, e não iremos configurá-la. O website http://ltb-project.org/wiki/documentation/openldap-ppolicy-check-password disponibiliza um software customizado que pode ser usado para implementar esse tipo de política.
 --
 
-1. Faça login como `root` na máquina `ldap`:
+1. Faça login como `root` na máquina `ns2`:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 Para habilitar esses controles em nossa base LDAP, o primeiro passo é carregar o arquivo LDIF do _schema_ com as informações de políticas de senhas:
@@ -177,35 +254,31 @@ passwd : Erro de manipulação de token de autenticação
 passwd: senha inalterada
 ....
 +
-Somos informados que a senha consta do histórico de senhas antigas. Como o LDAP implementa isso? Acesse a máquina `ldap` como usuário `root` e pesquise pelo campo `pwdHistory` do usuário `luke`:
+Somos informados que a senha consta do histórico de senhas antigas. Como o LDAP implementa isso? Acesse a máquina `ns2` como usuário `root` e pesquise pelo campo `pwdHistory` do usuário `luke`:
++
+....
+# hostname ; whoami
+ns2
+root
+....
 +
 ....
 # ldapsearch -LLL -D 'cn=admin,dc=intnet' -W 'uid=luke' pwdHistory
 Enter LDAP Password:
 dn: uid=luke,ou=People,dc=intnet
-pwdHistory: 20181031133744Z#1.3.6.1.4.1.1466.115.121.1.40#38#{SSHA}OEKBo+ZPtqc
- hHyl1T3sKU8hk+Eb02kG4
-pwdHistory: 20181031133855Z#1.3.6.1.4.1.1466.115.121.1.40#38#{SSHA}0nWgPyL1A6T
- ukTeA6or6in1zTgzug9w4
-pwdHistory: 20181031133959Z#1.3.6.1.4.1.1466.115.121.1.40#38#{SSHA}ndljhPMAUpU
- mrGEqy/lPvYeNVLgfDbxo
+pwdHistory: 20181114030204Z#1.3.6.1.4.1.1466.115.121.1.40#38#{SSHA}bI0fgkHR6MZ
+ tAavv1bUYx9PuPucZhDyY
 ....
 +
 Ao informarmos uma nova senha, o `slapd` compara o seu hash com um dos _hashes_ guardados no histórico do usuário (nesse caso, `luke`); se encontrada, a senha é rejeitada.
 
-8. Vamos testar o _lockout_ de contas. Como teremos que fazer logins propositalmente incorretos, pare o serviço Fail2ban na máquina `ldap` para evitar que sejamos bloqueados pelo firewall durante o teste:
-+
-....
-# hostname ; whoami
-ldap
-root
-....
+8. Vamos testar o _lockout_ de contas. Como teremos que fazer logins propositalmente incorretos, ainda como o usuário `root` na máquina `ns2`, pare o serviço Fail2ban para evitar que sejamos bloqueados pelo firewall durante o teste:
 +
 ....
 # systemctl stop fail2ban
 ....
 +
-De volta à máquina `client` como `luke`, tente logar via SSH usando senha e erre propositalmente a combinação por 3 vezes consecutivas:
+De volta à máquina `client` como `luke`, tente logar via SSH na máquina `ns2` usando senha e erre propositalmente a combinação por 3 vezes consecutivas:
 +
 ....
 $ hostname ; whoami
@@ -214,28 +287,28 @@ luke
 ....
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@10.0.42.2
-luke@10.0.42.2's password:
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@ns2
+luke@ns2's password:
 Permission denied, please try again.
-luke@10.0.42.2's password:
+luke@ns2's password:
 Permission denied, please try again.
-luke@10.0.42.2's password:
+luke@ns2's password:
 Permission denied (publickey,password).
 ....
 +
 Agora, tente logar com a senha correta -- note que seu acesso será negado:
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@10.0.42.2
-luke@10.0.42.2's password:
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@ns2
+luke@ns2's password:
 Permission denied, please try again.
 ....
 +
-De volta à máquina `ldap` como o usuário `root`, vamos verificar o que aconteceu:
+De volta à máquina `ns2` como o usuário `root`, vamos verificar o que aconteceu:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 +
@@ -245,7 +318,7 @@ Execute o comando `ldapsearch` abaixo para listar todos os usuários bloqueados 
 # ldapsearch -LLL -D 'cn=admin,dc=intnet' -W 'pwdAccountLockedTime=*' pwdAccountLockedTime
 Enter LDAP Password:
 dn: uid=luke,ou=People,dc=intnet
-pwdAccountLockedTime: 20181031121725Z
+pwdAccountLockedTime: 20181114030659Z
 ....
 +
 Como esperado, `luke` está bloqueado. Para desbloquear um usuário específico crie um arquivo LDIF novo, `/root/ldif/unlockUser.ldif` com o seguinte conteúdo:
@@ -272,23 +345,25 @@ luke
 ....
 +
 ....
-$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@10.0.42.2
-luke@10.0.42.2's password:
-Linux ldap 4.9.0-8-amd64 #1 SMP Debian 4.9.110-3+deb9u6 (2018-10-08) x86_64
-Last login: Wed Oct 31 09:17:04 2018 from 192.168.42.2
+$ ssh -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no luke@ns2
+luke@ns2's password:
+Linux ns2 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+Last login: Wed Nov 14 00:15:11 2018 from 192.168.42.2
+luke@ns2:~$
 ....
 +
 ....
 $ hostname ; whoami
-ldap
+ns2
 luke
 ....
 +
-Perfeito, nossos controles funcionaram como esperado. Na máquina `ldap`, como `root`, não se esqueça de reiniciar o Fail2ban:
+Perfeito, nossos controles funcionaram como esperado. Na máquina `ns2`, como `root`, não se esqueça de reiniciar o Fail2ban:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 +
@@ -296,7 +371,7 @@ root
 # systemctl start fail2ban
 ....
 
-=== 2) Busca de senhas fracas
+=== 3) Busca de senhas fracas
 
 Simplesmente configurar um tamanho mínimo de senha, como fizemos na atividade anterior, não é garantia que os usuários escolherão senhas seguras para suas contas. Por exemplo, um usuário pode definir `12345678` como sua senha -- essa _string_ está dentro do tamanho mínimo exigido mas não pode, nem de perto, ser considerada uma senha segura. O que fazer?
 
@@ -312,7 +387,7 @@ A ferramenta que iremos utilizar para realizar os ataques de dicionário e forç
 
 Até a versão v3.00, o `hashcat` era dividido em duas versões, uma voltada para CPUs e outra para GPUs (esta, implementada via OpenCL ou CUDA). Com o lançamento da versão v3.00, as duas versões foram unificadas em uma única ferramenta, requerendo a biblioteca OpenCL (https://www.khronos.org/opencl/) como dependência.
 
-É boa prática de segurança que instalemos apenas o estritamente necessário em servidores, a fim de reduzir a superfície de ataque disponível em uma eventual invasão. Por esse motivo, instalaremos o `hashcat` e as demais bibliotecas necessárias na máquina `client`, que é menos crítica que os servidores `ldap` e `fw`.
+É boa prática de segurança que instalemos apenas o estritamente necessário em servidores, a fim de reduzir a superfície de ataque disponível em uma eventual invasão. Por esse motivo, instalaremos o `hashcat` e as demais bibliotecas necessárias na máquina `client`, que é menos crítica que os servidores `ns2` e `ns1`.
 
 1. Acesse a máquina `client` como o usuário `root`, e instale o `hashcat` e suas dependências:
 +
@@ -323,7 +398,7 @@ root
 ....
 +
 ....
-apt-get install --no-install-recommends hashcat libhwloc-dev ocl-icd-dev ocl-icd-opencl-dev pocl-opencl-icd
+# apt-get install --no-install-recommends hashcat libhwloc-dev ocl-icd-dev ocl-icd-opencl-dev pocl-opencl-icd
 ....
 
 2. Agora, acesse como o usuário `luke`, em seu diretório _home_.
@@ -349,7 +424,7 @@ O primeiro passo para testarmos a segurança das senhas dos usuários é obter s
 +
 [source,bash,linenums]
 ----
-include::{srcdir}/s4/home_luke_gethashes.sh[]
+include::{srcdir}/s4/home_luke_scripts_gethashes.sh[]
 ----
 +
 O que esse _script_ faz? Vamos ver:
@@ -357,7 +432,7 @@ O que esse _script_ faz? Vamos ver:
 --
 1. (Linhas 3-4) Criamos um arquivo temporário com o comando `mktemp`, e definimos o arquivo de saída como `~/hashes.txt`.
 2. (Linhas 6-7) Se existente, removemos o arquivo de saída e criamos um novo, vazio.
-3. (Linhas 9-20) Executamos um comando `ldapsearch` remoto na máquina `ldap`, executando o _bind_ como o usuário `cn=admin,dc=intnet` e senha informada diretamente na linha de comando. Buscamos todos os DNs que possuem o campo `userPassword` não-vazio, e filtramos apenas os campos `cn` e `userPassword` na saída. Finalmente, fazemos uma junção de linhas duas-a-duas usando os comandos `awk`, `sed` e inserimos um separador usando o `tr`. Essa saída é escrita no arquivo temporário criado anteriormente.
+3. (Linhas 9-20) Executamos um comando `ldapsearch` remoto na máquina `ns2`, executando o _bind_ como o usuário `cn=admin,dc=intnet` e senha informada diretamente na linha de comando. Buscamos todos os DNs que possuem o campo `userPassword` não-vazio, e filtramos apenas os campos `cn` e `userPassword` na saída. Finalmente, fazemos uma junção de linhas duas-a-duas usando os comandos `awk`, `sed` e inserimos um separador usando o `tr`. Essa saída é escrita no arquivo temporário criado anteriormente.
 4. (Linhas 22-27) Processamos o arquivo temporário linha-a-linha. Em cada linha, extraímos o campo 1 (`cn` do usuário) e o campo 2 (`userPassword`). O campo `userPassword` está codificado em base64, então usamos `base64 --decode` para traduzir esse campo, e escrevemos o _output_ em ordem no arquivo de saída.
 5. (Linha 29) O arquivo temporário é removido.
 --
@@ -378,25 +453,25 @@ han:{SSHA}BE6cC89vaJQtB/g9yEJTt0O8HCtRabel
 
 4. Vamos, primeiramente, executar um ataque de dicionário. Um ataque de dicionário, como mencionado anteriormente, é quando obtermos um arquivo com um conjunto de senhas em texto claro, calculamos seus _hashes_ usando os valores de _salt_ conhecidos, e comparamos os resultados com os _hashes_ dos usuários.
 +
-No caso do algorito SSHA implementado no OpenLDAP, para extrair o _salt_ devemos decodificar o _hash_ original em base64 uma vez, remover o prefixo `{SSHA}`, decodificar o _hash_ resultante em base64 novamente, e extrair os últimos 4 bytes; esses 4 bytes são o _salt_ da senha codificada. Para ilustrar esse conceito, o _script_ Perl abaixo pode ser usado para fazer a extração:
+No caso do algorito SSHA implementado no OpenLDAP, para extrair o _salt_ devemos decodificar o _hash_ original em base64 uma vez, remover o prefixo `{SSHA}`, decodificar o _hash_ resultante em base64 novamente, e extrair os últimos 4 bytes; esses 4 bytes são o _salt_ da senha codificada. Para ilustrar esse conceito, o _script_ Perl a seguir pode ser usado para fazer a extração -- crie o arquivo novo `/home/luke/scripts/getsalt.pl` com o seguinte conteúdo:
 +
 [source,perl,linenums]
 ----
-include::{srcdir}/s4/home_luke_getsalt.pl[]
+include::{srcdir}/s4/home_luke_scripts_getsalt.pl[]
 ----
 +
 Vamos recuperar o _hash_ de senha do usuário `luke`:
 +
 ....
-$ ldapsearch -x -LLL -H ldap://10.0.42.2 -D 'cn=admin,dc=intnet' -b 'dc=intnet' -w 'rnpesr' 'uid=luke' userPassword | grep '^userPassword::' | awk '{print $NF}'
-e1NTSEF9NDZRZThOeStRUWdEc2JQY3BzMk1PRHFVSEd0ZExYNDE=
+$ ldapsearch -x -LLL -H ldap://ldap.intnet/ -D 'cn=admin,dc=intnet' -b 'dc=intnet' -w 'rnpesr' 'uid=luke' userPassword | grep '^userPassword::' | awk '{print $NF}'
+e1NTSEF9anFkZC80MW1BT3dFYVpkMFpvWUZzYk1xQTJyVlVMVlU=
 ....
 +
 Executando o _script_ `getsalt.pl`, podemos extrair o _salt_ da senha. Note que o valor de saída está em hexadecimal.
 +
 ....
-$ perl ~/scripts/getsalt.pl e1NTSEF9NDZRZThOeStRUWdEc2JQY3BzMk1PRHFVSEd0ZExYNDE=
-5D2D7E35
+$ perl ~/scripts/getsalt.pl e1NTSEF9anFkZC80MW1BT3dFYVpkMFpvWUZzYk1xQTJyVlVMVlU= ; echo
+D550B554
 ....
 
 5. De volta ao ataque de dicionário, vamos executá-lo usando o `hashcat`. Primeiro, temos que descobrir a qual código o _hash_ SSHA do LDAP corresponde:
@@ -439,7 +514,7 @@ $ du -sh 10-million-password-list-top-1000000.txt
 Tudo pronto! Vamos executar o ataque:
 +
 ....
-$ hashcat --hash-type 111 --attack-mode 0 --username hashes.txt 10-million-password-list-top-1000000.txt
+$ hashcat --force --hash-type 111 --attack-mode 0 --username hashes.txt 10-million-password-list-top-1000000.txt
 hashcat (v3.30) starting...
 
 (...)
@@ -448,11 +523,11 @@ Session..........: hashcat
 Status...........: Exhausted
 Hash.Type........: SSHA-1(Base64), nsldaps, Netscape LDAP SSHA
 Hash.Target......: hashes.txt
-Time.Started.....: Thu Nov  1 08:55:59 2018 (2 secs)
-Time.Estimated...: Thu Nov  1 08:56:01 2018 (0 secs)
+Time.Started.....: Wed Nov 14 01:16:49 2018 (1 sec)
+Time.Estimated...: Wed Nov 14 01:16:50 2018 (0 secs)
 Input.Base.......: File (10-million-password-list-top-1000000.txt)
 Input.Queue......: 1/1 (100.00%)
-Speed.Dev.#1.....:  2618.0 kH/s (0.36ms)
+Speed.Dev.#1.....:  2591.6 kH/s (0.36ms)
 Recovered........: 1/4 (25.00%) Digests, 1/4 (25.00%) Salts
 Progress.........: 3999996/3999996 (100.00%)
 Rejected.........: 36/3999996 (0.00%)
@@ -460,15 +535,15 @@ Restore.Point....: 999999/999999 (100.00%)
 Candidates.#1....: vjq445 -> vjht008
 HWMon.Dev.#1.....: N/A
 
-Started: Thu Nov  1 08:55:53 2018
-Stopped: Thu Nov  1 08:56:02 2018
+Started: Wed Nov 14 01:16:45 2018
+Stopped: Wed Nov 14 01:16:51 2018
 ....
 +
-Na máquina usada como exemplo (a velocidade pode variar de acordo com a velocidade da CPU/GPU disponível), o ataque aos quatro _hashes_ disponíveis usando 10 milhões de senhas demorou... 9 segundos. Como visualizado em `Speed.Dev.#1`, a velocidade de tentativas foi de 2618 kilo-_hashes_ por segundo ou, em outras palavras, 2618000 _hashes_ por segundo. Foi descoberto um _digest_, que podemos visualizar emitindo o mesmo comando com a _flag_ `--show`:
+Na máquina usada como exemplo (a velocidade pode variar de acordo com a velocidade da CPU/GPU disponível), o ataque aos quatro _hashes_ disponíveis usando 10 milhões de senhas demorou... 9 segundos. Como visualizado em `Speed.Dev.#1`, a velocidade de tentativas foi de 2591 kilo-_hashes_ por segundo ou, em outras palavras, 2591000 _hashes_ por segundo. Foi descoberto um _digest_, que podemos visualizar emitindo o mesmo comando com a _flag_ `--show`:
 +
 ....
-$ hashcat --hash-type 111 --attack-mode 0 --username hashes.txt 10-million-password-list-top-1000000.txt --show
-luke:{SSHA}46Qe8Ny+QQgDsbPcps2MODqUHGtdLX41:password
+$ hashcat --force --hash-type 111 --attack-mode 0 --username hashes.txt 10-million-password-list-top-1000000.txt --show
+luke:{SSHA}jqdd/41mAOwEaZd0ZoYFsbMqA2rVULVU:password
 ....
 +
 Excelente! Como era de se esperar, a senha fraca `password` do usuário `luke` foi descoberta usando o ataque de dicionário.
@@ -480,7 +555,7 @@ Vamos executar um ataque de força-bruta contra essa senha. Para isso, alterarem
 Ao trabalho:
 +
 ....
-$ hashcat --hash-type 111 --attack-mode 3 --username hashes.txt ?l?l?l?l?l?l
+$ hashcat --force --hash-type 111 --attack-mode 3 --username hashes.txt ?l?l?l?l?l?l
 hashcat (v3.30) starting...
 
 (...)
@@ -495,23 +570,23 @@ Session..........: hashcat
 Status...........: Running
 Hash.Type........: SSHA-1(Base64), nsldaps, Netscape LDAP SSHA
 Hash.Target......: hashes.txt
-Time.Started.....: Thu Nov  1 09:05:58 2018 (7 secs)
-Time.Estimated...: Thu Nov  1 09:06:30 2018 (25 secs)
+Time.Started.....: Wed Nov 14 01:18:02 2018 (7 secs)
+Time.Estimated...: Wed Nov 14 01:18:34 2018 (25 secs)
 Input.Mask.......: ?l?l?l?l?l?l [6]
 Input.Queue......: 1/1 (100.00%)
-Speed.Dev.#1.....: 27819.2 kH/s (6.17ms)
+Speed.Dev.#1.....: 27956.2 kH/s (6.13ms)
 Recovered........: 1/4 (25.00%) Digests, 1/4 (25.00%) Salts
-Progress.........: 282081280/1235663104 (22.83%)
-Rejected.........: 0/282081280 (0.00%)
-Restore.Point....: 104192/456976 (22.80%)
-Candidates.#1....: sacaxe -> xqegxe
+Progress.........: 268409856/1235663104 (21.72%)
+Rejected.........: 0/268409856 (0.00%)
+Restore.Point....: 99072/456976 (21.68%)
+Candidates.#1....: saufph -> xqoxjk
 HWMon.Dev.#1.....: N/A
 ....
 +
 Observando a linha `Progress`, notamos que o ataque está 22,83% concluído. Aguardamos.
 +
 ....
-{SSHA}NzQZTz7ufOxNM3PYy7cp+zV6p7bKFNcy:rnpesr
+{SSHA}AZv4/v1spKXTHw5GOK1y+vQhPrnb7CzA:rnpesr
 ....
 +
 Após algum tempo, a linha acima é mostrada na tela. O `hashcat` conseguiu quebrar a senha do usuário `admin`, descobrindo-a como sendo `rnpesr`. Aguardamos a conclusão do processo.
@@ -521,11 +596,11 @@ Session..........: hashcat
 Status...........: Exhausted
 Hash.Type........: SSHA-1(Base64), nsldaps, Netscape LDAP SSHA
 Hash.Target......: hashes.txt
-Time.Started.....: Thu Nov  1 09:05:58 2018 (30 secs)
-Time.Estimated...: Thu Nov  1 09:06:28 2018 (0 secs)
+Time.Started.....: Wed Nov 14 01:18:02 2018 (30 secs)
+Time.Estimated...: Wed Nov 14 01:18:32 2018 (0 secs)
 Input.Mask.......: ?l?l?l?l?l?l [6]
 Input.Queue......: 1/1 (100.00%)
-Speed.Dev.#1.....: 28006.1 kH/s (6.03ms)
+Speed.Dev.#1.....: 27362.0 kH/s (6.14ms)
 Recovered........: 2/4 (50.00%) Digests, 2/4 (50.00%) Salts
 Progress.........: 1235663104/1235663104 (100.00%)
 Rejected.........: 0/1235663104 (0.00%)
@@ -533,16 +608,16 @@ Restore.Point....: 456976/456976 (100.00%)
 Candidates.#1....: sacxqg -> xqqfqg
 HWMon.Dev.#1.....: N/A
 
-Started: Thu Nov  1 09:05:55 2018
-Stopped: Thu Nov  1 09:06:29 2018
+Started: Wed Nov 14 01:18:00 2018
+Stopped: Wed Nov 14 01:18:33 2018
 ....
 +
-Depois de 34 segundos, o ataque encontra-se 100% concluído. Um novo _digest_ foi descoberto, como podemos visualizar com a _flag_ `--show`:
+Depois de 33 segundos, o ataque encontra-se 100% concluído. Um novo _digest_ foi descoberto, como podemos visualizar com a _flag_ `--show`:
 +
 ....
-$ hashcat --hash-type 111 --attack-mode 3 --username hashes.txt ?l?l?l?l?l?l --show
-admin:{SSHA}NzQZTz7ufOxNM3PYy7cp+zV6p7bKFNcy:rnpesr
-luke:{SSHA}46Qe8Ny+QQgDsbPcps2MODqUHGtdLX41:password
+$ hashcat --force --hash-type 111 --attack-mode 3 --username hashes.txt ?l?l?l?l?l?l --show
+luke:{SSHA}jqdd/41mAOwEaZd0ZoYFsbMqA2rVULVU:password
+admin:{SSHA}AZv4/v1spKXTHw5GOK1y+vQhPrnb7CzA:rnpesr
 ....
 +
 O `hashcat` reporta não somente a senha descoberta do usuário `admin`, bem como a senha do usuário `luke` descoberta na execução anterior. Isso ocorre porque o `hashcat` mantém o histórico de ataques realizados no diretório `~/.hashcat`:
@@ -557,36 +632,107 @@ sessions
 +
 E assim, concluímos nossa busca por senhas fracas, via ataques de dicionário e força-bruta. O próximo passo, naturalmente, seria alterar o valor de senha dos usuários para um valor novo (bloqueando seu acesso), informá-los da nova senha e comunicar que devem alterar sua senha para uma combinação segura assim que possível.
 
-=== 3) Servidor de arquivos NFS e quotas de disco
+=== 4) Criação da VM do servidor de arquivos NFS
 
-Iremos implementar, agora, um servidor de arquivos simples para que os colaboradores da Intranet possam compartilhar arquivos e ter uma opção de backup emergencial para suas estações de trabalho, e para servidores da DMZ compartilharem configurações comuns. Como o ambiente que estamos simulando é inteiramente baseado em Linux, não há a necessidade de configurar uma solução interoperável com outros sistemas operacionais, como o Samba. Por isso, utilizaremos o NFS (_Network File System_), que é significativamente mais fácil de ser implementado.
+Iremos implementar, agora, um servidor de arquivos simples para que os colaboradores da Intranet possam compartilhar arquivos e ter uma opção de backup emergencial para suas estações de trabalho. Como o ambiente que estamos simulando é inteiramente baseado em Linux, não há a necessidade de configurar uma solução interoperável com outros sistemas operacionais, como o Samba. Por isso, utilizaremos o NFS (_Network File System_), que é significativamente mais fácil de ser implementado.
 
-1. O primeiro passo, assim como fizemos antes, é clonar a máquina `debian-template` e criar uma nova, que chamaremos de `nfs`. Essa máquina estará conectada a uma única rede _host-only_, com o mesmo nome que foi alocado para a interface de rede da máquina virtual `fw`, configurada durante a sessão 2, que está conectada à DMZ. O IP da máquina será 10.0.42.3/24.
+1. O primeiro passo, assim como fizemos antes, é clonar a máquina `debian-template` e criar uma nova, que chamaremos de `nfs`. Essa máquina estará conectada a uma única rede _host-only_, com o mesmo nome que foi alocado para a interface de rede da máquina virtual `ns1`, configurada durante a sessão 2, que está conectada à DMZ. O IP da máquina será 10.0.42.3/24.
 +
-Repita os passos da atividade (11) da sessão (3), quando criamos a máquina `client`, fazendo alterações quando necessário. Após o processo estar concluído, logue como o usuário `luke`.
+Concluída a clonagem, ligue a máquina e faça login como o usuário `root`. Em seguida, use o script `/root/scripts/changehost.sh` para fazer a configuração automática:
 +
 ....
-$ hostname ; whoami ; pwd
+# hostname ; whoami
+debian-template
+root
+....
++
+....
+# bash ~/scripts/changehost.sh -h nfs -i 10.0.42.3 -g 10.0.42.1
+Signing ssh_host_ecdsa_key.pub key...
+Signing ssh_host_ed25519_key.pub key...
+Signing ssh_host_rsa_key.pub key...
+Configuring host key trust...
+Configuring user key trust...
+All done!
+....
++
+....
+$ ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}' ; hostname ; whoami
+10.0.42.3/24 enp0s3
 nfs
-luke
-/home/luke
+root
 ....
-+
-....
-$ ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}'
-10.0.42.3/24
-....
-+
-Se você chegou até aqui, então a integração do servidor `nfs` com o sistema LDAP/SSH-CA está correta.
 
-2. Vamos usar o servidor NFS para duas funções:
+=== 5) Ajuste das regras de firewall
+
+1. Se você tentar acessar a máquina `nfs` recém-criada usando o SSH, a partir da máquina `client`, rapidamente perceberá que não é possível fazer o acesso:
 +
---
-1. Armazenar arquivos de configuração compartilhados entre servidores da DMZ.
-2. Armazenar arquivos de usuários da Intranet, para compartilhamento e backup.
---
+....
+$ hostname ; whoami
+client
+luke
+....
 +
-O primeiro caso não exige muita preocupação, já que arquivos de configuração são pequenos e o diretório de armazenamento e arquivos serão _read-only_. Já no segundo caso temos o cenário em que usuários podem querer armazenar muitos arquivos (de forma acidental ou maliciosa), atrapalhando a funcionalidade de outros colaboradores e até mesmo chegando a encher a partição raiz (`/`) do sistema. Para evitar esse cenário, vamos criar uma partição dedicada para arquivos de usuário no `/home` do servidor `nfs` e aplicar _quotas_ de disco aos usuários.
+....
+$ ssh nfs
+ssh: connect to host nfs port 22: Connection timed out
+....
++
+Qual a razão disso? Após breve reflexão, fica claro que o problema reside no firewall. Vamos revisá-lo.
+
+2. Logue na máquina `ns1` como o usuário `root`, como de costume. Tendo em vista que o acesso que desejamos fazer *passa pelo* firewall, devemos checar a _chain_ FORWARD:
++
+....
+# hostname ; whoami
+ns1
+root
+....
++
+....
+# iptables -L FORWARD -vn
+Chain FORWARD (policy DROP 171 packets, 12318 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+31432   74M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    3   180 ACCEPT     tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    3   180 ACCEPT     tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
+    2   148 ACCEPT     udp  --  *      *       192.168.42.0/24      10.0.42.2            udp dpt:53
+   68  4080 ACCEPT     tcp  --  *      *       192.168.42.0/24      10.0.42.2            multiport dports 22,389
+....
++
+Observe que liberamos o acesso SSH a partir da Intranet apenas para a máquina `ns2`, e nenhuma outra. Considerando que além da máquina `nfs` criaremos ainda outros servidores em nosso _datacenter_ simulado, essa regra obviamente está inadequada. Vamos removê-la:
++
+....
+# iptables -D FORWARD -s 192.168.42.0/24 -d 10.0.42.2/32 -p tcp -m multiport --dports 22,389 -j ACCEPT
+....
++
+Em seu lugar, vamos criar duas regras: uma que reautoriza o acesso da Intranet ao servidor LDAP (que estava embutido na regra antiga), e outra que autoriza a Intranet a realizar SSH para qualquer máquina da DMZ:
++
+....
+# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.2/32 -p tcp -m tcp --dport 389 -j ACCEPT
+....
++
+....
+# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.0/24 -p tcp -m tcp --dport 22 -j ACCEPT
+....
+
+3. Ainda temos que tratar do acesso da Intranet ao serviço NFS, que configuraremos na atividade a seguir. Para nossa sorte, a configuração do firewall para o NFS versão 4 (que utilizaremos neste curso) é significativamente mais fácil que as versões anteriores, bastando liberar o tráfego dos clientes para a porta 2049/TCP do servidor remoto (em nosso caso, a máquina `nfs`). A regra a seguir irá atender este requisito:
++
+....
+# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.3/24 -p tcp -m tcp --dport 2049 -j ACCEPT
+....
+
+4. Finalmente, salve as regras de firewall atuais:
++
+....
+# /etc/init.d/netfilter-persistent save
+[....] Saving netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+done.
+....
+
+=== 6) Configuração do servidor de arquivos NFS e quotas de disco
+
+1. Queremos usar o servidor NFS para armazenar arquivos de usuários da Intranet, para compartilhamento e backup. Isso imediatamente suscita uma grande preocupação: imagine um cenário em que usuários querem armazenar muitos arquivos no servidor (de forma acidental ou maliciosa) -- isso pode atrapalhar o uso de outros colaboradores, ou até mesmo chegar a encher a partição raiz (`/`) do sistema, causando instabilidade. Para evitar esse cenário, vamos criar uma partição dedicada para arquivos de usuário no diretório `/home` do servidor `nfs`, e também aplicar _quotas_ de disco aos usuários.
 +
 Desligue a máquina `nfs` e adicione a ela um novo disco de 10 GB, usando a interface do Virtualbox. A seguir, formate o disco e adicione-o ao sistema LVM, criando um novo _volume group_ `vg-home` com um único volume lógico `lv-home`, de forma análoga ao que fizemos na atividades (7) e (8) da sessão (1). Finalmente, formate esse volume em `ext4` e ative sua montagem automática durante o _boot_ da máquina `nfs` no diretório `/home` com as opções `defaults,nosuid,nodev`.
 +
@@ -691,7 +837,7 @@ Creating journal (16384 blocks): done
 Writing superblocks and filesystem accounting information: done
 ....
 +
-Sincronizar os arquivos do diretório `/home` atual com o LV recém-criado:
+A seguir, sincronizar os arquivos do diretório `/home` atual com o LV recém-criado:
 +
 ....
 # mount /dev/mapper/vg--home-lv--home /mnt/
@@ -745,13 +891,13 @@ Sist. Arq.                     Tam. Usado Disp. Uso% Montado em
 /dev/mapper/vg--home-lv--home  9,8G   37M  9,3G   1% /home
 ....
 
-3. Agora, vamos instalar os pacotes para habilitar o compartilhamento de arquivos via NFS e _quotas_ de disco. Como `root`, instale os pacotes `nfs-kernel-server`, `quota` e `quotatool`:
+2. Agora, vamos instalar os pacotes para habilitar o compartilhamento de arquivos via NFS e _quotas_ de disco. Como `root`, instale os pacotes `nfs-kernel-server`, `quota` e `quotatool`:
 +
 ....
 # apt-get install nfs-kernel-server quota quotatool
 ....
 
-4. Vamos configurar primeiro o sistema de _quotas_. Edite a entrada do diretório `/home` no arquivo `/etc/fstab` e adicione as opções `usrquota,grpquota`, que ativam suporte a _quotas_ por usuário e por grupo no sistema de arquivos.
+3. Vamos configurar primeiro o sistema de _quotas_. Edite a entrada do diretório `/home` no arquivo `/etc/fstab` e adicione as opções `usrquota,grpquota`, que ativam suporte a _quotas_ por usuário e por grupo no sistema de arquivos.
 +
 ....
 # nano /etc/fstab
@@ -763,13 +909,11 @@ Sist. Arq.                     Tam. Usado Disp. Uso% Montado em
 /dev/mapper/vg--home-lv--home /home ext4  defaults,nosuid,nodev,usrquota,grpquota         0  2
 ....
 +
-Em seguida, reinicie o sistema.
+Em seguida, remonte o sistema de arquivos e verifique se o sistema de _quotas_ foi habilitado na partição.
 +
 ....
-# reboot
+# mount -o remount /home
 ....
-+
-Após o _reboot_, acesse a máquina como `root` e verifique se o sistema de _quotas_ foi habilitado na partição.
 +
 ....
 # mount | grep '/home'
@@ -784,27 +928,15 @@ Crie os arquivos de configuração de _quotas_ usando o comando `quotacheck`:
 +
 Pronto, o sistema de _quotas_ está configurado. Iremos editar _quotas_ de usuário e testar seu funcionamento mais à frente, após a configuração do NFS.
 
-5. O próximo passo é configurar o serviço NFS. Retomando a descrição do passo (2), queremos disponibilizar compartilhamentos para arquivos de usuário (para o qual utilizaremos o diretório `/home` recém-criado) e para arquivos de configuração comuns entre servidores -- para este caso, iremos criar um diretório específico, `/config`.
+4. O próximo passo é configurar o serviço NFS -- lembre-se que queremos disponibilizar compartilhamentos para arquivos de usuário, no diretório `/home` do sistema. Insira a linha a seguir no arquivo `/etc/exports`:
 +
 ....
-# mkdir /config
+# echo '/home 192.168.42.0/24(rw,async,no_subtree_check,root_squash)' >> /etc/exports
 ....
 +
-Vamos configurar as exportações do NFS. Edite o arquivo `/etc/exports`, e insira o seguinte conteúdo:
+A linha acima irá configurar a exportação o diretório `/home` para todas as máquinas da Intranet (faixa 192.168.42.0/24), em modo leitura-escrita, assíncrono (i.e. escritas ao disco do servidor remoto não precisam ter sido efetivadas para que o cliente receba confirmação), sem checagem de sub-árvores de montagem (consultar página de manual com `man 5 exports`) e desabilitando o mapeamento de UID do `root` da máquina remota no servidor local.
 +
-[source,bash,linenums]
-----
-include::{srcdir}/s4/etc_exports[]
-----
-+
-O que está sendo configurado?
-+
---
-* Estamos exportando o diretório `/config` para todas as máquinas da DMZ (faixa 10.0.42.0/24), em modo somente leitura, assíncrono e sem checagem de sub-árvores de montagem (consultar página de manual com `man 5 exports`).
-* Estamos exportando o diretório `/home` para todas as máquinas da Intranet (faixa 192.168.42.0/24), em modo leitura-escrita, assíncrono (i.e. escritas ao disco do servidor remoto não precisam ter sido efetivadas para que o cliente receba confirmação), sem checagem de sub-árvores de montagem e desabilitando o mapeamento de UID do `root` da máquina remota no servidor local.
---
-+
-Para exportar os diretórios, basta executar:
+Para exportar o diretório, basta executar:
 +
 ....
 # exportfs -a
@@ -815,11 +947,10 @@ Finalmente, para visualizar quais diretórios estão sendo exportados, execute:
 ....
 # showmount -e
 Export list for nfs:
-/home   192.168.42.0/24
-/config 10.0.42.0/24
+/home 192.168.42.0/24
 ....
 
-6. Vamos testar nosso sistema de compartilhamento de arquivos via NFS e _quotas_ de disco. Acesse a máquina `client` como o usuário `root`, crie um diretório `/remote` para ser o ponto de montagem NFS e monte o diretório compartilhado.
+5. Vamos testar nosso sistema de compartilhamento de arquivos via NFS e _quotas_ de disco. Acesse a máquina `client` como o usuário `root`, crie um diretório `/remote` para ser o ponto de montagem NFS e monte o diretório compartilhado.
 +
 ....
 # hostname ; whoami
@@ -838,14 +969,14 @@ root
 ....
 # ls -l /remote/
 total 40
-drwxr-xr-x 2 aluno aluno   4096 out 18 16:29 aluno
--rw------- 1 root  root    8192 nov  1 12:23 aquota.group
--rw------- 1 root  root    8192 nov  1 12:23 aquota.user
-drwx------ 2 root  root   16384 nov  1 11:58 lost+found
-drwxr-xr-x 3 luke  sysadm  4096 nov  1 11:46 luke
+drwxr-xr-x 2 aluno aluno   4096 nov 13 17:01 aluno
+-rw------- 1 root  root    8192 nov 14 01:49 aquota.group
+-rw------- 1 root  root    8192 nov 14 01:49 aquota.user
+drwx------ 2 root  root   16384 nov 14 01:46 lost+found
+drwxr-xr-x 3 luke  sysadm  4096 nov 14 01:41 luke
 ....
 
-7. Um dos principais problemas em sistemas de compartilhamento de arquivos em ambientes Unix é o mapeamento de UIDs e GIDs -- como garantir que os usuários de múltiplas máquinas remotas possuam os mesmos identificadores que os usuários existentes no servidor de arquivos? Felizmente, nosso sistema centralizado de autenticação usando LDAP resolve esse problema de forma transparente: todos os usuários possuem um valor de UID e GID consistente em todo o _datacenter_, já que as contas são gerenciadas em um ponto único.
+6. Um dos principais problemas em sistemas de compartilhamento de arquivos em ambientes Unix é o mapeamento de UIDs e GIDs -- como garantir que os usuários de múltiplas máquinas remotas possuam os mesmos identificadores que os usuários existentes no servidor de arquivos? Felizmente, nosso sistema centralizado de autenticação usando LDAP resolve esse problema de forma transparente: todos os usuários possuem um valor de UID e GID consistente em todo o _datacenter_, já que as contas são gerenciadas em um ponto único.
 +
 Senão, vejamos: como o usuário `luke`, tente criar um arquivo novo dentro do ponto de montagem `/remote/luke`:
 +
@@ -866,7 +997,13 @@ test
 +
 Funcionou perfeitamente! Uma vez que os valores de UID e GID do usuário `luke` são consistentes entre a máquina `client` e o servidor de arquivos `nfs`, não temos problemas de permissão.
 
-8. E quanto ao usuário `root`? Será que o `root` local da máquina `client` possui acesso irrestrito aos arquivos compartilhados?
+7. E quanto ao usuário `root`? Será que o `root` local da máquina `client` possui acesso irrestrito aos arquivos compartilhados?
++
+....
+$ su -
+Senha:
+root@client:~#
+....
 +
 ....
 # hostname ; whoami
@@ -886,7 +1023,7 @@ rm: não foi possível remover '/remote/aquota.user': Permissão negada
 +
 Devido à utilização da opção `root_squash` no compartilhamento configurado via arquivo `/etc/exports` da máquina `nfs`, o mapeamento de UID do usuário `root` em máquinas remotas é desativado, efetivamente impedindo-o de alterar quaisquer arquivos.
 
-9. Vamos testar o sistema de _quotas_. Na máquina `nfs`, como o usuário `root`, edite as _quotas_ do usuário `luke` usando o comando `edquota`:
+8. Vamos testar o sistema de _quotas_. Na máquina `nfs`, como o usuário `root`, edite as _quotas_ do usuário `luke` usando o comando `edquota`:
 +
 ....
 # edquota -u luke
@@ -900,7 +1037,7 @@ Disk quotas for user luke (uid 10000):
   /dev/mapper/vg--home-lv--home    32     100000     200000          8        0        0
 ....
 +
-Para verificar as _quotas_ ativas em um sistema de arquivos, use o comando `repquota`:
+Para verificar as _quotas_ de um sistema de arquivos, use o comando `repquota`:
 +
 ....
 # repquota -u /home
@@ -913,8 +1050,14 @@ root      --      20       0       0              2     0     0
 aluno     --      24       0       0              6     0     0
 luke      --      32  100000  200000              8     0     0
 ....
++
+Para ativar as _quotas_ em uma partição, utilize o comando `quotaon`:
++
+....
+# quotaon -ug /home
+....
 
-10. Acesse a máquina `client` como o usuário `luke`. Vamos tentar extrapolar o limite estabelecido pela _quota_ no passo anterior.
+9. Acesse a máquina `client` como o usuário `luke`. Vamos tentar extrapolar o limite estabelecido pela _quota_ no passo anterior.
 +
 ....
 $ hostname ; whoami
@@ -973,7 +1116,7 @@ Observe que apenas os usuários `aluno` e `luke` possuem pastas no diretório `/
 Em produção, seria interessante que a pasta compartilhada do usuário fosse criada assim que este fosse adicionado à base LDAP, juntamente com o comando `ldapadduser`, por exemplo. Um _script_ shell seria ideal para resolver essa situação. Claro, é possível que nem todos os novos usuários criados na base LDAP devam ter uma pasta nesse servidor, o que pode complicar sua configuração.
 =====
 
-=== 4) Uso de ACLs localmente
+=== 7) Uso de ACLs localmente
 
 Imagine a seguinte situação, agora: o usuário `luke` quer criar um arquivo novo, sigiloso, e dar permissão para que `han` possa visualizá-lo. Ora, com as permissões padrão disponíveis em um sistema Linux, quais são nossas opções?
 
@@ -1103,9 +1246,9 @@ cat: /home/luke/teste: Permissão negada
 +
 Perfeito! Lembre-se que também podemos configurar ACLs para grupos através do caractere `g`, o que não foi testado nesta atividade.
 
-=== 5) Uso de ACLs via NFS
+=== 8) Uso de ACLs via NFS
 
-A atividade anterior, apesar de interessante, é pouco prática quando consideramos nossa configuração atual: se ACLs podem apenas ser manipuladas localmente mas estamos mantendo nossos arquivos compartilhados via rede com NFS, então toda vez que um usuário quiser alterar ACLs ele terá que fazer um acesso local à máquina `nfs`? Não é razoável fazermos isso. De fato, tente fazer a alteração de ACLs a partir da máquina `client` como o usuário `luke`:
+A atividade anterior, apesar de interessante, é pouco prática quando consideramos nossa configuração atual: se ACLs podem apenas ser manipuladas localmente mas estamos mantendo nossos arquivos compartilhados via rede com NFS, então toda vez que um usuário quiser alterar ACLs ele terá que fazer um acesso local à máquina `nfs`? Não é razoável fazermos isso. De fato, tente fazer a alteração de ACLs a partir da máquina `client` como o usuário `luke` -- lembre-se: assim como fizemos na máquina `nfs`, será necessário instalar o pacote `acl` antes de realizar este teste:
 
 ....
 $ hostname ; whoami
@@ -1285,28 +1428,28 @@ $ cat /remote/luke/teste
 cat: /remote/luke/teste: Permissão negada
 ....
 
-=== 6) Controle granular de permissões via sudo
+=== 9) Controle granular de permissões via sudo
 
 Para todas as ações privilegiadas que precisamos tomar até aqui, sempre usamos o comando `su` para nos tornarmos o usuário `root`, e então efetuamos a instalação de pacotes, adição de usuários ou criação de arquivos de configuração. Mas, como fica essa situação em um ambiente de _datacenter_ como o que estamos simulando? Seria interessante passar a senha do usuário `root` para os usuários `luke` e `han` (e outros que viermos a criar), permitindo que tomem quaisquer ações nas máquinas?
 
 O `sudo` (_Super User DO_) é um comando que permite que usuários comuns obtenham privilégios de outro usuário, em geral o `root`, para executar tarefas específicas dentro do sistema de maneira segura e controlável pelo administrador. Assim, podemos delimitar que um determinado usuário ou grupo pode executar apenas um pequeno conjunto de comandos dentro de um servidor específico. Como o `sudo` é compatível com _hostnames_ e endereços IP, é possível utilizar o mesmo arquivo em todas as máquinas do parque, facilitando tremendamente o esforço de configuração.
 
-Para ilustrar esse cenário, vamos soluciar dois exemplos hipotéticos:
+Para ilustrar esse cenário, vamos solucionar dois exemplos hipotéticos:
 
 --
-* A colaboradora `leia` acaba de se juntar à equipe de `han`, o grupo `fwadm` em nosso sistema LDAP. Imagine que ela ficará responsável por editar regras no firewall de borda, a máquina `fw`. Mas, por estar começando agora na empresa, `han` quer restringir o conjunto de comandos que `leia` pode executar na máquina, liberando apenas a edição do firewall via `iptables`. Sua senha será `seg10leia`. Nas demais máquinas (`ldap` e `nfs`) `leia` não deve ter qualquer acesso especial, apenas como um usuário regular.
-* O colaborador `chewie` foi contratado para auxiliar na manutenção da base LDAP da empresa. Para desempenhar suas tarefas, iremos colocá-lo em um novo grupo `ldapadm`. Os membros desse grupo devem ter acesso aos principais comandos de edição do LDAP (criação, modificação e deleção de usuários e grupos) na máquina `ldap`. Sua senha será `seg10chewie`. Nas demais máquinas (`fw` e `nfs`) `chewie` não deve ter qualquer acesso especial, apenas como um usuário regular.
+* A colaboradora `leia` acaba de se juntar à equipe de `han`, o grupo `fwadm` em nosso sistema LDAP. Imagine que ela ficará responsável por editar regras no firewall de borda, a máquina `ns1`. Mas, por estar começando agora na empresa, `han` quer restringir o conjunto de comandos que `leia` pode executar na máquina, liberando apenas a edição do firewall via `iptables`. Sua senha será `seg10leia`. Nas demais máquinas (`ns2` e `nfs`) `leia` não deve ter qualquer acesso especial, apenas como um usuário regular.
+* O colaborador `chewie` foi contratado para auxiliar na manutenção da base LDAP da empresa. Para desempenhar suas tarefas, iremos colocá-lo em um novo grupo `ldapadm`. Os membros desse grupo devem ter acesso aos principais comandos de edição do LDAP (criação, modificação e deleção de usuários e grupos) na máquina `ns2`. Sua senha será `seg10chewie`. Nas demais máquinas (`ns1` e `nfs`) `chewie` não deve ter qualquer acesso especial, apenas como um usuário regular.
 * Os usuários atuais, `luke` e `han`, terão permissão para executar qualquer comando como o usuário `root`, em qualquer máquina.
-* Observe que temos controles alheios ao `sudo` já aplicados que irão restringir o acesso de certos usuários -- por exemplo, apenas membros do grupo `fwadm` conseguem fazer login na máquina `fw` devido à configuração do `nslcd` que realizamos na atividade (13) da sessão (3).
+* Observe que temos controles alheios ao `sudo` já aplicados que irão restringir o acesso de certos usuários -- por exemplo, apenas membros do grupo `fwadm` conseguem fazer login na máquina `ns1` devido à configuração do `nslcd` que realizamos na atividade (13) da sessão (3).
 --
 
 Vamos solucionar esses problemas?
 
-1. Primeiro, devemos criar os usuários e grupos -- vamos começar com `leia`. Como `root`, na máquina `ldap`:
+1. Primeiro, devemos criar os usuários e grupos -- vamos começar com `leia`. Como `root`, na máquina `ns2`:
 +
 ....
 # hostname ; whoami
-ldap
+ns2
 root
 ....
 +
@@ -1357,77 +1500,27 @@ Successfully set password for user uid=chewie,ou=People,dc=intnet
 +
 Fácil, não é mesmo?
 
-2. Vamos agora solucionar o problema de permissionamento. Queremos controlar os comandos utilizados nos servidores do _datacenter_, que até o momento são as máquinas `fw`, `ldap` e `nfs`. Como já instalamos o `sudo` na máquina `debian-template` na sessão 1, o comando deve estar diponível no `$PATH`:
+2. Como já instalamos o `sudo` na máquina `debian-template` na sessão 1, o comando deve estar diponível no `$PATH`:
 +
 ....
 # which sudo
 /usr/bin/sudo
 ....
 +
-Tecnicamente, seria possível configurar o `sudo` em cada um dos servidores -- uma vez que as regras para a usuária `leia` são específica para a máquina `fw` e as do usuário `chewie` se aplicam à máquina `ldap` -- mas não faremos isso. Imagine que, ao invés de três máquinas, nosso _datacenter_ tivesse centenas de VMs: seria factível controlar as regras de `sudo` localmente em cada um dos servidores? É evidente que não.
-+
-Temos algumas opções para configurar o `sudo` de forma coordenada entre múltiplos servidores. A gestão de configuração (como a ferramenta Ansible, que utilizaremos na sessão 6) é uma dessas opções, um método bastante moderno e conveniente de solucionar o problema. Neste momento, no entanto, iremos empregar uma solução mais simples -- usar a pasta `/config`, compartilhada via NFS, para atingir esse objetivo.
-+
-O `sudo` é configurado através de dois artefatos: o arquivo `/etc/sudoers`, e arquivos dentro do diretório `/etc/sudoers.d` (incluídos na configuração via diretiva `includedir` no arquivo padrão). Evidentemente, o diretório `/etc` é local em cada servidor que estamos trabalhando -- iremos usar links simbólicos para redirecionar o `sudo` para buscar a configuração no arquivo `/config/sudoers`, renomeando o arquivo original, e mantendo a pasta `/etc/sudoers.d` para que alterações locais possam ser realizadas.
-+
-Acesse a máquina `nfs` como o usuário `root`:
+Vamos testar? Edite o arquivo `/etc/sudoers` e autorize o usuário `luke` a usar o comando `/bin/grep` como o usuário `root`. Edite o arquivo com:
 +
 ....
-# hostname ; whoami
-nfs
-root
-....
-+
-Copie o arquivo `/etc/sudoers` para a pasta `/config`:
-+
-....
-# cp -a /etc/sudoers /config
-....
-+
-Renomeie o arquivo original:
-+
-....
-# mv /etc/sudoers /etc/sudoers.old
-....
-+
-Crie um link simbólico para o novo arquivo de configuração:
-+
-....
-# ln -s /config/sudoers /etc/
-....
-+
-Como o arquivo `/config/sudoers` terá que ser lido pelo usuário `root` em outras máquinas e estamos usando a opção `root_squash` no _mount_ NFS, é necessário conceder permissão de leitura para "outros" neste arquivo:
-+
-....
-# ls -ld /config/sudoers
--r--r----- 1 root root 669 nov  2 11:15 /config/sudoers
-....
-+
-....
-# chmod o+r /config/sudoers
-....
-+
-Note que o arquivo `/config/sudoers` ainda inclui a pasta local `/etc/sudoers.d`, o que permite ao administrador realizar configurações locais independentes do compartilhamento de arquivos NFS.
-+
-....
-# grep includedir /config/sudoers
-#includedir /etc/sudoers.d
-....
-+
-Vamos testar? Edite o arquivo `/config/sudoers` e autorize o usuário `luke` a usar o comando `/bin/grep` como o usuário `root`. Edite o arquivo com:
-+
-....
-# visudo -f /config/sudoers
+# visudo
 (...)
 ....
 +
 Insira a linha `luke ALL=/bin/grep` abaixo da entrada do usuário `root` na seção _User privilege specification_, como se segue:
 +
 ....
-# grep -A2 'User privilege specification' /config/sudoers
+# grep -A2 'User privilege specification' /etc/sudoers
 # User privilege specification
 root    ALL=(ALL:ALL) ALL
-luke    ALL=          /bin/grep
+luke    ALL=(root)    /bin/grep
 ....
 +
 Como o usuário `luke`, tente usar o comando `grep` com o `sudo` para visualizar um arquivo restrito, como o `/etc/shadow`:
@@ -1443,345 +1536,31 @@ luke
 +
 ....
 $ sudo grep root /etc/shadow
-root:$6$2SMIuRXP$mfXWI0HACpYqLUup.aEYcLrr4eo3WJeDmr8G8etaUC2tdNzBqn9i4yeQfOvtdMUdJ5Y7D2ySGA72KOskF75in0:17822:0:99999:7:::
+
+Presumimos que você recebeu as instruções de sempre do administrador
+de sistema local. Basicamente, resume-se a estas três coisas:
+
+    #1) Respeite a privacidade dos outros.
+    #2) Pense antes de digitar.
+    #3) Com grandes poderes vêm grandes responsabilidades.
+
+[sudo] senha para luke:
+root:$6$s7Gt1cd.$UXQf67CVYxR7HP..h2wvhOx4nOtBT7do28R1uChYdMpZc.uLi43OKdtentrWD2zSTKv9EyB7Bdqcpwr6nAlNo.:17848:0:99999:7:::
 ....
 +
 Agora, tente executar um comando não-autorizado, como o `cat`:
 +
 ....
 $ sudo cat /etc/shadow
-Sinto muito, usuário luke não tem permissão para executar "/bin/cat /etc/shadow" como root em nfs.intnet.
+Sinto muito, usuário luke não tem permissão para executar "/bin/cat /etc/shadow" como root em ns2.intnet.
 ....
 +
-Perfeito, nosso teste inicial funcionou com sucesso. Remova a linha referente ao usuário `luke` no arquivo `/config/sudoers`, e vamos prosseguir.
+Perfeito, nosso teste inicial funcionou com sucesso. Remova a linha referente ao usuário `luke` no arquivo `/etc/sudoers`, e vamos prosseguir.
 
-3. Vamos configurar o arquivo `/config/sudoers` de acordo com a especificação da atividade. Usando o comando `visudo -f /config/sudoers`, edite o arquivo com o seguinte conteúdo:
+3. Queremos controlar os comandos utilizados nos servidores do _datacenter_, que até o momento são as máquinas `ns1`, `ns2` e `nfs`.
 +
-[source,bash,linenums]
-----
-include::{srcdir}/s4/config_sudoers[]
-----
+Tecnicamente, seria possível configurar o `sudo` em cada um dos servidores -- uma vez que as regras para a usuária `leia` são específica para a máquina `ns1` e as do usuário `chewie` se aplicam à máquina `ns2` -- mas não faremos isso. Imagine que, ao invés de três máquinas, nosso _datacenter_ tivesse centenas de VMs: seria factível controlar as regras de `sudo` localmente em cada um dos servidores? É evidente que não.
 +
-O que estamos fazendo? Vamos ver:
+Temos algumas opções para configurar o `sudo` de forma coordenada entre múltiplos servidores. A gestão de configuração de servidores, usando ferramentas como o Puppet, Chef ou Ansible (que veremos na sessão seguinte) é um dos métodos mais modernos e eficientes de atingir esse objetivo.
 +
---
-* Nas linhas [5-10] definimos _aliases_ (apelidos) de usuários para agrupar os elementos que serão configurados para usar o `sudo`. Criamos um _alias_ `ADMINS` para agrupar os usuários `aluno`, `luke` e `han`, `FWUSERS` para `leia` e `LDAPUSERS` para o *grupo* `ldapadm`. É especialmente importante manter um _alias_ apontando para um usuário local, como o usuário `aluno`, caso haja problemas com o LDAP.
-* Nas linhas [12-14] definimos _aliases_ para máquinas, `fw` e `ldap`. Também poderíamos usar endereços IP, se desejado.
-* Nas linhas [16-30] definimos _aliases_ de comandos: para a máquina `fw`, apenas o comando `/sbin/iptables` é suficiente; já para a máquina `ldap` configuramos uma lista detalhada dos comandos que o _alias_ `LDAPUSERS` poderá usar.
-* Nas linhas [32-38] fazemos a "amarração" dos _aliases_ previamente definidos, atribuindo aos usuários/grupos em quais máquinas eles podem executar os comandos, como quais usuários, e quais são esses comandos.
---
-
-4. Vamos testar o acesso de `leia` na máquina `fw`. Antes disso o primeiro passo, é claro, é criar o diretório `/config` e configurar sua montagem automática durante o _boot_ via `/etc/fstab`. Acesse `fw` como `root`, crie o diretório `/config` e insira a linha a seguir no final do arquivo:
-+
-....
-# hostname ; whoami
-fw
-root
-....
-+
-....
-# mkdir /config
-....
-+
-....
-# nano /etc/fstab
-(...)
-....
-+
-....
-# tail -n1 /etc/fstab
-10.0.42.3:/config /config nfs defaults 0 0
-....
-+
-Monte o diretório e verifique seu conteúdo:
-+
-....
-# mount -a
-....
-+
-....
-# mount | grep config
-10.0.42.3:/config on /config type nfs4 (rw,relatime,vers=4.2,rsize=131072,wsize=131072,namlen=255,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=10.0.42.1,local_lock=none,addr=10.0.42.3)
-....
-+
-....
-# ls /config/
-sudoers
-....
-+
-Agora, renomeie o arquivo `/etc/sudoers` e crie o link simbólico:
-+
-....
-# mv /etc/sudoers /etc/sudoers.old ; ln -s /config/sudoers /etc/
-....
-+
-Perfeito, agora vamos testar o funcionamento da configuração. Como `leia`, tente executar o comando `iptables` usando o `sudo`:
-+
-....
-$ hostname ; whoami
-fw
-leia
-....
-+
-....
-$ sudo iptables -L
-[sudo] senha para leia:
-Chain INPUT (policy ACCEPT)
-target     prot opt source               destination
-
-Chain FORWARD (policy ACCEPT)
-target     prot opt source               destination
-
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination
-....
-+
-Excelente! E se tentarmos executar um comando não autorizado?
-+
-....
-$ sudo rm /etc/shadow
-Sinto muito, usuário leia não tem permissão para executar "/bin/rm /etc/shadow" como root em fw.intnet.
-....
-+
-De fato, é possível listar exatamente quais comandos um usuário está apto a executar com o comando `sudo -l`:
-+
-....
-$ sudo -l
-Entradas de Defaults correspondentes a leia em fw:
-    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
-
-
-Usuário leia pode executar os seguintes comandos em fw:
-    (root) /sbin/iptables
-....
-+
-E quanto a `han`? Ele consegue executar qualquer comando como `root`?
-+
-....
-$ hostname ; whoami
-fw
-han
-....
-+
-....
-$ sudo -l
-[sudo] senha para han:
-Entradas de Defaults correspondentes a han em fw:
-    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
-
-
-Usuário han pode executar os seguintes comandos em fw:
-    (ALL : ALL) ALL
-....
-+
-Perfeito! A última questão é a seguinte: e se `leia`, por qualquer motivo, conseguir obter a senha do usuário `root`? O que não é exatamente difícil, já que estamos usando `rnpesr` como senha. Nesse caso, ela terá acesso irrestrito:
-+
-....
-$ hostname ; whoami
-fw
-leia
-....
-+
-....
-$ su -
-Senha:
-....
-+
-....
-# whoami
-root
-....
-+
-A solução ideal, nesse caso, é desabilitar a senha do `root`. Com isso, mesmo que os usuários saibam a senha, ela não poderá ser usada para efetuar escalada de privilégios usando o `sudo`. Podemos usar o comando `passwd -l` para fazer isso:
-+
-....
-# passwd -l root
-passwd: informação de expiração de senha alterada.
-....
-+
-....
-# exit
-....
-+
-....
-$ whoami
-leia
-....
-+
-....
-$ su -
-Senha:
-su: Falha de autenticação
-....
-+
-Com a senha desabilitada, apenas aqueles usuários que tenham permissão de `sudo` para executar comandos de escalada de privilégio poderão tornar-se o usuário `root` -- todos os demais, restritos a um subconjunto de comandos controlados pelo arquivo `/config/sudoers`, não conseguirão fazê-lo.
-+
-Note que mesmo o usuário `han`, que possui acesso irrestrito, não consegue executar `su` diretamente:
-+
-....
-$ whoami
-han
-....
-+
-....
-$ su -
-Senha:
-su: Falha de autenticação
-....
-+
-....
-$ sudo --login
-....
-+
-....
-# whoami
-root
-....
-+
-Apenas via `sudo su` ou `sudo --login` (que equivale a invocar um _shell_ de login, como executar `sudo bash`) é possível escalar privilégio, como demonstrado.
-+
-[WARNING]
-=====
-A leitura do arquivo `/config/sudoers` a partir de um compartilhamento de rede, via NFS, traz consigo uma preocupação de segurança bastante relevante -- e se a máquina `nfs` estiver indisponível? Com efeito, se isso acontecer teremos grandes problemas, já que toda a configuração de autorização do sistema local estará indisponível. Por esse motivo, é fundamental que o `sudoers` esteja acessível localmente, o que faremos na sessão 6 deste curso.
-
-Por ora, vamos torcer para que nada catastrófico aconteça com a máquina `nfs`. Dedos cruzados.
-=====
-
-5. Vamos para o caso do usuário `chewie`. Acesse a máquina `ldap` como o usuário `root` e:
-+
---
-* Crie o diretório `/config`.
-* Configure sua montagem automática durante o _boot_ via `/etc/fstab`.
-* Configure o `sudo` para ler a configuração do `/config/sudoers`.
-* Desabilite a senha do usuário `root`.
-* Teste o funcionamento da configuração com os usuários `chewie` e `luke`.
---
-+
-Dada a semelhança dos primeiros quatro itens com o passo anterior, iremos passar diretamente para o passo final, assumindo que o aluno completou a configuração com sucesso.
-+
-Como o usuário `chewie` na máquina `ldap`, verifique quais comandos você está autorizado a executar usando o `sudo`:
-+
-....
-$ hostname ; whoami
-ldap
-chewie
-....
-+
-....
-$ sudo -l
-Entradas de Defaults correspondentes a chewie em ldap:
-    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
-
-
-Usuário chewie pode executar os seguintes comandos em ldap:
-    (root) /usr/sbin/ldapaddgroup, /usr/sbin/ldapadduser, /usr/sbin/ldapaddusertogroup,
-        /usr/sbin/ldapdeletegroup, /usr/sbin/ldapdeleteuser, /usr/sbin/ldapdeleteuserfromgroup,
-        /usr/sbin/ldapmodifygroup, /usr/sbin/ldapmodifymachine, /usr/sbin/ldapmodifyuser,
-        /usr/sbin/ldaprenamegroup, /usr/sbin/ldaprenameuser, /usr/sbin/ldapsetpasswd,
-        /usr/sbin/ldapsetprimarygroup
-....
-+
-Tente criar um novo grupo no LDAP, `sudotest`, e em seguida delete-o.
-+
-....
-$ sudo ldapaddgroup sudotest
-Successfully added group sudotest to LDAP
-....
-+
-....
-$ sudo ldapdeletegroup sudotest
-Successfully deleted group cn=sudotest,ou=Groups,dc=intnet from LDAP
-....
-+
-Tente executar um comando não-autorizado:
-+
-....
-$ sudo reboot
-Sinto muito, usuário chewie não tem permissão para executar "/sbin/reboot" como root em ldap.intnet.
-....
-+
-Como `luke`, tente logar diretamente como o `root` usando o `su`.
-+
-....
-$ hostname ; whoami
-ldap
-luke
-....
-+
-....
-$ sudo su -
-....
-+
-....
-# whoami
-root
-....
-
-6. A máquina `nfs` já está praticamente configurada -- a pasta `/config` é local, o que dispensa a montagem automática durante o _boot_, e o `/config/sudoers` já foi configurado e testado nos passos (2) e (3). Resta apenas desabilitar a senha do `root` -- faça isso:
-+
-....
-# hostname ; whoami
-nfs
-root
-....
-+
-....
-# passwd -l root
-passwd: informação de expiração de senha alterada.
-....
-
-7. Idealmente, seria interessante que novas máquinas derivadas da VM `debian-template` estivessem automaticamente integradas com o sistema de `sudo` centralizado que acabamos de configurar nesta atividade. Para isso, vamos fazer algumas alterações rápidas na máquina.
-+
-No Virtualbox, com a máquina desligada, em _Settings_ > _Network_ > _Adapter 1_ > _Attached to_, escolha _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a interface de rede da máquina virtual `fw`, configurada durante a sessão 2, que está conectada à DMZ.
-+
-Ligue a máquina `debian-template`, e acesse como o usuário `root`.
-+
-Reconfigure a rede em `/etc/network/interfaces` para a DMZ, com o endereço IP 10.0.42.250/24:
-+
-....
-# hostname ; whoami
-debian-template
-root
-....
-+
-....
-# nano /etc/network/interfaces
-(...)
-....
-+
-....
-source /etc/network/interfaces.d/*
-
-auto lo enp0s3
-
-iface lo inet loopback
-
-iface enp0s3 inet static
-address 10.0.42.250/24
-gateway 10.0.42.1
-....
-+
-Crie a pasta `/config` e configure sua montagem automática no arquivo `/etc/fstab`:
-+
-....
-# mkdir /config
-....
-+
-....
-# echo "10.0.42.3:/config /config nfs defaults 0 0" >> /etc/fstab
-....
-+
-Configure o _symlink_ do arquivo `/etc/sudoers`:
-+
-....
-# mv /etc/sudoers /etc/sudoers.old ; ln -s /config/sudoers /etc/
-....
-+
-Finalmente, desabilite a senha do usuário `root` -- usaremos o `sudo` com o usuário `aluno` para efetuar a configuração inicial das novas máquinas derivadas da VM `debian-template`:
-+
-....
-# passwd -l root
-passwd: informação de expiração de senha alterada.
-....
-+
-Desligue a VM `debian-template`.
+Assim sendo, ao invés de desenvolver uma solução inadequada para o problema de configuração do `sudo` neste momento, iremos fazer uma breve pausa nessa tarefa. Na próxima sessão, aprenderemos as bases do Ansible e, com isso, a solução do problema ficará bem mais fácil. Nos vemos em breve!

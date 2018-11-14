@@ -15,313 +15,547 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 5: Registro e correlacionamento de eventos
+== Sessão 5: Gestão de configuração
 
-=== 1) Criação da máquina
+=== 1) Instalação do Ansible
 
-Clonar `debian-template` para `log`, IP 10.0.42.4/24. Alterar _hostname_ e realizar integração LDAP/SSH-CA como usual.
+Clonar template para `ansible`, 10.0.42.5/24. Renomear e integrar no LDAP/SSH-ca como de costume. Criar entradas no DNS direto/reverso para `ansible.intnet`.
 
-Criar entrada para o novo _host_ no DNS (não esqueça de aumentar o serial), assinar zona e reiniciar _daemons_. Testar.
+Como `root@ldap`, crie um usuário para o Ansible, membro dos grupos `setup` e `fwadm`:
 
 ....
-# hostname ; whoami
+# ldapadduser ansible setup
+# ldapaddusertogroup ansible setup
+# ldapaddusertogroup ansible fwadm
+....
+
+Como `root@nfs`, permita ao usuário `ansible` executar quaisquer comandos como `root` sem digitar senha:
+
+....
+# grep ansible /config/sudoers
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
+....
+
+Como `root@ansible`, instale o Ansible no servidor:
+
+....
+# echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list
+# apt-get install dirmngr
+# apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+# apt-get update
+# apt-get install ansible
+....
+
+=== 2) Execução de comandos simples
+
+Como `ansible@ansible`, assine um par de chaves para logar nos servidores integrados no sistema LDAP/SSH-CA:
+
+....
+$ bash scripts/sshsign_user.sh
+(sshca@10.0.42.2) Enter passphrase:
+# 10.0.42.2:22 SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u4
+
+(CA private key) Enter passphrase: seg10_user_ca
+Signed user key id_rsa-cert.pub: id "ansible" serial 0 for ansible valid from 2018-11-06T13:25:23 to 2021-11-05T12:30:23
+....
+
+Crie um diretório `~/ansible`, e um arquivo de hosts identificando as máquinas a gerenciar.
+
+....
+$ mkdir ~/ansible
+$ cd ~/ansible
+....
+
+....
+$ nano ~/ansible/hosts
+(...)
+....
+
+....
+$ cat ~/ansible/hosts
+[srv]
+fw
+ldap
+nfs
+log
+ansible
+....
+
+Execute um comando simples em todas as máquinas gerenciadas pelo Ansible.
+
+....
+$ ansible -i ~/ansible/hosts srv -b --become-user=root -m shell -a 'hostname ; whoami'
+ansible | CHANGED | rc=0 >>
+ansible
+root
+
+fw | CHANGED | rc=0 >>
 fw
 root
-....
 
-....
-# grep log /etc/nsd/intnet.zone
-log     IN    A                 10.0.42.4
-....
+ldap | CHANGED | rc=0 >>
+ldap
+root
 
-....
-# grep log /etc/nsd/10.0.42.zone
-4       IN   PTR                log.intnet.
-....
+nfs | CHANGED | rc=0 >>
+nfs
+root
 
-....
-# bash /etc/nsd/signzone-intnet.sh
-reconfig start, read /etc/nsd/nsd.conf
-ok
-ok
-ok
-....
-
-....
-# systemctl reload unbound
-....
-
-....
-# nslookup log
-Server:         127.0.0.1
-Address:        127.0.0.1#53
-
-Non-authoritative answer:
-Name:   log.intnet
-Address: 10.0.42.4
-....
-
-=== 2) Configuração do NTP
-
-Logar como `root` na máquina `log`. Instalar o OpenNTPD.
-
-....
-# hostname ; whoami
+log | CHANGED | rc=0 >>
 log
 root
 ....
 
-....
-# apt-get install openntpd
-....
+=== 3) Uso de roles no Ansible
 
-Fazer o backup do arquivo original e configurar o OpenNTPD.
+Vamos usar roles (papéis) no Ansible para configurar o sudo de forma local, mais segura. Crie o diretório `~/ansible/roles`, e inicialize o papel `sudoers`:
 
 ....
-# mv /etc/openntpd/ntpd.conf /etc/openntpd/ntpd.conf.orig
-....
-
-....
-# cat /etc/openntpd/ntpd.conf
-listen on 127.0.0.1
-listen on 10.0.42.4
-servers pool.ntp.br
-....
-
-Pare o OpenNTPD, sincronize o relógio imediatamente.
-
-....
-# systemctl stop openntpd.service
+$ mkdir ~/ansible/roles
+$ cd ~/ansible/roles/
 ....
 
 ....
-# mkdir /var/run/openntpd ; ntpd -s -d -f /etc/openntpd/ntpd.conf -p /var/run/openntpd.pid
-adjtimex returns frequency of 0.000000ppm
-/var/lib/openntpd/db/ntpd.drift is empty
-listening on 127.0.0.1
-listening on 10.0.42.4
-ntp engine ready
-reply from 200.160.7.186: offset -0.003035 delay 0.018363, next query 8s
-set local clock to Sat Nov  3 17:25:41 -03 2018 (offset -0.003035s)
-reply from 200.160.7.193: offset -0.003952 delay 0.019983, next query 5s
-reply from 200.160.0.8: offset -0.003851 delay 0.020152, next query 7s
-reply from 200.186.125.195: offset -0.002323 delay 0.023158, next query 7s
-reply from 200.20.186.76: offset -0.003652 delay 0.027538, next query 6s
-....
-
-Após a sincronização, pare o processo com `CTRL + C`, apague o diretório `/var/run/openntpd` e inicie o OpenNTPD. Cheque se está escutando como esperado.
-
-....
-^C ntp engine exiting
-Terminating
-dispatch_imsg in main: pipe closed
+$ ansible-galaxy init sudoers
+- sudoers was created successfully
 ....
 
 ....
-# rmdir /var/run/openntpd
+$ ls -R sudoers/
+sudoers/:
+defaults  files  handlers  meta  README.md  tasks  templates  tests  vars
+
+sudoers/defaults:
+main.yml
+
+sudoers/files:
+
+sudoers/handlers:
+main.yml
+
+sudoers/meta:
+main.yml
+
+sudoers/tasks:
+main.yml
+
+sudoers/templates:
+
+sudoers/tests:
+inventory  test.yml
+
+sudoers/vars:
+main.yml
+....
+
+Copie o arquivo `sudoers` do NFS para a pasta `files`:
+
+....
+$ cp /config/sudoers ~/ansible/roles/sudoers/files/
+....
+
+Observe as permissões do arquivo `sudoers` original. Com isso em mente, edite o arquivo `~/ansible/roles/sudoers/tasks/main.yml` como se segue:
+
+....
+$ ls -ld /etc/sudoers.old
+-r--r----- 1 root root 669 jun  5  2017 /etc/sudoers.old
 ....
 
 ....
-# systemctl start openntpd.service
+$ cat ~/ansible/roles/sudoers/tasks/main.yml
+---
+- name: Propagate sudoers configuration
+  become: yes
+  become_user: root
+  copy:
+    src: sudoers
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0440
 ....
 
+Crie o arquivo `~/ansible/srv.yml` para amarrar os hosts à nova role.
+
 ....
-# ss -unlp | grep 123
-UNCONN     0      0      10.0.42.4:123                      *:*                   users:(("ntpd",pid=1643,fd=8))
-UNCONN     0      0      127.0.0.1:123                      *:*                   users:(("ntpd",pid=1643,fd=7))
+$ cat ~/ansible/srv.yml
+---
+- hosts: srv
+  roles:
+    - sudoers
 ....
 
-Configurar todos os servidores de uma única vez: como `han@client`, crie o _script_ `/home/han/scripts/install-openntpd.sh` com o seguinte conteúdo:
+Execute a role.
 
+....
+$ ansible-playbook -i ~/ansible/hosts ~/ansible/srv.yml
+
+PLAY [srv] *********************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [nfs]
+ok: [ldap]
+ok: [fw]
+ok: [ansible]
+ok: [log]
+
+TASK [sudoers : Propagate sudoers configuration] *******************************
+changed: [fw]
+changed: [ldap]
+changed: [nfs]
+changed: [ansible]
+changed: [log]
+
+PLAY RECAP *********************************************************************
+ansible                    : ok=2    changed=1    unreachable=0    failed=0
+fw                         : ok=2    changed=1    unreachable=0    failed=0
+ldap                       : ok=2    changed=1    unreachable=0    failed=0
+log                        : ok=2    changed=1    unreachable=0    failed=0
+nfs                        : ok=2    changed=1    unreachable=0    failed=0
+....
+
+Verifique que o arquivo `/etc/sudoers` é lido localmente, agora.
+
+....
+$ ls -ld /etc/sudoers
+-r--r----- 1 root root 1392 nov  6 13:50 /etc/sudoers
+....
+
+=== 4) Versionamento de configuração com git
+
+=== 5) sudo
+
+
+
+- - -
+
+1. Vamos configurar o arquivo `/config/sudoers` de acordo com a especificação da atividade. Usando o comando `visudo -f /config/sudoers`, edite o arquivo com o seguinte conteúdo:
++
 [source,bash,linenums]
 ----
-include::{srcdir}/s5/home_han_scripts_install-openntpd.sh[]
+include::{srcdir}/s4/config_sudoers[]
 ----
++
+O que estamos fazendo? Vamos ver:
++
+--
+* Nas linhas [5-10] definimos _aliases_ (apelidos) de usuários para agrupar os elementos que serão configurados para usar o `sudo`. Criamos um _alias_ `ADMINS` para agrupar os usuários `aluno`, `luke` e `han`, `FWUSERS` para `leia` e `LDAPUSERS` para o *grupo* `ldapadm`. É especialmente importante manter um _alias_ apontando para um usuário local, como o usuário `aluno`, caso haja problemas com o LDAP.
+* Nas linhas [12-14] definimos _aliases_ para máquinas, `ns1` e `ns2`. Também poderíamos usar endereços IP, se desejado.
+* Nas linhas [16-30] definimos _aliases_ de comandos: para a máquina `ns1`, apenas o comando `/sbin/iptables` é suficiente; já para a máquina `ns2` configuramos uma lista detalhada dos comandos que o _alias_ `LDAPUSERS` poderá usar.
+* Nas linhas [32-38] fazemos a "amarração" dos _aliases_ previamente definidos, atribuindo aos usuários/grupos em quais máquinas eles podem executar os comandos, como quais usuários, e quais são esses comandos.
+--
 
-Executar com:
-
+2. Vamos testar o acesso de `leia` na máquina `ns1`. Antes disso o primeiro passo, é claro, é criar o diretório `/config` e configurar sua montagem automática durante o _boot_ via `/etc/fstab`. Acesse `ns1` como `root`, crie o diretório `/config` e insira a linha a seguir no final do arquivo:
++
 ....
-$ for server in fw ldap nfs; do scp ~/scripts/install-openntpd.sh ${server}:~ && ssh han@${server} 'echo seg10han | sudo -S bash /home/han/install-openntpd.sh' && ssh ${server} rm ~/install-openntpd.sh; done
-....
-
-Verifique a correta instalação:
-
-....
-$ echo '---'; for server in fw ldap nfs; do ssh han@${server} 'hostname ; dpkg -l | grep openntpd ; cat /etc/openntpd/ntpd.conf; ps auxwm | pgrep ntpd'; echo '---'; done
----
+# hostname ; whoami
 fw
-ii  openntpd                       1:6.0p1-2                      amd64        OpenBSD NTP daemon
-server 10.0.42.4
-4950
-4954
-4956
----
-ldap
-ii  openntpd                       1:6.0p1-2                      amd64        OpenBSD NTP daemon
-server 10.0.42.4
-1354
-1364
-1366
----
+root
+....
++
+....
+# mkdir /config
+....
++
+....
+# nano /etc/fstab
+(...)
+....
++
+....
+# tail -n1 /etc/fstab
+10.0.42.3:/config /config nfs defaults 0 0
+....
++
+Monte o diretório e verifique seu conteúdo:
++
+....
+# mount -a
+....
++
+....
+# mount | grep config
+10.0.42.3:/config on /config type nfs4 (rw,relatime,vers=4.2,rsize=131072,wsize=131072,namlen=255,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=10.0.42.1,local_lock=none,addr=10.0.42.3)
+....
++
+....
+# ls /config/
+sudoers
+....
++
+Agora, renomeie o arquivo `/etc/sudoers` e crie o link simbólico:
++
+....
+# mv /etc/sudoers /etc/sudoers.old ; ln -s /config/sudoers /etc/
+....
++
+Perfeito, agora vamos testar o funcionamento da configuração. Como `leia`, tente executar o comando `iptables` usando o `sudo`:
++
+....
+$ hostname ; whoami
+fw
+leia
+....
++
+....
+$ sudo iptables -L
+[sudo] senha para leia:
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+....
++
+Excelente! E se tentarmos executar um comando não autorizado?
++
+....
+$ sudo rm /etc/shadow
+Sinto muito, usuário leia não tem permissão para executar "/bin/rm /etc/shadow" como root em fw.intnet.
+....
++
+De fato, é possível listar exatamente quais comandos um usuário está apto a executar com o comando `sudo -l`:
++
+....
+$ sudo -l
+Entradas de Defaults correspondentes a leia em fw:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+
+Usuário leia pode executar os seguintes comandos em fw:
+    (root) /sbin/iptables
+....
++
+E quanto a `han`? Ele consegue executar qualquer comando como `root`?
++
+....
+$ hostname ; whoami
+fw
+han
+....
++
+....
+$ sudo -l
+[sudo] senha para han:
+Entradas de Defaults correspondentes a han em fw:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+
+Usuário han pode executar os seguintes comandos em fw:
+    (ALL : ALL) ALL
+....
++
+Perfeito! A última questão é a seguinte: e se `leia`, por qualquer motivo, conseguir obter a senha do usuário `root`? O que não é exatamente difícil, já que estamos usando `rnpesr` como senha. Nesse caso, ela terá acesso irrestrito:
++
+....
+$ hostname ; whoami
+fw
+leia
+....
++
+....
+$ su -
+Senha:
+....
++
+....
+# whoami
+root
+....
++
+A solução ideal, nesse caso, é desabilitar a senha do `root`. Com isso, mesmo que os usuários saibam a senha, ela não poderá ser usada para efetuar escalada de privilégios usando o `sudo`. Podemos usar o comando `passwd -l` para fazer isso:
++
+....
+# passwd -l root
+passwd: informação de expiração de senha alterada.
+....
++
+....
+# exit
+....
++
+....
+$ whoami
+leia
+....
++
+....
+$ su -
+Senha:
+su: Falha de autenticação
+....
++
+Com a senha desabilitada, apenas aqueles usuários que tenham permissão de `sudo` para executar comandos de escalada de privilégio poderão tornar-se o usuário `root` -- todos os demais, restritos a um subconjunto de comandos controlados pelo arquivo `/config/sudoers`, não conseguirão fazê-lo.
++
+Note que mesmo o usuário `han`, que possui acesso irrestrito, não consegue executar `su` diretamente:
++
+....
+$ whoami
+han
+....
++
+....
+$ su -
+Senha:
+su: Falha de autenticação
+....
++
+....
+$ sudo --login
+....
++
+....
+# whoami
+root
+....
++
+Apenas via `sudo su` ou `sudo --login` (que equivale a invocar um _shell_ de login, como executar `sudo bash`) é possível escalar privilégio, como demonstrado.
++
+[WARNING]
+=====
+A leitura do arquivo `/config/sudoers` a partir de um compartilhamento de rede, via NFS, traz consigo uma preocupação de segurança bastante relevante -- e se a máquina `nfs` estiver indisponível? Com efeito, se isso acontecer teremos grandes problemas, já que toda a configuração de autorização do sistema local estará indisponível. Por esse motivo, é fundamental que o `sudoers` esteja acessível localmente, o que faremos na sessão 6 deste curso.
+
+Por ora, vamos torcer para que nada catastrófico aconteça com a máquina `nfs`. Dedos cruzados.
+=====
+
+3. Vamos para o caso do usuário `chewie`. Acesse a máquina `ns2` como o usuário `root` e:
++
+--
+* Crie o diretório `/config`.
+* Configure sua montagem automática durante o _boot_ via `/etc/fstab`.
+* Configure o `sudo` para ler a configuração do `/config/sudoers`.
+* Desabilite a senha do usuário `root`.
+* Teste o funcionamento da configuração com os usuários `chewie` e `luke`.
+--
++
+Dada a semelhança dos primeiros quatro itens com o passo anterior, iremos passar diretamente para o passo final, assumindo que o aluno completou a configuração com sucesso.
++
+Como o usuário `chewie` na máquina `ns2`, verifique quais comandos você está autorizado a executar usando o `sudo`:
++
+....
+$ hostname ; whoami
+ns2
+chewie
+....
++
+....
+$ sudo -l
+Entradas de Defaults correspondentes a chewie em ldap:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+
+Usuário chewie pode executar os seguintes comandos em ldap:
+    (root) /usr/sbin/ldapaddgroup, /usr/sbin/ldapadduser, /usr/sbin/ldapaddusertogroup,
+        /usr/sbin/ldapdeletegroup, /usr/sbin/ldapdeleteuser, /usr/sbin/ldapdeleteuserfromgroup,
+        /usr/sbin/ldapmodifygroup, /usr/sbin/ldapmodifymachine, /usr/sbin/ldapmodifyuser,
+        /usr/sbin/ldaprenamegroup, /usr/sbin/ldaprenameuser, /usr/sbin/ldapsetpasswd,
+        /usr/sbin/ldapsetprimarygroup
+....
++
+Tente criar um novo grupo no LDAP, `sudotest`, e em seguida delete-o.
++
+....
+$ sudo ldapaddgroup sudotest
+Successfully added group sudotest to LDAP
+....
++
+....
+$ sudo ldapdeletegroup sudotest
+Successfully deleted group cn=sudotest,ou=Groups,dc=intnet from LDAP
+....
++
+Tente executar um comando não-autorizado:
++
+....
+$ sudo reboot
+Sinto muito, usuário chewie não tem permissão para executar "/sbin/reboot" como root em ldap.intnet.
+....
++
+Como `luke`, tente logar diretamente como o `root` usando o `su`.
++
+....
+$ hostname ; whoami
+ns2
+luke
+....
++
+....
+$ sudo su -
+....
++
+....
+# whoami
+root
+....
+
+4. A máquina `nfs` já está praticamente configurada -- a pasta `/config` é local, o que dispensa a montagem automática durante o _boot_, e o `/config/sudoers` já foi configurado e testado nos passos (2) e (3). Resta apenas desabilitar a senha do `root` -- faça isso:
++
+....
+# hostname ; whoami
 nfs
-ii  openntpd                       1:6.0p1-2                      amd64        OpenBSD NTP daemon
-server 10.0.42.4
-5192
-5193
-5194
----
+root
+....
++
+....
+# passwd -l root
+passwd: informação de expiração de senha alterada.
 ....
 
-
-=== 3) Registro de comandos digitados com SnoopyLog
-
-Instalar Snoopy para gerar trilha de auditoria de comandos digitados por usuários. Como `han@client`, criar script `/home/han/scripts/install-snoopy.sh` com o seguinte conteúdo:
-
-[source,bash,linenums]
-----
-include::{srcdir}/s5/home_han_scripts_install-snoopy.sh[]
-----
-
-Executar com:
-
+5. Idealmente, seria interessante que novas máquinas derivadas da VM `debian-template` estivessem automaticamente integradas com o sistema de `sudo` centralizado que acabamos de configurar nesta atividade. Para isso, vamos fazer algumas alterações rápidas na máquina.
++
+No Virtualbox, com a máquina desligada, em _Settings_ > _Network_ > _Adapter 1_ > _Attached to_, escolha _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a interface de rede da máquina virtual `ns1`, configurada durante a sessão 2, que está conectada à DMZ.
++
+Ligue a máquina `debian-template`, e acesse como o usuário `root`.
++
+Reconfigure a rede em `/etc/network/interfaces` para a DMZ, com o endereço IP 10.0.42.250/24:
++
 ....
-$ for server in fw ldap nfs log; do scp ~/scripts/install-snoopy.sh ${server}:~ && ssh han@${server} 'echo seg10han | sudo -S bash /home/han/install-snoopy.sh' && ssh ${server} rm ~/install-snoopy.sh; done
+# hostname ; whoami
+debian-template
+root
 ....
-
-O Snoopy será instalado em todas as VMs da DMZ. Logue em uma VM, faça `sudo` e execute alguns comandos. Verifique o arquivo `/var/log/auth.log` para verificar a funcionalidade do pacote.
-
-=== 4) Correlacionamento de eventos com o Graylog
-
-Desligue a VM `log`, ajuste sua memória para 4 GB e em seguida religue-a. Acesse como `root@log` e instale as dependências do Graylog.
-
++
 ....
-# apt-get update
-# apt-get install apt-transport-https openjdk-8-jre-headless uuid-runtime pwgen dirmngr
+# nano /etc/network/interfaces
+(...)
 ....
-
-Instale o MongoDB.
-
++
 ....
-# apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
-# echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/3.6 main" > /etc/apt/sources.list.d/mongodb-org-3.6.list
-# apt-get update
-# apt-get install -y mongodb-org
+source /etc/network/interfaces.d/*
+
+auto lo enp0s3
+
+iface lo inet loopback
+
+iface enp0s3 inet static
+address 10.0.42.250/24
+gateway 10.0.42.1
 ....
-
-Inicie o serviço do MongoDB.
-
++
+Crie a pasta `/config` e configure sua montagem automática no arquivo `/etc/fstab`:
++
 ....
-# systemctl daemon-reload
-# systemctl enable mongod.service
-# systemctl restart mongod.service
+# mkdir /config
 ....
-
-Instale o Elasticsearch.
-
++
 ....
-# wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
-# echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" > /etc/apt/sources.list.d/elastic-5.x.list
-# apt-get update
-# apt-get install elasticsearch
+# echo "10.0.42.3:/config /config nfs defaults 0 0" >> /etc/fstab
 ....
-
-Configure o Elasticsearch, e inicie-o.
-
++
+Configure o _symlink_ do arquivo `/etc/sudoers`:
++
 ....
-# sed -i 's/^#\(cluster\.name:\).*/\1 graylog/' /etc/elasticsearch/elasticsearch.yml
-# systemctl daemon-reload
-# systemctl enable elasticsearch.service
-# systemctl restart elasticsearch.service
+# mv /etc/sudoers /etc/sudoers.old ; ln -s /config/sudoers /etc/
 ....
-
-Instale o Graylog.
-
++
+Finalmente, desabilite a senha do usuário `root` -- usaremos o `sudo` com o usuário `aluno` para efetuar a configuração inicial das novas máquinas derivadas da VM `debian-template`:
++
 ....
-# wget https://packages.graylog2.org/repo/packages/graylog-2.4-repository_latest.deb
-# dpkg -i graylog-2.4-repository_latest.deb
-# apt-get update
-# apt-get install graylog-server
+# passwd -l root
+passwd: informação de expiração de senha alterada.
 ....
-
-Configure as senhas de acesso.
-
-....
-# SECRET=$(pwgen -s 96 1) ; sed -i -e 's/password_secret =.*/password_secret = '$SECRET'/' /etc/graylog/server/server.conf ; unset SECRET
-....
-
-....
-# PASSWORD=$(echo -n 'rnpesr' | shasum -a 256 | awk '{print $1}') ; sed -i -e 's/root_password_sha2 =.*/root_password_sha2 = '$PASSWORD'/' /etc/graylog/server/server.conf ; unset PASSWORD
-....
-
-Inicie o Graylog.
-
-....
-# systemctl daemon-reload
-# systemctl enable graylog-server.service
-# systemctl start graylog-server.service
-....
-
-Instale o nginx para atuar como um proxy reverso.
-
-....
-# apt-get install nginx
-# rm /etc/nginx/sites-enabled/default
-....
-
-Crie o arquivo `/etc/nginx/sites-available/graylog` com o seguinte conteúdo (edite o IP público da máquina `fw` onde apropriado).
-
-[source,bash,linenums]
-----
-include::{srcdir}/s5/etc_nginx_sites-available_graylog[]
-----
-
-....
-# ln -s /etc/nginx/sites-available/graylog /etc/nginx/sites-enabled/
-# systemctl restart nginx
-....
-
-Como `root@fw`:
-
-....
-# iptables -t nat -A PREROUTING -i enp0s3 -p tcp --dport 80 -j DNAT --to-destination 10.0.42.4
-# iptables-save > /etc/iptables/rules.v4
-....
-
-Em sua máquina física, aponte o navegador para http://200.130.46.146 ; logue como `admin:rnpesr`. Ajuste: System > Indices > Edit > Index Shards = 1 > Save. Ajuste: System > Inputs > Syslog UDP ; Selecionar node ; Title = syslog ; Bind = 10.0.42.4 ; Port = 5140 ; Save.
-
-Como `han@client`:
-
-....
-$ for server in fw ldap nfs log; do scp ~/scripts/configure-graylog.sh ${server}:~ && ssh han@${server} 'echo seg10han | sudo -S bash /home/han/configure-graylog.sh' && ssh ${server} rm ~/configure-graylog.sh; done
-....
-
-Na máquina física, visualize a aba Search.
-
-Agora, configure a atenticação. Em System > Authentication > LDAP/Active Directory ; Enable LDAP:
-
-Server configuration: Server Address = ldap://10.0.42.2:389 ; System Username = cn=admin,dc=intnet ; System Password = rnpesr
-
-User mapping: Search Base DN = ou=People,dc=intnet ; User Search Pattern = (&(objectClass=posixAccount)(uid={0})) ; Display Name Attribute = cn
-
-Group mapping: Group Search Base DN = ou=Groups,dc=intnet ; Group Search Pattern = (&(objectClass=posixGroup)(cn=sysadm)) ; Group Name Attribute = cn
-
-Save LDAP Settings. Teste o login como usuários `luke` e `han`.
-
-Baixe o arquivo https://raw.githubusercontent.com/graylog-labs/graylog-contentpack-nginx/master/content_pack.json . Em System > Content Packs > Import Content Pack, aponte o arquivo. Em System > Content Packs > Web Servers > nginx > Apply Content, ative o pack.
-
-Como `root@log`, inserir ao final da seção http no arquivo `/etc/nginx/nginx.conf`:
-
-....
-log_format  graylog2_format  '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" <msec=$msec|connection=$connection|connection_requests=$connection_requests|cache_status=$upstream_cache_status|cache_control=$upstream_http_cache_control|expires=$upstream_http_expires|millis=$request_time>';
-
-access_log syslog:server=10.0.42.4:12301 graylog2_format;
-error_log syslog:server=10.0.42.4:12302;
-....
-
-....
-# systemctl restart nginx
-....
-
-No navegador, acesse System > Inputs > nginx access_log > Show received messages.
-
-Para mais informações, acesse https://devopsideas.com/centralized-logging-using-graylog/ .
++
+Desligue a VM `debian-template`.

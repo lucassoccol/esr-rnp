@@ -8,27 +8,33 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 19-10-2018
+:revdate: 12-11-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 2: Firewall
+== Sessão 2: Firewall e DNS
+
+O ponto de partida para a segurança da rede em qualquer organização é, certamente, o _firewall_. Utilizando-se do princípio de segurança do _chokepoint_, ou gargalo, tem como premissa atuar como um ponto focal no controle do tráfego de rede, permitindo aos administradores configurar acessos e proibições de acordo com as políticas organizacionais. Conceitualmente, o firewall consiste em um filtro de pacotes e tem sua atuação restrita até a camada 4 (transporte) do modelo OSI, ficando a tarefa de filtragem em nível de aplicação para outros programas e _appliances_ de controle da rede, como IDSs (_Intrusion Detection System_), IPSs (_Intrusion Protection System_), _proxies_ ou WAFs (_Web Application Firewalls_).
+
+Juntamente com o firewall, o serviço de resolução de nomes (DNS, ou _Domain Name System_) também é peça-chave na segurança da rede. Provendo um serviço essencial -- tradução de endereços de rede para nomes e vice-versa -- o serviço DNS deve ser cuidadosamente configurado pelos administradores para evitar ataques de _spoofing_ e prover redundância em caso de falhas inesperadas. Os servidores DNS se dividem em primário, secundário e recursivo; destes, os dois primeiros são responsáveis por responder por um domínio de rede (ditos *autoritativos*, portanto), e o último apenas funciona como uma fonte de consulta e _cache_ para os clientes da rede.
+
+Neste curso, faremos uma configuração extremamente restritiva do firewall de nosso _datacenter_ simulado, e a cada novo serviço implementado iremos retornar à sua configuração para abrir as portas e protocolos adequados. Já no caso do DNS, configuraremos um servidor primário/secundário autoritativo com suporte a DNSSEC para a rede interna `intnet.`, restringindo todas as máquinas a realizarem suas consultas exclusivamente nesses servidores. Iremos, ainda, configurar um servidor DNS recursivo em um _daemon_ distinto exclusivamente para consultas e _cache_ de resultados, visando o aumento da segurança do sistema de resolução de nomes.
 
 === 1) Topologia desta sessão
 
 A figura abaixo mostra a topologia de rede que será utilizada nesta sessão, com as máquinas relevantes em destaque.
 
 .Topologia de rede desta sessão
-[#img-topologia]
+[#img-topologia2]
 image::Topologia_SEG10_S2.png[align="center"]
 
 Teremos apenas duas máquinas, por enquanto:
 
-* `ns1`, atuando como firewall de rede e DNS primário, e
-* `ns2`, atuando como DNS secundário e localizada na DMZ (_Demilitarized Zone_, ou zona desmilitarizada).
+* `ns1`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
+* `ns2`, atuando como DNS secundário e localizada na DMZ (_Demilitarized Zone_, ou zona desmilitarizada). Endereço IP 10.0.42.2/24.
 
 1. Antes de começarmos, precisamos configurar corretamente as redes virtuais no Virtualbox. Acesse o menu _File_ > _Host Network Manager_ e crie as seguintes redes:
 +
@@ -1078,8 +1084,8 @@ root
 ....
 # ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}' ; hostname ; whoami
 10.0.42.2/24 enp0s3
-debian-template
 ns2
+root
 ....
 
 === 9) Configuração do DNS secundário
