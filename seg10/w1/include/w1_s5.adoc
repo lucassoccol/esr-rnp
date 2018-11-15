@@ -213,7 +213,7 @@ O que aconteceu? Vejamos:
 +
 Analise a saída, agora: note que o Ansible loga em cada uma das máquinas do grupo `srv` (`ns2`, `ns1` e `nfs`) e executa os comandos indicados, mostrando claramente o _hostname_ local e usuário logado. Observe, ainda, que a ordem das máquinas escrita no arquivo `/home/ansible/hosts` não foi respeitada -- o Ansible inicia conexões nos servidores de forma paralela, e as respostas podem vir fora de ordem.
 +
-Um último adendo: mencionamos o uso do módulo `shell` no comando acima, mas quais outros módulos existem? Há muitos outros -- mesmo. Confira a lista completa na página https://docs.ansible.com/ansible/latest/modules/modules_by_category.html .
+Um último adendo: mencionamos o uso do módulo _shell_ no comando acima, mas quais outros módulos existem? Há muitos outros -- mesmo. Confira a lista completa na página https://docs.ansible.com/ansible/latest/modules/modules_by_category.html .
 
 4. A próxima pergunta que pode surgir neste momento é: Ok, conseguimos executar um comando remoto com um usuário não-privilegiado. E se quisermos executar como o `root`? Para isso, podemos executar a escalação de privilégios usando o `become`. Veja:
 +
@@ -338,7 +338,7 @@ O que esse arquivo faz? Vamos ver:
 --
 +
 Compare as regras sendo definidas pelos _aliases_ no arquivo `sudoers` acima e os requisitos de acesso definidos no começo deste passo -- todos estão sendo atendidos a contento. É claro, seria possível organizar os usuários/grupos de forma diferente -- em particular, poderia ser interessante agrupar os usuário `han` e `luke` em um grupo dedicado de "super-admins" -- mas funciona como uma boa prova de conceito.
-
++
 [WARNING]
 ====
 Para o aluno atento, é claro observar que o conjunto de programas que estão sendo autorizados para o usuário `chewie` (de fato, todo o grupo `ldapadm`) garante a ele uma permissão efetiva *muito* maior que a prevista no escopo inicial do problema. Afinal, bastaria ao usuário `chewie` adicionar-se a si mesmo no grupo `fwadm` (via comando `ldapaddusertogroup`) para acessar a máquina `ns1`, ou alterar a senha dos usuários `han` ou `luke` (via comando `ldapsetpasswd`) e entrar como esses usuários em máquinas que permitam login via senha. Iremos "ignorar" esse problema nesta atividade, em nome da simplicidade.
@@ -405,112 +405,71 @@ ns1                        : ok=2    changed=1    unreachable=0    failed=0
 ns2                        : ok=2    changed=1    unreachable=0    failed=0
 ....
 
-STOPHERE
+6. Terá funcionado? Vamos ver: tente executar um comando distribuído com o Ansible usando o `sudo` como método de escalada de privilégio, e sem digitar senha.
++
+....
+$ ansible -i ~/hosts srv -b --become-user=root --become-method=sudo -m shell -a 'hostname --fqdn ; grep ansible /etc/sudoers'
+nfs | CHANGED | rc=0 >>
+nfs.intnet
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
 
-Verifique que o arquivo `/etc/sudoers` é lido localmente, agora.
+ns2 | CHANGED | rc=0 >>
+ns2.intnet
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
 
+ns1 | CHANGED | rc=0 >>
+ns1.intnet
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
 ....
-$ ls -ld /etc/sudoers
--r--r----- 1 root root 1392 nov  6 13:50 /etc/sudoers
-....
++
+Perfeito! Veja que o Ansible conseguiu acessar todas as máquinas, elevar privilégios usando o `sudo` sem necessidade de senha, e imprimir o conteúdo do arquivo `/etc/sudoers` -- o qual pode ser lido apenas pelo `root` e, convenientemente, filtramos a linha em que a autorização ao usuário `ansible` está sendo configurada.
 
-=== 4) Versionamento de configuração com git
+=== 5) Testando os controles do sudo
 
-=== 5) sudo
+Conseguimos distribuir o arquivo `sudoers` como objetivado, mas será que os controles estão funcionando?
 
-
-
-- - -
-
-1. Vamos configurar o arquivo `/config/sudoers` de acordo com a especificação da atividade. Usando o comando `visudo -f /config/sudoers`, edite o arquivo com o seguinte conteúdo:
-+
-[source,bash,linenums]
-----
-include::{srcdir}/s4/config_sudoers[]
-----
-
-
-2. Vamos testar o acesso de `leia` na máquina `ns1`. Antes disso o primeiro passo, é claro, é criar o diretório `/config` e configurar sua montagem automática durante o _boot_ via `/etc/fstab`. Acesse `ns1` como `root`, crie o diretório `/config` e insira a linha a seguir no final do arquivo:
-+
-....
-# hostname ; whoami
-fw
-root
-....
-+
-....
-# mkdir /config
-....
-+
-....
-# nano /etc/fstab
-(...)
-....
-+
-....
-# tail -n1 /etc/fstab
-10.0.42.3:/config /config nfs defaults 0 0
-....
-+
-Monte o diretório e verifique seu conteúdo:
-+
-....
-# mount -a
-....
-+
-....
-# mount | grep config
-10.0.42.3:/config on /config type nfs4 (rw,relatime,vers=4.2,rsize=131072,wsize=131072,namlen=255,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=10.0.42.1,local_lock=none,addr=10.0.42.3)
-....
-+
-....
-# ls /config/
-sudoers
-....
-+
-Agora, renomeie o arquivo `/etc/sudoers` e crie o link simbólico:
-+
-....
-# mv /etc/sudoers /etc/sudoers.old ; ln -s /config/sudoers /etc/
-....
-+
-Perfeito, agora vamos testar o funcionamento da configuração. Como `leia`, tente executar o comando `iptables` usando o `sudo`:
+1. Vamos testar o acesso de `leia` na máquina `ns1` -- lembre-se, ela deve conseguir executar apenas o comando `iptables` como o usuário `root`, e nenhum outro. Acesse a máquina `ns1` como `leia`:
 +
 ....
 $ hostname ; whoami
-fw
+ns1
 leia
 ....
 +
+Agora, tente executar o comando `iptables` usando o `sudo`:
++
 ....
-$ sudo iptables -L
+$ sudo iptables -L POSTROUTING -vn -t nat
+
+Presumimos que você recebeu as instruções de sempre do administrador
+de sistema local. Basicamente, resume-se a estas três coisas:
+
+    #1) Respeite a privacidade dos outros.
+    #2) Pense antes de digitar.
+    #3) Com grandes poderes vêm grandes responsabilidades.
+
 [sudo] senha para leia:
-Chain INPUT (policy ACCEPT)
-target     prot opt source               destination
-
-Chain FORWARD (policy ACCEPT)
-target     prot opt source               destination
-
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination
+Chain POSTROUTING (policy ACCEPT 322 packets, 25437 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    1    60 MASQUERADE  tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    9   540 MASQUERADE  tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
 ....
 +
 Excelente! E se tentarmos executar um comando não autorizado?
 +
 ....
 $ sudo rm /etc/shadow
-Sinto muito, usuário leia não tem permissão para executar "/bin/rm /etc/shadow" como root em fw.intnet.
+Sinto muito, usuário leia não tem permissão para executar "/bin/rm /etc/shadow" como root em ns1.intnet.
 ....
 +
 De fato, é possível listar exatamente quais comandos um usuário está apto a executar com o comando `sudo -l`:
 +
 ....
 $ sudo -l
-Entradas de Defaults correspondentes a leia em fw:
+Entradas de Defaults correspondentes a leia em ns1:
     env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
 
-
-Usuário leia pode executar os seguintes comandos em fw:
+Usuário leia pode executar os seguintes comandos em ns1:
     (root) /sbin/iptables
 ....
 +
@@ -518,107 +477,31 @@ E quanto a `han`? Ele consegue executar qualquer comando como `root`?
 +
 ....
 $ hostname ; whoami
-fw
+ns1
 han
 ....
 +
 ....
 $ sudo -l
+
+Presumimos que você recebeu as instruções de sempre do administrador
+de sistema local. Basicamente, resume-se a estas três coisas:
+
+    #1) Respeite a privacidade dos outros.
+    #2) Pense antes de digitar.
+    #3) Com grandes poderes vêm grandes responsabilidades.
+
 [sudo] senha para han:
-Entradas de Defaults correspondentes a han em fw:
+Entradas de Defaults correspondentes a han em ns1:
     env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
 
-
-Usuário han pode executar os seguintes comandos em fw:
+Usuário han pode executar os seguintes comandos em ns1:
     (ALL : ALL) ALL
 ....
 +
-Perfeito! A última questão é a seguinte: e se `leia`, por qualquer motivo, conseguir obter a senha do usuário `root`? O que não é exatamente difícil, já que estamos usando `rnpesr` como senha. Nesse caso, ela terá acesso irrestrito:
-+
-....
-$ hostname ; whoami
-fw
-leia
-....
-+
-....
-$ su -
-Senha:
-....
-+
-....
-# whoami
-root
-....
-+
-A solução ideal, nesse caso, é desabilitar a senha do `root`. Com isso, mesmo que os usuários saibam a senha, ela não poderá ser usada para efetuar escalada de privilégios usando o `sudo`. Podemos usar o comando `passwd -l` para fazer isso:
-+
-....
-# passwd -l root
-passwd: informação de expiração de senha alterada.
-....
-+
-....
-# exit
-....
-+
-....
-$ whoami
-leia
-....
-+
-....
-$ su -
-Senha:
-su: Falha de autenticação
-....
-+
-Com a senha desabilitada, apenas aqueles usuários que tenham permissão de `sudo` para executar comandos de escalada de privilégio poderão tornar-se o usuário `root` -- todos os demais, restritos a um subconjunto de comandos controlados pelo arquivo `/config/sudoers`, não conseguirão fazê-lo.
-+
-Note que mesmo o usuário `han`, que possui acesso irrestrito, não consegue executar `su` diretamente:
-+
-....
-$ whoami
-han
-....
-+
-....
-$ su -
-Senha:
-su: Falha de autenticação
-....
-+
-....
-$ sudo --login
-....
-+
-....
-# whoami
-root
-....
-+
-Apenas via `sudo su` ou `sudo --login` (que equivale a invocar um _shell_ de login, como executar `sudo bash`) é possível escalar privilégio, como demonstrado.
-+
-[WARNING]
-=====
-A leitura do arquivo `/config/sudoers` a partir de um compartilhamento de rede, via NFS, traz consigo uma preocupação de segurança bastante relevante -- e se a máquina `nfs` estiver indisponível? Com efeito, se isso acontecer teremos grandes problemas, já que toda a configuração de autorização do sistema local estará indisponível. Por esse motivo, é fundamental que o `sudoers` esteja acessível localmente, o que faremos na sessão 6 deste curso.
+Excelente! Os acessos para a máquina `ns1` estão funcionando como previsto.
 
-Por ora, vamos torcer para que nada catastrófico aconteça com a máquina `nfs`. Dedos cruzados.
-=====
-
-3. Vamos para o caso do usuário `chewie`. Acesse a máquina `ns2` como o usuário `root` e:
-+
---
-* Crie o diretório `/config`.
-* Configure sua montagem automática durante o _boot_ via `/etc/fstab`.
-* Configure o `sudo` para ler a configuração do `/config/sudoers`.
-* Desabilite a senha do usuário `root`.
-* Teste o funcionamento da configuração com os usuários `chewie` e `luke`.
---
-+
-Dada a semelhança dos primeiros quatro itens com o passo anterior, iremos passar diretamente para o passo final, assumindo que o aluno completou a configuração com sucesso.
-+
-Como o usuário `chewie` na máquina `ns2`, verifique quais comandos você está autorizado a executar usando o `sudo`:
+2. Vamos para o caso do usuário `chewie`. Acesse a máquina `ns2` como `chewie` e verifique quais comandos você está autorizado a executar usando o `sudo`:
 +
 ....
 $ hostname ; whoami
@@ -628,16 +511,23 @@ chewie
 +
 ....
 $ sudo -l
-Entradas de Defaults correspondentes a chewie em ldap:
+
+Presumimos que você recebeu as instruções de sempre do administrador
+de sistema local. Basicamente, resume-se a estas três coisas:
+
+    #1) Respeite a privacidade dos outros.
+    #2) Pense antes de digitar.
+    #3) Com grandes poderes vêm grandes responsabilidades.
+
+[sudo] senha para chewie:
+Entradas de Defaults correspondentes a chewie em ns2:
     env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
 
-
-Usuário chewie pode executar os seguintes comandos em ldap:
-    (root) /usr/sbin/ldapaddgroup, /usr/sbin/ldapadduser, /usr/sbin/ldapaddusertogroup,
-        /usr/sbin/ldapdeletegroup, /usr/sbin/ldapdeleteuser, /usr/sbin/ldapdeleteuserfromgroup,
-        /usr/sbin/ldapmodifygroup, /usr/sbin/ldapmodifymachine, /usr/sbin/ldapmodifyuser,
-        /usr/sbin/ldaprenamegroup, /usr/sbin/ldaprenameuser, /usr/sbin/ldapsetpasswd,
-        /usr/sbin/ldapsetprimarygroup
+Usuário chewie pode executar os seguintes comandos em ns2:
+    (root) /usr/sbin/ldapaddgroup, /usr/sbin/ldapadduser, /usr/sbin/ldapaddusertogroup, /usr/sbin/ldapdeletegroup,
+        /usr/sbin/ldapdeleteuser, /usr/sbin/ldapdeleteuserfromgroup, /usr/sbin/ldapmodifygroup,
+        /usr/sbin/ldapmodifymachine, /usr/sbin/ldapmodifyuser, /usr/sbin/ldaprenamegroup, /usr/sbin/ldaprenameuser,
+        /usr/sbin/ldapsetpasswd, /usr/sbin/ldapsetprimarygroup
 ....
 +
 Tente criar um novo grupo no LDAP, `sudotest`, e em seguida delete-o.
@@ -656,19 +546,69 @@ Tente executar um comando não-autorizado:
 +
 ....
 $ sudo reboot
-Sinto muito, usuário chewie não tem permissão para executar "/sbin/reboot" como root em ldap.intnet.
+Sinto muito, usuário chewie não tem permissão para executar "/sbin/reboot" como root em ns2.intnet.
 ....
 +
-Como `luke`, tente logar diretamente como o `root` usando o `su`.
+Tudo de acordo com o esperado, muito bom.
+
+=== 6) Controle da senha do usuário root
+
+1. Pergunte-se agora o seguinte: e se `leia` ou `chewie`, por qualquer motivo, conseguirem obter a senha do usuário `root`? O que não é exatamente difícil, já que estamos usando `rnpesr` como senha -- o que ocorre então? Veja o que acontece ao usarmos o comando `su` como `chewie` na máquina `ns2`:
 +
 ....
 $ hostname ; whoami
 ns2
-luke
+chewie
 ....
 +
 ....
-$ sudo su -
+$ su -
+Senha:
+....
++
+....
+# whoami
+root
+....
++
+A solução ideal, nesse caso, é desabilitar a senha do `root`. Já que os acessos de superusuário estão corretamente configurados via arquivo `sudoers` distribuído centralmente via Ansible, não teremos prejuízo administrativo -- nesse cenário, mesmo que usuários não-autorizados descubram a senha, está já estará desabilitada e não poderá ser usada para efetuar escalada de privilégio.
+
+2. Acesse a máquina `client` como o usuário `ansible`. Para desabilitar a conta do `root`, basta usar o comando `passwd -l` -- vamos executar esse comando em todos os servidores do _datacenter_:
++
+....
+$ ansible -i ~/hosts srv -b --become-user=root --become-method=sudo -m shell -a 'passwd -l root'
+ns1 | CHANGED | rc=0 >>
+passwd: informação de expiração de senha alterada.
+
+nfs | CHANGED | rc=0 >>
+passwd: informação de expiração de senha alterada.
+
+ns2 | CHANGED | rc=0 >>
+passwd: informação de expiração de senha alterada.
+....
+
+3. Com a senha desabilitada, apenas aqueles usuários que tenham permissão de `sudo` para executar comandos de escalada de privilégio poderão tornar-se o usuário `root` -- todos os demais, restritos a um subconjunto de comandos controlados pelo arquivo `/etc/sudoers`, não conseguirão fazê-lo.
++
+Por exemplo, acesse a máquina `ns1` como o usuário `han`.
++
+....
+$ hostname ; whoami
+ns1
+han
+....
++
+Note que mesmo o usuário `han`, que possui acesso irrestrito, não consegue executar `su` diretamente, mesmo digitando a senha correta:
++
+....
+$ su -
+Senha:
+su: Falha de autenticação
+....
++
+Apenas com comandos como `sudo su -`, `sudo -i` ou `sudo --login` (que equivale a invocar um _shell_ de login, como executar `sudo bash`) é possível tornar-se `root`, como podemos ver:
++
+....
+$ sudo -i
 ....
 +
 ....
@@ -676,71 +616,481 @@ $ sudo su -
 root
 ....
 
-4. A máquina `nfs` já está praticamente configurada -- a pasta `/config` é local, o que dispensa a montagem automática durante o _boot_, e o `/config/sudoers` já foi configurado e testado nos passos (2) e (3). Resta apenas desabilitar a senha do `root` -- faça isso:
+4. Mas... observe, nossa configuração não está ortogonal. Imagine que uma nova máquina seja criada em nosso _datacenter_, e queremos configurá-la com a distribuição do arquivo `sudoers` de forma centralizada, assim como fizemos com nossos servidores atuais. Sem problema, certo? Basta adicionar o novo _hostname_ no arquivo `~/hosts` e disparar com o `ansible-playbook`!
++
+A configuração de _lockout_ da senha do `root` que fizemos no passo (2), no entanto, não está integrada à _role_ `sudoers`. De fato, executamos um comando direto usando o módulo _shell_ -- e se esquecermos de fazer esse passo com a próxima máquina? Nesse caso, a senha do `root` dessa máquina estará habilitada, e teremos uma configuração divergente em nossos servidores.
++
+Fica claro, portanto, que o método correto de integração de novas tarefas no Ansible é via _roles_, e não via comandos isolados, sob pena de criar uma grande confusão no parque de servidores num futuro próximo. Vamos reverter o comando que fizemos antes:
 +
 ....
-# hostname ; whoami
+$ ansible -i ~/hosts srv -b --become-user=root --become-method=sudo -m shell -a 'passwd -u root'
+ns1 | CHANGED | rc=0 >>
+passwd: informação de expiração de senha alterada.
+
+nfs | CHANGED | rc=0 >>
+passwd: informação de expiração de senha alterada.
+
+ns2 | CHANGED | rc=0 >>
+passwd: informação de expiração de senha alterada.
+....
+
+5. Como desabilitar a conta do `root` do jeito certo? Vamos editar a lista de _tasks_ da _role_ `sudoers`. Adicione a tarefa a seguir no arquivo `/home/ansible/roles/sudoers/tasks/main.yml` (copie todo o comando, desde `cat` até a palavra `EOF`):
++
+....
+$ cat << EOF >> ~/roles/sudoers/tasks/main.yml
+
+- name: Sets root account as expired
+  user:
+    name: root
+    expires: 0
+EOF
+....
++
+Uma curiosidade: a sintaxe acima é conhecida como _heredoc_ (ou _Here Document_), um bloco de código que pode ser usado para diversas tarefas no _shell_ Bash. No exemplo acima, estamos usando-o para inserir todas as linhas ao final do arquivo `/home/ansible/roles/sudoers/tasks/main.yml`, até que seja encontrada a _string_ `EOF`. Consulte este link para mais informações sobre uso de _heredocs_: https://www.tldp.org/LDP/abs/html/here-docs.html .
++
+De volta à tarefa em mãos, vamos ver como ficou o arquivo após a alteração:
++
+....
+$ cat /home/ansible/roles/sudoers/tasks/main.yml
+---
+- name: Propagate sudoers configuration
+  become: yes
+  become_user: root
+  become_method: su
+  copy:
+    src: sudoers
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0440
+
+- name: Sets root account as expired
+  user:
+    name: root
+    expires: 0
+....
++
+A tarefa que acabamos de adicionar irá se valer do módulo _user_ do Ansible, e ajustar a data de expiração do usuário `root` para 0 -- esse valor é contado em segundos a partir do dia 1 de janeiro de 1970, uma referência conhecida como _Unix Epoch_, ou _POSIX Time_. Com efeito, estamos dizendo que a conta deste usuário está expirada desde 1/1/1970.
+
+6. Falta alguma coisa? Ah sim! Note que o `become_method` do arquivo `/home/ansible/roles/sudoers/tasks/main.yml` ainda está configurado como `su` -- como já distribuímos o arquivo `sudoers` anteriormente com sucesso usando essa _role_, podemos alterá-lo para `sudo`.
++
+Mais além, observe que as diretivas `become*` são específicas da tarefa de propagação do arquivo `sudoers`, e não se aplicam à tarefa de ajuste de expiração de conta do usuário `root`. Ao invés de repetir o bloco `become + become_user + become_method` duas vezes (ou mais, dependendo do número de tarefas que queremos realizar), o melhor caminho de ação é remover esse bloco do arquivo de _tasks_ e inseri-lo no arquivo de configuração da _role_.
++
+Vamos por partes. Primeiro, vamos remover as linhas `become*` do arquivo `/home/ansible/roles/sudoers/tasks/main.yml`:
++
+....
+$ t="$( mktemp )" ; \
+    cat ~/roles/sudoers/tasks/main.yml | \
+    awk 'gsub(/^ *become.*$/,""){printf $0;next;}1' > $t ; \
+    mv $t ~/roles/sudoers/tasks/main.yml ; \
+    unset t
+....
++
+....
+$ cat ~/roles/sudoers/tasks/main.yml
+---
+- name: Propagate sudoers configuration
+  copy:
+    src: sudoers
+    dest: /etc
+    owner: root
+    group: root
+    mode: 0440
+
+- name: Sets root account as expired
+  user:
+    name: root
+    expires: 0
+....
++
+Agora, vamos inseri-las no arquivo de amarração da _role_:
++
+....
+$ sed -i '/\- hosts\: srv/a\  become: yes\n  become_user: root\n  become_method: sudo' ~/srv.yml
+....
++
+....
+$ cat ~/srv.yml
+---
+- hosts: srv
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - sudoers
+....
++
+Observe atentamente a indentação do arquivo acima: caso a cópia do comando tenha inserido ou removido espaços acidentalmente, edite o arquivo diretamente e deixe-o *exatamente* como mostrado acima.
+
+7. Pronto! Vamos disparar a _role_ usando o `ansible-playbook` e verificar seu funcionamento:
++
+....
+$ ansible-playbook -i ~/hosts ~/srv.yml
+
+PLAY [srv] **********************************************************************************************************
+
+
+TASK [Gathering Facts] **********************************************************************************************
+
+ok: [ns2]
+ok: [ns1]
+ok: [nfs]
+
+TASK [sudoers : Propagate sudoers configuration] ********************************************************************
+
+ok: [ns2]
+ok: [ns1]
+ok: [nfs]
+
+TASK [sudoers : Sets root account as expired] ***********************************************************************
+
+changed: [ns2]
+changed: [nfs]
+changed: [ns1]
+
+PLAY RECAP **********************************************************************************************************
+
+nfs                        : ok=3    changed=1    unreachable=0    failed=0
+ns1                        : ok=3    changed=1    unreachable=0    failed=0
+ns2                        : ok=3    changed=1    unreachable=0    failed=0
+....
++
+Terá funcionado? Vamos ver, usando o módulo _shell_ do Ansible:
++
+....
+$ ansible -i ~/hosts srv -b --become-user=root --become-method=sudo -m shell -a 'chage -l root | grep "Conta expira"'
+nfs | CHANGED | rc=0 >>
+Conta expira                                            : jan 01, 1970
+
+ns1 | CHANGED | rc=0 >>
+Conta expira                                            : jan 01, 1970
+
+ns2 | CHANGED | rc=0 >>
+Conta expira                                            : jan 01, 1970
+....
++
+Excelente! Vamos fazer um teste _in loco_ com o usuário `han` na máquina `ns1`:
++
+....
+$ hostname ; whoami
+ns1
+han
+....
++
+....
+$ su -
+Senha:
+Sua conta expirou; entre em contato com o administrador do sistema
+su: Falha de autenticação
+....
+
+=== 6) Versionamento de configuração com git
+
+À medida que fazemos novas adições de _tasks_ e _roles_ ao Ansible, pode surgir a necessidade de documentar as modificações sendo feitas, compartilhá-las com outros colegas de trabalho ou, em caso de mudanças incorretas, reverter o estado dos artefatos de configuração para uma versão anterior, conhecida e testada. De certa forma, as configuração que estamos fazendo em servidores do _datacenter_ com o Ansible se parecem muito com o código-fonte de uma linguagem de programação -- só que, ao invés de produzir programas, nosso código produz configurações e estados-alvo em servidores.
+
+A ferramenta de controle de versão Git é certamente a mais utilizada mundialmente para cumprir as tarefas que delineamos acima. Criado em 2005 por Linus Torvalds (sim, o mesmo criador do kernel Linux, você não leu errado), o Git é um sistema de versionamento distribuído desenhado com o objetivo expresso de aprimorar as limitações dos sistemas de controle de versão mais usados à epoca: CVS e Subversion.
+
+Iremos instalar um servidor Git na máquina `nfs`, e utilizá-lo como repositório para as configurações gerenciadas pelo Ansible. Assim, a cada nova modificação poderemos manter o registro de versão no repositório, comentar quais mudanças foram realizadas, bem como compartilhar o acesso ao código com outros colaboradores e aceitar suas submissões e _patches_, se desejado.
+
+1. O primeiro passo é instalar o Git nas máquinas `nfs` e `client` -- queremos usar o Ansible para fazer isso, mas o `sudo` não está configurado na máquina `client`... ainda.
++
+Logue como o usuário `ansible` na máquina `client`.
++
+....
+$ hostname ; whoami
+client
+ansible
+....
++
+Como a máquina `client` não está no DNS, iremos usar seu endereço IP no arquivo de _hosts_. Adicione-o:
++
+....
+$ echo '192.168.42.2' >> ~/hosts
+....
++
+....
+$ cat hosts
+[srv]
+ns1
+ns2
 nfs
-root
+192.168.42.2
+....
++
+Lembre-se que o `sudo` ainda não está configurado na máquina local, de modo que teremos que usar o `su` para escalar privilégios. Vamos fazer uma cópia temporária do arquivo `/home/ansible/srv.yml` e alterar o método de escalação:
++
+....
+$ t=$( mktemp ) ; cp ~/srv.yml $t ; sed -i 's/^\( *become_method:\).*/\1 su/' $t
+....
++
+Outro ponto: queremos executar a _role_ apenas na máquina local, de forma que usaremos a opção `--limit`. Isso considerado, execute a _role_:
++
+....
+$ ansible-playbook -i ~/hosts $t --limit="192.168.42.2" --ask-become-pass
+SUDO password:
+
+PLAY [srv] **********************************************************************************************************
+
+
+TASK [Gathering Facts] **********************************************************************************************
+
+ok: [192.168.42.2]
+
+TASK [sudoers : Propagate sudoers configuration] ********************************************************************
+
+changed: [192.168.42.2]
+
+TASK [sudoers : Sets root account as expired] ***********************************************************************
+
+changed: [192.168.42.2]
+
+PLAY RECAP **********************************************************************************************************
+
+192.168.42.2               : ok=3    changed=2    unreachable=0    failed=0
+....
++
+Perfeito. Verifique que o `sudoers` foi configurado com sucesso, e que a conta do `root` foi desabilitada na máquina local:
++
+....
+$ sudo grep ansible /etc/sudoers
+ansible   ALL=(ALL:ALL)    NOPASSWD: ALL
 ....
 +
 ....
-# passwd -l root
-passwd: informação de expiração de senha alterada.
+$ su -
+Senha:
+Sua conta expirou; entre em contato com o administrador do sistema
+su: Falha de autenticação
+....
++
+Finalmente, remova o arquivo de definição da _role_ temporário:
++
+....
+$ rm $t ; unset t
 ....
 
-5. Idealmente, seria interessante que novas máquinas derivadas da VM `debian-template` estivessem automaticamente integradas com o sistema de `sudo` centralizado que acabamos de configurar nesta atividade. Para isso, vamos fazer algumas alterações rápidas na máquina.
-+
-No Virtualbox, com a máquina desligada, em _Settings_ > _Network_ > _Adapter 1_ > _Attached to_, escolha _Host-only Adapter_. O nome da rede _host-only_ deve ser o mesmo alocado para a interface de rede da máquina virtual `ns1`, configurada durante a sessão 2, que está conectada à DMZ.
-+
-Ligue a máquina `debian-template`, e acesse como o usuário `root`.
-+
-Reconfigure a rede em `/etc/network/interfaces` para a DMZ, com o endereço IP 10.0.42.250/24:
+2. Agora sim, vamos instalar o Git nas máquinas `nfs` e `client` usando o Ansible. Note o uso da opção `--limit` para especificar o escopo do comando:
 +
 ....
-# hostname ; whoami
-debian-template
-root
-....
-+
-....
-# nano /etc/network/interfaces
+$ ansible -i ~/hosts srv -b --become-user=root --become-method=sudo --limit='nfs,192.168.42.2' -m shell -a 'apt-get install -y git'
+ [WARNING]: Consider using the apt module rather than running apt-get.  If you need to use command because apt is
+insufficient you can add warn=False to this command task or set command_warnings=False in ansible.cfg to get rid of this message.
+
+nfs | CHANGED | rc=0 >>
 (...)
-....
-+
-....
-source /etc/network/interfaces.d/*
+Configurando git (1:2.11.0-3+deb9u4) ...
 
-auto lo enp0s3
+192.168.42.2 | CHANGED | rc=0 >>
+(...)
+Configurando git (1:2.11.0-3+deb9u4) ...
+....
++
+Terá funcionado? Vamos ver:
++
+....
+$ ansible -i ~/hosts srv -m shell -a 'which git'
+ns2 | FAILED | rc=1 >>
+non-zero return code
 
-iface lo inet loopback
+nfs | CHANGED | rc=0 >>
+/usr/bin/git
 
-iface enp0s3 inet static
-address 10.0.42.250/24
-gateway 10.0.42.1
+ns1 | FAILED | rc=1 >>
+non-zero return code
+
+192.168.42.2 | CHANGED | rc=0 >>
+/usr/bin/git
 ....
 +
-Crie a pasta `/config` e configure sua montagem automática no arquivo `/etc/fstab`:
+Perfeito, o Git foi instalado com sucesso, e apenas nas máquinas objetivadas.
+
+3. Iremos usar o Git em sua capacidade mais básica -- via SSH, usando os diretórios _home_ de cada usuário. É bastante possível fazer uma configuração muito mais sofisticada, configurar uma interface como o GitLab (https://about.gitlab.com/install/), mas para manter a simplicidade das atividades aqui realizadas não iremos fazer isso.
++
+Primeiro, crie um repositório vazio de nome `ansible` em seu diretório _home_ local:
 +
 ....
-# mkdir /config
+$ git init ansible
+Initialized empty Git repository in /home/ansible/ansible/.git/
+....
++
+Agora, clone-o para o formato _bare_ (mantendo apenas os arquivos administrativos do Git) com o comando:
++
+....
+$ git clone --bare ansible ansible.git
+Cloning into bare repository 'ansible.git'...
+warning: You appear to have cloned an empty repository.
+done.
 ....
 +
 ....
-# echo "10.0.42.3:/config /config nfs defaults 0 0" >> /etc/fstab
+$ ls -1d ansible*
+ansible
+ansible.git
 ....
 +
-Configure o _symlink_ do arquivo `/etc/sudoers`:
+Devemos copiar o diretório `/home/ansible/ansible.git` para o servidor Git, que será a máquina `nfs`. Use o comando `scp`:
 +
 ....
-# mv /etc/sudoers /etc/sudoers.old ; ln -s /config/sudoers /etc/
+$ scp -r ~/ansible.git/ ansible@nfs:~
+description                                                                        100%   73   179.2KB/s   00:00
+HEAD                                                                               100%   23    76.8KB/s   00:00
+pre-receive.sample                                                                 100%  544     1.7MB/s   00:00
+commit-msg.sample                                                                  100%  896     2.7MB/s   00:00
+pre-applypatch.sample                                                              100%  424     1.3MB/s   00:00
+pre-push.sample                                                                    100% 1348     3.4MB/s   00:00
+prepare-commit-msg.sample                                                          100% 1239     3.1MB/s   00:00
+update.sample                                                                      100% 3610     9.4MB/s   00:00
+post-update.sample                                                                 100%  189   478.5KB/s   00:00
+pre-rebase.sample                                                                  100% 4898    13.2MB/s   00:00
+applypatch-msg.sample                                                              100%  478     1.3MB/s   00:00
+pre-commit.sample                                                                  100% 1642     4.4MB/s   00:00
+config                                                                             100%  113   367.7KB/s   00:00
+exclude                                                                            100%  240   557.6KB/s   00:00
 ....
 +
-Finalmente, desabilite a senha do usuário `root` -- usaremos o `sudo` com o usuário `aluno` para efetuar a configuração inicial das novas máquinas derivadas da VM `debian-template`:
+Pronto, o repositório Git remoto está configurado! Se quiser, remova os arquivos locais -- iremos usar o repositório remoto a partir de agora:
 +
 ....
-# passwd -l root
-passwd: informação de expiração de senha alterada.
+$ rm -rf ~/ansible*
+....
+
+4. Para usar o repositório Git remoto, o primeiro passo é cloná-lo -- por conveniência (e por já termos configurado o sistema de autenticação centralizado), iremos usar o protocolo SSH no acesso:
++
+....
+$ git clone ansible@nfs:/home/ansible/ansible.git
+Cloning into 'ansible'...
+warning: You appear to have cloned an empty repository.
 ....
 +
-Desligue a VM `debian-template`.
+O Git reporta que clonamos um repositório vazio... não por muito tempo! Copie os arquivos de trabalho do Ansible que usamos até aqui para dentro do repositório local:
++
+....
+$ mv ~/{hosts,roles,srv.yml} ~/ansible
+....
++
+Entre no repositório local e visualize seu estado com `git status`:
++
+....
+$ cd ~/ansible/ ; git status
+On branch master
+
+Initial commit
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        hosts
+        roles/
+        srv.yml
+
+nothing added to commit but untracked files present (use "git add" to track)
+....
++
+O Git reporta que os arquivos adicionados não estão sendo versionados. Para adicioná-los ao sistema de controle de versão, use o comando `git add`:
++
+....
+$ git add .
+....
++
+O que isso fez?
++
+....
+$ git status
+On branch master
+
+Initial commit
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+
+        new file:   hosts
+        new file:   roles/sudoers/README.md
+        new file:   roles/sudoers/defaults/main.yml
+        new file:   roles/sudoers/files/sudoers
+        new file:   roles/sudoers/handlers/main.yml
+        new file:   roles/sudoers/meta/main.yml
+        new file:   roles/sudoers/tasks/main.yml
+        new file:   roles/sudoers/tests/inventory
+        new file:   roles/sudoers/tests/test.yml
+        new file:   roles/sudoers/vars/main.yml
+        new file:   srv.yml
+....
++
+Agora sim, todos os arquivos foram adicionados ao sistema de versionamento. Para confirmar essas mudanças temos que realizar um _commit_, ou confirmação, das alterações -- antes disso, no entanto, é recomendável que configuremos nosso nome de usuário e e-mail no Git, para evitar _warnings_ futuros:
++
+....
+$ git config user.name Ansible
+....
++
+....
+$ git config user.email ansible@intnet
+....
++
+Pronto, vamos ao _commit_. É sempre recomendável incluir uma mensagem explicativa junto com o _commit_ (com a opção `-m`) indicando que alterações foram feitas naquela versão, criando um histórico do repositório.
++
+....
+$ git commit -m 'Importacao inicial, role sudoers adicionada'
+[master (root-commit) 0c673e4] Importacao inicial, role sudoers adicionada
+ 11 files changed, 180 insertions(+)
+ create mode 100644 hosts
+ create mode 100644 roles/sudoers/README.md
+ create mode 100644 roles/sudoers/defaults/main.yml
+ create mode 100644 roles/sudoers/files/sudoers
+ create mode 100644 roles/sudoers/handlers/main.yml
+ create mode 100644 roles/sudoers/meta/main.yml
+ create mode 100644 roles/sudoers/tasks/main.yml
+ create mode 100644 roles/sudoers/tests/inventory
+ create mode 100644 roles/sudoers/tests/test.yml
+ create mode 100644 roles/sudoers/vars/main.yml
+ create mode 100644 srv.yml
+....
++
+O passo final consiste em enviar as alterações locais para o repositório remoto através do comando `git push`:
++
+....
+$ git push
+Counting objects: 22, done.
+Compressing objects: 100% (10/10), done.
+Writing objects: 100% (22/22), 3.27 KiB | 0 bytes/s, done.
+Total 22 (delta 0), reused 0 (delta 0)
+To nfs:/home/ansible/ansible.git
+ * [new branch]      master -> master
+....
++
+Pronto, todos os dados foram enviados para o servidor `nfs` e estão -- espera-se -- seguros. Será mesmo? Vamos testar: retorne ao seu diretório _home_ e remova todos os arquivos do repositório local:
++
+....
+$ cd ~ ; rm -rf ~/ansible
+....
++
+....
+$ ls
+scripts
+....
++
+Tragédia! Perdemos todo o trabalho realizado com o Ansible até aqui! Ou... perdemos mesmo? Tente clonar o repositório remoto a partir da máquina `nfs`:
++
+....
+$ git clone ansible@nfs:/home/ansible/ansible.git
+Cloning into 'ansible'...
+remote: Counting objects: 22, done.
+remote: Compressing objects: 100% (10/10), done.
+remote: Total 22 (delta 0), reused 0 (delta 0)
+Receiving objects: 100% (22/22), done.
+....
++
+....
+$ ls ~/ansible/
+hosts  roles  srv.yml
+....
++
+Ufa, está tudo ali ainda. Se quiser verificar o registro dos _commits_ anteriores, confirmando que nossas modificações anteriores foram de fato salvas no repositório remoto, basta usar o comando `git log` dentro do repositório local:
++
+....
+$ cd ~/ansible/ ; git log
+commit 0c673e48dcdc7aaf2bd6738c8033c33815f10cc6
+Author: Ansible <ansible@intnet>
+Date:   Thu Nov 15 02:04:14 2018 -0200
+
+    Importacao inicial, role sudoers adicionada
+....

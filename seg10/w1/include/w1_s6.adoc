@@ -138,7 +138,7 @@ Configurar todos os servidores de uma única vez: como `han@client`, crie o _scr
 
 [source,bash,linenums]
 ----
-include::{srcdir}/s5/home_han_scripts_install-openntpd.sh[]
+include::{srcdir}/s6/home_han_scripts_install-openntpd.sh[]
 ----
 
 Executar com:
@@ -182,7 +182,7 @@ Instalar Snoopy para gerar trilha de auditoria de comandos digitados por usuári
 
 [source,bash,linenums]
 ----
-include::{srcdir}/s5/home_han_scripts_install-snoopy.sh[]
+include::{srcdir}/s6/home_han_scripts_install-snoopy.sh[]
 ----
 
 Executar com:
@@ -275,7 +275,7 @@ Crie o arquivo `/etc/nginx/sites-available/graylog` com o seguinte conteúdo (ed
 
 [source,bash,linenums]
 ----
-include::{srcdir}/s5/etc_nginx_sites-available_graylog[]
+include::{srcdir}/s6/etc_nginx_sites-available_graylog[]
 ----
 
 ....
