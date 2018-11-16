@@ -817,16 +817,12 @@ nfs
 192.168.42.2
 ....
 +
-Lembre-se que o `sudo` ainda não está configurado na máquina local, de modo que teremos que usar o `su` para escalar privilégios. Vamos fazer uma cópia temporária do arquivo `/home/ansible/srv.yml` e alterar o método de escalação:
+Lembre-se que o `sudo` ainda não está configurado na máquina local, de modo que teremos que usar o `su` para escalar privilégios. Como o método padrão de escalada de privilégios especificado no arquivo `/home/ansible/srv.yml` é o `sudo`, teremos que configurar um _override_ na linha de comando. Outro ponto: queremos executar a _role_ apenas na máquina local, de forma que usaremos a opção `--limit`.
++
+Esses fatores considerados, execute a _role_:
 +
 ....
-$ t=$( mktemp ) ; cp ~/srv.yml $t ; sed -i 's/^\( *become_method:\).*/\1 su/' $t
-....
-+
-Outro ponto: queremos executar a _role_ apenas na máquina local, de forma que usaremos a opção `--limit`. Isso considerado, execute a _role_:
-+
-....
-$ ansible-playbook -i ~/hosts $t --limit="192.168.42.2" --ask-become-pass
+$ ansible-playbook -i hosts --limit='192.168.42.2' --ask-become-pass -e ansible_become_method=su srv.yml
 SUDO password:
 
 PLAY [srv] **********************************************************************************************************
@@ -861,12 +857,6 @@ $ su -
 Senha:
 Sua conta expirou; entre em contato com o administrador do sistema
 su: Falha de autenticação
-....
-+
-Finalmente, remova o arquivo de definição da _role_ temporário:
-+
-....
-$ rm $t ; unset t
 ....
 
 2. Agora sim, vamos instalar o Git nas máquinas `nfs` e `client` usando o Ansible. Note o uso da opção `--limit` para especificar o escopo do comando:

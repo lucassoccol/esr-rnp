@@ -1,0 +1,13 @@
+---
+- name: Install Snoopy
+  apt:
+    name: snoopy
+    state: present
+    update_cache: true
+
+- name: Configure ld.so.preload
+  lineinfile:
+    path: /etc/ld.so.preload
+    line: '/lib/snoopy.so'
+    insertafter: EOF
+    create: yes

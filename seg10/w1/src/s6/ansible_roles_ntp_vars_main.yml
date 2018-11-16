@@ -1,0 +1,3 @@
+---
+ntpsrv: "{{ groups['ntp_server'][0] }}.intnet"
+fname: "{{ 'ntp_client' if 'ntp_client' in group_names else 'ntp_server' }}"

@@ -2,7 +2,7 @@ server
 {
   listen      80 default_server;
   listen      [::]:80 default_server ipv6only=on;
-  server_name 200.130.46.146;
+  server_name NS1_ENP0S3_IPADDR;
 
   location /
     {
@@ -10,7 +10,7 @@ server
         proxy_set_header    X-Forwarded-Host $host;
         proxy_set_header    X-Forwarded-Server $host;
         proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header    X-Graylog-Server-URL http://200.130.46.146/api/;
+        proxy_set_header    X-Graylog-Server-URL http://NS1_ENP0S3_IPADDR:9080/api/;
         proxy_pass          http://127.0.0.1:9000;
     }
 }

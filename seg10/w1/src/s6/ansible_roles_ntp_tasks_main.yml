@@ -1,0 +1,16 @@
+---
+- name: Install OpenNTPD
+  apt:
+    name: openntpd
+    state: present
+    update_cache: true
+
+- name: Copy OpenNTPD configuration
+  template:
+    src: '{{ fname }}.conf.j2'
+    dest: /etc/openntpd/ntpd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Restart OpenNTPD

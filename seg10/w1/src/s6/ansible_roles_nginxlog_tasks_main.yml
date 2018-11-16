@@ -1,0 +1,10 @@
+---
+- name: Setup Nginx <> Graylog logging
+  template:
+    src: nginx_graylog.conf.j2
+    dest: /etc/nginx/conf.d/99-graylog.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Restart Nginx

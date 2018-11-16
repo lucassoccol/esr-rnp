@@ -1,0 +1,2 @@
+---
+logsrv: "{{ groups['log_server'][0] }}.intnet"
