@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 17-10-2018
+:revdate: 16-11-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -46,7 +46,7 @@ Temos uma nova máquina, a saber:
 
 * `log`, atuando como concentrador de logs dos servidores do _datacenter_ e servidor NTP. Endereço IP 10.0.42.4/24.
 
-1. O único registro DNS novo a ser criado é um mapeamento direto para o nome `log` -- para fazer os ajustes, acesse a máquina `ns1` como o usuário `root`:
+1. Os únicos registros DNS novos a serem criado são mapeamentos direto e reverso para a máquina `log` -- para fazer os ajustes, acesse a máquina `ns1` como o usuário `root`:
 +
 ....
 # hostname ; whoami
@@ -66,7 +66,18 @@ Edite o arquivo de zonas `/etc/nsd/zones/intnet.zone`, inserindo uma entrada A p
 log     IN    A                 10.0.42.4
 ....
 +
-Assine o arquivo de zonas usando o _script_ criado anteriormente:
+Faça o mesmo para o arquivo de zona reversa:
++
+....
+# nano /etc/nsd/zones/10.0.42.zone
+....
++
+....
+# grep log /etc/nsd/zones/10.0.42.zone
+4       IN   PTR                log.intnet.
+....
++
+Assine os arquivos de zona usando o _script_ criado anteriormente:
 +
 ....
 # bash /root/scripts/signzone-intnet.sh
@@ -82,6 +93,11 @@ Verifique a criação das entradas usando o comando `dig`:
 ....
 # dig log.intnet +short
 10.0.42.4
+....
++
+....
+# dig -x 10.0.42.4 +short
+log.intnet.
 ....
 
 === 2) Criação da VM de gestão de logs
@@ -280,15 +296,9 @@ log
 
 [ntp_server]
 log
-
-[ntp_client]
-ns1
-ns2
-nfs
-192.168.42.2
 ....
 +
-Note que diferenciamos as máquinas do inventário em dois grupos: o `ntp_server` contém os servidores NTP, e o grupo `ntp_client` armazenas as máquinas que atuarão como clientes NTP.
+Note que incluímos a máquina `log` no novo grupo `ntp_server`, que conterá os servidores NTP da rede, deixando implícito que as demais máquinas atuarão como clientes NTP, como veremos a seguir.
 +
 Vamos agora criar uma nova _role_ para gerenciar a instalação e configuração do OpenNTPD, com o nome `ntp`. Crie-a:
 +
@@ -323,7 +333,7 @@ include::{srcdir}/s6/ansible_roles_ntp_vars_main.yml[]
 +
 Primeiro, `ntpsrv`: essa variável contém o servidor NTP sendo configurado no momento -- para obter seu valor, consultamos no arquivo de inventário qual grupo possui o nome `ntp_server`, e atribuímos a ela o nome do primeiro _host_ desse grupo (a máquina `log`).
 +
-Depois `fname`: esse variável define qual nome de arquivo será usado para configurar um _host_ -- se a máquina pertencer ao grupo `ntp_client`, então o valor da variável será também `ntp_client`. Do contrário, ela valerá `ntp_server`.
+Depois `fname`: esse variável define qual nome de arquivo será usado para configurar um _host_ -- se a máquina pertencer ao grupo `ntp_server`, então o valor da variável será também `ntp_server`. Do contrário, ela valerá `ntp_client`.
 
 5. Vamos às tarefas da _role_. Edite o arquivo `/home/ansible/ansible/roles/ntp/tasks/main.yml` com o seguinte conteúdo:
 +
@@ -929,12 +939,6 @@ log
 [ntp_server]
 log
 
-[ntp_client]
-ns1
-ns2
-nfs
-192.168.42.2
-
 [log_server]
 log
 ....
@@ -1190,12 +1194,6 @@ log
 [ntp_server]
 log
 
-[ntp_client]
-ns1
-ns2
-nfs
-192.168.42.2
-
 [log_server]
 log
 
@@ -1351,6 +1349,8 @@ Observe o evento acima, e compare-o com o do OpenLDAP que analisamos no começo 
 --
 +
 Todos esses campos são extremamente relevantes em um pacote HTTP, e seu processamento e pesquisa facilita enormemente o trabalho do analista de segurança. E se quisermos descobrir quais pacotes com método POST foram enviados para uma URL específica do servidor web, filtrando pelo IP de origem? Com os campos acima, pesquisas complexas como essa tornam-se totalmente viáveis.
+
+8. Encerradas as nossas atividades com o Graylog, recomenda-se que o aluno mantenha a máquina `log` desligada a partir desta sessão. Apesar de ser interessante que recuperemos os logs de todas as VMs do _datacenter_ simulado para análise, o fato de essa máquina exigir 4 GB de memória RAM para operar a contento torna-a um peso muito grande na execução das atividades das próximas sessões.
 
 [TIP]
 ====

@@ -1,0 +1,58 @@
+---
+- name: Install nginx and deps
+  apt:
+    name: '{{ packages }}'
+    state: present
+    update_cache: true
+    install_recommends: no
+  vars:
+    packages:
+    - nginx
+    - php-fpm
+    - php-mysql
+  notify:
+    - Start nginx
+    - Start php-fpm
+
+- name: Add seg10 config
+  copy:
+    src: nginx_seg10
+    dest: /etc/nginx/sites-available/seg10
+    owner: root
+    group: root
+
+- name: Disable default site configuration
+  file:
+    dest: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Enable seg10 site config
+  file:
+    src: /etc/nginx/sites-available/seg10
+    dest: /etc/nginx/sites-enabled/seg10
+    state: link
+
+- name: Copy web root
+  synchronize:
+    src: seg10
+    dest: /var/www
+    recursive: yes
+
+- name: Web Root Permissions
+  file:
+   dest: /var/www/seg10
+   mode: u=rwX,g=rX,o=rX
+   state: directory
+   owner: www-data
+   group: www-data
+   recurse: yes
+  notify:
+    - Restart nginx
+
+- name: Adjust php-fpm fix_pathinfo
+  replace:
+    path: /etc/php/7.0/fpm/php.ini
+    regexp: '^;(cgi\.fix_pathinfo).*$'
+    replace: '\1=0'
+  notify:
+    - Restart php-fpm
