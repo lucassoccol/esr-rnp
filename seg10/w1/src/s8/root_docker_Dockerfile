@@ -1,0 +1,20 @@
+# Usar uma imagem oficial do runtime Python como imagem-pai
+FROM python:2.7-slim
+
+# Configurar o diretorio de trabalho como /app
+WORKDIR /app
+
+# Copiar o conteudo do diretorio corrent para dentro do container em /app
+COPY . /app
+
+# Instalar quaisquer dependencias do Python especificadas no arquivo requirements.txt
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Expor a porta 80 para o mundo externo, fora do container
+EXPOSE 80
+
+# Definir uma variavel de ambiente $World
+ENV NAME World
+
+# Rodar a aplicacao app.py ao lancar o container
+CMD ["python", "app.py"]

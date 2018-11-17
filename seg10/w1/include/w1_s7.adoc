@@ -21,7 +21,7 @@ Nesta sessão, iremos configurar um website usando o CMS Wordpress seguindo as m
 
 === 1) Topologia desta sessão
 
-Criaremos quatro novas máquinas, nesta sessão a saber:
+Criaremos quatro novas máquinas nesta sessão, a saber:
 
 --
 * `www1`, primeiro nodo de atendimento web, instalado manualmente. Endereço IP 10.0.42.5/24.
@@ -759,6 +759,30 @@ No navegador da sua máquina física, acesse novamente o endereço IP da interfa
 +
 De fato, os acessos estão chegando à nova máquina, e o website está funcionando como esperado. Note que não fizemos *qualquer* modificação manual na máquina `www2` -- todos as dependências, arquivos de configuração e arquivos do site foram instalados de forma automática pelo Ansible. Se quiséssemos lançar agora outros dois, três ou dez nodos de atendimento web, bastaria adicionar as máquinas ao inventário do Ansible e disparar a _role_; toda a configuração é feita de forma automática.
 
+13. Como fizemos uma nova _role_ para os sistemas web, é uma boa ideia enviar nossas modificações para o repositório Git central. Acesse a máquina `client` como o usuário `ansible`:
++
+....
+$ hostname ; whoami
+client
+ansible
+....
++
+Envie as alterações, adicionando uma mensagem significativa:
++
+....
+$ cd ~/ansible/ ; git add . ; git commit -m 'Adicionada role para configuracao automatica de servidores web do portal seg10' ; git push
+
+(...)
+
+Counting objects: 1665, done.
+Compressing objects: 100% (1632/1632), done.
+Writing objects: 100% (1665/1665), 8.95 MiB | 8.87 MiB/s, done.
+Total 1665 (delta 170), reused 0 (delta 0)
+remote: Resolving deltas: 100% (170/170), completed with 1 local object.
+To nfs:/home/ansible/ansible.git
+   467f80d..bd3fbc2  master -> master
+....
+
 === 6) Configuração do balanceador de carga
 
 1. Vamos para a instalação e configuração do balanceador de carga. Clone a máquina `debian-template` para uma de nome `lb`, com uma única interface de rede conectada à DMZ. O IP da máquina será 10.0.42.8/24.
@@ -975,3 +999,5 @@ image::haproxy4.png[align="center"]
 A partir desta página, é possível verificar quais _frontends_ e _backends_ estão ativos, quais estão inativos ou com problemas de acesso, e quantos bytes e sessões foram trafegados para cada um dos _hosts_ envolvidos.
 +
 Tente recarregar a portal _Seg10 Web_ algumas vezes, e confira o número de sessões registradas para cada um dos _backends_: o HAProxy envia requisições alternadas para cada um deles, segundo um algoritmo _round robin_. Com o HAProxy, é fácil desativar seletivamente alguns _backends_ para atualizações ou manutenção, e levantá-los posteriormente, mantendo a disponibilidade do serviço e minimizando o impacto para os clientes.
+
+11. Encerradas as nossas atividades com os servidores, recomenda-se que o aluno mantenha as máquinas `www1`, `www2`, `db` e `lb` desligadas a partir desta sessão. Apesar de as máquinas individualmente não ocuparem tantos recursos de memória e processamento, o fato de não precisarmos mais usá-las e a exigência de alteração de contexto da CPU para atendê-las faz com que a liberação de recursos, nesse caso, seja recomendável.
