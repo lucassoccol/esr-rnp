@@ -1,0 +1,8 @@
+     Key-Type: default
+     Subkey-Type: default
+     Name-Real: ESR
+     Name-Email: suporte@esr.rnp.br
+     Expire-Date: 0
+     %no-protection
+     %commit
+     %echo done

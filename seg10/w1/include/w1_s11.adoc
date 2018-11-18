@@ -1,6 +1,6 @@
 ifdef::oneof[]
 ////
-= SEG10 - Sessão 10
+= SEG10 - Sessão Extra 1
 :Author: Felipe_Scarel
 :Author Initials: FS
 ////
@@ -15,10 +15,10 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 10: Módulos de segurança do kernel
+== Sessão Extra 1: Monitoramento de vulnerabilidades
 
-Recompilação do kernel
-SELinux
-AppArmor
-Tomoyo
-grsecurity
+Pentesting automatizado
+Nessus
+OVAL/SCAP
+https://wiki.debian.org/UsingSCAP
+https://wiki.debian.org/SCAPGuide

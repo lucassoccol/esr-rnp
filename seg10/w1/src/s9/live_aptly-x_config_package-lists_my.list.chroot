@@ -1,0 +1,16 @@
+feh
+firefox-esr
+fluxbox
+initramfs-tools
+keyboard-configuration
+live-tools
+locales
+nodm
+openssl
+rsync
+sudo
+task-desktop
+user-setup
+uuid-runtime
+xterm
+x11-xserver-utils
