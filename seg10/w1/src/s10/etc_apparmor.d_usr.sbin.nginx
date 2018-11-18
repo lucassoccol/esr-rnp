@@ -1,0 +1,36 @@
+# Last Modified: Sun Nov 18 03:32:21 2018
+#include <tunables/global>
+
+/usr/sbin/nginx {
+  #include <abstractions/apache2-common>
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
+  #include <abstractions/ubuntu-browsers.d/plugins-common>
+
+  capability dac_override,
+  capability setgid,
+  capability setuid,
+
+  deny /data/www/unsafe/* r,
+
+  /data/www/safe/* r,
+  /etc/group r,
+  /etc/nginx/conf.d/ r,
+  /etc/nginx/conf.d/apparmor.conf r,
+  /etc/nginx/mime.types r,
+  /etc/nginx/modules-enabled/ r,
+  /etc/nginx/nginx.conf r,
+  /etc/nginx/sites-available/default r,
+  /etc/nginx/sites-enabled/ r,
+  /etc/nsswitch.conf r,
+  /etc/passwd r,
+  /etc/ssl/openssl.cnf r,
+  /lib/x86_64-linux-gnu/ld-*.so mr,
+  /run/nginx.pid rw,
+  /usr/sbin/nginx mr,
+  /usr/share/nginx/modules-available/* r,
+  /var/log/nginx/access.log w,
+  /var/log/nginx/error.log w,
+
+}

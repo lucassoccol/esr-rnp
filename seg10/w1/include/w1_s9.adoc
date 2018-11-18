@@ -21,7 +21,7 @@ Nesta sessão iremos aprender como criar uma distribuição Linux sob medida usa
 
 === 1) Topologia desta sessão
 
-Criaremos apenas uma nova máquinas nesta sessão, a saber:
+Criaremos apenas uma nova máquina nesta sessão, a saber:
 
 --
 * `live`, sistema para construção de imagens Linux customizadas usando o sistema _live-build_. Endereço IP 10.0.42.11/24.
@@ -129,7 +129,7 @@ SUDO password:
 
 PLAY RECAP **********************************************************************************************************
 
-docker1                       : ok=10   changed=8    unreachable=0    failed=0
+live                       : ok=10   changed=8    unreachable=0    failed=0
 ....
 
 === 3) Construindo uma distribuição mínima
