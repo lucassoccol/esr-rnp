@@ -11,7 +11,7 @@ usage() {
 [ -z $1 ] && usage
 
 # testar sintaxe valida
-if [[ "$1" =~ [^a-z0-9] ]]; then
+if [[ "$1" =~ [^a-z0-9-] ]]; then
   echo "  HOSTNAME must be lowercase alphanumeric: [a-z0-9]*"
   usage
 elif [ ${#1} -gt 63 ]; then

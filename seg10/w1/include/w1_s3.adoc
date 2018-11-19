@@ -35,8 +35,8 @@ image::Topologia_SEG10_S3.png[align="center"]
 
 Teremos três máquinas:
 
-* `ns1`, com _alias_ `firewall`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
-* `ns2`, com _alias_ `ns2`, localizada na DMZ e atuando como DNS secundário, servidor LDAP de autenticação centralizada e repositório de chaves SSH-CA. Endereço IP 10.0.42.2/24.
+* `ns1`, com _alias_ `fw`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
+* `ns2`, com _alias_ `ldap`, localizada na DMZ e atuando como DNS secundário, servidor LDAP de autenticação centralizada e repositório de chaves SSH-CA. Endereço IP 10.0.42.2/24.
 * `client`, localizada na Intranet e usada a partir de agora como ponto de partida para logins remotos nos diferentes servidores do _datacenter_ simulado. Endereço IP 192.168.42.2/24.
 
 1. Observe que a topologia acima prevê a criação de um novo _alias_ de rede para a máquina `ns2`, o nome `ns2`. Antes de começar, vamos ajustar nossa configuração DNS para refletir essa situação: acesse a máquina `ns1` como o usuário `root`:
