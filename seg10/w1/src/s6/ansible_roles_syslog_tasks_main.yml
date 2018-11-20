@@ -5,3 +5,5 @@
     line: '*.* @{{ logsrv }}:5140;RSYSLOG_SyslogProtocol23Format'
     insertafter: EOF
     create: yes
+  notify:
+    - Restart Rsyslog
