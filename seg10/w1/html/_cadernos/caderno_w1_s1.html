@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.8">
+<title>Sessão 1: Instalação e configurações iniciais</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Uncomment @import statement below to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite::before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock pre.nowrap,.literalblock pre.nowrap pre,.listingblock pre.nowrap,.listingblock pre.nowrap pre{white-space:pre;word-wrap:normal}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #dddddf}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd){background:#f8f8f7}
+table.stripes-none tr,table.stripes-odd tr:nth-of-type(even){background:none}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article">
+<div id="header">
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_sessão_1_instalação_e_configurações_iniciais">Sessão 1: Instalação e configurações iniciais</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A segurança e o <em>hardening</em> de um sistema Linux começa desde o primeiro momento: sua instalação. Mesmo antes de iniciarmos a preparação de uma máquina ou servidor, as considerações sobre segurança devem povoar a mente do administrador de sistemas, visando reduzir a superfície de ataque, facilitar procedimentos de auditoria e garantir que as melhores práticas de configuração serão aplicadas de forma fácil e homogênea em todo o parque computacional.</p>
+</div>
+<div class="paragraph">
+<p>Com o advento da virtualização, prevalente na maioria das organizações já há mais de dez anos, toma força o conceito de <em>one service per server</em>, ou um serviço por servidor. Nesse caso, o objetivo é que tenhamos vários servidores simples, muitas vezes com um único serviço operacional&#8201;&#8212;&#8201;isso facilita enormemente a administração e diminiu a superfície de ataque de cada servidor, pois haverão poucos programas, bibliotecas e portas abertas a serem atacadas em cada máquina individual. O uso de <em>templates</em> é especialmente vantajoso para garantir que essa premissa seja aplicada com sucesso; construindo imagens-base sólidas e regularmente atualizadas e homologadas pela equipe de segurança da organização, é muito mais fácil e conveniente garantir que as VMs derivadas desses <em>templates</em> serão seguras.</p>
+</div>
+<div class="paragraph">
+<p>Por outro lado, com a virtualização tivemos também o surgimento do <em>virtual machinel sprawl</em>&#8201;&#8212;&#8201;um número crescente (e muitas vezes aparentemente incontrolável) de máquinas virtuais sendo criadas no <em>datacenter</em>, minando as vantagens da simplicidade e facilidade de configuração apresentadas anteriormente. Processo e controles são fundamentais para garantir que VMs sejam criadas apenas quando necessário, e que possuam um ciclo de vida que considere sua implantação, operação e descontinuação quando não mais relevantes.</p>
+</div>
+<div class="paragraph">
+<p>O primeiro passo para garantir que as várias máquinas em nosso ambiente estarão seguras é ser criterioso, portanto, com a criação dos <em>templates</em> de máquina virtual. Nesta sessão iremos tratar dos aspectos de segurança relevantes na instalação de um sistema Debian Linux a ser usado como <em>template</em> para derivação de VMs futuras a serem usadas neste curso, trabalhando aspectos relevantes da instalação de pacotes, gestão de discos e partições e criptografia de dados sensíveis.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="sect2">
+<h3 id="_1_criação_de_máquina_virtual_no_virtualbox">1) Criação de máquina virtual no Virtualbox</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Abra o <em>Oracle VM Virtualbox</em>. Para criar uma nova máquina virtual, clique em <em>New</em>. Na tela seguinte, você deverá escolher um nome, tipo e versão do sistema operacional a ser instalado na VM. Em <em>Name</em>, digite <code>debian-template</code>, em <em>Type</em> escolha <code>Linux</code> e em <em>Version</em> selecione <code>Debian (64-bit)</code>.</p>
+<div id="img-vbox1" class="imageblock text-center">
+<div class="content">
+<img src="../img/vbox1.png" alt="vbox1">
+</div>
+<div class="title">Figure 1. Criação de nova VM, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, clique em <em>Next</em>.</p>
+</div>
+</li>
+<li>
+<p>Na tela seguinte escolheremos a quantidade de memória RAM a ser usada pelo sistema. O Debian Linux é um sistema bastante frugal, com recomendações mínimas de memória da ordem de 512 MB. Como a máquina que estamos instalando será um <em>template</em>, é interessante que ela seja bastante enxuta, e que as VMs derivadas cresçam em capacidade de acordo com o <em>workload</em> específico de cada aplicação.</p>
+<div class="paragraph">
+<p>Aponte <code>768 MB</code> de RAM, e em seguida clique em <em>Next</em>.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</li>
+<li>
+<p>Agora, iremos definir se iremos criar um novo disco rígido virtual para a VM (ou usar um preexistente), e definir seu tamanho. Nesta primeira tela, mantenha a seleção-padrão <em>Create a virtual hard disk now</em>. Clique em <em>Create</em>.</p>
+<div id="img-vbox2" class="imageblock text-center">
+<div class="content">
+<img src="../img/vbox2.png" alt="vbox2">
+</div>
+<div class="title">Figure 2. Criação de nova VM, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Na tela seguinte, de escolha do formato do disco virtual, mantenha a opção-padrão <em>VDI (VirtualBox Disk Image)</em>. Em casos específicos em que se deseje interoperabilidade da VM com outros ambientes de virtualização, como VMWare ou Hyper-V, pode ser interessante escolher o formato VMDK. Clique em <em>Next</em>.</p>
+</div>
+<div class="paragraph">
+<p>Agora, iremos selecionar se o espaço disco irá crescer à medida que for usado (<em>Dynamically allocated</em>), ou se será completamente alocado quando da sua criação (<em>Fixed size</em>). Em ambientes de produção, é geralmente recomendável selecionar a segunda opção, evitando que os dados do disco virtual fiquem fragmentados em pontos diferentes do disco físico, o que pode acarretar lentidão na leitura de dados, especialmente ao usar discos mecânicos. Neste exemplo, mantenha selecionada a opção <em>Dynamically allocated</em> e clique em <em>Next</em>.</p>
+</div>
+<div class="paragraph">
+<p>Selecionaremos agora a localização do arquivo de disco virtual e seu tamanho. Não é necessário alterar a primeira opção&#8201;&#8212;&#8201;já para a segunda, é importante considerar que um <em>template</em> de máquina virtual será usado para criar vários tipos diferentes de servidores-alvo. Por esse motivo, é interessante que seu disco seja organizado de forma simples e seja facilmente extensível futuramente: a flexibilidade de adição de novos discos virtuais é especialmente vantajosa, pois permite que criemos uma instalação básica bastante enxuta, e a aumentemos conforme necessário.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>Mantenha o valor-padrão de <code>8 GB</code> para o tamanho do disco virtual, e clique em <em>Create</em>.</p>
+</div>
+<div id="img-vbox3" class="imageblock text-center">
+<div class="content">
+<img src="../img/vbox3.png" alt="vbox3">
+</div>
+<div class="title">Figure 3. Criação de nova VM, parte 3</div>
+</div>
+</li>
+<li>
+<p>Será criada uma nova máquina virtual com o nome <code>debian-template</code>. Vamos fazer uma rápida pós-configuração antes de iniciar o processo de instalação: clique com o botão direito sobre a VM, e em seguida em <em>Settings</em>.</p>
+<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>Selecione <em>Storage</em> &gt; <em>Controller: IDE</em> &gt; <em>Empty</em>, e na parte à direita da janela clique no pequeno ícone de um CD em frente à opção <em>Optical Drive</em>. Em seguida, clique em <em>Choose Virtual Optical Disk File&#8230;&#8203;</em> e navegue pelo sistema de arquivos, selecionando a imagem ISO de instalação do Debian Linux como mostrado abaixo.</p>
+</div>
+<div id="img-vbox-conf1" class="imageblock text-center">
+<div class="content">
+<img src="../img/vbox-conf1.png" alt="vbox conf1">
+</div>
+<div class="title">Figure 4. Configuração de nova VM</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Audio</em>, desmarque a caixa <em>Enable Audio</em>. Como iremos criar um conjunto de máquinas virtuais que atuarão exclusivamente como servidores, não há necessidade de dispor de áudio nas VMs.</p>
+</div>
+<div class="paragraph">
+<p>Em <em>Network</em> &gt; <em>Adapter 1</em> &gt; <em>Attached to</em>, altere a conexão de rede da máquina virtual para <em>Bridged Adapter</em>. Em <em>Name</em>, verifique que a placa de rede física conectada à rede externa está selecionada (isso é especialmente importante em máquinas que possuem múltiplas placas de rede ou interfaces <em>wireless</em>). Se desejar, expanda <em>Advanced</em> e clique no pequeno círculo azul à direita de <em>MAC Address</em> para randomizar um novo endereço físico para a placa de rede da máquina virtual, especialmente útil em casos de conflito de IP.</p>
+</div>
+<div class="paragraph">
+<p>Em <em>USB</em>, marque a caixa <em>USB 1.1 (OHCI Controller)</em>. Esta configuração evita que sejam levantados erros ao iniciar a VM caso as extensões do Virtualbox não estejam instaladas na máquina hospedeira.</p>
+</div>
+<div class="paragraph">
+<p>Finalmente, clique em <em>OK</em>.</p>
+</div>
+</li>
+</ol>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+<div class="sect2">
+<h3 id="_2_instalação_do_debian_linux">2) Instalação do Debian Linux</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Selecione a máquina virtual <code>debian-template</code> e clique no botão <em>Start</em> para iniciá-la. Apos um curto período, você verá o menu de <em>boot</em> do Debian Linux; selecione a opção <em>Install</em> para começar o instalador no modo texto.</p>
+<div id="img-debinst1" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst1.png" alt="debinst1">
+</div>
+<div class="title">Figure 5. Instalação do Debian Linux, parte 1</div>
+</div>
+</li>
+<li>
+<p>No passo de seleção de idioma, selecione <em>Portuguese (Brazil)</em>. Em localidade, selecione <em>Brasil</em>. Para o mapa de teclado a ser usado, provavelmente será o <em>Português Brasileiro</em> (verifique se há a tecla <code>ç</code> ao lado do caractere <code>l</code>).</p>
+<div class="paragraph">
+<p>Os componentes do instalador serão carregados a seguir.</p>
+</div>
+</li>
+<li>
+<p>Em seguida, o instalador irá tentar autoconfigurar a rede usando DHCP. Caso esse protocolo não esteja disponível em sua rede local, consulte o instrutor sobre como proceder com a configuração manual das interfaces de rede.</p>
+<div class="paragraph">
+<p>Configurada a rede, iremos escolher o <em>hostname</em> da máquina. Defina o mesmo nome usado para a máquina virtual, <code>debian-template</code>.</p>
+</div>
+<div class="paragraph">
+<p>Para o nome de domínio da rede, iremos usar a rede local fictícia <code>intnet</code> durante o curso.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</li>
+<li>
+<p>Agora, iremos definir a senha do <code>root</code>, o superusuário em sistemas Linux. É bastante recomendado que se defina uma senha especialmente segura, já que esse usuário possui permissões totais sobre o sistema. Por simplicidade e homogeneidade no ambiente de curso, defina a senha como <code>rnpesr</code>.</p>
+<div id="img-debinst2" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst2.png" alt="debinst2">
+</div>
+<div class="title">Figure 6. Instalação do Debian Linux, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Na tela seguinte, confirme a senha.</p>
+</div>
+</li>
+<li>
+<p>O próximo passo é criar um usuário não-privilegiado para tarefas corriqueiras do sistema. Para o nome completo do usuário, digite <code>aluno</code>&#8201;&#8212;&#8201;este também será o nome de conta do usuário.</p>
+<div class="paragraph">
+<p>Para a senha, defina de igual forma <code>rnpesr</code>.</p>
+</div>
+</li>
+<li>
+<p>O instalador irá tentar obter a hora via Internet através do protocolo NTP. Em seguida, teremos que escolher um estado para definir o fuso horário do sistema. Escolha o estado em que você está realizando este curso.</p>
+</li>
+<li>
+<p>Agora, faremos o particionamento do disco. Temos quatro opções: particionamento assistido usando o disco inteiro, assistido usando o disco inteiro com LVM, assistido com o disco inteiro e LVM criptografado e particionamento manual. Se tivéssemos mais de um disco virtual conectado à máquina, o instalador ofereceria também a opção de configuração assistida de RAID (<em>Redundant Array of Independent Disks</em>).</p>
+<div class="paragraph">
+<p>Mas, o que é LVM?</p>
+</div>
+<div class="paragraph">
+<p>O <em>Logical Volume Manager</em> (LVM) é um sistema de mapeamento de dispositivos do Linux que permite a criação e gestão de volumes lógicos de armazenamento. As utilidades da gestão de armazenamento via volumes lógicos são muitas, destacando-se:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>Criação de volumes lógicos únicos englobando diferentes volumes físicos ou discos físicos inteiros, permitindo redimensionamento dinâmico de volumes.</p>
+</li>
+<li>
+<p>Gestão facilitada de grandes quantidades de discos físicos, permitindo que discos sejam adicionados ou substituídos sem <em>downtime</em> ou impacto à disponibilidade&#8201;&#8212;&#8201;especialmente útil quando combinado com hardware que suporta <em>hot swapping</em>.</p>
+</li>
+<li>
+<p>Em pequenos sistemas (como <em>desktops</em> e estações de trabalho) permite que o administrador não tenha que estimar no passo de instalação quão grande uma partição irá se tornar, permitindo redimensionamento dinâmico futuro.</p>
+</li>
+<li>
+<p>Criação de backups consistentes através de <em>snapshots</em> de volumes lógicos.</p>
+</li>
+<li>
+<p>Criptografar múltiplas partições físicas com uma mesma senha.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Em essência, o LVM traz enorme flexibilidade ao administrador de sistemas, resolvendo muitos dos problemas de particionamento que tínhamos no passado. Ele possui alguns conceitos centrais, ilustrados pela imagem a seguir:</p>
+</div>
+<div id="img-lvm-layout" class="imageblock text-center">
+<div class="content">
+<img src="../img/lvm-layout.png" alt="lvm layout">
+</div>
+<div class="title">Figure 7. Organização do LVM</div>
+</div>
+<div class="paragraph">
+<p>Na base do sistema temos os discos físicos conectados à máquina&#8201;&#8212;&#8201;como <code>/dev/sdb</code> ou <code>/dev/sdc</code>, por exemplo&#8201;&#8212;&#8201;que podem ser particionados (em formato MBR ou GPT) em múltiplas partições. Essas partições são denominadas volumes físicos (<em>Physical Volumes</em>, ou PVs). Vários PVs podem ser aglutinados para definir um grupo de volumes (<em>Volume Groups</em>, ou VGs), que é um agrupamento lógico desses PVs sob um mesmo nome. Pode-se então criar vários volumes lógicos (<em>Logical Volumes</em>, ou LVs) dentro desse VG, e finalmente formatar e montar diretórios dentro dos LVs, já no contexto do sistema de arquivos.</p>
+</div>
+<div class="paragraph">
+<p>A explicação acima é propositalmente sucinta; iremos entrar em maior detalhe com relação ao funcionamento e operação do LVM em atividades subsequentes.</p>
+</div>
+<div class="paragraph">
+<p>De volta ao instalador, iremos configurar um particionamento manual usando LVM. Por isso, na tela <em>Método de particionamento</em>, selecione <em>Manual</em>.</p>
+</div>
+<div id="img-debinst3" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst3.png" alt="debinst3">
+</div>
+<div class="title">Figure 8. Instalação do Debian Linux, parte 3</div>
+</div>
+</li>
+<li>
+<p>Na tela seguinte, o primeiro passo é criar uma tabela de partições vazia no disco virtual <code>/dev/sda</code>. Coloque o cursor sobre o disco <em>SCSI1 (0,0,0) (sda) - 8.6 GB ATA VBOX HARDDISK</em> e pressione <code>ENTER</code>. Em seguida, responda <em>Sim</em> para a pergunta <em>Criar nova tabela de partições vazia neste dispositivo?</em>.</p>
+</li>
+<li>
+<p>Agora, iremos configurar o LVM. Selecione a opção <em>Configurar o Gerenciador de Volumes Lógicos</em>, e responda <em>Sim</em> para a pergunta <em>Gravar as mudanças nos discos e configurar LVM?</em>.</p>
+<div style="page-break-after: always;"></div>
+</li>
+<li>
+<p>Você verá a tela de configuração do LVM, como se segue.</p>
+<div id="img-debinst4" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst4.png" alt="debinst4">
+</div>
+<div class="title">Figure 9. Instalação do Debian Linux, parte 4</div>
+</div>
+<div class="paragraph">
+<p>A qualquer momento, você pode selecionar a opção <em>Exibir detalhes de configuração</em> para verificar o estado atual de configuração do LVM.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>O primeiro passo é criar um VG, então escolhar <em>Criar grupo de volumes</em>. Para o nome do grupo, digite <code>vg-base</code>. Em seguida, marque com a tecla <code>Espaço</code> os volmes físicos que integrarão esse VG (no caso, apenas o dispositivo <code>/dev/sda</code> está disponível), e finalmente responda <em>Sim</em> para a pergunta <em>Gravar as mudanças nos discos e configurar LVM?</em>. Ao exibir os detalhes de configuração após este passo, você deverá ver a tela a seguir:</p>
+</div>
+<div id="img-debinst5" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst5.png" alt="debinst5">
+</div>
+<div class="title">Figure 10. Instalação do Debian Linux, parte 5</div>
+</div>
+</li>
+<li>
+<p>Todos os volumes físicos (PVs) foram alocados a grupos de volumes (VGs), então agora nos resta criar volumes lógicos (LVs). Com efeito, neste momento é como se estivéssemos particionando um disco no Linux em uma instalação tradicional. Iremos criar três LVs:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>lv-boot</code>: LV que irá armazenar o diretório <code>/boot</code> do sistema, com tamanho de 256 MB. É interessante separar o <code>/boot</code> para reduzir a complexidade do sistema de arquivos em disco, bem como para aplicar configurações diferenciadas ao <em>filesystem</em>, como RAID por software, sistemas de arquivos não-usuais como ZFS, ou caso se deseje criptografar a raiz do sistema.</p>
+</li>
+<li>
+<p><code>lv-swap</code>: LV que irá servidor como área de troca (<em>swap</em>) do SO em caso de escassez de memória física. Como idealmente não queremos chegar nesse cenário, alocaremos apenas 256 MB para essa área.</p>
+</li>
+<li>
+<p><code>lv-root</code>: LV quer irá armazenar a raiz do sistema, <code>/</code>, com tamanho de 1536 MB. Pode parecer um valor pequeno, mas considere que iremos separar outros sistemas de arquivos posteriormente.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Imediatamente, podem surgir duas perguntas:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Por que não estamos alocando a totalidade do disco?</strong> O LVM nos permite grande flexibilidade, que será demonstrada em atividades subsequentes. Ao alocarmos [256 + 256 + 1536] = 2048 MB em um disco de 8 GB, deixamos (aproximadamente) 6 GB livres que poderão ser alocados de acordo com o tipo específico de uso de cada máquina. Em sentido estrito, a alocação que fizemos acima não é exatamente ideal para um <em>template</em>, mas iremos corrigir isso ao demonstrar as funcionalidades do LVM, a seguir.</p>
+</li>
+<li>
+<p><strong>Por que não criamos LVs para partições como</strong> <code>/tmp</code><strong>,</strong> <code>/usr</code> <strong>ou</strong> <code>/var</code><strong>?</strong> De fato, é bastante recomendável separar essas partições em servidores, como veremos a seguir. Iremos criar esses LVs brevemente, após a instalação do SO.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Para criar um LV, selecione <em>Criar volume lógico</em>. Em seguida, selecione o grupo de volumes no qual será feita a alocação (no caso, apenas <code>vg-base</code> está disponível). Para o nome do primeiro volume lógico, digite <code>lv-boot</code>, como delineado acima. Para seu tamanho, defina 256 MB.</p>
+</div>
+<div class="paragraph">
+<p>Prossiga com a criação dos outros dois LVs, <code>lv-swap</code> e <code>lv-root</code>, com os tamanhos especificados acima. Ao exibir os detalhes de configuração após este passo, você deverá ver a tela a seguir:</p>
+</div>
+<div id="img-debinst6" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst6.png" alt="debinst6">
+</div>
+<div class="title">Figure 11. Instalação do Debian Linux, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Se tudo estiver a contento, selecione <em>Finalizar</em>.</p>
+</div>
+</li>
+<li>
+<p>Ainda não acabou! Neste momento, configuramos o LVM&#8201;&#8212;&#8201;alocamos volumes físicos, criamos um grupo de volumes agrupando esses PVs e finalmente criamos 3 volumes lógicos dentro do VG. Falta informar ao sistema quais serão os pontos de montagem desses LVs, e quais sistemas de arquivos serão usados. Usaremos a seguinte configuração:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>lv-boot</code>: montado sob o diretório <code>/boot</code>, formatado em <code>ext2</code>.</p>
+</li>
+<li>
+<p><code>lv-swap</code>: área de troca (<em>swap</em>).</p>
+</li>
+<li>
+<p><code>lv-root</code>: montado sob o diretório <code>/</code>, formatado em <code>ext4</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Para fazer as configurações acima, selecione um dos LVs indicados (por exemplo, deixe o cursor sobre a linha <code>#1 255.9 MB</code>, logo abaixo de <code>lv-boot</code>), e pressione <code>ENTER</code>. Em <em>Usar como</em>, escolha <em>Sistema de arquivos ext2</em>, e em <em>Ponto de montagem</em> selecione <code>/boot</code>. Finalmente, selecione <em>Finalizar a configuração da partição</em>.</p>
+</div>
+<div class="paragraph">
+<p>Prossiga com a configuração dos outros dois LVs, <code>lv-swap</code> e <code>lv-root</code>, de acordo com as características especificadas acima. Ao exibir os detalhes de configuração após este passo, você deverá ver a tela a seguir:</p>
+</div>
+<div id="img-debinst7" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst7.png" alt="debinst7">
+</div>
+<div class="title">Figure 12. Instalação do Debian Linux, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Se tudo estiver a contento, selecione <em>Finalizar o particionamento e escrever as mudanças no disco</em>. Confirme a pergunta subsequente escolhendo <em>Sim</em>. Os discos serão formatados e o sistema-base do Debian será instalado.</p>
+</div>
+</li>
+<li>
+<p>O próximo passo será a seleção e instalação de pacotes adicionais. Na pergunta <em>Selecionar um espelho de rede</em>, responda <em>Sim</em>. Em seguida, selecione <em>Brasil</em> como o país do espelho e aponte o servidor <code>ftp.br.debian.org</code>. Quanto à informação do proxy HTTP a ser usado, deixe em branco (a menos que o contrário seja indicado pelo seu instrutor).</p>
+<div class="paragraph">
+<p>O instalador irá fazer o download dos arquivos de índice do repositório de pacotes.</p>
+</div>
+<div class="paragraph">
+<p>Após algum tempo, surgirá a pergunta <em>Participar do concurso de utilização de pacotes</em>&#8201;&#8212;&#8201;responda <em>Não</em>. Em seguida, o <code>tasksel</code> será invocado. Nesta tela podemos escolher quais conjuntos de software iremos instalar no disco.</p>
+</div>
+<div class="paragraph">
+<p>Para servidores de rede, em linhas gerais, é usualmente recomendável não selecionar nada além do estritamente necessário nesta tela, e proceder com a instalação manual de pacotes posteriormente; o <code>tasksel</code> geralmente instala um conjunto de pacotes superior ao que objetivamos originalmente, aumentando a superfície de ataque e exposição do sistema. Para ambientes <em>desktop</em>, é perfeitamente razoável escolher o ambiente gráfico base e uma das opções de gerenciadores de janelas disponíveis.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>Mantenha marcadas apenas as caixas <em>servidor SSH</em> e <em>utilitários de sistema padrão</em>, e selecione <em>Continuar</em>.</p>
+</div>
+<div id="img-debinst8" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst8.png" alt="debinst8">
+</div>
+<div class="title">Figure 13. Instalação do Debian Linux, parte 8</div>
+</div>
+<div class="paragraph">
+<p>O instalador irá fazer o download e instalação dos pacotes selecionados.</p>
+</div>
+</li>
+<li>
+<p>A última etapa é efetuar a instalação do carregador de inicialização, ou <em>bootloader</em>, no sistema. O Debian, assim como a maioria das demais distribuições, utiliza o GRUB (<em>GRand Unified Bootloader</em>) como <em>bootloader</em> padrão.</p>
+<div class="paragraph">
+<p>Responda <em>Sim</em> para a pergunta <em>Instalar o carregador de inicialização GRUB no registro mestre de inicialização</em>, e em seguida selecione o dispositivo de instalação <code>/dev/sda</code> (o único disponível).</p>
+</div>
+<div style="page-break-after: always;"></div>
+</li>
+<li>
+<p>A instalação está concluída. Selecione <em>Continuar</em> para reinicializar a VM no novo sistema instalado.</p>
+<div class="paragraph">
+<p>Após o reboot, você deverá ver a tela de login abaixo:</p>
+</div>
+<div id="img-debinst9" class="imageblock text-center">
+<div class="content">
+<img src="../img/debinst9.png" alt="debinst9">
+</div>
+<div class="title">Figure 14. Instalação do Debian Linux, concluída</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_ajustes_pós_instalação">3) Ajustes pós-instalação</h3>
+<div class="paragraph">
+<p>Instalado nosso <em>template</em>, iremos continuar sua configuração para torná-lo, de fato, uma imagem-base de boa qualidade para ser usada em derivações de VMs futuras. Além de corrigir a situação dos volumes lógicos (que deixamos incompleta propositalmente durante a instalação), iremos também fazer algumas configurações de base com relação aos repositórios, atualização de pacotes e contas de usuário.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Faça login na máquina <code>debian-template</code> como usuário <code>root</code>, usando a senha <code>rnpesr</code>. Imediatamente após o login, você verá uma mensagem parecida com a que se segue:</p>
+<div class="literalblock">
+<div class="content">
+<pre>Linux debian-template 4.9.0-7-amd64 #1 SMP Debian 4.9.110-3+deb9u2 (2018-08-13) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+debian-template</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Essa mensagem é definida no arquivo <code>/etc/motd</code>, conhecida como <em>message of the day</em> (ou "mensagem do dia"). É interessante customizar essa mensagem para refletir o ambiente local, avisando o administrador sobre os requisitos legais para operar máquinas da organização, ou informando sobre onde encontrar documentação sobre os servidores. Lembre-se que, já que estamos mexendo no <em>template</em>, essa mensagem será copiada para todas as VMs derivadas desta imagem.</p>
+</div>
+<div class="paragraph">
+<p>Neste curso, vamos deixar o <em>motd</em> vazio. Execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo "" &gt; /etc/motd</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Saia da sessão corrente usando <code>exit</code> ou <code>CTRL + D</code>, e logue novamente. Note que a mensagem anterior será suprimida.</p>
+</div>
+</li>
+<li>
+<p>Ao longo do curso, iremos editar vários arquivos de texto em ambiente Linux. Há vários editores de texto disponíveis para a tarefa, como o <code>vi</code>, <code>emacs</code> ou <code>nano</code>. Caso você não esteja familiarizado com um editor de texto, recomendamos o uso do <code>nano</code>, que possui uma interface bastante amigável para usuários iniciantes. Para editar um arquivo com o <code>nano</code>, basta digitar <code>nano</code> seguido do nome do arquivo a editar&#8201;&#8212;&#8201;não é necessário que o arquivo tenha sido criado previamente:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano teste</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Digite livremente a seguir. Use as setas do teclado para navegar no texto, e <code>DELETE</code> ou <code>BACKSPACE</code> para apagar texto. O <code>nano</code> possui alguns atalhos interessantes, como:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>CTRL + G</code>: Exibir a ajuda do editor</p>
+</li>
+<li>
+<p><code>CTRL + X</code>: Fechar o <code>buffer</code> de arquivo atual (que pode ser um texto sendo editado, ou o painel de ajuda), e sair do <code>nano</code>. Para salvar o arquivo, digite <code>Y</code> (<em>yes</em>) ou <code>S</code> (<em>sim</em>) para confirmar as mudanças ao arquivo, opcionalmente altere o nome do arquivo a ser escrito no disco, e digite <code>ENTER</code>.</p>
+</li>
+<li>
+<p><code>CTRL + O</code>: Salvar o arquivo no disco sem sair do editor.</p>
+</li>
+<li>
+<p><code>CTRL + W</code>: Buscar padrão no texto.</p>
+</li>
+<li>
+<p><code>CTRL + K</code>: Cortar uma linha inteira e salvar no <code>buffer</code> do editor.</p>
+</li>
+<li>
+<p><code>CTRL + U</code>: Colar o <code>buffer</code> do editor na posição atual do cursor. Pode ser usado repetidamente.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Para salvar e sair do texto sendo editado, como mencionado acima, utilize <code>CTRL + X</code>.</p>
+</div>
+</li>
+<li>
+<p>Edite o arquivo <code>/etc/network/interfaces</code> como se segue, reinicie a rede e verifique o funcionamento:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/network/interfaces
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo enp0s3
+
+iface lo inet loopback
+
+iface enp0s3 inet dhcp</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl restart networking</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip a s | grep '^ *inet '
+    inet 127.0.0.1/8 scope host lo
+    inet 192.168.29.104/24 brd 192.168.29.255 scope global enp0s3</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Desabilite a verificação de <em>hostnames</em> remotos do <code>ssh</code> para agilizar o procedimento de login. Reinicie o <em>daemon</em> posteriormente.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i '/UseDNS/s/^#//' /etc/ssh/sshd_config</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl restart ssh</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Durante as atividades deste curso iremos ter que digitar vários comandos no terminal das VMs, os quais serão mostrados nos cadernos de atividade de cada sessão. Alguns desses comandos serão bastante longos e/ou terão uma sintaxe complicada&#8201;&#8212;&#8201;nesse caso, o ideal é que tenhamos a possibilidade de copiá-los diretamente do caderno para a console, evitando erros de digitação.</p>
+<div class="paragraph">
+<p>O protocolo de login remoto SSH é ideal para solucionar essa tarefa. Em ambiente Windows, dois dos métodos mais populares para efetuar logins remotos via SSH são os programas PuTTY (<a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html" class="bare">https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html</a>) ou Cygwin (<a href="https://cygwin.com/install.html" class="bare">https://cygwin.com/install.html</a>). Vamos, primeiro, visualizar os passos necessários usando o PuTTY.</p>
+</div>
+<div class="paragraph">
+<p>Em qualquer caso, o primeiro passo é sempre descobrir qual o endereço IP da máquina remota à qual queremos nos conectar. Para isso digite, na máquina <code>debian-template</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}' | cut -d'/' -f1
+192.168.29.104</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O uso do <strong>PuTTY</strong>, por se tratar de um programa <em>standalone</em> com o objetivo único de efetuar login via SSH, é mais simples. Faça o download do PuTTY em sua máquina física Windows, usando a URL informada acima. Em seguida, apenas abra o programa e digite na caixa <em>Host Name</em> o endereço IP da máquina remota descoberto acima. Em seguida, clique em <em>Open</em>.</p>
+</div>
+<div id="img-ssh1" class="imageblock text-center">
+<div class="content">
+<img src="../img/ssh1.png" alt="ssh1">
+</div>
+<div class="title">Figure 15. Login via SSH usando o PuTTY, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Será mostrado um alerta de segurança avisando que a chave do <em>host</em> remoto não se encontra na <em>cache</em> local, o que pode configurar um risco de segurança. Clique em <em>Yes</em> para prosseguir com a tentativa de login.</p>
+</div>
+<div class="paragraph">
+<p>Em seguida, será solicitado o nome de usuário com o qual efetuar a conexão. Como, por padrão, o <em>daemon</em> <code>sshd</code> do Debian não permite logins remotos usando o <code>root</code>, escolha o usuário <code>aluno</code>. Para a senha, informe <code>rnpesr</code>. Em caso de sucesso, você verá a tela a seguir:</p>
+</div>
+<div id="img-ssh2" class="imageblock text-center">
+<div class="content">
+<img src="../img/ssh2.png" alt="ssh2">
+</div>
+<div class="title">Figure 16. Login via SSH usando o PuTTY, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Para tornar-se o superusuário <code>root</code>, agora, basta executar o comando <code>su -</code> e informar a senha correta, como se segue:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ su -
+Senha:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para copiar/colar comandos no PuTTY, basta selecionar o texto desejado no ambiente da máquina física e digitar <code>CTRL + C</code>, e em seguida clicar com o botão direito na janela do PuTTY. O texto selecionado será colado na posição do cursor.</p>
+</div>
+</li>
+<li>
+<p>O uso do Cygwin é um pouco mais envolvido, já que seu objetivo é mais complexo: prover, em ambiente Windows, funcionalidade equivalente à que temos disponível em uma distribuição Linux. Para começar, faça o download e execute o instalador do Cygwin em sua máquina física Windows.</p>
+<div class="paragraph">
+<p>A instalação é, em grande parte, bastante similar à de qualquer aplicativo Windows. Na tela inicial, clique em <em>Next</em>. Em <em>Choose a Download Source</em>, mantenha marcada a caixa <em>Install from Internet</em> e clique em <em>Next</em>. Em <em>Select Root Install Directory</em>, os valores padrão estão apropriados&#8201;&#8212;&#8201;clique em <em>Next</em>. Na tela <em>Select Local Package Directory</em>, novamente, mantenha o valor padrão e clique em <em>Next</em>.</p>
+</div>
+<div class="paragraph">
+<p>Agora, vamos selecionar a fonte de pacotes. Em <em>Select Your Internet Connection</em>, a menos que haja um <em>proxy</em> na rede local (informe-se com seu instrutor), mantenha marcada a caixa <em>Direct Connection</em> e clique em <em>Next</em>. Será feito o download da lista de espelhos disponíveis para o Cygwin. Em <em>Choose A Download Site</em>, qualquer espelho irá funcionar, mas evidentemente é desejável que escolhamos um que possua maior velocidade de download&#8201;&#8212;&#8201;o site <a href="http://linorg.usp.br" class="bare">http://linorg.usp.br</a> é provavelmente uma boa opção, nesse caso. Clique em <em>Next</em>, e o instalador irá baixar a lista de pacotes disponíveis.</p>
+</div>
+<div class="paragraph">
+<p>Em adição ao sistema-base padrão, é necessário instalar o OpenSSH para efetuar logins remotos. Na caixa de busca <em>Search</em>, no topo da tela, digite o termo de busca <code>openssh</code>. Expanda a árvore <code>Net</code> e clique na palavra <em>Skip</em> na linha do pacote <code>openssh: The OpenSSH server and client programs</code>&#8201;&#8212;&#8201;ela irá alterar para a versão a ser instalada, <code>7.9p1-1</code> no caso da figura mostrada abaixo:</p>
+</div>
+<div id="img-ssh3" class="imageblock text-center">
+<div class="content">
+<img src="../img/ssh3.png" alt="ssh3">
+</div>
+<div class="title">Figure 17. Instalação do OpenSSH no Cygwin</div>
+</div>
+<div class="paragraph">
+<p>Clique em <em>Next</em>. Em <em>Review and confirm changes</em>, verifique que o Cygwin irá instalar o OpenSSH e todas as demais dependências do sistema-base Linux, como o <em>shell</em> <code>bash</code> ou ferramentas como o <code>grep</code>, e clique em <em>Next</em>. O instalador irá fazer o download e instalação dos pacotes selecionados.</p>
+</div>
+<div class="paragraph">
+<p>Concluído o processo, procure pelo programa <code>Cygwin Terminal</code> no menu iniciar da sua máquina física Windows, e execute-o. Agora, tente fazer login via SSH normalmente, como se estivesse em um <em>shell</em> Linux:</p>
+</div>
+<div id="img-ssh4" class="imageblock text-center">
+<div class="content">
+<img src="../img/ssh4.png" alt="ssh4">
+</div>
+<div class="title">Figure 18. Login via SSH usando o Cygwin</div>
+</div>
+<div class="paragraph">
+<p>Para copiar/colar comandos no Cygwin, basta selecionar o texto desejado no ambiente da máquina física e digitar <code>CTRL + C</code>, e em seguida mudar o foco para a janela do Cygwin e digitar a combinação <code>SHIFT + Insert</code>. Para copiar texto a partir da janela do Cygwin, selecione-o e use a combinação de teclas <code>CTRL + Insert</code>. Para encontrar os arquivos localizados em sua máquina física, o diretório <code>/cygdrive/X</code> pode ser usado para mapear para os discos da máquina local&#8201;&#8212;&#8201;por exemplo, o diretório <code>/cygdrive/c</code> mapeia diretamente para o <code>C:\</code> da máquina Windows.</p>
+</div>
+</li>
+<li>
+<p>A seguir, vamos checar a configuração dos repositórios de pacotes sendo usados pelo sistema. Cheque o conteúdo do arquivo <code>/etc/apt/sources.list</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/apt/sources.list
+#
+
+# deb cdrom:[Debian GNU/Linux 9.5.0 _Stretch_ - Official amd64 xfce-CD Binary-1 20180714-10:25]/ stretch main
+
+deb cdrom:[Debian GNU/Linux 9.5.0 _Stretch_ - Official amd64 xfce-CD Binary-1 20180714-10:25]/ stretch main
+
+deb http://ftp.br.debian.org/debian/ stretch main
+deb-src http://ftp.br.debian.org/debian/ stretch main
+
+deb http://security.debian.org/debian-security stretch/updates main
+deb-src http://security.debian.org/debian-security stretch/updates main
+
+# stretch-updates, previously known as 'volatile'
+deb http://ftp.br.debian.org/debian/ stretch-updates main
+deb-src http://ftp.br.debian.org/debian/ stretch-updates main</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Temos algumas linhas desnecessárias neste arquivo: primeiro, as entradas <code>deb cdrom</code> referem-se ao CD de instalação do Debian, que usamos durante a atividade (2) desta sessão; além dessas, as entradas <code>deb-src</code> referem-se a pacotes de código-fonte, que podem ser baixados com o comando <code>apt-get source</code> e posteriormente compilados pelo administrador. Via de regra, não usaremos quaisquer dessas entradas em um sistema de produção, então elas podem ser removidas com segurança.</p>
+</div>
+<div class="paragraph">
+<p>Sobre os componentes (ou seções) do repositório, note que apenas a <code>main</code> está incluída no arquivo acima. O Debian possui três seções principais:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>main</code>: contém apenas software compatível com a DFSG (<em>Debian Free Software Guidelines</em>, ou diretivas de software livre do Debian), e não dependem de software fora desta seção para funcionar. Esses são os pacotes considerados parte integrante da distribuição de software do Debian.</p>
+</li>
+<li>
+<p><code>contrib</code>: contém pacotes compatíveis com a DFSG, mas que possuem dependências que não estão na seção <code>main</code>.</p>
+</li>
+<li>
+<p><code>non-free</code>: contém software incompatível com a DFSG.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Em geral, não há grandes restrições para incluir todas as três seções de software detalhadas acima em uma organização. Assim, iremos incluir as duas seções faltantes, <code>contrib</code> e <code>non-free</code>, no arquivo <code>/etc/apt/sources.list</code>. Edite-o usando o <code>vi</code> ou o <code>nano</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/apt/sources.list
+(...)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após a edição, seu conteúdo deverá ficar assim:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/apt/sources.list
+deb http://ftp.br.debian.org/debian/ stretch main contrib non-free
+deb http://ftp.br.debian.org/debian/ stretch-updates main contrib non-free
+deb http://security.debian.org/debian-security stretch/updates main contrib non-free</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Atualize a lista de pacotes disponíveis nos repositórios remotos usando o comando:</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get update</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, vamos garantir que nosso <em>template</em> está plenamente atualizado com:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get dist-upgrade -y</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Caso o kernel do sistema tenha sido atualizado no processo (pacotes com o nome <code>linux-image-*</code>), será necessário reiniciar a máquina para realizar o <em>boot</em> com o novo kernel. Faça isso, se for o caso, com o comando <code>reboot</code>.</p>
+</div>
+<div class="paragraph">
+<p>Após o reinício, logue novamente como o usuário <code>root</code>. Para remover os binários dos pacotes recentemente instalados do sistema, execute <code>apt-get clean</code>. Se quiser remover as dependências de pacotes que estão instaladas no sistema e já não são mais necessárias, rode <code>apt-get autoremove</code>.</p>
+</div>
+<div class="paragraph">
+<p>Para remover todos os kernels antigos do sistema (isto é, todos os kernels exceto o que está em execução no momento), você pode executar:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dpkg -l | egrep 'linux-image-[0-9\.-]*-amd64' | awk '{print $2}' | grep -v $(uname -r) | xargs apt-get purge -y</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Este é um bom momento para instalar pacotes que você acredita serem necessários em todas as máquinas a serem derivadas deste <em>template</em>. Pacotes como o <code>sudo</code> ou <code>vim</code> podem ser boas opções, dependendo das necessidades da sua organização.</p>
+<div class="paragraph">
+<p>Neste momento, iremos instalar apenas os pacotes listados abaixo. Execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install rsync nfs-common sudo dirmngr</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Pode ser interessante desabilitar a combinação de teclas <code>CTRL + ALT + DEL</code>; mesmo em um ambiente virtualizado, há casos em que o administrador se confunde e acaba enviando essa combinação de teclas para a console de um servidor aberto, causando seu <em>reboot</em> inadvertidamente.</p>
+<div class="paragraph">
+<p>Note que, por padrão, essa combinação de teclas aponta para o <code>reboot.target</code>, um <em>target</em> (ou alvo) do <code>systemd</code> que é responsável pelo reinício do sistema operacional.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -ld /lib/systemd/system/ctrl-alt-del.target
+lrwxrwxrwx 1 root root 13 jun 13 17:20 /lib/systemd/system/ctrl-alt-del.target -&gt; reboot.target</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para desabilitar o <code>CTRL + ALT + DEL</code>, basta executar:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl mask ctrl-alt-del.target
+Created symlink /etc/systemd/system/ctrl-alt-del.target → /dev/null.</pre>
+</div>
+</div>
+</li>
+<li>
+<p>O <em>template</em> atual (a máquina <code>debian-template</code>) será usada como base para várias VMs futuras, como estabelecido. Ao copiar a máquina, a primeira ação a ser realizada será sempre alterar o <em>hostname</em> para o nome da nova máquina&#8201;&#8212;&#8201;pode ser muito interessante ter um meio para automatizar essa tarefa, como um <em>shell script</em>.</p>
+<div class="paragraph">
+<p>Crie um novo arquivo <code>/root/scripts/changehost.sh</code> (crie o diretório <code>/root/scripts</code> se este não existir), com o seguinte conteúdo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/bin/bash
+
+
+usage() {
+  echo "  Usage: $0 HOSTNAME"
+  exit 1
+}
+
+
+# testar parametros
+[ -z $1 ] &amp;&amp; usage
+
+# testar sintaxe valida
+if [[ "$1" =~ [^a-z0-9-] ]]; then
+  echo "  HOSTNAME must be lowercase alphanumeric: [a-z0-9]*"
+  usage
+elif [ ${#1} -gt 63 ]; then
+  echo "  HOSTNAME must have &lt;63 chars"
+  usage
+fi
+
+# alterar hostname local
+chost="$( hostname -s )"
+sed -i "s/${chost}/${1}/g" /etc/hosts
+sed -i "s/${chost}/${1}/g" /etc/hostname
+
+invoke-rc.d hostname.sh restart
+invoke-rc.d networking force-reload
+hostnamectl set-hostname $1
+
+# re-gerar chaves SSH
+rm -f /etc/ssh/ssh_host_* 2&gt; /dev/null
+dpkg-reconfigure openssh-server &amp;&gt; /dev/null</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O <em>script</em> acima espera receber um único parâmetro: o novo <em>hostname</em> a ser configurado para a máquina. Após checar se o parâmetro possui sintaxe válida, o <em>script</em> irá alterar o nome da máquina nos arquivos <code>/etc/hostname</code> e <code>/etc/hosts</code>, reiniciar as interfaces de rede e <em>daemons</em> relevantes, e finalmente re-gerar as chaves de host do <code>ssh</code> com o novo nome da máquina.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_configuração_do_lvm">4) Configuração do LVM</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Vamos prosseguir com a configuração do LVM, que fizemos apenas parcialmente durante a instalação&#8201;&#8212;&#8201;para relembrar, configuramos três volumes lógicos (LVs), <code>lv-boot</code>, <code>lv-swap</code> e <code>lv-root</code>. Para verificar o estado dos volumes lógicos em um sistema Linux, execute o comando <code>lvdisplay</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># lvdisplay | grep 'Logical volume\|LV Path\|LV Name\|LV Size'
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-boot
+  LV Name                lv-boot
+  LV Size                244,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-swap
+  LV Name                lv-swap
+  LV Size                244,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-root
+  LV Name                lv-root
+  LV Size                1,43 GiB</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para verificar o estado dos grupos de volumes (VGs), execute <code>vgdisplay</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># vgdisplay
+  --- Volume group ---
+  VG Name               vg-base
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  4
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                3
+  Open LV               3
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               8,00 GiB
+  PE Size               4,00 MiB
+  Total PE              2047
+  Alloc PE / Size       488 / 1,91 GiB
+  Free  PE / Size       1559 / 6,09 GiB
+  VG UUID               hOXyJN-XA3n-i4RG-4mhJ-rDF5-edi7-xXS5f0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E, finalmente, para verificar o estado dos volumes físicos (PVs), execute <code>pvdisplay</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># pvdisplay
+  --- Physical volume ---
+  PV Name               /dev/sda1
+  VG Name               vg-base
+  PV Size               8,00 GiB / not usable 2,00 MiB
+  Allocatable           yes
+  PE Size               4,00 MiB
+  Total PE              2047
+  Free PE               1559
+  Allocated PE          488
+  PV UUID               ZnHHMn-Y37D-6Psd-oHei-K1Qd-wHjY-6gqFZ3</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos criar três novos LVs, com as configurações que se seguem:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>lv-tmp</code>: armazenará o diretório <code>/tmp</code>, com tamanho de 512 MB.</p>
+</li>
+<li>
+<p><code>lv-var</code>: armazenará o diretório <code>/var</code>, com tamanho de 1536 MB.</p>
+</li>
+<li>
+<p><code>lv-usr</code>: armazenará o diretório <code>/usr</code>, ocupando todo o tamanho restante do VG <code>vg-base</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Para criá-los, execute os comandos:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvcreate -L 512M -n lv-tmp vg-base
+Logical volume "lv-tmp" created.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvcreate -L 1536M -n lv-var vg-base
+Logical volume "lv-var" created.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvcreate -l 100%FREE -n lv-usr vg-base
+  Logical volume "lv-usr" created.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos verificar como ficou a situação dos nossos volumes lógicos:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvdisplay | grep 'Logical volume\|LV Path\|LV Name\|LV Size'
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-boot
+  LV Name                lv-boot
+  LV Size                244,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-swap
+  LV Name                lv-swap
+  LV Size                244,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-root
+  LV Name                lv-root
+  LV Size                1,43 GiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-tmp
+  LV Name                lv-tmp
+  LV Size                512,00 MiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-var
+  LV Name                lv-var
+  LV Size                1,50 GiB
+  --- Logical volume ---
+  LV Path                /dev/vg-base/lv-usr
+  LV Name                lv-usr
+  LV Size                4,09 GiB</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Naturalmente, o VG está ocupado em sua totalidade, agora:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># vgdisplay | grep PE
+  PE Size               4,00 MiB
+  Total PE              2047
+  Alloc PE / Size       2047 / 8,00 GiB
+  Free  PE / Size       0 / 0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O mesmo pode ser dito para o PV:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># pvdisplay | grep PE
+  PE Size               4,00 MiB
+  Total PE              2047
+  Free PE               0
+  Allocated PE          2047</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Apesar de termos criado os LVs para os diretórios <code>/tmp</code>, <code>/var</code> e <code>/usr</code>, nosso trabalho ainda não acabou&#8201;&#8212;&#8201;temos que formatar esses diretórios, copiar o conteúdo dos diretórios atuais para dentro dos novos, configurar a montagem automática via <code>/etc/fstab</code> e apagar os diretórios antigos para liberar espaço.</p>
+<div class="paragraph">
+<p>Primeiro, vamos formatar os LVs usando o sistema de arquivos <code>ext4</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mkfs.ext4 /dev/mapper/vg--base-lv--tmp
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mkfs.ext4 /dev/mapper/vg--base-lv--var
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mkfs.ext4 /dev/mapper/vg--base-lv--usr
+(...)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Apesar de não termos feito nos exemplos acima, este seria um excelente momento para customizar aspectos do sistema de arquivos para adequá-lo aos tipos específicos de arquivos que serão armazenados ali dentro. Por exemplo, pode ser interessante escolher um tamanho de <em>inode</em> menor do que o padrão caso se deseje armazenar muitos arquivos pequenos, como é frequentemente o caso em servidores de e-mail, digamos. Para mais informações, consulte a página de manual <code>man 8 mke2fs</code>.</p>
+</div>
+<div class="paragraph">
+<p>Uma curiosidade: o tamanho padrão de <em>inodes</em> de novos sistemas de arquivos formatados é definido em <code>/etc/mke2fs.conf</code>; este valor pode ser customizado através da <em>flag</em> <code>-I</code> no comando <code>mkfs.ext*</code>.</p>
+</div>
+</li>
+<li>
+<p>O próximo passo é montar esses sistemas de arquivo e sincronizar o conteúdo dos diretórios atuais (que estão dentro da raiz, <code>/</code>) com os novos diretórios. Crie um <em>shell script</em>, <code>/root/scripts/syncdirs.sh</code>, com o seguinte conteúdo:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/bin/bash
+
+for d in tmp var usr; do
+  [ -d /mnt/${d} ] || mkdir /mnt/${d}
+  mount /dev/mapper/vg--base-lv--${d} /mnt/${d}
+  rsync -av /${d}/ /mnt/${d}
+  umount /mnt/${d}
+  rmdir /mnt/${d}
+done</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O script acima irá iterar sobre os nomes <code>tmp</code>, <code>var</code> e <code>usr</code>, com o nome <code>DIR</code>. Para cada um deles, fará os passos a seguir:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Criar o diretório <code>/mnt/DIR</code>, se não existir.</p>
+</li>
+<li>
+<p>Montar o volume lógico <code>lv-DIR</code> dentro do diretório <code>/mnt/DIR</code>.</p>
+</li>
+<li>
+<p>Usando o comando <code>rsync</code>, copiar o conteúdo do diretório <code>/DIR</code> para <code>/mnt/DIR</code>.</p>
+</li>
+<li>
+<p>Desmontar o volume lógigo <code>lv-DIR</code>.</p>
+</li>
+<li>
+<p>Remover a pasta <code>/mnt/DIR</code>, se vazia.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute o <em>script</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># bash ~/scripts/syncdirs.sh
+
+(...)
+
+sent 551,267 bytes  received 2,023 bytes  368,860.00 bytes/sec
+total size is 409,038,950  speedup is 739.28</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos configurar a montagem automáticas dos novos volumes lógicos. Edite o arquivo <code>/etc/fstab</code> e adicione as linhas a seguir:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/fstab
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n3 /etc/fstab
+/dev/mapper/vg--base-lv--tmp  /tmp  ext4  defaults  0  2
+/dev/mapper/vg--base-lv--var  /var  ext4  defaults  0  2
+/dev/mapper/vg--base-lv--usr  /usr  ext4  defaults  0  2</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que estamos usando as opções de montagem <code>defaults</code>, no exemplo acima. Segundo a página de manual do comando <code>mount</code> (que pode ser acessada através do comando <code>man 8 mount</code>), essa opção equivale a <code>rw, suid, dev, exec, auto, nouser, async</code>.</p>
+</div>
+<div class="paragraph">
+<p>Considerando o uso das partições acima, pode ser interessante do ponto de vista de <em>hardening</em> tornar a montagem um pouco mais restritiva. Considere as seguintes opções:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>ro</code>: montar o sistema de arquivos em modo somente-leitura. Inviável para diretórios como <code>/tmp</code> ou <code>/var</code>, embora possa ser considerado para o <code>/usr</code>, por exemplo. O grande inconveniente dessa proteção é que a permissão de escrita terá que ser atribuída manualmente sempre que se quiser escrever no diretório (digamos, durante a instalação de um novo pacote), motivo pelo qual não faremos essa configuração neste curso.</p>
+</li>
+<li>
+<p><code>nosuid</code>: não permitir que <em>bits</em> <em>setuid</em> ou <em>setgid</em> tenham efeito no sistema de arquivos. Antes de colocar em prática, é recomendável escanear o sistema de arquivos por binários desse tipo, como faremos a seguir.</p>
+</li>
+<li>
+<p><code>nodev</code>: não interpretar dispositivos especiais de bloco ou caractere nesse sistema de arquivos. Em geral, apenas o diretório <code>/dev</code> conterá arquivos dessa natureza.</p>
+</li>
+<li>
+<p><code>noexec</code>: não permitir execução direta de quaisquer binários no sistema de arquivos. Não é viável habilitar essa opção para o diretório <code>/usr</code>, por motivos óbvios, mas pode ser uma boa opção para o <code>/tmp</code>, por exemplo&#8201;&#8212;&#8201;muitos <em>exploits</em> simples de escalada de privilégio tentam escrever e executar binários a partir do <code>/tmp</code>, e esta proteção pode dificultar sua ação. Contudo, alguns <em>scripts</em> de instalação de pacotes do Debian tentam executar binários diretamente do <code>/tmp</code>, e habilitá-lo com <code>noexec</code> pode quebrar a instalação desses pacotes&#8201;&#8212;&#8201;assim, não iremos utilizar essa configuração neste curso.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Antes de prosseguir com a customização das opções de montagem, vamos verificar quais binários possuem o <em>bit</em> <em>suid</em> ativo no sistema:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># find / -perm -4000 -exec ls {} \; 2&gt; /dev/null
+/bin/mount
+/bin/ping
+/bin/umount
+/bin/su
+/usr/lib/openssh/ssh-keysign
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/eject/dmcrypt-get-device
+/usr/bin/newgrp
+/usr/bin/chsh
+/usr/bin/chfn
+/usr/bin/passwd
+/usr/bin/gpasswd</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que temos executáveis nos diretórios <code>/bin</code> e <code>/usr/bin</code>&#8201;&#8212;&#8201;assim, não é factível habilitar a opção <code>nosuid</code> no diretório <code>/usr</code>, neste momento.</p>
+</div>
+<div class="paragraph">
+<p>De posse do conhecimento acima, vamos editar as opções de montagem dos volumes lógicos no arquivo <code>/etc/fstab</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/fstab
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n3 /etc/fstab
+/dev/mapper/vg--base-lv--tmp  /tmp  ext4  defaults,nosuid,nodev         0  2
+/dev/mapper/vg--base-lv--var  /var  ext4  defaults,nosuid,nodev         0  2
+/dev/mapper/vg--base-lv--usr  /usr  ext4  defaults,nodev                0  2</pre>
+</div>
+</div>
+</li>
+<li>
+<p>O último passo é reiniciar o sistema e verificar se nossas configurações surtiram efeito. Antes disso, vamos registrar o tamanho ocupado por cada um dos diretórios (<code>tmp</code>, <code>var</code> e <code>usr</code>), e comparar com os tamanhos ocupados nos LVs após o <em>reboot</em>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># du -sm /{tmp,var,usr}
+1       /tmp
+181     /var
+463     /usr</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito. Reinicie a máquina:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># reboot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após o <em>reboot</em>, logue como o usuário <code>root</code> e verifique que os volumes lógicos estão montados corretamente:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mount | grep '/tmp\|/var\|/usr'
+/dev/mapper/vg--base-lv--tmp on /tmp type ext4 (rw,nosuid,nodev,relatime,data=ordered)
+/dev/mapper/vg--base-lv--var on /var type ext4 (rw,nosuid,nodev,relatime,data=ordered)
+/dev/mapper/vg--base-lv--usr on /usr type ext4 (rw,nodev,relatime,data=ordered)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique, ainda, que o espaço ocupado dentro desses volumes é bastante próximo do tamanho dos diretórios dentro da raiz, <code>/</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># df -m | sed -n '1p; /\/\(tmp\|var\|usr\)/p'
+Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
+/dev/mapper/vg--base-lv--tmp           488     1        452   1% /tmp
+/dev/mapper/vg--base-lv--var          1480   186       1203  14% /var
+/dev/mapper/vg--base-lv--usr          4059   486       3348  13% /usr</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Faltou alguma coisa? Ah sim! Não apagamos o conteúdo dos diretórios <code>tmp</code>, <code>var</code> e <code>usr</code> de dentro da raiz, <code>/</code>. Note como o espaço ocupado ainda é bastante grande neste momento:</p>
+<div class="literalblock">
+<div class="content">
+<pre># df -m | sed -n '1p; /\/$/p'
+Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
+/dev/mapper/vg--base-lv--root         1409   900        421  69% /</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Mas, como apagar esses diretórios? Não podemos simplesmente rodar um comando <code>rm -rf /usr</code>, pois estaríamos removendo os arquivos gravados dentro do volume lógico <code>/dev/mapper/vg&#8212;&#8203;base-lv&#8212;&#8203;usr</code>, e não dentro da raiz. O que fazer, então?</p>
+</div>
+<div class="paragraph">
+<p>A opção <code>bind</code> do comando <code>mount</code> (8) permite remontar um sistema de arquivos em outro ponto da hierarquia de diretórios, tornando seu conteúdo acessível em ambos os lugares. Monte, usando a opção <code>bind</code>, a raiz do sistema dentro do diretório <code>/mnt</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mount -o bind / /mnt</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O diretório raiz, <code>/</code>, agora está acessível também abaixo de <code>/mnt</code>, como podemos observar:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls /mnt/
+bin   dev  home        initrd.img.old  lib64       media  opt   root  sbin  sys  usr  vmlinuz
+boot  etc  initrd.img  lib             lost+found  mnt    proc  run   srv   tmp  var  vmlinuz.old</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O volume lógico <code>/dev/mapper/vg&#8212;&#8203;base-lv&#8212;&#8203;usr</code>, no entanto, está montado apenas abaixo do diretório <code>/usr</code>, e não abaixo de <code>/mnt/usr</code>&#8201;&#8212;&#8201;em outras palavras, a pasta <code>/mnt/usr</code> referencia diretamente o conjunto de arquivos gravados dentro da raiz do sistema, os quais queremos apagar para liberar espaço.</p>
+</div>
+<div class="paragraph">
+<p>Faça um teste&#8201;&#8212;&#8201;crie um arquivo dentro de <code>/usr</code> com o nome <code>teste</code>. Note que ele está acessível pelo caminho <code>/usr/teste</code>, mas não via <code>/mnt/usr/teste</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># touch /usr/teste</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -ld /usr/teste
+-rw-r--r-- 1 root root 0 out 18 15:48 /usr/teste</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -ld /mnt/usr/teste
+ls: não foi possível acessar '/mnt/usr/teste': Arquivo ou diretório não encontrado</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito! Apague o conteúdo dos diretórios <code>/mnt/tmp</code>, <code>/mnt/var</code> e <code>/mnt/usr</code>, que foram copiados para os volumes lógicos via <code>rsync</code> no passo (9) desta atividade e não são mais necessários. Não apague as pastas em si, pois elas são ponto de montagem desses LVs.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># for d in tmp var usr; do cd /mnt/${d} ; rm -rf ..?* .[!.]* *; done</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para referência, o comando acima irá entrar nas pastas <code>/mnt/tmp</code>, <code>/mnt/var</code> e <code>/mnt/usr</code>, e, em cada uma irá apagar todos os arquivos e diretórios:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>Não-ocultos (<code>*</code>)</p>
+</li>
+<li>
+<p>Ocultos, cujo primeiro caractere seja <code>.</code> e o segundo caractere seja qualquer <em>exceto</em> <code>.</code></p>
+</li>
+<li>
+<p>Ocultos, iniciados por dois caracteres <code>.</code> e seguidos obrigatoriamente por algum outro caractere qualquer</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Com efeito, a expressão regular acima irá apagar todo o conteúdo da pasta exceto os <em>symlinks</em> especiais <code>.</code> e <code>..</code>.</p>
+</div>
+<div class="paragraph">
+<p>Verifique que o espaço ocupado dentro do diretório raiz, <code>/</code>, reduziu significativamente:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># df -m | sed -n '1p; /\/$/p'
+Sist. Arq.                    Blocos de 1M Usado Disponível Uso% Montado em
+/dev/mapper/vg--base-lv--root         1409   258       1063  20% /</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Reinicie a máquina virtual para verificar que suas alterações não causaram nenhum impacto à estabilidade do sistema.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_inserção_de_senha_no_bootloader">5) Inserção de senha no <strong><em>bootloader</em></strong></h3>
+<div class="paragraph">
+<p>Um aspecto que não pode ser esquecido é o <em>bootloader</em>, que faz a carga inicial do kernel&#8201;&#8212;&#8201;se desprotegido, um atacante com acesso físico à máquina pode utilizá-lo para alterar a senha do usuário <code>root</code> e ter acesso irrestrito ao sistema, dentre outras possibilidades.</p>
+</div>
+<div class="paragraph">
+<p>Como vimos durante a instalação do Debian, o <em>bootloader</em> em uso pela grande maioria das distribuições Linux atualmente é o GRUB (<em>GRand Unified Bootloader</em>). Vamos configurar uma senha de acesso ao GRUB para impedir que um atacante consiga ter acesso indevido ao sistema.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Usando o comando <code>grub-mkpasswd-pbkdf2</code>, vamos gerar um hash para a senha <code>rnpesr123</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$N F}'
+grub.pbkdf2.sha512.10000.E025151B0DA98A3153BADD61FCDC2A6037A0505699B7C414D046D834380AB53D20532441EDAFF9B1E330E8496D2C7799E6EFB43C399CC6567D0AFD8961F70109.50A159E523E889A805937F5BB65B4067149D0FDAB0536061015B4345647350A2E09D19580D77D51E58BFDA3432FE2416AE61F90D7F84D1D834CFC979DCBA8F8D</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos editar o arquivo <code>/etc/grub.d/40_custom</code> e inserir o superusuário <code>admin</code>, com senha idêntica ao hash gerado no passo anterior.</p>
+<div class="literalblock">
+<div class="content">
+<pre># echo 'set superusers="admin"' &gt;&gt; /etc/grub.d/40_custom</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ghash="$( echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$NF}' )" ; echo "password_pbkdf2 admin ${ghash}" &gt;&gt; /etc/grub.d/40_custom ; unset ghash</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n2 /etc/grub.d/40_custom
+set superusers="admin"
+password_pbkdf2 admin grub.pbkdf2.sha512.10000.65E70B724A540A0AE79C2F6BB34AFC4397BB13952D20A9C209DD70A9F31FE462D301B733D8B1B308C67908A25B44AB09420CEB306EDAEEB15765905A7DEEB3BF.209A3080C89ED4C542716B9BE14162E8338DF8E36B68F9E0146BDC8E572CF41585F6BF67C2573AFF2645F0D851A8E9D5B6AA2E4608E4735E689FA84ECA815C14</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Finalmente, vamos reconfigurar o GRUB com a nova combinação usuário/senha e reiniciar a máquina. Verifique se a configuração está funcionando.</p>
+<div class="literalblock">
+<div class="content">
+<pre># grub-mkconfig -o /boot/grub/grub.cfg
+Generating grub configuration file ...
+Imagem Linux encontrada: /boot/vmlinuz-4.9.0-8-amd64
+Imagem initrd encontrada: /boot/initrd.img-4.9.0-8-amd64
+concluído</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># reboot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após o <em>boot</em> da máquina, o menu do GRUB nos apresenta a possibilidade de editar a configuração apertando a tecla <code>e</code>:</p>
+</div>
+<div id="img-grub-passwd1" class="imageblock text-center">
+<div class="content">
+<img src="../img/grub-passwd1.png" alt="grub passwd1">
+</div>
+<div class="title">Figure 19. Edição de opções no GRUB</div>
+</div>
+<div class="paragraph">
+<p>Apertando <code>e</code> sobre a primeira opção, imediatamente o sistema requisita a combinação usuário/senha configurada anteriormente:</p>
+</div>
+<div id="img-grub-passwd2" class="imageblock text-center">
+<div class="content">
+<img src="../img/grub-passwd2.png" alt="grub passwd2">
+</div>
+<div class="title">Figure 20. Inserção de usuário/senha no GRUB</div>
+</div>
+<div class="paragraph">
+<p>Mediante a inserção da combinação correta, o menu de edição de opções de <em>boot</em> é mostrado, como se segue.</p>
+</div>
+<div id="img-grub-passwd3" class="imageblock text-center">
+<div class="content">
+<img src="../img/grub-passwd3.png" alt="grub passwd3">
+</div>
+<div class="title">Figure 21. Edição de opções de boot no GRUB</div>
+</div>
+<div class="paragraph">
+<p>Note ainda que, com esta configuração, o <em>boot</em> normal do sistema prossegue apenas se a combinação de usuário/senha correta for inserida no GRUB.</p>
+</div>
+</li>
+<li>
+<p>Vamos editar a configuração do GRUB para que ele solicite senha <strong>apenas</strong> em caso de edição de entradas do menu, e que o <em>boot</em> normal do sistema prossiga sem que haja necessidade de interação.</p>
+<div class="paragraph">
+<p>Para conseguir o efeito desejado, é necessário editar o arquivo <code>/etc/grub.d/10_linux</code>. Na função <code>linux_entry()</code>, iremos editar as duas linhas <code>echo "menuentry (&#8230;&#8203;)</code>, inserindo a flag <code>--unrestricted</code> antes da variável <code>${CLASS}</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vamos ver um antes/depois para ficar mais claro. Veja como estão as linhas 132-134 do arquivo <code>/etc/grub.d/10_linux</code> antes da edição:</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 1. /etc/grub.d/10_linux</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">132       echo "menuentry '$(echo "$title" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após a edição, elas devem ficar assim:</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 2. /etc/grub.d/10_linux</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">132       echo "menuentry '$(echo "$title" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note a adição da <code>flag</code> <code>--unrestricted</code> antes de <code>${CLASS}</code> nas linhas 132 e 134.</p>
+</div>
+<div class="paragraph">
+<p>Refaça a configuração do GRUB, reinicie a máquina e teste o funcionamento.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># update-grub
+Generating grub configuration file ...
+Imagem Linux encontrada: /boot/vmlinuz-4.9.0-8-amd64
+Imagem initrd encontrada: /boot/initrd.img-4.9.0-8-amd64
+concluído</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># reboot</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_clonando_máquinas_virtuais">6) Clonando máquinas virtuais</h3>
+<div class="paragraph">
+<p>Nosso <em>template</em>, para todos os efeitos, está preparado, atualizado e com configurações básicas de segurança aplicadas. Assim sendo, podemos utilizá-lo como base para a criação de novas máquinas virtuais durante este curso, começando a partir de agora.</p>
+</div>
+<div class="paragraph">
+<p>Contudo, o Oracle VM Virtualbox não suporta o conceito de <em>templates</em> "a rigor", da mesma forma como interpretado em outras soluções de virtualização (como VMWare e Hyper-V). Para emular esse conceito de <em>templates</em>, sempre que necessário iremos clonar a máquina virtual <code>debian-template</code> e renomear a VM-clone, garantindo que o endereço físico (MAC) da placa de rede seja randomizado para evitar conflitos de IP.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Desligue a máquina <code>debian-template</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># halt -p</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Na janela principal do Virtualbox, clique com o botão direito na máquina <code>debian-template</code> e selecione a opção <em>Clone&#8230;&#8203;</em>.</p>
+<div class="paragraph">
+<p>Na tela seguinte, indique qual o nome da nova máquina virtual: para este exemplo, defina o nome <code>lvm-test</code>. Mantenha a caixa <em>Reinitialize the MAC address of all network cards</em> marcada.</p>
+</div>
+<div id="img-vbox-clone1" class="imageblock text-center">
+<div class="content">
+<img src="../img/vbox-clone1.png" alt="vbox clone1">
+</div>
+<div class="title">Figure 22. Clonagem de máquinas virtuais no Virtualbox</div>
+</div>
+<div class="paragraph">
+<p>Clique em <em>Next</em>.</p>
+</div>
+</li>
+<li>
+<p>Na janela seguinte, você pode escolher se deseja fazer um clone completo (<em>Full clone</em>), ou um clone ligado (<em>Linked clone</em>). A diferença entre ambos é que no caso do clone completo é criada uma cópia separada do disco da VM original, ao passo que no clone ligado faz-se apenas um <em>snapshot</em> desse disco.</p>
+<div class="paragraph">
+<p>Mantenha <em>Full clone</em> marcado e clique em <em>Clone</em>.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_7_operações_avançadas_com_lvm">7) Operações avançadas com LVM</h3>
+<div class="paragraph">
+<p>Imagine que a máquina que acabamos de criar, <code>lvm-test</code>, será usada para dois propósitos: 1) atuar como um servidor de e-mail, armazenando as mensagens dos usuários da organização sob a pasta <code>/var/mail</code> e 2) armazenar dados sensíveis da organização, que devem ser acessados apenas por um número muito restrito de usuários, sob a pasta <code>/crypt</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vamos lidar com a situação (1), primeiramente.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Opere com a máquina recém-clonada, <code>lvm-test</code>. Na janela principal do Virtualbox, clique com o botão direito sobre a VM e depois em <em>Settings</em>.</p>
+<div class="paragraph">
+<p>Em <em>Storage</em> &gt; <em>Controller: SATA</em>, clique no ícone com um pequeno HD com um sinal de <code>+</code>, com a legenda <em>Adds hard disk</em> para adicionar um novo disco à VM. Depois, clique em <em>Create new disk</em>.</p>
+</div>
+<div class="paragraph">
+<p>Para o formato, escolha <em>VDI</em> e clique em <em>Next</em>. Mantenha a caixa <em>Dynamically allocated</em> marcada e clique em <em>Next</em>.</p>
+</div>
+<div class="paragraph">
+<p>Para o nome do disco, digite <code>lvm-pv2</code> e mantenha o tamanho em 8 GB. Finalmente, clique em <em>Create</em>.</p>
+</div>
+</li>
+<li>
+<p>Repita o passo (1), adicionando um terceiro disco à VM. Desta vez, nomeie o disco como <code>lvm-crypt</code> e mantenha seu tamanho em 8 GB.</p>
+<div class="paragraph">
+<p>Ao final do processo, sua VM deverá estar com a seguinte configuração:</p>
+</div>
+<div id="img-lvm-test-config" class="imageblock text-center">
+<div class="content">
+<img src="../img/lvm-test-config.png" alt="lvm test config">
+</div>
+<div class="title">Figure 23. Discos adicionados à máquina lvm-test</div>
+</div>
+<div class="paragraph">
+<p>Clique em <em>OK</em>, e ligue a máquina <code>lvm-test</code>.</p>
+</div>
+</li>
+<li>
+<p>Usando o script <code>/root/scripts/changehost.sh</code> que criamos anteriormente, renomeie a máquina:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+debian-template</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># bash ~/scripts/changehost.sh lvm-test</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+lvm-test</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Prosseguindo com o tratamento do requisito (1), abordado no enunciado desta atividade, note que o espaço disponível no <code>/var</code> atualmente é bastante exíguo:</p>
+<div class="literalblock">
+<div class="content">
+<pre># df -h | sed -n '1p; /\/var$/p'
+Sist. Arq.                     Tam. Usado Disp. Uso% Montado em
+/dev/mapper/vg--base-lv--var   1,5G  185M  1,2G  14% /var</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Iremos utilizar o primeiro disco adicionado à VM, <code>lvm-pv2</code>, para aumentar o tamanho disponível para o diretório <code>/var</code>. Queremos, em ordem:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Identificar sob qual nome o disco <code>lvm-pv2</code> foi identificado pelo sistema Linux</p>
+</li>
+<li>
+<p>Adicionar a totalidade do disco <code>lvm-pv2</code> ao grupo de volumes <code>vg-base</code></p>
+</li>
+<li>
+<p>Estender o volume lógico <code>lv-var</code> para usar o espaço extra disponível no VG <code>vg-base</code></p>
+</li>
+<li>
+<p>Estender o sistema de arquivos do dispositivo <code>/dev/mapper/vg&#8212;&#8203;base-lv&#8212;&#8203;var</code> para utilizar o espaço extra disponível no LV <code>lv-var</code></p>
+</li>
+<li>
+<p>Verificar o aumento do espaço disponível</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Primeiramente, temos que detectar sob qual nome foi adicionado o disco virtual <code>lvm-pv2</code>. O comando <code>dmesg</code> nos mostra que três discos foram detectados durante o <em>boot</em>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># dmesg | grep 'Attached SCSI disk'
+[    1.924154] sd 2:0:0:0: [sdc] Attached SCSI disk
+[    1.924182] sd 1:0:0:0: [sdb] Attached SCSI disk
+[    1.936628] sd 0:0:0:0: [sda] Attached SCSI disk</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Desses, sabemos que o dispositivo <code>/dev/sda</code> é o disco original que criamos durante a instalação do sistema, já que ele se encontra formatado e em uso pelo LVM:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># pvdisplay
+  --- Physical volume ---
+  PV Name               /dev/sda1
+  VG Name               vg-base
+  PV Size               8,00 GiB / not usable 2,00 MiB
+  Allocatable           yes (but full)
+  PE Size               4,00 MiB
+  Total PE              2047
+  Free PE               0
+  Allocated PE          2047
+  PV UUID               ZnHHMn-Y37D-6Psd-oHei-K1Qd-wHjY-6gqFZ3</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Restam, então, os discos <code>/dev/sdb</code> e <code>/dev/sdc</code>. Em tese, poderíamos usar a diferença de tamanho entre os discos para intuir qual deles é o volume <code>lvm-pv2</code>, e qual é o <code>lvm-crypt</code>. Contudo, ambos possuem o mesmo tamanho, 8 GB. O que fazer, então?</p>
+</div>
+<div class="paragraph">
+<p>Para determinar com precisão essa informação, na janela principal do Virtualbox acesse <em>File</em> &gt; <em>Virtual Media Manager</em>. Na aba <em>Hard disks</em>, selecione o disco <code>lvm-pv2.vdi</code> e acesse a aba <em>Information</em>, como mostrado abaixo:</p>
+</div>
+<div id="img-lvm-disk1" class="imageblock text-center">
+<div class="content">
+<img src="../img/lvm-disk1.png" alt="lvm disk1">
+</div>
+<div class="title">Figure 24. Identificando o UUID de um disco no Virtualbox</div>
+</div>
+<div class="paragraph">
+<p>Note as <em>strings</em> inicial e final do campo <em>UUID</em> (<em>Universally Unique Identifier</em>), <code>b247f9cb</code> e <code>016039606b8a</code> respectivamente no exemplo acima.</p>
+</div>
+<div class="paragraph">
+<p>De volta à máquina <code>lvm-test</code>, execute o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hdparm -i /dev/sdb | grep 'SerialNo' | cut -d',' -f3
+ SerialNo=VBb247f9cb-8a6b6039</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Excluindo-se as letras <code>VB</code> do <em>serial</em> acima, note que a <em>string</em> <code>b247f9cb</code> é idêntica à que visualizamos no Virtualbox. De igual modo, a <em>string</em> <code>8a6b6039</code> é uma reversão dois-a-dois do final da <em>string</em> identificada no <em>Virtual Media Manager</em> do Virtualbox, anteriormente. Portanto, podemos afirmar com segurança que o disco <code>/dev/sdb</code> é o volume virtual <code>lvm-pv2</code>.</p>
+</div>
+<div class="paragraph">
+<p>Faça o teste com o volume <code>lvm-crypt</code> e o disco <code>/dev/sdc</code>. As <em>strings</em> identificadoras do campo <em>UUID</em> são compatíveis?</p>
+</div>
+</li>
+<li>
+<p>Identificado o disco <code>/dev/sdb</code> como nosso alvo, e como desejamos adicionar um disco inteiro ao VG <code>vg-base</code>, o primeiro passo é editar a tabela de partições do disco corretamente. Para tanto, basta criar uma partição primária ocupando a totalidade do disco, e identificá-la como <code>Linux LVM</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># fdisk /dev/sdb
+
+Bem-vindo ao fdisk (util-linux 2.29.2).
+As alterações permanecerão apenas na memória, até que você decida gravá-las.
+Tenha cuidado antes de usar o comando de gravação.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Comando (m para ajuda): o
+Criado um novo rótulo de disco DOS com o identificador de disco 0xe7d643f2.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Comando (m para ajuda): n
+Tipo da partição
+   p   primária (0 primárias, 0 estendidas, 4 livre)
+   e   estendida (recipiente para partições lógicas)
+Selecione (padrão p):
+
+Usando resposta padrão p.
+Número da partição (1-4, padrão 1):
+Primeiro setor (2048-16777215, padrão 2048):
+Último setor, +setores ou +tamanho{K,M,G,T,P} (2048-16777215, padrão 16777215):
+
+Criada uma nova partição 1 do tipo "Linux" e de tamanho 8 GiB.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Comando (m para ajuda): t
+Selecionou a partição 1
+Tipo de partição (digite L para listar todos os tipos): 8e
+O tipo da partição "Linux" foi alterado para "Linux LVM".</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Comando (m para ajuda): w
+A tabela de partição foi alterada.
+Chamando ioctl() para reler tabela de partição.
+Sincronizando discos.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em ordem, executamos <code>fdisk /dev/sdb</code> para editar a tabela de partições do dispositivo e então:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>o</code> para criar uma tabela de partições vazia</p>
+</li>
+<li>
+<p><code>n</code> para criar uma nova partição</p>
+</li>
+<li>
+<p><code>ENTER</code> para aceitar o tipo padrão de partição (primária)</p>
+</li>
+<li>
+<p><code>ENTER</code> para aceitar o número padrão de partição (número <code>1</code>)</p>
+</li>
+<li>
+<p><code>ENTER</code> para aceitar o primeiro setor disponível no disco (2048)</p>
+</li>
+<li>
+<p><code>ENTER</code> para aceitar o último setor disponível no disco (16777215), maximizando o tamanho da partição</p>
+</li>
+<li>
+<p><code>t</code> para alterar o identificador da partição</p>
+</li>
+<li>
+<p><code>8e</code> para identificar a partição como <code>Linux LVM</code></p>
+</li>
+<li>
+<p><code>w</code> para gravar as alterações realizadas e sair do programa</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Para visualizar o estado do disco, podemos usar <code>fdisk -l</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># fdisk -l /dev/sdb
+Disco /dev/sdb: 8 GiB, 8589934592 bytes, 16777216 setores
+Unidades: setor de 1 * 512 = 512 bytes
+Tamanho de setor (lógico/físico): 512 bytes / 512 bytes
+Tamanho E/S (mínimo/ótimo): 512 bytes / 512 bytes
+Tipo de rótulo do disco: dos
+Identificador do disco: 0xe7d643f2
+
+Dispositivo Inicializar Início      Fim  Setores Tamanho Id Tipo
+/dev/sdb1                 2048 16777215 16775168      8G 8e Linux LVM</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A seguir, usaremos o comando <code>pvcreate</code> para inicializar a partição e prepará-la para o LVM:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># pvcreate /dev/sdb1
+  Physical volume "/dev/sdb1" successfully created.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># pvdisplay /dev/sdb1
+  "/dev/sdb1" is a new physical volume of "8,00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/sdb1
+  VG Name
+  PV Size               8,00 GiB
+  Allocatable           NO
+  PE Size               0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               FdZmMJ-ZFdQ-vi0z-lc5r-9Zy2-zfbR-1uJbuj</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O comando <code>pvscan</code> é uma opção interessante para mostrar o estado dos volumes físicos do sistema:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># pvscan
+  PV /dev/sda1   VG vg-base         lvm2 [8,00 GiB / 0    free]
+  PV /dev/sdb1                      lvm2 [8,00 GiB]
+  Total: 2 [16,00 GiB] / in use: 1 [8,00 GiB] / in no VG: 1 [8,00 GiB]</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora sim, podemos adicionar o novo volume físico <code>/dev/sdb1</code> ao grupo de volumes <code>vg-base</code>. Note seu espaço atual:</p>
+<div class="literalblock">
+<div class="content">
+<pre># vgdisplay | grep 'VG Name\|VG Size'
+  VG Name               vg-base
+  VG Size               8,00 GiB</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expanda o VG:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># vgextend vg-base /dev/sdb1
+  Volume group "vg-base" successfully extended</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verificando o estado do VG <code>vg-base</code>, note que seu tamanho saltou para 16 GB, como esperado:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># vgdisplay | grep 'VG Name\|VG Size'
+  VG Name               vg-base
+  VG Size               15,99 GiB</pre>
+</div>
+</div>
+</li>
+<li>
+<p>A seguir, iremos estender o volume lógico <code>lv-var</code> para utilizar a totalidade do novo espaço adicionado ao VG. Note seu espaço atual:</p>
+<div class="literalblock">
+<div class="content">
+<pre># lvdisplay /dev/vg-base/lv-var | grep Size
+  LV Size                1,50 GiB</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Façamos o procedimento de expansão:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvextend -l +100%FREE /dev/vg-base/lv-var
+  Size of logical volume vg-base/lv-var changed from 1,50 GiB (384 extents) to 9,50 GiB (2431 extents).
+  Logical volume vg-base/lv-var successfully resized.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E em seguida, chequemos o novo tamanho disponível:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvdisplay /dev/vg-base/lv-var | grep Size
+  LV Size                9,50 GiB</pre>
+</div>
+</div>
+</li>
+<li>
+<p>O passo final é redimensionar o sistema de arquivos. Como queremos simplesmente ocupar a totalidade do volume lógico, e kernels mais modernos do Linux suportam <em>on-line resizing</em> (i.e. redimensionamento sem necessidade de desmontar o sistema de arquivos), basta executar:</p>
+<div class="literalblock">
+<div class="content">
+<pre># resize2fs /dev/mapper/vg--base-lv--var
+resize2fs 1.43.4 (31-Jan-2017)
+Filesystem at /dev/mapper/vg--base-lv--var is mounted on /var; on-line resizing required
+old_desc_blocks = 1, new_desc_blocks = 2
+The filesystem on /dev/mapper/vg--base-lv--var is now 2489344 (4k) blocks long.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note, imediatamente, que o espaço disponível para o <code>/var</code> aumenta significativamente:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># df -h | sed -n '1p; /\/var$/p'
+Sist. Arq.                     Tam. Usado Disp. Uso% Montado em
+/dev/mapper/vg--base-lv--var   9,4G  188M  8,8G   3% /var</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E assim, concluímos nossa seção sobre o LVM. É um sistema muito poderoso, que oferece grande flexibilidade na gestão de armazenamento no Linux. Imagine: qual teria sido a dificuldade em estender o espaço disponível para o <code>/var</code> em um sistema sem o uso do LVM?</p>
+</div>
+<div class="paragraph">
+<p>Outros aspectos avançados do LVM, como gestão de volumes <em>striped</em> (concatenados) e <em>mirrored</em> (espelhados), provisionamento dinâmico de espaço e <em>snapshots</em> não foram trabalhados aqui. Convidamos o aluno a investigar essas capacidades, e testar suas funcionalidades em ambiente de laboratório. A documentação do Red Hat Enterprise Linux sobre o LVM é um excelente recurso para começar: <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/logical_volume_manager_administration/lv_overview" class="bare">https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/logical_volume_manager_administration/lv_overview</a></p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_8_criptografia_de_partições">8) Criptografia de partições</h3>
+<div class="paragraph">
+<p>Retomando o requisito (2) apresentado na atividade (7), foi dito que se desejava: armazenar dados sensíveis da organização, que devem ser acessados apenas por um número muito restrito de usuários, sob a pasta <code>/crypt</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vamos, agora, implementar esse requisito na máquina <code>lvm-test</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A solução que iremos implantar para garantir o requisito é criptografar a partição. Para tanto, precisaremos instalar os seguintes pacotes:</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install cryptsetup -y</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Prepare o disco <code>/dev/sdc</code> da mesma forma que fizemos no passo (6) da atividade anterior. Ao final do processo, a saída do comando <code>pvdisplay /dev/sdc1</code> deve ser como mostrada abaixo:</p>
+<div class="literalblock">
+<div class="content">
+<pre># pvdisplay /dev/sdc1
+  "/dev/sdc1" is a new physical volume of "8,00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/sdc1
+  VG Name
+  PV Size               8,00 GiB
+  Allocatable           NO
+  PE Size               0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               JKRAlt-0sgK-d0np-3N3J-JRyE-YDbG-0cdZee</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos criar um novo VG para armazenar dados sensíveis. Execute:</p>
+<div class="literalblock">
+<div class="content">
+<pre># vgcreate vg-crypt /dev/sdc1
+  Volume group "vg-crypt" successfully created</pre>
+</div>
+</div>
+</li>
+<li>
+<p>O próximo passo é criar um volume lógico:</p>
+<div class="literalblock">
+<div class="content">
+<pre># lvcreate -l +100%FREE -n lv-crypt vg-crypt
+  Logical volume "lv-crypt" created.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique que o LV foi criado corretamente:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lvdisplay /dev/vg-crypt/lv-crypt
+  --- Logical volume ---
+  LV Path                /dev/vg-crypt/lv-crypt
+  LV Name                lv-crypt
+  VG Name                vg-crypt
+  LV UUID                mMOiAc-Q7Yo-hgjN-rb2S-mzfr-youw-PnHGRC
+  LV Write Access        read/write
+  LV Creation host, time lvm-test, 2018-10-19 11:12:42 -0300
+  LV Status              available
+  # open                 0
+  LV Size                8,00 GiB
+  Current LE             2047
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     256
+  Block device           254:6</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos criptografar esse LV&#8201;&#8212;&#8201;o comando <code>cryptsetup</code> pode ser usado para este fim. Iremos criptografar o disco no formato LUKS (<em>Linux Unified Key Setup</em>), o padrão para criptografia de armazenamento no Linux. Diferentemente de outras soluções de criptografia, o LUKS armazena todas as informações de configuração no cabeçalho da partição, permitindo ao usuário migrar seus dados de forma fácil entre diferentes distribuições Linux ou mesmo outros sistemas operacionais.</p>
+<div class="paragraph">
+<p>A cifra padrão de criptografia do LUKS pode ser visualizada com o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cryptsetup --help | grep 'LUKS1:'
+        LUKS1: aes-xts-plain64, Chave: 256 bits, Hash de cabeçalho LUKS: sha256, RNG: /dev/urandom</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para criptografar a partição, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cryptsetup luksFormat /dev/mapper/vg--crypt-lv--crypt
+
+WARNING!
+========
+Isto vai sobrescrever dados em /dev/mapper/vg--crypt-lv--crypt permanentemente.
+
+Are you sure? (Type uppercase yes): YES
+Digite a senha:
+Verificar senha:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Digite <em>YES</em> em letras maiúsculas para confirmar sobrescrita dos dados. Escolha uma senha forte para proteger os dados. Neste laboratório, recomendamos a senha <code>rnpesr123</code>, por conveniência.</p>
+</div>
+</li>
+<li>
+<p>Como saber que uma partição está criptografada? E, de fato, como saber o tipo de uma partição qualquer? O comando <code>lsblk</code> é especialmente útil nesse cenário:</p>
+<div class="literalblock">
+<div class="content">
+<pre># lsblk --fs
+NAME                    FSTYPE      LABEL UUID                                   MOUNTPOINT
+sda
+└─sda1                  LVM2_member       n3dXDL-gCma-P258-pl31-Ow9A-Spcp-2mjsCG
+  ├─vg--base-lv--boot   ext2              ebda5914-0f0c-4e7e-91fc-dbb978a2f870   /boot
+  ├─vg--base-lv--swap   swap              fcf0e5dd-d744-4acc-aff4-65aa2219fde2   [SWAP]
+  ├─vg--base-lv--root   ext4              bfebe607-ef84-4ac8-8ce0-54dded08ae9e   /
+  ├─vg--base-lv--tmp    ext4              3db27de5-69ae-4db7-baba-2de5a4576942   /tmp
+  ├─vg--base-lv--var    ext4              2a13673c-4266-4683-a548-d66b0c1078b1   /var
+  └─vg--base-lv--usr    ext4              5621572f-4786-4cb6-8826-2dae623b3e5d   /usr
+sdb
+└─sdb1                  LVM2_member       FdZmMJ-ZFdQ-vi0z-lc5r-9Zy2-zfbR-1uJbuj
+  └─vg--base-lv--var    ext4              2a13673c-4266-4683-a548-d66b0c1078b1   /var
+sdc
+└─sdc1                  LVM2_member       JKRAlt-0sgK-d0np-3N3J-JRyE-YDbG-0cdZee
+  └─vg--crypt-lv--crypt crypto_LUKS       2f10b9c6-aab3-4038-b74c-6bab83e658fe
+sr0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que o LV que acabamos de criar e criptografar, <code>lv-crypt</code>, possui o tipo de sistema de arquivos <code>crypto_LUKS</code>. Note, ainda, que ele não está montado:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mount | grep 'lv--crypt'</pre>
+</div>
+</div>
+</li>
+<li>
+<p>O próximo passo é formatar a partição. Contudo, para acessar partições LUKS, temos primeiro que mapeá-la sob um nome&#8201;&#8212;&#8201;execute:</p>
+<div class="literalblock">
+<div class="content">
+<pre># cryptsetup luksOpen /dev/mapper/vg--crypt-lv--crypt seg10-crypt
+Digite a senha para /dev/mapper/vg--crypt-lv--crypt:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para verificar os nomes mapeados, novamente podemos usar o <code>lsblk</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># lsblk /dev/sdc
+NAME                    MAJ:MIN RM SIZE RO TYPE  MOUNTPOINT
+sdc                       8:32   0   8G  0 disk
+└─sdc1                    8:33   0   8G  0 part
+  └─vg--crypt-lv--crypt 254:6    0   8G  0 lvm
+    └─seg10-crypt       254:7    0   8G  0 crypt</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Com o dispositivo <code>/dev/mapper/vg&#8212;&#8203;crypt-lv&#8212;&#8203;crypt</code> mapeado para <code>/dev/mapper/seg10-crypt</code>, podemos, agora sim, formatar a partição:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mkfs.ext4 /dev/mapper/seg10-crypt
+mke2fs 1.43.4 (31-Jan-2017)
+Creating filesystem with 2095616 4k blocks and 524288 inodes
+Filesystem UUID: 5740608c-8609-4d95-ae9b-73a016765610
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E, finalmente, montá-la:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mount /dev/mapper/seg10-crypt /mnt/</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mount | grep '/mnt'
+/dev/mapper/seg10-crypt on /mnt type ext4 (rw,relatime,data=ordered)</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Após gravar dados na partição criptografada, temos que fazer o caminho oposto. Primeiro, desmontá-la:</p>
+<div class="literalblock">
+<div class="content">
+<pre># umount /mnt</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E, em seguida, remover o mapeamento por nome da partição LUKS:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cryptsetup luksClose seg10-crypt</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Concluídas nossas atividades de exemplo com o LVM e criptografia de partições, desligue a máquina <code>lvm-test</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># halt -p</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Como não utilizaremos mais esta máquina no decorrer do curso, vamos removê-la. Na janela principal do Virtualbox, clique com o botão direito sobre a VM <code>lvm-test</code> e selecione <em>Remove</em>. Na nova janela, clique em <em>Delete all files</em> para remover todos os discos associados à máquina.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2018-11-19 08:30:05 -0200
+</div>
+</div>
+</body>
+</html>

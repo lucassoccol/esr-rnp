@@ -138,7 +138,7 @@ live                       : ok=10   changed=8    unreachable=0    failed=0
 +
 ....
 # hostname ; whoami
-docker1
+live
 root
 ....
 
@@ -534,6 +534,12 @@ include::{srcdir}/s9/live_aptly-basic_config_hooks_normal_0450-stripped.hook.chr
 ----
 +
 O _script_ acima será executado ao final do passo de _chroot_, e irá remover boa parte dos arquivos que não são integralmente necessários ao funcionamento do sistema, reduzindo o tamanho da imagem final consideravelmente.
++
+Não se esqueça de dar permissão de execução ao _script_:
++
+....
+# chmod +x /live/aptly-basic/config/hooks/normal/0450-stripped.hook.chroot
+....
 
 9. Ufa! Chega de configurações -- vamos atualizar o repositório local:
 +
