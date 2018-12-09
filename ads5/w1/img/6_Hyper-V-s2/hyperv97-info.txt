@@ -1,0 +1,3 @@
+VM entra em estado Unmonitored por 4 minutos (padrão)
+
+https://blogs.msdn.microsoft.com/clustering/2015/06/03/virtual-machine-compute-resiliency-in-windows-server-2016/

@@ -1,0 +1,366 @@
+ifdef::oneof[]
+////
+= ADS5 - Sessão 1
+:Author: Felipe_Scarel
+:Author Initials: FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 08-12-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 1: Introdução à Virtualização
+
+=== 1) Instalando o VirtualBox
+
+1. Execute o arquivo de instalação `VirtualBox-<version>-Win.exe`.  Todos os arquivos necessários estão disponíveis no diretório `Aluno`, em seu _Desktop_. A instalação do VirtualBox é bem simples, por este motivo não é necessário um passo a passo.
+
+=== 2) Criando máquinas virtuais
+
+1. Inicie o VirtualBox e localize no canto superior esquerdo o botão _Novo_.
++
+Selecione Nome e Sistema Operacional, Tamanho da memória e Disco rígido, Tipo de arquivo de disco rígido, avance e conclua.
+
+2. Verifique se as informações apresentadas estão corretas e clique em _Finalizar_.
++
+Inicie a máquina virtual que você acaba de criar. Observe a mensagem de erro: `FATAL: No bootable medium found! System halted.`
++
+Você saberia informar o motivo?
+
+=== 3) Alterando a configuração de uma máquina virtual
+
+1. O VirtualBox permite a edição de máquinas virtuais após sua criação. Podemos modificar o nome da VM, adicionar ou alterar o disco rígido virtual, memória que a máquina alocará para o seu uso, adicionar mais interfaces de rede, dentre outras opções. Nesta atividade, iremos visualizar as opções de edição da máquina virtual.
++
+Para editar uma máquina virtual, será necessário uma já criada. Na lista de máquinas do seu inventário, selecione a máquina criada na Atividade 1. Observe que, ao lado aparecerá a lista dos hardwares da máquina virtual selecionada. Clique no menu Máquina e em seguida em Configurações.
++
+.Configurando máquinas virtuais
+[#img-vbox1]
+image::1_Virtualbox/vbox1.png[align="center"]
++
+Suponha que tenha sido realizado um upgrade de mais 16 GB de memória e mais um disco rígido de 1TB na máquina hospedeira, com o objetivo de acrescentar mais recursos às suas máquinas virtuais.
+
+2. Na guia Sistema, acesse a aba Placa-Mãe, vá a Memória base e adicione mais 1024 MB de memória RAM à máquina virtual.
++
+O tamanho da nova quantidade de memória deve ser múltiplo de 4. É preciso deixar disponível para o sistema operacional nativo uma quantidade recomendada para um funcionamento estável.
++
+.Configurando memória RAM
+[#img-vbox2]
+image::1_Virtualbox/vbox2.png[align="center"]
++
+Observe que na aba Processador há a opção de aumentar a quantidade de processadores virtuais. Por medida de segurança, mantenha a quantidade padrão de processadores.
++
+Cuidado, pois a troca do número de processadores virtuais depois que a máquina virtual for instalada poderá causar instabilidade.
++
+.Configurando processadores
+[#img-vbox3]
+image::1_Virtualbox/vbox3.png[align="center"]
++
+Na guia Rede selecione a interface de rede chamada Adaptador 1 e altere o seu modo de conexão para Bridge. Faça também a alteração do endereço MAC da máquina virtual, clicando primeiro em Avançado e depois no botão que foi habilitado, fazendo com que o VirtualBox gere um novo endereço MAC para a máquina em questão.
++
+.Configurando rede
+[#img-vbox4]
+image::1_Virtualbox/vbox4.png[align="center"]
+
+=== 4) Adicionando uma máquina virtual
+
+Para adicionar máquinas virtuais pré-existentes ao VirtualBox, precisaremos executar o Assistente de Importação de Appliance. O VirtualBox atualmente suporta a importação de máquinas virtuais gravadas no Formato Aberto de Virtualização (Open Virtualization Format - OVF/OVA). Para isso siga as instruções:
+
+1. Clique no menu Arquivo e em seguida clique em Importar Appliance... para que seja exibida a tela do assistente de importação de appliance. Clique em Escolher.
+
+2. Outra janela será apresentada solicitando a seleção de um appliance para importar. Selecione em Desktop\Aluno\VMs_PRONTAS\VM o arquivo LAB_W7_VM-ADS5.OVA e clique em Abrir.
+
+3. As configurações de importação da máquina virtual serão apresentadas em forma de sumário. Clique em Finalizar para iniciar a importação da máquina virtual.
++
+.Importando VM
+[#img-vbox5]
+image::1_Virtualbox/vbox5.png[align="center"]
++
+Uma barra de progresso será exibida mostrando o avanço da importação da máquina virtual.
++
+.Importando VM, progresso
+[#img-vbox6]
+image::1_Virtualbox/vbox6.png[align="center"]
++
+Você poderá visualizar a máquina virtual importada na lista de máquinas virtuais do VirtualBox.
++
+.VM importada com sucesso
+[#img-vbox7]
+image::1_Virtualbox/vbox7.png[align="center"]
+
+4. Inicie a máquina virtual e verifique se houve algum problema no processo.
++
+Para evitar conflito de IP na rede, edite o endereço MAC da máquina virtual em Configurações/Rede/Avançado.
+
+=== 5) Utilizando snapshots
+
+Snapshots são pontos de restauração das máquinas virtuais que podem ser usados para retornar a uma situação anterior de uma máquina virtual.
+
+O recurso do snapshot é útil quando se quer fazer uma alteração no sistema operacional, com a segurança de poder recuperar o seu estado inicial caso algo dê errado durante a alteração. Você pode então criar um snapshot da máquina virtual antes de alterar o seu sistema, e se a alteração não for do seu agrado, é possível retornar ao estado anterior com o snapshot criado. O disco voltará ao mesmo ponto em que foi criado o snapshot, assim como a memória, se o mesmo for criado com esta opção.
+
+Para criar um snapshot de uma máquina virtual, precisaremos de uma já criada. Para isto, na lista de máquinas virtuais do seu inventário, selecione a máquina VM-ADS5 que importamos na atividade anterior.
+
+1. Localize no VirtualBox a aba Snapshots, clique no ícone Criar Snapshot, digite um nome e a descrição do snapshot tirado e clique em Ok.
++
+.Criando snapshots
+[#img-vbox8]
+image::1_Virtualbox/vbox8.png[align="center"]
+
+2. Inicie a máquina virtual VM-ADS5 e faça alterações no sistema. O login da máquina virtual é aluno e a senha é rnpesr.
++
+Exemplo: crie diretórios, arquivos de texto, edite arquivos de configuração, apague arquivos existentes e instale programas.
+
+3. Após alterar o sistema, desligue-o.
+
+4. Volte à aba Snapshots e selecione o mesmo snapshot criado anteriormente. Depois clique no ícone Restaurar . Aparecerá uma janela para confirmação. Clique em Restaurar e aguarde a restauração da máquina virtual.
+
+5. Inicie novamente a máquina virtual e perceba que ela retorna ao estado anterior, descartando todas as alterações realizadas.
+
+=== 6) Removendo uma máquina virtual
+
+1. Selecione a VM que deseja excluir, clique com o botão direito e em seguida em Remover.
+
+2. Será apresentada uma frase indicando que existem duas formas de excluir uma VM.
++
+--
+* Apagar todos os arquivos: Apaga os arquivos de configuração da máquina virtual e também o seu disco rígido virtual.
+* Remover apenas: Apenas remove a máquina virtual do VirtualBox, mantendo os seus arquivos armazenados no disco rígido da máquina hospedeira.
+--
+
+=== 7) Criando máquinas virtuais no VMware Workstation
+
+Os passos para a instalação do VMware Workstation são muito semelhantes aos do VirtualBox. Ao final da instalação selecione a opção de uso para 30 dias. Para aproveitar todos os seus recursos é necessário a compra de uma licença.
+
+1. Inicie o VMware Workstation e clique no botão Create New Virtual Machine ou acesse o menu File> New> Virtual Machine.
++
+.Tela inicial do VMWare
+[#img-vbox9]
+image::1_Virtualbox/vbox9.png[align="center"]
++
+Em boas-vindas, você deverá optar entre criar uma máquina virtual típica (typical) ou personalizada (custom). Escolha a opção Custom para criar uma máquina virtual com configuração otimizada dos seus recursos. Clique em Next.
++
+.Criação de VMs
+[#img-vbox10]
+image::1_Virtualbox/vbox10.png[align="center"]
++
+Nesta etapa, defina a versão do VMware Workstation com a qual você deseja que a sua máquina virtual seja compatível (com as versões mais novas ou mais antigas). Escolha a versão atual do Workstation (14.x) e clique em Next.
++
+.Compatibilidade de hardware
+[#img-vbox11]
+image::1_Virtualbox/vbox11.png[align="center"]
++
+Selecione a forma de instalação do sistema operacional: Instalar o SO a partir de uma mídia física de CD/DVD, de uma imagem ISO, arquivada no servidor de ISOs , ou instalar o sistema operacional depois. Escolha a última opção I wil install the operating system later, para instalar o sistema operacional depois e avance.
++
+.Escolha da mídia
+[#img-vbox12]
+image::1_Virtualbox/vbox12.png[align="center"]
++
+Selecione o SO e sua versão para instalação na máquina virtual (Guest Operating System). Clique em Next.
+
+2. Em Virtual machine name informe como será identificada a máquina virtual. Este nome será identificado em todos os componentes do VMware Workstation. Utilize o nome VM-ADS5Ws.
+
+3. Em Location, informe o diretório onde os arquivos da VM será salvos. Clique em Next.
+
+4. Em Number of processors, configure o número de processadores da máquina hospedeira que a máquina virtual utilizará para o valor 1.
++
+Em Number of cores per processor, configure o número de núcleos por processador da máquina física que a máquina virtual utilizará para o valor 1.
++
+.Escolha do processador
+[#img-vbox13]
+image::1_Virtualbox/vbox13.png[align="center"]
+
+5. Selecione a quantidade de memória RAM em megabytes a ser alocada para uso da máquina virtual. Mantenha a opção padrão e clique em Next.
++
+.Escolha da memória
+[#img-vbox14]
+image::1_Virtualbox/vbox14.png[align="center"]
+
+6. O VMware Workstation possui três opções de configuração de rede: Bridged, NAT e Host-only. Escolha a opção Bridged para que a máquina virtual tenha acesso direto à rede externa.
++
+.Escolha da memória
+[#img-vbox15]
+image::1_Virtualbox/vbox15.png[align="center"]
+
+7. Defina o tipo de controladora SCSI que você pretende utilizar. Deixe a opção padrão selecionada (LSI Logic SAS) e clique em Next.
++
+.Tipo de controladora de disco
+[#img-vbox16]
+image::1_Virtualbox/vbox16.png[align="center"]
++
+Defina o tipo do disco entre as opções SCSI ou IDE. Selecione SCSI e clique em Next.
++
+.Tipo de disco
+[#img-vbox17]
+image::1_Virtualbox/vbox17.png[align="center"]
++
+Em Disco, você pode escolher entre criar um novo disco virtual, utilizar um disco virtual existente ou utilizar um disco físico. Selecione a opção Create a new virtual disk para que seja criado um novo disco virtual. Clique em Next.
++
+.Criar novo disco
+[#img-vbox18]
+image::1_Virtualbox/vbox18.png[align="center"]
++
+Em capacidade do disco é possível configurar:
++
+--
+* O tamanho do disco rígido da máquina virtual;
+* A alocação de todo o espaço configurado para o momento da criação da máquina virtual (ou não);
+* Se os dados do disco estarão armazenados em um único arquivo ou serão divididos em mais arquivos.
+--
++
+Selecione 60GB como tamanho máximo do disco, marque a opção Store virtual disk as single file para que todo o conteúdo do disco rígido virtual seja armazenado em apenas um arquivo. Clique em Next para avançar.
++
+.Capacidade do disco
+[#img-vbox19]
+image::1_Virtualbox/vbox19.png[align="center"]
++
+Identifique e escolha onde o HD virtual será salvo e clique em Next.
++
+.Nome do disco
+[#img-vbox20]
+image::1_Virtualbox/vbox20.png[align="center"]
+
+8. Aparecerá a tela do sumário, ou seja, o resumo de toda a configuração da máquina virtual a ser criada. Neste momento, o VMware Workstation estará pronto para criar a sua máquina virtual.
++
+.Confirmação das escolhas
+[#img-vbox21]
+image::1_Virtualbox/vbox21.png[align="center"]
++
+Clique em Finish para finalizar a criação.
+
+=== 8) Iniciando a máquina virtual
+
+As máquinas virtuais disponíveis serão exibidas na janela principal do VMware Workstation. Selecione a máquina virtual criada (VM-ADS5) e  inicie clicando em Power on this virtual machine.
++
+.Iniciar VM
+[#img-vbox22]
+image::1_Virtualbox/vbox22.png[align="center"]
++
+Como nenhum SO foi instalado, ao iniciá-la será apresentada uma tela parecida com os dizeres abaixo, informando que não foi encontrado nenhum sistema operacional.
++
+....
+Network boot from AMD Am79C970A
+Copyright (C) 2003-2005VMware, Inc.
+Copyright (C) 1997-2000Intel Corporation
+CLIENT MAC ADDR: 00 0C 29 45 E3 90 GUID: 564D95A9-506D-AA78-21B0-26E3F545E390
+PXE-E51: No DHCP or proxyDHCP offers were received.
+PXE-M0F: Exiting Intel PXE ROM.
+Operating System not found
+....
+
+=== 9) Alterando a configuração de uma MV
+
+É possível editar a máquina virtual (MV) criada no VMware Workstation. Dentre outras opções, é possível alterar o nome da máquina virtual, adicionar outro disco rígido virtual, aumentar o tamanho de memória que a máquina alocará para o seu uso e adicionar mais interfaces de rede. Nesta atividade, iremos visualizar as opções de edição de máquinas virtuais do VMware Workstation.
+
+1. Para editar uma máquina virtual, você precisará de uma já criada. Para isto, na lista de máquinas do seu inventário, selecione a máquina. Depois de selecionada, ao lado será aberto um sumário da máquina em questão. Clique no botão Edit virtual machine settings.
++
+Suponha que tenha sido realizado um upgrade de mais 4 GB de memória e mais um disco rígido de 1 TB na máquina hospedeira, com o objetivo de acrescentar mais recursos às suas máquinas virtuais.
++
+Em Memory há a opção de editar o tamanho da memória que a máquina virtual alocará para o seu uso. Altere o tamanho em Memory for this virtual machine para 1024 MB.
++
+O tamanho da nova quantidade de memória deve ser múltiplo de 4. Lembrando que temos que deixar disponível para o sistema operacional nativo uma quantidade recomendada para que possa funcionar de forma estável.
+
+2. Em Processors há a opção de editar o número de processadores (Number of processors) e o número de núcleos por processadores (Number of cores per processor) que a nossa máquina virtual utilizará. Não faça alterações nesta etapa, deixando as configurações de acordo com o que definimos na criação da máquina virtual.
+
+3. Em Hard Disk é possível visualizar o caminho no qual está arquivado o disco rígido da máquina virtual (Disk file), analisar a sua capacidade atual (Capacity), informações de alocação e a forma como o disco rígido virtual foi armazenado (Disk information). Em Utilities são mostradas outras ferramentas para alteração e manutenção do disco rígido:
++
+--
+* Map: utilizado para mapear o disco rígido virtual na máquina hospedeira Windows;
+* Defragment: semelhante ao Desfragmentador de disco do Windows, onde a ferramenta efetua operações no disco rígido para procurar e solucionar problemas de fragmentação;
+* Expand: utilizado para aumentar o tamanho do disco rígido da máquina virtual;
+* Compact: utilizado para compactar automaticamente o disco rígido da máquina virtual.
+--
++
+Em CD/DVD há a opção de ativar o drive de CD/DVD assim que a máquina virtual for ligada (Connect at power on), de fazer com que a máquina virtual use um drive físico (Use physical drive) ou fazer com que a máquina virtual use uma imagem ISO armazenada (Use ISO image file). Para esta atividade, utilizaremos a configuração da tela seguinte.
+
+4. Em Network Adapter há também a opção de ativar a placa de rede da máquina virtual assim que ela for ligada (Connect at power on) e escolher o tipo de conexão de rede que utilizaremos:
++
+--
+* Bridged: habilita a máquina virtual a ter acesso direto à rede;
+* Replicate physical network connection state: replica o estado da conexão da rede física;
+* NAT: opção que compartilha o endereço IP do host.
+--
+
+5. Também podemos editar o controlador USB da máquina virtual, ativando o suporte à alta velocidade para dispositivos com USB 2.0 e automaticamente conectar novos dispositivos USB. Mantenha as opções conforme a tela seguinte.
+
+6. Podemos editar as propriedades de som da máquina virtual para decidir se ela utilizará a placa de som padrão do host, ou especificar a placa de som do host que a máquina virtual utilizará. Mantenha as opções conforme a tela seguinte.
+
+7. É possível conectar uma impressora à máquina virtual, mas para isso ela precisa ter o VMware Tools instalado - suíte de utilitários que melhora o desempenho da máquina virtual. Mantenha as opções conforme a tela seguinte.
+
+8. Por último, é possível editar as propriedades de vídeo da máquina virtual. Podemos ativar a aceleração 3D dos gráficos, usar as configurações de vídeo da máquina hospedeira ou especificar as configurações informando o número de monitores e a resolução máxima de cada monitor.
+
+=== 10) Adicionando uma máquina virtual
+
+1. Na tela inicial do VMware Workstation clique em Open a Virtual Machine e selecione a VM já existente no caminho Desktop\Aluno\VMs_PRONTAS/VM da máquina hospedeira. Ao concluir o processo inicie a VM.
++
+.Adicionar VM pronta
+[#img-vbox23]
+image::1_Virtualbox/vbox23.png[align="center"]
+
+=== 11) Utilizando snapshots
+
+Como foi visto anteriormente no VirtualBox , o snapshots são pontos de restauração das máquinas virtuais que podem ser usados para retornar a uma situação anterior de uma VM.
+
+Exemplo: você deseja fazer alguma alteração no sistema operacional, mas quer ter a segurança de recuperar o seu estado inicial caso algo dê errado durante a alteração. Você pode então criar um snapshot da máquina virtual antes de alterar o seu sistema, e se a alteração não for do seu agrado, será possível retornar ao estado anterior do sistema através do snapshot criado. O disco voltará ao mesmo ponto em que foi criado o snapshot, assim como a memória, se o mesmo for criado com esta opção.
+
+1. Na lista Favorites selecione a máquina W7_VM-ADS5 que adicionamos na atividade anterior. Click com o botão direito do mouse em cima da VM e selecione Snapshot/ Take Snapshot...
+
+2. Digite uma descrição para o snapshot a ser tirado, para que possamos identificá-lo posteriormente.
+
+3. Inicie a máquina virtual recentemente adicionada e faça alterações no sistema. O login da máquina virtual é aluno e a senha é rnpesr.
++
+Crie diretórios e arquivos de texto, edite arquivos de configuração, apague arquivos existentes, instale ou instale programas. Após as modificação, desligue a VM e volte ao menu Snapshot, mas desta vez acesse Snapshot Manager. Note que poderá voltar ao estado anterior ao Snapshot sem a necessidade de desligar a máquina.
+
+=== 12) Removendo máquinas virtuais
+
+No VMware Workstation existem duas opções de remoção das máquinas virtuais: removê-las da lista de máquinas favoritas ou removê-las do disco rígido da máquina hospedeira. Para remover máquinas virtuais, abra o Workstation e certifique-se de que a máquina desejada está desligada, para que possa ser removida. Siga as instruções para a remoção.
+
+No VMware Workstation, selecione a máquina virtual que você deseja excluir, vá ao menu VM> Manage e clique em Delete from Disk.
+
+1. Ao clicar na função, é apresentada uma janela informando que essa ação é irreversível e que a mesma fará com que a máquina virtual seja excluída permanentemente. Caso você clique em Yes, a máquina virtual será excluída do gerenciamento do VMware Workstation e do disco rígido da máquina hospedeira. Para a atividade, clique em No para cancelar a exclusão.
++
+.Removendo VM definitivamente
+[#img-vbox24]
+image::1_Virtualbox/vbox24.png[align="center"]
+
+2. Caso queira remove-la apenas do inventário, clique sobre a máquina e selecione Remove. Aparecerá uma janela informando que a máquina será removida apenas do inventário.
++
+.Removendo VM do inventário
+[#img-vbox25]
+image::1_Virtualbox/vbox25.png[align="center"]
+
+=== 13) Captura de máquina física para virtual (P2V)
+
+Physical-to-Virtual (P2V) é o processo que consiste em converter uma máquina física com os seus aplicativos e dados para uma máquina virtual, podendo hospedá-la em uma plataforma virtualizada.
+
+Nesta atividade, o aluno terá que fazer a conversão da estação física do colega do lado para uma máquina virtual, utilizando como base a ferramenta de conversão do VMware Converter.
+
+O instalador do VMWare converter está disponível na pasta \Desktop\Aluno\SESSÃO 1_2. A instalação é simples porém é necessário prestar atenção em algumas etapas: em "Setup Type", você deverá marcar a opção "Client-Server installation (advanced)" e em "HTTPS Service Port" altere a porta para 444 , clique em "next" e nesta tela, desmarque a opção "Join the VMware's Custumer...", avance e clique em "install".
+
+1. Antes de converter a máquina física, faça alguns procedimentos para que posteriormente possam identificar que realmente houve a conversão. Sugestões: trocar a cor do seu papel de parede, criar arquivos ".txt” no desktop etc.
+
+2. Inicie o VMware Workstation Pro, e em "File" selecione "Virtualize a Physical Machine" e e clique em Next.
+
+3. Nesta tela, você deverá adicionar o IP, usuário e senha  da máquina a qual deseja converter.
++
+.Conversão de máquina física para virtual, parte 1
+[#img-vbox26]
+image::1_Virtualbox/vbox26.png[align="center"]
+
+4. Adicione um nome a VM e e escolha o diretório para armazenar a máquina virtual.
++
+.Conversão de máquina física para virtual, parte 2
+[#img-vbox27]
+image::1_Virtualbox/vbox27.png[align="center"]
+
+5. Nesta tela, autentique com usuário e senha da máquina física. Esta é a máquina onde o VMware Workstation está instalado. Avance e aguarde o final do processo.
++
+.Conversão de máquina física para virtual, parte 3
+[#img-vbox28]
+image::1_Virtualbox/vbox28.png[align="center"]
+
+Obs.: Caso ocorra algum erro relacionado a espaço em disco, acesse o gerenciador do Windows 7 e aumente o espaço da partição "Reservado pelo Sistema" para no mínimo 100 megas.

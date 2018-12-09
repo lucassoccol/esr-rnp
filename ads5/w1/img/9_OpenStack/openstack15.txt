@@ -1,0 +1,108 @@
+adr-010@DESKTOP-3GP5RKE ~
+$ ssh aluno@200.130.46.89
+The authenticity of host '200.130.46.89 (200.130.46.89)' can't be established.
+ECDSA key fingerprint is SHA256:8cHD89hWRgYFBm4zsTzBwRGMPYWKNPPZz7gn5tShuTs.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '200.130.46.89' (ECDSA) to the list of known hosts.
+aluno@200.130.46.89's password:
+Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.15.0-42-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Thu Dec  6 13:22:34 UTC 2018
+
+  System load:  0.68              Processes:           143
+  Usage of /:   47.1% of 3.87GB   Users logged in:     1
+  Memory usage: 1%                IP address for eno1: 200.130.46.89
+  Swap usage:   0%
+
+
+127 packages can be updated.
+51 updates are security updates.
+
+
+Last login: Thu Dec  6 13:22:09 2018
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+aluno@ostk-d1-g1:~$ 
+
+- - -
+
+aluno@ostk-d1-g1:~$ sudo -i
+[sudo] password for aluno:
+root@ostk-d1-g1:~#
+
+- - -
+
+root@ostk-d1-g1:~# apt-get update ; apt-get -y dist-upgrade
+
+- - -
+
+root@ostk-d1-g1:~# reboot
+
+- - -
+
+root@ostk-d1-g1:~# useradd -s /bin/bash -d /opt/stack -m stack
+
+- - -
+
+root@ostk-d1-g1:~# echo "stack ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/stack
+
+- - -
+
+root@ostk-d1-g1:~# su - stack
+
+- - -
+
+stack@ostk-d1-g1:~$ whoami
+stack
+
+- - -
+
+stack@ostk-d1-g1:~$ git clone https://git.openstack.org/openstack-dev/devstack ; cd devstack
+
+- - -
+
+stack@ostk-d1-g1:~$ cat <<EOF > local.conf
+[[local|localrc]]
+ADMIN_PASSWORD=Virt3sr
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+EOF
+
+- - -
+
+stack@ostk-d1-g1:~$ sudo add-apt-repository universe
+
+- - -
+
+stack@ostk-d1-g1:~$ ./stack.sh
+
+(...)
+
+This is your host IP address: 200.130.46.21
+This is your host IPv6 address: 2001:12f0:b05::279
+Horizon is now available at http://200.130.46.21/dashboard
+Keystone is serving at http://200.130.46.21/identity/
+The default users are: admin and demo
+The password: Virt3sr
+
+WARNING:
+Using lib/neutron-legacy is deprecated, and it will be removed in the future
+
+
+Services are running under systemd unit files.
+For more information see:
+https://docs.openstack.org/devstack/latest/systemd.html
+
+DevStack Version: stein
+Change: 7cc83a01caa70786bf6de6f272c1187da37be3a3 Merge "Setup branch in setup-devstack-source-dirs" 2018-12-07 00:35:19 +0000
+OS Version: Ubuntu 18.04 bionic
+
+2018-12-07 11:53:15.849 | stack.sh completed in 3249 seconds.
+
+- - -

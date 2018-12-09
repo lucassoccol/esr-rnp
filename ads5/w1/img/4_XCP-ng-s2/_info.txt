@@ -1,0 +1,3 @@
+https://docs.citrix.com/en-us/xenserver/current-release/high-availability.html
+https://support.citrix.com/article/CTX129721
+https://xenserver.org/blog/entry/xenserver-high-availability-alternative-ha-lizard-1.html

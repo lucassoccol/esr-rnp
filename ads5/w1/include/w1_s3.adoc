@@ -1,0 +1,466 @@
+ifdef::oneof[]
+////
+= ADS5 - Sessão 3
+:Author: Felipe_Scarel
+:Author Initials: FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 08-12-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 3:
+
+=== 1) Instalação do XCP-ng
+
+1. Crie uma mídia bootável com o instalador do XCP-ng, conforme instruções providas pelo instrutor. Em seguida, insira a mídia na máquina destacada como hypervisor para a dupla e execute o _boot_ via USB. Você verá a tela a seguir:
++
+.Tela inicial do XCP-ng
+[#img-xcpng1.png]
+image::3_XCP-ng-s1/xcpng1.png[align="center"]
+
+2. Inicie o _boot_ do sistema. A primeira tela será para a configuração do mapa de teclado: selecione `br-abnt2`.
++
+.Configuração de teclado
+[#img-xcpng2.png]
+image::3_XCP-ng-s1/xcpng2.png[align="center"]
+
+3. Prossiga a instalação selecionando `Ok`.
++
+.Confirmação de instalação
+[#img-xcpng3.png]
+image::3_XCP-ng-s1/xcpng3.png[align="center"]
++
+Aceite os termos de uso em `Accept EULA`.
++
+.Temos de uso
+[#img-xcpng4.png]
+image::3_XCP-ng-s1/xcpng4.png[align="center"]
+
+4. Selecione o disco de instalação do sistema, `sda`, que deve corresponder ao disco rígido da máquina local.
++
+.Seleção de disco de instalação
+[#img-xcpng5.png]
+image::3_XCP-ng-s1/xcpng5.png[align="center"]
+
+5. Escolha a fonte de instalação dos pacotes, `Local media`.
++
+.Seleção de fonte de pacotes
+[#img-xcpng6.png]
+image::3_XCP-ng-s1/xcpng6.png[align="center"]
++
+Não faça a verificação da mídia, é um processo bastante demorado.
++
+.Verificação de mídia
+[#img-xcpng7.png]
+image::3_XCP-ng-s1/xcpng7.png[align="center"]
+
+6. Defina a senha do `root` como `Virt3sr`.
++
+.Definir senha do root
+[#img-xcpng8.png]
+image::3_XCP-ng-s1/xcpng8.png[align="center"]
+
+7. O próximo passo é configurar a rede: mantenha a configuração em DHCP.
++
+.Configuração de rede, parte 1
+[#img-xcpng9.png]
+image::3_XCP-ng-s1/xcpng9.png[align="center"]
++
+Depois, defina o nome de máquina como `xcp-ng-dX-gX`, substituindo `X` pelo dados apropriados para seu grupo. Mantenha a configuração DNS como automática.
++
+.Configuração de rede, parte 2
+[#img-xcpng10.png]
+image::3_XCP-ng-s1/xcpng10.png[align="center"]
+
+8. Agora, escolha o _timezone_ do sistema. Primeiro, selecione a área geográfica `America`...
++
+.Timezone e hora, parte 1
+[#img-xcpng11.png]
+image::3_XCP-ng-s1/xcpng11.png[align="center"]
++
+E em seguida a cidade apropriada, provavemente `Sao_Paulo` ou `Recife`.
++
+.Timezone e hora, parte 2
+[#img-xcpng12.png]
+image::3_XCP-ng-s1/xcpng12.png[align="center"]
++
+Defina a configuração de tempo via NTP.
++
+.Timezone e hora, parte 3
+[#img-xcpng13.png]
+image::3_XCP-ng-s1/xcpng13.png[align="center"]
++
+Para o servidor de consulta, defina manualmente o endereço `pool.ntp.br`.
++
+.Timezone e hora, parte 4
+[#img-xcpng14.png]
+image::3_XCP-ng-s1/xcpng14.png[align="center"]
+
+9. Tudo pronto para a instalação: confirme em `Install XCP-ng`.
++
+.Início da instalação
+[#img-xcpng15.png]
+image::3_XCP-ng-s1/xcpng15.png[align="center"]
++
+Observe o progresso:
++
+.Instalação em progresso
+[#img-xcpng16.png]
+image::3_XCP-ng-s1/xcpng16.png[align="center"]
++
+Quando perguntado se deseja instalar _supplemental packs_, selecione _No_.
++
+.Instalação de pacotes adicionais
+[#img-xcpng17.png]
+image::3_XCP-ng-s1/xcpng17.png[align="center"]
++
+Concluído o processo, selecione _Ok_, espere o sistema reiniciar e remova a mídia de instalação.
++
+.Instalação concluída
+[#img-xcpng18.png]
+image::3_XCP-ng-s1/xcpng18.png[align="center"]
+
+10. Após o _boot_ do sistema, você verá a tela de sumário do XCP-ng, como mostrado a seguir.
++
+.Tela de sumário
+[#img-xcpng19.png]
+image::3_XCP-ng-s1/xcpng19.png[align="center"]
+
+=== 2) Conhecendo alguns comandos básicos
+
+1. Você pode abrir uma conexão de linha de comando local, usando a opção _Local Command Shell_. Digite a senha de `root` para obter o acesso.
++
+.Acesso à CLI local
+[#img-xcpng20.png]
+image::3_XCP-ng-s1/xcpng20.png[align="center"]
+
+2. O XCP-ng possui uma ferramenta de gerenciamento em linha de comando chamada `xe`. Esta ferramenta permite o controle do armazenamento de dados das máquinas virtuais, interfaces de redes associadas com as VMs, ente outros.
++
+Veja o comando `xe host-list`, por exemplo:
++
+.Listando hosts
+[#img-xcpng21.png]
+image::3_XCP-ng-s1/xcpng21.png[align="center"]
+
+3. Durante a instalação, o XCP-ng particiona automaticamente o disco do servidor utilizado. São reservados para o sistema apenas 4 GB. O restante do disco é alocado em um volume LVM, dentro do qual podem ser armazenados os dados das máquinas virtuais. Para visualizar as informações do LVM, utilize comando `pvdisplay` no _shell_ do hypervisor:
++
+.Visualizando volumes físicos
+[#img-xcpng22.png]
+image::3_XCP-ng-s1/xcpng22.png[align="center"]
+
+4. O XCP-ng gerencia estes volumes LVM através da noção de _Storage Repositories_ (SR). Um _Storage Repository_ corresponde a uma área no _storage_ onde são armazenados os discos virtuais de uma máquina virtual, ou as imagens ISO utilizadas para instalação de novas máquinas virtuais. Para uma listagem dos _Storage Repositories_ disponíveis, utilize o comando `sr-list`:
++
+.Listando SRs
+[#img-xcpng23.png]
+image::3_XCP-ng-s1/xcpng23.png[align="center"]
++
+Note que um dos _Storage Repositories_ disponíveis é do tipo LVM no host local, cujo UUID consta no nome do _Volume Group_ listado anteriormente. Durante a instanciação de novas máquinas virtuais, os discos serão automaticamente instanciados dentro deste _Storage Repository_.
+
+5. Por padrão, o XCP-ng cria para cada interface de rede física uma _bridge_. Nesta, podem ser associadas as interfaces de rede das máquinas virtuais, permitindo aos sistemas virtualizados acessarem a rede externa de forma transparente.
++
+As redes disponíveis para as VMs podem ser listadas com o comando `network-list`:
++
+.Listando redes
+[#img-xcpng24.png]
+image::3_XCP-ng-s1/xcpng24.png[align="center"]
+
+=== 3) Instalação do XCP-ng Center
+
+O XCP-ng Center é uma ferramenta capaz de gerenciar múltiplos servidores e máquinas virtuais.
+
+1. Para iniciar a instalação do XCP-ng Center, execute o arquivo de instalação disponível em local indicado pelo instrutor. Você verá a tela a seguir:
++
+.Instalação do XCP-ng Center, parte 1
+[#img-xcpng25.png]
+image::3_XCP-ng-s1/xcpng25.png[align="center"]
++
+O processo é bastante simples, bastando aceitar as opções padrão. Ao final do processo, clique em _Finish_.
++
+.Instalação do XCP-ng Center, parte 2
+[#img-xcpng26.png]
+image::3_XCP-ng-s1/xcpng26.png[align="center"]
+
+=== 4) Conhecendo o XCP-ng Center
+
+1. Execute o XCP-ng Center. O primeiro passo é adicionar um servidor: clique em _Add New Server_.
++
+.Adicionando novo servidor, parte 1
+[#img-xcpng27.png]
+image::3_XCP-ng-s1/xcpng27.png[align="center"]
++
+Na tela seguinte, adicione o IP do seu hypervisor -- informe a conta do usuário `root` e senha configurada durante a instalação, `Virt3sr`.
++
+.Adicionando novo servidor, parte 2
+[#img-xcpng28.png]
+image::3_XCP-ng-s1/xcpng28.png[align="center"]
++
+Confirme que deseja salvar as credenciais e restaurar a conexão ao reabrir o XCP-ng Center, e clique em _OK_.
++
+.Adicionando novo servidor, parte 3
+[#img-xcpng29.png]
+image::3_XCP-ng-s1/xcpng29.png[align="center"]
++
+Quando perguntado se deseja cadastrar o servidor no serviço de _Health Check_, clique em _Close_.
++
+.Adicionando novo servidor, parte 4
+[#img-xcpng30.png]
+image::3_XCP-ng-s1/xcpng30.png[align="center"]
+
+2. Uma vez adicionado o hypervisor, pode-se visualizar seu estado, performance e demais características diretamente a partir da ferramenta.
++
+.Informações do hypervisor
+[#img-xcpng31.png]
+image::3_XCP-ng-s1/xcpng31.png[align="center"]
+
+3. Na aba _Console_ há um terminal em modo texto para acesso ao hypervisor, de forma análoga ao que poderíamos fazer via console local, `ssh` ou PuTTY.
++
+.Acesso console ao hypervisor
+[#img-xcpng32.png]
+image::3_XCP-ng-s1/xcpng32.png[align="center"]
+
+4. Informações sobre a utilização dos recursos do servidor podem ser obtidas na aba Performance. Note que, com a ausência de máquinas virtuais em execução, os recursos encontram-se subutilizados.
++
+.Performance do hypervisor
+[#img-xcpng33.png]
+image::3_XCP-ng-s1/xcpng33.png[align="center"]
+
+=== 5) Configuração do repositório compartilhado de ISOs
+
+No XCP-ng Center, são suportados repositórios de ISOs, acessados via protocolos CIFS ou NFS. Desta forma, o XCP-ng Center exige a utilização de um servidor de arquivos para o gerenciamento das ISOs. Neste curso, iremos utilizar um servidor NFS pré-configurado, cujo endereço de acesso será disponibilizado pelo instrutor.
+
+1. Para criar um repositório de imagens ISO no XenCenter, clique no botão New Storage na barra de ferramentas superior e em ISO Library selecione a opção Windows File Sharing (SMB/CIFS).
+
+.desc
+[#img-xcpng34.png]
+image::3_XCP-ng-s1/xcpng34.png[align="center"]
+
+.desc
+[#img-xcpng35.png]
+image::3_XCP-ng-s1/xcpng35.png[align="center"]
+
+.desc
+[#img-xcpng36.png]
+image::3_XCP-ng-s1/xcpng36.png[align="center"]
+
+.desc
+[#img-xcpng37.png]
+image::3_XCP-ng-s1/xcpng37.png[align="center"]
+
+.desc
+[#img-xcpng38.png]
+image::3_XCP-ng-s1/xcpng38.png[align="center"]
+
+.desc
+[#img-xcpng39.png]
+image::3_XCP-ng-s1/xcpng39.png[align="center"]
+
+.desc
+[#img-xcpng40.png]
+image::3_XCP-ng-s1/xcpng40.png[align="center"]
+
+.desc
+[#img-xcpng41.png]
+image::3_XCP-ng-s1/xcpng41.png[align="center"]
+
+.desc
+[#img-xcpng42.png]
+image::3_XCP-ng-s1/xcpng42.png[align="center"]
+
+.desc
+[#img-xcpng43.png]
+image::3_XCP-ng-s1/xcpng43.png[align="center"]
+
+.desc
+[#img-xcpng44.png]
+image::3_XCP-ng-s1/xcpng44.png[align="center"]
+
+.desc
+[#img-xcpng45.png]
+image::3_XCP-ng-s1/xcpng45.png[align="center"]
+
+.desc
+[#img-xcpng46.png]
+image::3_XCP-ng-s1/xcpng46.png[align="center"]
+
+.desc
+[#img-xcpng47.png]
+image::3_XCP-ng-s1/xcpng47.png[align="center"]
+
+.desc
+[#img-xcpng48.png]
+image::3_XCP-ng-s1/xcpng48.png[align="center"]
+
+.desc
+[#img-xcpng49.png]
+image::3_XCP-ng-s1/xcpng49.png[align="center"]
+
+.desc
+[#img-xcpng50.png]
+image::3_XCP-ng-s1/xcpng50.png[align="center"]
+
+.desc
+[#img-xcpng51.png]
+image::3_XCP-ng-s1/xcpng51.png[align="center"]
+
+.desc
+[#img-xcpng52.png]
+image::3_XCP-ng-s1/xcpng52.png[align="center"]
+
+.desc
+[#img-xcpng53.png]
+image::3_XCP-ng-s1/xcpng53.png[align="center"]
+
+.desc
+[#img-xcpng54.png]
+image::3_XCP-ng-s1/xcpng54.png[align="center"]
+
+.desc
+[#img-xcpng55.png]
+image::3_XCP-ng-s1/xcpng55.png[align="center"]
+
+.desc
+[#img-xcpng56.png]
+image::3_XCP-ng-s1/xcpng56.png[align="center"]
+
+.desc
+[#img-xcpng57.png]
+image::3_XCP-ng-s1/xcpng57.png[align="center"]
+
+.desc
+[#img-xcpng58.png]
+image::3_XCP-ng-s1/xcpng58.png[align="center"]
+
+.desc
+[#img-xcpng59.png]
+image::3_XCP-ng-s1/xcpng59.png[align="center"]
+
+.desc
+[#img-xcpng60.png]
+image::3_XCP-ng-s1/xcpng60.png[align="center"]
+
+.desc
+[#img-xcpng61.png]
+image::3_XCP-ng-s1/xcpng61.png[align="center"]
+
+.desc
+[#img-xcpng62.png]
+image::3_XCP-ng-s1/xcpng62.png[align="center"]
+
+.desc
+[#img-xcpng63.png]
+image::3_XCP-ng-s1/xcpng63.png[align="center"]
+
+.desc
+[#img-xcpng64.png]
+image::3_XCP-ng-s1/xcpng64.png[align="center"]
+
+.desc
+[#img-xcpng65.png]
+image::3_XCP-ng-s1/xcpng65.png[align="center"]
+
+.desc
+[#img-xcpng66.png]
+image::3_XCP-ng-s1/xcpng66.png[align="center"]
+
+.desc
+[#img-xcpng67.png]
+image::3_XCP-ng-s1/xcpng67.png[align="center"]
+
+.desc
+[#img-xcpng68.png]
+image::3_XCP-ng-s1/xcpng68.png[align="center"]
+
+.desc
+[#img-xcpng69.png]
+image::3_XCP-ng-s1/xcpng69.png[align="center"]
+
+.desc
+[#img-xcpng70.png]
+image::3_XCP-ng-s1/xcpng70.png[align="center"]
+
+.desc
+[#img-xcpng71.png]
+image::3_XCP-ng-s1/xcpng71.png[align="center"]
+
+.desc
+[#img-xcpng72.png]
+image::3_XCP-ng-s1/xcpng72.png[align="center"]
+
+.desc
+[#img-xcpng73.png]
+image::3_XCP-ng-s1/xcpng73.png[align="center"]
+
+.desc
+[#img-xcpng74.png]
+image::3_XCP-ng-s1/xcpng74.png[align="center"]
+
+.desc
+[#img-xcpng75.txt]
+image::3_XCP-ng-s1/xcpng75.txt[align="center"]
+
+.desc
+[#img-xcpng76.png]
+image::3_XCP-ng-s1/xcpng76.png[align="center"]
+
+.desc
+[#img-xcpng77.png]
+image::3_XCP-ng-s1/xcpng77.png[align="center"]
+
+.desc
+[#img-xcpng78.png]
+image::3_XCP-ng-s1/xcpng78.png[align="center"]
+
+.desc
+[#img-xcpng79.png]
+image::3_XCP-ng-s1/xcpng79.png[align="center"]
+
+.desc
+[#img-xcpng80.png]
+image::3_XCP-ng-s1/xcpng80.png[align="center"]
+
+.desc
+[#img-xcpng81.png]
+image::3_XCP-ng-s1/xcpng81.png[align="center"]
+
+.desc
+[#img-xcpng82.png]
+image::3_XCP-ng-s1/xcpng82.png[align="center"]
+
+.desc
+[#img-xcpng83.txt]
+image::3_XCP-ng-s1/xcpng83.txt[align="center"]
+
+.desc
+[#img-xcpng84.png]
+image::3_XCP-ng-s1/xcpng84.png[align="center"]
+
+.desc
+[#img-xcpng85.png]
+image::3_XCP-ng-s1/xcpng85.png[align="center"]
+
+.desc
+[#img-xcpng86.png]
+image::3_XCP-ng-s1/xcpng86.png[align="center"]
+
+.desc
+[#img-xcpng87.png]
+image::3_XCP-ng-s1/xcpng87.png[align="center"]
+
+.desc
+[#img-xcpng88.png]
+image::3_XCP-ng-s1/xcpng88.png[align="center"]
+
+.desc
+[#img-xcpng89.png]
+image::3_XCP-ng-s1/xcpng89.png[align="center"]
+
+.desc
+[#img-xcpng90.png]
+image::3_XCP-ng-s1/xcpng90.png[align="center"]

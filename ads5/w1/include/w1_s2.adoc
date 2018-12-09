@@ -1,0 +1,298 @@
+ifdef::oneof[]
+////
+= ADS5 - Sessão 2
+:Author: Felipe_Scarel
+:Author Initials: FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 08-12-2018
+:imagesdir: ../img
+:srcdir: ../src
+:icons: font
+include::../../share/attributes.adoc[]
+endif::oneof[]
+
+== Sessão 2: Configuração de Storage
+
+=== 1) Instalação do FreeNAS
+
+1. Crie uma nova máquina virtual, na qual instalaremos o FreeNAS, do tipo BSD 64-bit.
++
+.Nome e tipo de VM
+[#img-freenas1]
+image::2_FreeNAS/freenas1.png[align="center"]
+
+2. Para a memória RAM, define 2GB.
++
+.RAM da VM
+[#img-freenas2]
+image::2_FreeNAS/freenas2.png[align="center"]
+
+3. Iremos adicionar um novo disco rígido:
++
+.Adicionar novo disco
+[#img-freenas3]
+image::2_FreeNAS/freenas3.png[align="center"]
++
+O tipo do disco será VDI, o formato nativo do Virtualbox.
++
+.Tipo do disco
+[#img-freenas4]
+image::2_FreeNAS/freenas4.png[align="center"]
++
+Iremos usar alocação dinâmica, quando o disco cresce à medida que é utilizado.
++
+.Tipo de alocação
+[#img-freenas5]
+image::2_FreeNAS/freenas5.png[align="center"]
++
+Finalmente, escolha o nome e o tamanho do disco (4 GB).
++
+.Nome e tamanho do disco
+[#img-freenas6]
+image::2_FreeNAS/freenas6.png[align="center"]
+
+4. Criada a VM, acesse o menu _Configurações_. Vamos adicionar dois novos discos à máquina, onde serão armazenados os dados do _storage_. Em _Armazenamento_ > _Controladora SCSI_, clique no ícone _Adicionar novo disco_.
++
+.Configurações de disco
+[#img-freenas7]
+image::2_FreeNAS/freenas7.png[align="center"]
++
+Selecione _Criar novo disco_.
++
+.Criar novo disco
+[#img-freenas8]
+image::2_FreeNAS/freenas8.png[align="center"]
++
+Selecione o nome do disco, e tamanho de 80 GB.
++
+.Nome e tamanho do disco 2
+[#img-freenas9]
+image::2_FreeNAS/freenas9.png[align="center"]
++
+Repita o procedimento, adicionando um terceiro disco à VM, também de 80 GB.
++
+.Nome e tamanho do disco 3
+[#img-freenas10]
+image::2_FreeNAS/freenas10.png[align="center"]
++
+Finalmente, marque a opção _Utilizar cache de I/O do hospedeiro_ para aumentar a performance no uso da VM.
++
+.Uso de cache de disco
+[#img-freenas11]
+image::2_FreeNAS/freenas11.png[align="center"]
+
+5. Ainda no menu _Armazenamento_, em _Controladora IDE_, adicione a imagem ISO de instalação do FreeNAS ao _drive_ de CD virtual da VM.
++
+.Adicionando ISO de instalação
+[#img-freenas12]
+image::2_FreeNAS/freenas12.png[align="center"]
+
+6. Em _Áudio_, desabilite o áudio da VM. Como será um servidor, não fará falta.
++
+.Configurações de áudio
+[#img-freenas13]
+image::2_FreeNAS/freenas13.png[align="center"]
+
+7. Em _Rede_, altere o tipo de conexão do _Adaptador 1_ para _Placa em modo Bridge_, para conectar a VM diretamente com a rede externa.
++
+.Configurações de rede
+[#img-freenas14]
+image::2_FreeNAS/freenas14.png[align="center"]
+
+8. Em _USB_, marque a _Controladora USB 1.1 (OHCI)_, para maior compatibilidade caso as extensões do Virtualbox não estejam instaladas.
++
+.Configurações USB
+[#img-freenas15]
+image::2_FreeNAS/freenas15.png[align="center"]
+
+9. Ligue a VM, e selecione a opção _FreeNAS Installer_ na tela de _boot_.
++
+.Boot do instalador
+[#img-freenas16]
+image::2_FreeNAS/freenas16.png[align="center"]
++
+A seguir, selecione _Install/Upgrade_.
++
+.Instalação, parte 1
+[#img-freenas17]
+image::2_FreeNAS/freenas17.png[align="center"]
++
+Você receberá um aviso que o computador possui menos de 8 GB de RAM. Clique em _Yes_ para prosseguir.
++
+.Instalação, parte 2
+[#img-freenas18]
+image::2_FreeNAS/freenas18.png[align="center"]
++
+Para a instalação do FreeNAS, selecione o disco `ada0`, de 4 GB. Iremos inicializar os demais posteriormente.
++
+.Instalação, parte 3
+[#img-freenas19]
+image::2_FreeNAS/freenas19.png[align="center"]
++
+Confirme a formatação selecionando _Yes_.
++
+.Instalação, parte 4
+[#img-freenas20]
+image::2_FreeNAS/freenas20.png[align="center"]
++
+Para a senha do usuário `root`, digite `Virt3sr` e confirme.
++
+.Instalação, parte 5
+[#img-freenas21]
+image::2_FreeNAS/freenas21.png[align="center"]
++
+No tipo de _boot_ do FreeNAS, selecione _Boot via BIOS_.
++
+.Instalação, parte 6
+[#img-freenas22]
+image::2_FreeNAS/freenas22.png[align="center"]
++
+A instalação será iniciada, como mostrado abaixo.
++
+.Instalação, progresso
+[#img-freenas23]
+image::2_FreeNAS/freenas23.png[align="center"]
++
+Ao final do processo, clique em _OK_ para reiniciar o sistema.
++
+.Instalação concluída
+[#img-freenas24]
+image::2_FreeNAS/freenas24.png[align="center"]
+
+10. Como não retiramos a ISO da VM, após o _boot_ veremos o menu de instalação novamente. Selecione _Shutdown System_.
++
+.Retirando ISO da VM, parte 1
+[#img-freenas25]
+image::2_FreeNAS/freenas25.png[align="center"]
++
+Acesse _Configurações_ > _Armazenamento_ e remova a ISO do _drive_ IDE.
++
+.Retirando ISO da VM, parte 2
+[#img-freenas26]
+image::2_FreeNAS/freenas26.png[align="center"]
+
+=== 2) Configuração do FreeNAS
+
+1. Ligue a VM. Você verá a tela de _boot_ abaixo.
++
+.Boot do FreeNAS
+[#img-freenas27]
+image::2_FreeNAS/freenas27.png[align="center"]
++
+Pressione `ENTER`, e selecione a opção _Normal Bootup_.
++
+.Boot convencional
+[#img-freenas28]
+image::2_FreeNAS/freenas28.png[align="center"]
+
+2. Após o processo de _boot_, você verá o menu a seguir. Anote o endereço IP da interface web de usuário, que acessaremos a seguir.
++
+.Boot concluído
+[#img-freenas29]
+image::2_FreeNAS/freenas29.png[align="center"]
+
+3. Em sua máquina física, abra um navegador e digite o endereço IP anotado no passo anterior. Na tela de login, informe o usuário `root` e senha `Virt3sr`, como definido anteriormente.
++
+.Login na interface web
+[#img-freenas30]
+image::2_FreeNAS/freenas30.png[align="center"]
+
+4. No _wizard_ automático de configuração, defina linguagem, mapa de teclado e _timezone_ como mostrado na figura a seguir:
++
+.Escolha de idioma, teclado e timezone
+[#img-freenas31]
+image::2_FreeNAS/freenas31.png[align="center"]
++
+O próximo passo é inicializar um volume de armazenamento. Digite o nome `vol1` e selecione o tipo _Logs_ (equivalente a RAID 0).
++
+.Configuração de volume
+[#img-freenas32]
+image::2_FreeNAS/freenas32.png[align="center"]
++
+Para configurações de autenticação, mantenha tudo vazio e clique em _Next_.
++
+.Configurações de autenticação
+[#img-freenas33]
+image::2_FreeNAS/freenas33.png[align="center"]
++
+Em configurações de _share_, novamente mantenha vazio e clique em _Next_.
++
+.Configurações de share
+[#img-freenas34]
+image::2_FreeNAS/freenas34.png[align="center"]
++
+Para configurações de mensagem, ative _Console messages_ e clique em _Next_.
++
+.Configurações de mensagens
+[#img-freenas35]
+image::2_FreeNAS/freenas35.png[align="center"]
++
+Finalmente, confirme as alterações.
++
+.Wizard, confirmação
+[#img-freenas36]
+image::2_FreeNAS/freenas36.png[align="center"]
+
+5. Finalizado o _wizard_, acesse _Storage_ > _Volumes_ e clique em _Criar zvol_.
++
+.Criação de zvol, parte 1
+[#img-freenas37]
+image::2_FreeNAS/freenas37.png[align="center"]
++
+Defina o nome como `zvol1` e tamanho de 80 GB. Iremos tentar manter o uso do _pool_ abaixo de 50% para evitar degradação de performance, como documentado em https://www.ixsystems.com/documentation/freenas/11/sharing.html#extents .
++
+.Criação de zvol, parte 2
+[#img-freenas39]
+image::2_FreeNAS/freenas39.png[align="center"]
++
+A tela final de configuração deverá ficar como se segue:
++
+.Criação de zvol, concluída
+[#img-freenas40]
+image::2_FreeNAS/freenas40.png[align="center"]
+
+6. Agora, acesse _Sharing_ > _Block (iSCSI)_ e configure um portal iSCSI em _Adicionar Portal_ como mostrado a seguir:
++
+.Configuração de iSCSI, parte 1
+[#img-freenas41]
+image::2_FreeNAS/freenas41.png[align="center"]
++
+Em _Iniciadores_, defina um mapeamento `ALL:ALL`.
++
+.Configuração de iSCSI, parte 2
+[#img-freenas42]
+image::2_FreeNAS/freenas42.png[align="center"]
++
+Na configuração do _Acesso Autorizado_, defina uma conta `aluno` com senha `rnpesr123456`.
++
+.Configuração de iSCSI, parte 3
+[#img-freenas43]
+image::2_FreeNAS/freenas43.png[align="center"]
++
+Nos destinos iSCSI, adicione um novo destino com nome `lun1`, e apelido `Target1`.
++
+.Configuração de iSCSI, parte 4
+[#img-freenas44]
+image::2_FreeNAS/freenas44.png[align="center"]
++
+Na configuração de _Extents_, defina um com nome `Extent1` mapeando o dispositivo `zvol1` criado anteriormente.
++
+.Configuração de iSCSI, parte 5
+[#img-freenas45]
+image::2_FreeNAS/freenas45.png[align="center"]
++
+Finalmente, mapeie a `lun1` para o `Extent1`, definindo uma LUN ID de `1`.
++
+.Configuração de iSCSI, parte 6
+[#img-freenas46]
+image::2_FreeNAS/freenas46.png[align="center"]
+
+7. O último passo é ativar o serviço iSCSI. Acesse _Serviços_ e ative `iSCSI`, ativando a opção _Start on boot_.
++
+.Ativando iSCSI
+[#img-freenas47]
+image::2_FreeNAS/freenas47.png[align="center"]

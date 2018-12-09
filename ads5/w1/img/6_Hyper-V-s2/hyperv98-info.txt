@@ -1,0 +1,1 @@
+Hypervisor 2 entra em estado Isolated

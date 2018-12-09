@@ -1,0 +1,1 @@
+Após timeout de 4 minutos, VM é religada no hypervisor 1

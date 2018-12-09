@@ -1,0 +1,55 @@
+adr-010@DESKTOP-3GP5RKE ~
+$ ssh debian@172.24.4.109
+The authenticity of host '172.24.4.109 (172.24.4.109)' can't be established.
+ECDSA key fingerprint is SHA256:45IOyBVJxjFl6qkMkoNBSTY5JvuVkER+vFpUCg32B1k.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '172.24.4.109' (ECDSA) to the list of known hosts.
+Linux debian9-ostk-d1-g1 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+debian@debian9-ostk-d1-g1:~$
+
+- - -
+
+debian@debian9-ostk-d1-g1:~$ whoami
+debian
+
+- - -
+
+debian@debian9-ostk-d1-g1:~$ hostname
+debian9-ostk-d1-g1
+
+- - -
+
+debian@debian9-ostk-d1-g1:~$ ip a s
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1450 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether fa:16:3e:2c:0b:29 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.3/26 brd 10.0.0.63 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fdb3:49f6:c76e:0:f816:3eff:fe2c:b29/64 scope global mngtmpaddr dynamic
+       valid_lft 86396sec preferred_lft 14396sec
+    inet6 fe80::f816:3eff:fe2c:b29/64 scope link
+       valid_lft forever preferred_lft forever
+
+- - -
+
+root@debian9-ostk-d1-g1:~# t=$( mktemp ) ; \
+grep -v '^nameserver' /etc/resolv.conf > t ; \
+echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' >> t ; \
+mv t /etc/resolv.conf ;  \
+unset t
+
+- - -
+
+root@debian9-ostk-d1-g1:~# apt-get update && apt-get install nginx -y

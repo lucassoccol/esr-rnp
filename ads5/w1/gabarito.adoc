@@ -1,0 +1,63 @@
+////
+= ADS5 - Caderno de atividades e gabarito
+:Author: Felipe_Scarel
+:Author Initials: FS
+////
+:doctype: article
+:source-highlighter: rouge
+:listing-caption: Listing
+:pdf-page-size: A4
+:revdate: 08-12-2018
+:imagesdir: ./img
+:srcdir: ../src
+:icons: font
+:toc:
+//:gabarito: true
+
+ifdef::basebackend-html[]
+++++
+<link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
+++++
+endif::[]
+
+include::../share/attributes.adoc[]
+
+include::include/w1_s1.adoc[]
+
+<<<
+
+include::include/w1_s2.adoc[]
+
+<<<
+
+include::include/w1_s3.adoc[]
+
+<<<
+
+include::include/w1_s4.adoc[]
+
+<<<
+
+include::include/w1_s5.adoc[]
+
+<<<
+
+include::include/w1_s6.adoc[]
+
+<<<
+
+include::include/w1_s7.adoc[]
+
+<<<
+
+include::include/w1_s8.adoc[]
+
+<<<
+
+include::include/w1_s9.adoc[]
+
+<<<
+
+include::include/w1_s10.adoc[]
+
+<<<
