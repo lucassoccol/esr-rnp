@@ -1,0 +1,2650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.8">
+<title>Sessão 2: Firewall e DNS</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Uncomment @import statement below to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite::before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock pre.nowrap,.literalblock pre.nowrap pre,.listingblock pre.nowrap,.listingblock pre.nowrap pre{white-space:pre;word-wrap:normal}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #dddddf}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd){background:#f8f8f7}
+table.stripes-none tr,table.stripes-odd tr:nth-of-type(even){background:none}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article">
+<div id="header">
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_sessão_2_firewall_e_dns">Sessão 2: Firewall e DNS</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>O ponto de partida para a segurança da rede em qualquer organização é, certamente, o <em>firewall</em>. Utilizando-se do princípio de segurança do <em>chokepoint</em>, ou gargalo, tem como premissa atuar como um ponto focal no controle do tráfego de rede, permitindo aos administradores configurar acessos e proibições de acordo com as políticas organizacionais. Conceitualmente, o firewall consiste em um filtro de pacotes e tem sua atuação restrita até a camada 4 (transporte) do modelo OSI, ficando a tarefa de filtragem em nível de aplicação para outros programas e <em>appliances</em> de controle da rede, como IDSs (<em>Intrusion Detection System</em>), IPSs (<em>Intrusion Protection System</em>), <em>proxies</em> ou WAFs (<em>Web Application Firewalls</em>).</p>
+</div>
+<div class="paragraph">
+<p>Juntamente com o firewall, o serviço de resolução de nomes (DNS, ou <em>Domain Name System</em>) também é peça-chave na segurança da rede. Provendo um serviço essencial&#8201;&#8212;&#8201;tradução de endereços de rede para nomes e vice-versa&#8201;&#8212;&#8201;o serviço DNS deve ser cuidadosamente configurado pelos administradores para evitar ataques de <em>spoofing</em> e prover redundância em caso de falhas inesperadas. Os servidores DNS se dividem em primário, secundário e recursivo; destes, os dois primeiros são responsáveis por responder por um domínio de rede (ditos <strong>autoritativos</strong>, portanto), e o último apenas funciona como uma fonte de consulta e <em>cache</em> para os clientes da rede.</p>
+</div>
+<div class="paragraph">
+<p>Neste curso, faremos uma configuração extremamente restritiva do firewall de nosso <em>datacenter</em> simulado, e a cada novo serviço implementado iremos retornar à sua configuração para abrir as portas e protocolos adequados. Já no caso do DNS, configuraremos um servidor primário/secundário autoritativo com suporte a DNSSEC para a rede interna <code>intnet.</code>, restringindo todas as máquinas a realizarem suas consultas exclusivamente nesses servidores. Iremos, ainda, configurar um servidor DNS recursivo em um <em>daemon</em> distinto exclusivamente para consultas e <em>cache</em> de resultados, visando o aumento da segurança do sistema de resolução de nomes.</p>
+</div>
+<div class="sect2">
+<h3 id="_1_topologia_desta_sessão">1) Topologia desta sessão</h3>
+<div class="paragraph">
+<p>A figura abaixo mostra a topologia de rede que será utilizada nesta sessão, com as máquinas relevantes em destaque.</p>
+</div>
+<div id="img-topologia2" class="imageblock text-center">
+<div class="content">
+<img src="../img/Topologia_SEG10_S2.png" alt="Topologia SEG10 S2">
+</div>
+<div class="title">Figure 1. Topologia de rede desta sessão</div>
+</div>
+<div class="paragraph">
+<p>Teremos apenas duas máquinas, por enquanto:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ns1</code>, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface <em>bridge</em>), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).</p>
+</li>
+<li>
+<p><code>ns2</code>, atuando como DNS secundário e localizada na DMZ (<em>Demilitarized Zone</em>, ou zona desmilitarizada). Endereço IP 10.0.42.2/24.</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Antes de começarmos, precisamos configurar corretamente as redes virtuais no Virtualbox. Acesse o menu <em>File</em> &gt; <em>Host Network Manager</em> e crie as seguintes redes:</p>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Redes <em>host-only</em> no Virtualbox</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Rede</th>
+<th class="tableblock halign-left valign-top">Endereço IPv4</th>
+<th class="tableblock halign-left valign-top">Máscara de rede</th>
+<th class="tableblock halign-left valign-top">Servidor DHCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Virtualbox Host-Only Ethernet Adapter #2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10.0.42.254</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">255.255.255.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Desabilitado</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Virtualbox Host-Only Ethernet Adapter #3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">192.168.42.254</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">255.255.255.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Desabilitado</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Visualmente, sua janela deve ficar parecida com o seguinte:</p>
+</div>
+<div id="img-vbox-networks" class="imageblock text-center">
+<div class="content">
+<img src="../img/vbox-networks.png" alt="vbox networks">
+</div>
+<div class="title">Figure 2. Redes host-only no Virtualbox</div>
+</div>
+<div class="paragraph">
+<p>É possível que os números específicos das redes (<code>#2</code> para a DMZ e <code>#3</code> para a Intranet, na imagem acima) não fiquem exatamente iguais aos exemplificados. Nesse caso, faça uma anotação indicando qual número de rede <em>host-only</em> corresponde a cada uma das redes configuradas. Verifique, ainda, que o servidor DHCP interno do Virtualbox está desabilitado em ambas as redes.</p>
+</div>
+<div style="page-break-after: always;"></div>
+</li>
+<li>
+<p>As configurações de rede realizadas internamente em cada máquina virtual foram apresentados de forma sucinta na topologia desta sessão. Iremos detalhar as configurações logo abaixo:</p>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Configurações de rede de cada VM</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">VM Nome</th>
+<th class="tableblock halign-left valign-middle">Interface</th>
+<th class="tableblock halign-left valign-middle">Modo</th>
+<th class="tableblock halign-left valign-middle">Endereço</th>
+<th class="tableblock halign-left valign-middle">Gateway</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle" rowspan="3"><p class="tableblock">ns1</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s3</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">DHCP</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Automático</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Automático</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s8</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Estático</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">10.0.42.1/24</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">n/a</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s9</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Estático</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">192.168.42.1/24</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">n/a</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">ns2</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s3</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Estático</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">10.0.42.2/24</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">10.0.42.1</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A partir do Debian 9, a nomenclatura padrão de interfaces de rede foi alterada. Ao invés de denotarmos as interfaces como <code>eth0</code>, <code>eth1</code> ou <code>eth2</code>, o <code>systemd/udev</code> utiliza, a partir da versão v197, um método de nomenclatura de interfaces usando <em>biosdevnames</em>, como documentado oficialmente em <a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/" class="bare">https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/</a> . Com efeito, esse novo sistema suporta cinco meios de nomeação de interfaces de rede:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Nomes incorporando números de índice providos pelo firmware/BIOS de dispositivos <em>on-board</em> (p.ex.: <code>eno1</code>)</p>
+</li>
+<li>
+<p>Nomes incorporando números de índice providos pelo firmware/BIOS de encaixes <em>hotplug</em> PCI Express (p.ex.: <code>ens1</code>)</p>
+</li>
+<li>
+<p>Nomes incorporando localização física/geográfica do conector do hardware (p.ex.: <code>enp2s0</code>)</p>
+</li>
+<li>
+<p>Nomes incorporando o endereço MAC da interface (p.ex.: <code>enx78e7d1ea46da</code>)</p>
+</li>
+<li>
+<p>Nomes clássicos, usando nomenclatura não-previsível nativa do kernel (p.ex.: <code>eth0</code>)</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Todas as VMs utilizadas neste curso serão derivadas da máquina <code>debian-template</code>, configurada com o Debian 9. A equivalência da nova nomenclatura de interfaces de rede, se comparada com a antiga, ficaria assim:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 50%;">
+<caption class="title">Table 3. Nomenclatura de interfaces de máquinas Debian 9</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Interface antiga</th>
+<th class="tableblock halign-left valign-middle">Interface nova</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">eth0</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">eth1</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">eth2</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enp0s9</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Observe, por exemplo, como é feita a detecção de interfaces durante o <em>boot</em> da máquina <code>ns1</code>, que criaremos a seguir:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dmesg | grep 'renamed from'
+[    1.658908] e1000 0000:00:09.0 enp0s9: renamed from eth2
+[    1.659807] e1000 0000:00:08.0 enp0s8: renamed from eth1
+[    1.660711] e1000 0000:00:03.0 enp0s3: renamed from eth0</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_criação_da_vm_de_firewall_e_dns_primário">2) Criação da VM de firewall e DNS primário</h3>
+<div class="paragraph">
+<p>Iremos agora criar a primeira máquina virtual efetiva de nosso <em>datacenter</em> simulado, a máquina <code>ns1</code>. Essa máquina atuará como um firewall de borda e DNS primário da rede, como configuraremos a seguir. Por se tratar de um firewall, é necessário que ela possua ao menos duas (ou, em nosso caso específico, três) interfaces de rede interconectando redes distintas.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Clone a máquina <code>debian-template</code> seguindo os mesmos passos da atividade (6) da sessão 1. Para o nome da máquina, escolha <code>ns1</code>.</p>
+</li>
+<li>
+<p>Após a clonagem, na janela principal do Virtualbox, clique com o botão direito sobre a VM <code>ns1</code> e depois em <em>Settings</em>.</p>
+<div class="paragraph">
+<p>Em <em>Network</em> &gt; <em>Adapter 1</em> &gt; <em>Attached to</em>, mantenha escolhida a opção <em>Bridged Adapter</em>, já que esta será a interface de conexão externa da máquina.</p>
+</div>
+<div class="paragraph">
+<p>Em <em>Adapter 2</em>, marque a caixa <em>Enable Network Adapter</em> e em <em>Attached to</em> selecione <em>Host-only Adapter</em>. O nome da rede <em>host-only</em> deve ser o mesmo alocado para a <strong>DMZ</strong>, como indicado na atividade (1) desta sessão. Seguindo o exemplo mostrado na figura da atividade, a rede escolhida seria portanto a <code>Virtualbox Host-Only Ethernet Adapter #2</code>.</p>
+</div>
+<div class="paragraph">
+<p>Em <em>Adapter 3</em>, marque a caixa <em>Enable Network Adapter</em> e em <em>Attached to</em> selecione <em>Host-only Adapter</em>. O nome da rede <em>host-only</em> deve ser o mesmo alocado para a <strong>Intranet</strong>, como indicado na atividade (1) desta sessão. Seguindo o exemplo da figura, escolheríamos então <code>Virtualbox Host-Only Ethernet Adapter #3</code>.</p>
+</div>
+<div class="paragraph">
+<p>Clique em <em>OK</em>, e ligue a máquina <code>ns1</code>.</p>
+</div>
+</li>
+<li>
+<p>Após o <em>boot</em>, faça login como o usuário <code>root</code>. Primeiro, vamos configurar a rede: edite o arquivo <code>/etc/network/interfaces</code> como se segue:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/network/interfaces
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo enp0s3 enp0s8 enp0s9
+
+iface lo inet loopback
+
+iface enp0s3 inet dhcp
+
+iface enp0s8 inet static
+address 10.0.42.1/24
+
+iface enp0s9 inet static
+address 192.168.42.1/24</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para garantir que nenhum endereço IP antigo, primário, se mantenha alocado às interfaces, execute o comando <code>flush</code> e em seguida reinicie a rede do sistema:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip addr flush label 'enp0s*' ; systemctl restart networking</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique que as interfaces estão com os endereços corretamente alocados:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}'
+192.168.29.104/24 enp0s3
+10.0.42.1/24 enp0s8
+192.168.42.1/24 enp0s9</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Usando o script <code>/root/scripts/changehost.sh</code> que criamos anteriormente, renomeie a máquina:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+debian-template</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># bash ~/scripts/changehost.sh ns1</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+ns1</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_configuração_inicial_do_firewall">3) Configuração inicial do firewall</h3>
+<div class="paragraph">
+<p>Para garantir a segurança da rede iremos configurar o firewall de forma extremamente restritiva, como se segue:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="olist loweralpha">
+<ol class="loweralpha">
+<li>
+<p>Tráfego oriundo do firewall (<em>chain</em> OUTPUT) será permitido.</p>
+</li>
+<li>
+<p>Todo o tráfego na interface <em>loopback</em> será permitido.</p>
+</li>
+<li>
+<p>Serão permitidos pacotes destinados ao firewall (<em>chain</em> INPUT) ou passando pelo firewall (<em>chain</em> FORWARD) cujo estado seja relacionado ou estabelecido.</p>
+</li>
+<li>
+<p>Serão permitidos pacotes ICMP oriundos das redes DMZ e Intranet com destino ao firewall <em>FWGW1-G</em>.</p>
+</li>
+<li>
+<p>Será permitida gerência via <code>ssh</code> do firewall a partir de máquinas da Intranet.</p>
+</li>
+<li>
+<p>Será autorizado o tráfego na Internet das máquinas da DMZ e Intranet <strong>exclusivamente</strong> nas portas TCP/80 e TCP/443.</p>
+</li>
+<li>
+<p>Todos os demais acessos serão bloqueados.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>À medida que novas regras forem necessárias, nas sessões seguintes, iremos criar regras de exceção pontualmente durante a execução das atividades, explicando os motivos das liberações. Vamos, ponto a ponto, realizar as configurações explicitadas acima:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Primeiro, como em qualquer firewall de rede, devemos habilitar o repasse de pacotes entre interfaces. Para isso, edite o arquivo <code>/etc/sysctl.conf</code> e descomente a linha com a diretiva <code>net.ipv4.ip_forward</code>, como se segue:</p>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i '/net.ipv4.ip_forward/s/^#//' /etc/sysctl.conf</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Processe as alterações no arquivo com:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sysctl -p
+net.ipv4.ip_forward = 1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Observe que esse arquivo é lido durante o <em>boot</em> do sistema, o que garante que nossa configuração perdurará mesmo após reiniciarmos a máquina.</p>
+</div>
+</li>
+<li>
+<p>Agora, vamos retomar as diretivas informadas no início desta atividade: para a requisição (a) não precisamos fazer nada, já que a política da <em>chain</em> OUTPUT encontra-se em ACCEPT:</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -L OUTPUT
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination</pre>
+</div>
+</div>
+</li>
+<li>
+<p>A diretiva (b) pode ser atendida com a regra que se segue:</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -i lo -j ACCEPT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Já tratamos do caso da <em>chain</em> OUTPUT, e não faz sentido falarmos em tráfego na interface <em>loopback</em> na <em>chain</em> FORWARD.</p>
+</div>
+</li>
+<li>
+<p>Para a diretiva (c) devemos usar uma regra de estados nas <em>chains</em> INPUT e FORWARD, da seguinte forma:</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Como a diretiva (d) diz especificamente de pacotes "com destino ao firewall", fica claro que devemos adicionar uma regra à <em>chain</em> INPUT. Note ainda que a diretiva é precisa em especificar que <strong>apenas</strong> o tráfego ICMP das redes DMZ e Intranet deve ser autorizado, e nenhum outro. Finalmente, não é especificado qual tipo de pacote ICMP será aceito, o que nos permite deduzir que todos serão aceitos.</p>
+<div class="paragraph">
+<p>Para inserir uma regra que inclua ambas as redes de origem, basta separá-las com vírgula, como se segue:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 10.0.42.0/24,192.168.42.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT</pre>
+</div>
+</div>
+</li>
+<li>
+<p>A diretiva (e) é clara ao especificar que a gerência será via <code>ssh</code> (portanto, na porta 22 do protocolo TCP), a ser feita no firewall (ou seja, <em>chain</em> INPUT), e apenas a partir de máquinas da Intranet. Podemos atender a esse requisito com a seguinte regra:</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 192.168.42.0/24 -p tcp -m tcp --dport 22 -j ACCEPT</pre>
+</div>
+</div>
+</li>
+<li>
+<p>A diretiva (f) diz que o tráfego na Internet das máquinas da DMZ e Intranet deve ser autorizado apenas nas portas TCP/80 e TCP/443. O requisito de IP de origem é bastante claro, mas o de destino não&#8201;&#8212;&#8201;de fato, máquinas na Internet podem ter, a princípio, qualquer endereço IP. Faz sentido, então, indicarmos a interface de saída dos pacotes, <code>enp0s3</code>.</p>
+<div class="paragraph">
+<p>Outro aspecto a ser observado é que os pacotes desta vez não se destinam ao firewall, mas sim passam por ele para atingir máquinas na Internet, indicando que a regra deve ser inserida na <em>chain</em> FORWARD.</p>
+</div>
+<div class="paragraph">
+<p>Podemos ainda usar o módulo <code>multiport</code> para evitar a digitação de duas regras similares. Então, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 10.0.42.0/24,192.168.42.0/24 -o enp0s3 -p tcp -m multiport --dports 80,443 -j ACCEPT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Há ainda que se considerar a necessidade de realizar a tradução dos endereços de saída, pois não é possível que as máquinas da DMZ/Intranet naveguem com seus IPs em faixas privadas. Temos que criar uma regra de SNAT para permitir a navegação&#8201;&#8212;&#8201;levando em conta que o endereço da interface <code>enp0s3</code> é dinâmico, faz sentido usar o alvo MASQUERADE, nesse caso.</p>
+</div>
+<div class="paragraph">
+<p>Um adendo final: podemos fazer uma regra tão restritiva quanto a que fizemos na <em>chain</em> FORWARD acima, especificando também o protocolo e porta em que o SNAT será realizado. Tenha em mente apenas que, em caso de adição de exceções futuras, será necessário adicionar o protocolo/porta de exceção em <strong>ambas</strong> as <em>chains</em>, <code>filter/FORWARD</code> e <code>nat/POSTROUTING</code>.</p>
+</div>
+<div class="paragraph">
+<p>A regra fica assim:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A POSTROUTING -s 10.0.42.0/24,192.168.42.0/24 -o enp0s3 -p tcp -m multiport --dports 80,443 -j MASQUERADE</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Atender a diretiva (g) final é bastante fácil: basta alterar a política das <em>chains</em> INPUT e FORWARD para DROP:</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P INPUT DROP</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P FORWARD DROP</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verifique a configuração final do firewall, comparando com os requisitos iniciais. Consulte primeiro a tabela <em>filter</em>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -L -vn
+Chain INPUT (policy DROP 189 packets, 52988 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+  982 67024 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     icmp --  *      *       10.0.42.0/24         0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     icmp --  *      *       192.168.42.0/24      0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     tcp  --  *      *       192.168.42.0/24      0.0.0.0/0            tcp dpt:22
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    0     0 ACCEPT     tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
+
+Chain OUTPUT (policy ACCEPT 16 packets, 1264 bytes)
+ pkts bytes target     prot opt in     out     source               destination</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E, depois, a tabela <em>nat</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -L -vn -t nat
+Chain PREROUTING (policy ACCEPT 10 packets, 1485 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain INPUT (policy ACCEPT 6 packets, 1012 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 MASQUERADE  tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    0     0 MASQUERADE  tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443</pre>
+</div>
+</div>
+</li>
+<li>
+<p>As configurações realizadas até aqui estão todas em memória&#8201;&#8212;&#8201;em caso de <em>reboot</em> da máquina <code>ns1</code>, elas serão perdidas. Para gravar as regras e integrá-las ao sistema de <em>init</em> do SO, o pacote <code>iptables-persistent</code> é uma excelente opção. Instale-o com:</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install iptables-persistent</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Na instalação do pacote, quando perguntado, responda:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 65%;">
+<caption class="title">Table 4. Configurações do iptables-persistent</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pergunta</th>
+<th class="tableblock halign-left valign-top">Resposta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Salvar as regras IPv4 atuais?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sim</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Salvar as regras IPv6 atuais?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sim</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>As regras IPv4 e IPv6 serão gravadas nos arquivos <code>/etc/iptables/rules.v4</code> e <code>/etc/iptables/rules.v6</code>, respectivamente. Em caso de alterações futuras nas configurações do firewall, é possível gravá-las de forma fácil com o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent save
+[....] Saving netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+done.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Se quiser limpar todas as regras de firewall e começar do zero, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent flush
+[....] Flushing netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables flush
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables flush
+done.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -L -vn
+Chain INPUT (policy ACCEPT 13 packets, 1558 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 11 packets, 1068 bytes)
+ pkts bytes target     prot opt in     out     source               destination</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Se cometer qualquer erro durante o processo de configuração ou simplesmente quiser recarregar o conjunto de regras gravado em <code>/etc/iptables/rules.v4</code>, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent reload
+[....] Loading netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables start
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables start
+done.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -L -vn
+Chain INPUT (policy DROP 70 packets, 19740 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+  111  5861 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     icmp --  *      *       10.0.42.0/24         0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     icmp --  *      *       192.168.42.0/24      0.0.0.0/0            icmptype 255
+    0     0 ACCEPT     tcp  --  *      *       192.168.42.0/24      0.0.0.0/0            tcp dpt:22
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     tcp  --  *      enp0s3  10.0.42.0/24         0.0.0.0/0            multiport dports 80,443
+    0     0 ACCEPT     tcp  --  *      enp0s3  192.168.42.0/24      0.0.0.0/0            multiport dports 80,443
+
+Chain OUTPUT (policy ACCEPT 120 packets, 12617 bytes)
+ pkts bytes target     prot opt in     out     source               destination</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_configuração_do_servidor_dns_primário">4) Configuração do servidor DNS primário</h3>
+<div class="paragraph">
+<p>Iremos agora configurar a máquina <code>ns1</code> como o servidor DNS primário da rede; para tanto, usaremos os programas NSD e Unbound.</p>
+</div>
+<div class="paragraph">
+<p>O NSD (<em>Name Server Daemon</em>) é um servidor DNS <em>open-source</em> desenvolvido pela NLNet de Amsterdã em parceria com a RIPE NCC, o registro regional de Internet da Europa, oeste da Ásia e ex-países da União Soviética. Ele foi projetado para atuar exclusivamente como um servidor DNS autoritativo, não implementando portanto funções de <em>cache</em> recursiva como sua contraparte mais famosa, o BIND. A ideia por trás disso é aumentar a variabilidade de implementações DNS disponíveis, aumentando a resiliência do sistema DNS contra falhas de software e <em>exploits</em>.</p>
+</div>
+<div class="paragraph">
+<p>O Unbound, por outro lado, é um <em>resolver</em> DNS com funções de validação, <em>cache</em> e recursividade também implementado pela NLNet Labs. Como se pode observar, então, ele faz as funções complementares às do NSD. Por sua percepção como sendo um software mais moderno, enxuto e seguro que seus concorrentes, o Unbound foi adotado como o <em>resolver</em> padrão do sistema-base dos sistemas FreeBSD e OpenBSD em 2014.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>O primeiro passo, naturalmente, é instalar os pacotes dos programas mencionados:</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install nsd unbound dnsutils</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos começar configurando o <strong>NSD</strong>. Primeiro, pare o <em>daemon</em>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop nsd</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O programa pode ser controlado no terminal usando o comando <code>nsd-control</code>&#8201;&#8212;&#8201;para tanto, é necessário gerar as chaves TLS de controle com o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-control-setup
+setup in directory /etc/nsd
+nsd_server.key exists
+nsd_control.key exists
+create nsd_server.pem (self signed certificate)
+create nsd_control.pem (signed client certificate)
+Signature ok
+subject=CN = nsd-control
+Getting CA Private Key
+Setup success. Certificates created.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique a criação das chaves com o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -1 /etc/nsd | grep '.key\|.pem'
+nsd_control.key
+nsd_control.pem
+nsd_server.key
+nsd_server.pem</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Faça um backup do arquivo de configuração original <code>/etc/nsd/nsd.conf</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># mv /etc/nsd/nsd.conf /etc/nsd/nsd.conf.orig</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, crie o arquivo novo <code>/etc/nsd/nsd.conf</code> com o seguinte conteúdo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">server:
+  ip-address: 127.0.0.1
+  ip-address: 10.0.42.1
+  do-ip4: yes
+  port: 8053
+  username: nsd
+  zonesdir: "/etc/nsd/zones"
+
+  logfile: "/var/log/nsd.log"
+  pidfile: "/run/nsd/nsd.pid"
+  hide-version: yes
+  version: "intnet DNS"
+  identity: "unidentified server"
+
+remote-control:
+  control-enable: yes
+  control-interface: 127.0.0.1
+  control-port: 8952
+  server-key-file: "/etc/nsd/nsd_server.key"
+  server-cert-file: "/etc/nsd/nsd_server.pem"
+  control-key-file: "/etc/nsd/nsd_control.key"
+  control-cert-file: "/etc/nsd/nsd_control.pem"
+
+key:
+  name: "inkey"
+  algorithm: sha512
+  secret: "TSIGKEY"
+
+pattern:
+  name: "inslave"
+  notify: 10.0.42.2@8053 inkey
+  provide-xfr: 10.0.42.2 inkey
+
+zone:
+  name: "intnet"
+  include-pattern: "inslave"
+  zonefile: "intnet.zone"
+
+zone:
+  name: "42.0.10.in-addr.arpa"
+  include-pattern: "inslave"
+  zonefile: "10.0.42.zone"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Abaixo, destacamos e explicamos algumas das diretivas mais relevantes do arquivo acima:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>server/ip-address</code>: define os endereços de rede nos quais o NSD irá escutar&#8201;&#8212;&#8201;atenderemos requisições de <em>localhost</em> e do servidor DNS secundário, que será instalado na DMZ a seguir. O controle de quais <em>hosts</em> estarão autorizados a consultar o NSD será feito via diretivas <code>notify</code> e <code>provide-xfr</code>, bem como restrição via regra de firewall.</p>
+</li>
+<li>
+<p><code>server/port</code>: define a porta em que o NSD irá escutar; como iremos instalar o Unbound na mesma máquina (escutando na porta 53/UDP), escolhemos a porta alternativa 8053 para evitar conflitos de <em>bind</em>.</p>
+</li>
+<li>
+<p><code>server/username</code>: usuário com o qual o NSD irá operar. É possível aplicar um controle adicional além da redução de privilégios para um usuário comum, o uso de <em>chroot</em>, que não faremos nesta atividade.</p>
+</li>
+<li>
+<p><code>server/zonesdir</code>: diretório em que serão armazenados os arquivos de zonas do NSD.</p>
+</li>
+<li>
+<p><code>server/hide-version</code>, <code>server/version</code> e <code>server/identity</code>: os três controles objetivam mascarar o software rodando na máquina local, dificultando a tarefa de <em>banner grabbing</em> e identificação de <em>exploits</em> por parte de eventuais atacantes.</p>
+</li>
+<li>
+<p><code>remote-control/control-enable</code> e <code>remote-control/interface</code>: define que o NSD poderá ser controlado "remotamente", mas logo depois restringe o IP de escuta para 127.0.0.1, efetivamente autorizando conexão de controle exclusivamente a partir de <em>localhost</em>.</p>
+</li>
+<li>
+<p><code>key/secret</code>: define uma chave secreta que servidores primário e secundário deverão possuir em comum para que a transferência de zona seja feita com sucesso. Faremos a geração dessa chave e sua substituição de forma automática no arquivo a seguir.</p>
+</li>
+<li>
+<p><code>pattern</code>: define um conjunto de diretivas que serão inseridas em diversas zonas a seguir (efetivamente, como uma <em>macro</em>). No caso, estamos indicando que o servidor 10.0.42.2 será notificado de alterações de zona (<code>notify</code>), e transferências de zona partir desse endereço serão autorizadas (<code>provide-xfr</code>).</p>
+</li>
+<li>
+<p><code>zone/intnet</code>: define um arquivo de zona direta para o qual o servidor NSD será autoritativo, o nome de domínio <code>intnet</code>. A sintaxe do arquivo é idêntica à usada no software BIND.</p>
+</li>
+<li>
+<p><code>zone/42.0.10-in-addr.arpa</code>: define um arquivo de zona reversa para o qual o servidor NSD será autoritativo, a faixa de endereços <code>10.0.42.0/24</code>. A sintaxe do arquivo é idêntica à usada no software BIND.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>A transferência de zonas entre servidor primário e secundário é assegurada, além dos controles de interface de escuta e regras de firewall, por uma chave secreta TSIG (<em>Transaction SIGnature</em>) em formato Base64. Para inseri-la no arquivo use o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tsigkey_t=$( dd if=/dev/urandom of=/dev/stdout count=1 bs=32 2&gt; /dev/null| base64 ); sed -i "s|TSIGKEY|$tsigkey_t|" /etc/nsd/nsd.conf ; unset tsigkey_t</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique a inserção da chave com:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep 'secret:' /etc/nsd/nsd.conf
+  secret: "i7IoB5VDHVOCW9wvuOGQuFLNu8hzfAblVAbCD1SbPL4="</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lembre-se que precisaremos dessa mesma chave quando estivermos configurando o servidor secundário.</p>
+</div>
+</li>
+<li>
+<p>Crie o diretório de zonas <code>/etc/nsd/zones</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># mkdir /etc/nsd/zones</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, crie o arquivo novo <code>/etc/nsd/zones/intnet.zone</code>, com as configuração de zona direta para o domínio <code>intnet.</code>, com o seguinte conteúdo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$TTL 86400 ; (1 day)
+$ORIGIN intnet.
+
+@       IN   SOA   ns1.intnet.  admin.intnet. (
+                   2018111000   ;serial (YYYYMMDDnn)
+                   14400        ;refresh (4 hours)
+                   1800         ;retry (30 minutes)
+                   1209600      ;expire (2 weeks)
+                   3600         ;negative cache TTL (1 hour)
+                   )
+
+@       IN   NS                 ns1.intnet.
+@       IN   NS                 ns2.intnet.
+
+@       IN   MX    10           mx1.intnet.
+@       IN   MX    20           mx2.intnet.
+
+ns1     IN    A                 10.0.42.1
+ns2     IN    A                 10.0.42.2
+
+mx1     IN    A                 10.0.42.91
+mx2     IN    A                 10.0.42.92
+
+fw      IN    CNAME             ns1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A sintaxe é exatamente a mesma utilizada para um arquivo de zonas do BIND. Note que:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>Definimos a máquina <code>ns1.intnet.</code> como o servidor autoritativo para o domínio <code>intnet.</code>, com email de contato <code>admin@intnet</code>.</p>
+</li>
+<li>
+<p>O serial é <code>2018111000</code>&#8201;&#8212;&#8201;este é um número que deve identificar a versão do arquivo de zonas, e incrementado a cada atualização. O formato escolhido para esse <em>serial</em> foi <code>ANO-MES-DIA-VERSAO</code>, de forma que versões do arquivo em datas futuras terão sempre um valor superior ao de versões antigas.</p>
+</li>
+<li>
+<p>Os servidores DNS responsáveis pelo domínio são <code>ns1.intnet</code> e <code>ns2.intnet.</code>.</p>
+</li>
+<li>
+<p>Os servidores de e-mail (MX&#8201;&#8212;&#8201;<em>mail exchange</em>) do domínio são <code>mx1.intnet.</code> e <code>mx2.intnet.</code>. Ambos são servidores fictícios, que não implantaremos neste curso, e mostrados aqui apenas para demonstrar a sintaxe desse tipo de entrada no arquivo de zonas.</p>
+</li>
+<li>
+<p>Configuram-se registros A (<em>address</em>) para as máquinas mencionadas.</p>
+</li>
+<li>
+<p>Configura-se um registro CNAME (<em>canonical name</em>) para a máquina <code>ns1.intnet.</code>, <code>fw.intnet.</code>. Com isso, os usuário poderão referir-se a essa máquina também pelo seu "apelido".</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos para o arquivo de zona reversa. Crie o arquivo novo <code>/etc/nsd/zones/10.0.42.zone</code> com o seguinte conteúdo:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$TTL 86400 ; (1 day)
+$ORIGIN 42.0.10.in-addr.arpa.
+
+@       IN   SOA   ns1.intnet.  admin.intnet. (
+                   2018111000   ;serial (YYYYMMDDnn)
+                   14400        ;refresh (4 hours)
+                   1800         ;retry (30 minutes)
+                   1209600      ;expire (2 weeks)
+                   3600         ;negative cache TTL (1 hour)
+                   )
+
+@       IN   NS                 ns1.intnet.
+@       IN   NS                 ns2.intnet.
+
+@       IN   MX    10           mx1.intnet.
+@       IN   MX    20           mx2.intnet.
+
+1       IN   PTR                ns1.intnet.
+2       IN   PTR                ns2.intnet.
+
+91      IN   PTR                mx1.intnet.
+92      IN   PTR                mx2.intnet.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Nada muito diferente neste arquivo em relação ao anterior&#8201;&#8212;&#8201;note apenas que os registros inseridos aqui são do tipo PTR (<em>pointer</em>), fazendo o mapeamento reverso entre endereços IP e nomes de domínio. Note, ainda, que o <em>ORIGIN</em> do arquivo é definido como <code>42.0.10.in-addr.arpa.</code>, já que somos o servidor autoritativo para a faixa 10.0.42.0/24.</p>
+</div>
+</li>
+<li>
+<p>Vamos verificar se a sintaxe dos arquivos de configuração não possui erros:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-checkconf /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, basta reiniciar o serviço e verificar sua correta operação:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-control start</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail /var/log/nsd.log
+[2018-11-13 17:17:26.763] nsd[2012]: notice: nsd starting (NSD 4.1.14)
+[2018-11-13 17:17:26.780] nsd[2014]: notice: nsd started (NSD 4.1.14), pid 2013</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ss -tunlp | grep 8053
+udp    UNCONN     0      0      10.0.42.1:8053                  *:*                   users:(("nsd",pid=648,fd=5),("nsd",pid=647,fd=5),("nsd",pid=646,fd=5))
+udp    UNCONN     0      0      127.0.0.1:8053                  *:*                   users:(("nsd",pid=648,fd=4),("nsd",pid=647,fd=4),("nsd",pid=646,fd=4))
+tcp    LISTEN     0      128    10.0.42.1:8053                  *:*                   users:(("nsd",pid=648,fd=7),("nsd",pid=647,fd=7),("nsd",pid=646,fd=7))
+tcp    LISTEN     0      128    127.0.0.1:8053                  *:*                   users:(("nsd",pid=648,fd=6),("nsd",pid=647,fd=6),("nsd",pid=646,fd=6))</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos colocar o servidor à prova: teste a resolução direta de nomes usando a ferramenta <code>dig</code>. Lembre-se que o NSD está operando na porta 8053/UDP, e não na porta padrão:</p>
+<div class="literalblock">
+<div class="content">
+<pre># dig @127.0.0.1 -p 8053 fw.intnet +noadditional +noquestion
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; @127.0.0.1 -p 8053 fw.intnet +noadditional +noquestion
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 64874
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 2, ADDITIONAL: 2
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+fw.intnet.              86400   IN      CNAME   ns1.intnet.
+ns1.intnet.             86400   IN      A       10.0.42.1
+
+;; AUTHORITY SECTION:
+intnet.                 86400   IN      NS      ns1.intnet.
+intnet.                 86400   IN      NS      ns2.intnet.
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 09:19:30 -02 2018
+;; MSG SIZE  rcvd: 120</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Excelente! Todas as seções de resposta parecem corretas, tanto ANSWER quando AUTHORITY. Vamos verificar a resolução reversa:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dig @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 4272
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+2.42.0.10.in-addr.arpa. 86400   IN      PTR     ns2.intnet.
+
+;; AUTHORITY SECTION:
+42.0.10.in-addr.arpa.   86400   IN      NS      ns1.intnet.
+42.0.10.in-addr.arpa.   86400   IN      NS      ns2.intnet.
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 09:19:47 -02 2018
+;; MSG SIZE  rcvd: 107</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora que o NSD está configurado, vamos implementar o <strong>Unbound</strong>. Primeiro, pare o <em>daemon</em> se estiver rodando:</p>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop unbound</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Assim como no caso do NSD, o Unbound pode ser controlado via <code>unbound-control</code>&#8201;&#8212;&#8201;gere as chaves de controle:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># unbound-control-setup
+setup in directory /etc/unbound
+unbound_server.key exists
+unbound_control.key exists
+create unbound_server.pem (self signed certificate)
+create unbound_control.pem (signed client certificate)
+Signature ok
+subject=CN = unbound-control
+Getting CA Private Key
+Setup success. Certificates created.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Faça um backup do arquivo de configuração original <code>/etc/unbound/unbound.conf</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.orig</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, crie o arquivo novo <code>/etc/unbound/unbound.conf</code> com o seguinte conteúdo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">server:
+  interface: 127.0.0.1
+  interface: 10.0.42.1
+  interface: 192.168.42.1
+  port: 53
+
+  access-control: 127.0.0.0/8 allow
+  access-control: 10.0.42.0/24 allow
+  access-control: 192.168.42.0/24 allow
+
+  cache-min-ttl: 300
+  cache-max-ttl: 14400
+
+  local-zone: "intnet" nodefault
+  domain-insecure: "intnet"
+
+  local-zone: "10.in-addr.arpa." nodefault
+  domain-insecure: "10.in-addr.arpa."
+
+  verbosity: 1
+  prefetch: yes
+  hide-version: yes
+  hide-identity: yes
+  use-caps-for-id: yes
+  rrset-roundrobin: yes
+  minimal-responses: yes
+  do-not-query-localhost: no
+
+stub-zone:
+  name: "intnet"
+  stub-addr: 127.0.0.1@8053
+
+stub-zone:
+  name: "42.0.10.in-addr.arpa."
+  stub-addr: 127.0.0.1@8053
+
+forward-zone:
+  name: "."
+  forward-addr: 8.8.8.8
+  forward-addr: 8.8.4.4
+
+include: "/etc/unbound/unbound.conf.d/*.conf"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Abaixo, destacamos e explicamos algumas das diretivas mais relevantes do arquivo acima:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>server/interface</code>: define os endereços de rede nos quais o Unbound irá escutar&#8201;&#8212;&#8201;atenderemos requisições de <em>localhost</em> e das sub-redes DMZ e Intranet.</p>
+</li>
+<li>
+<p><code>server/port</code>: o Unbound irá escutar na porta padrão, 53/UDP.</p>
+</li>
+<li>
+<p><code>server/access-control</code>: define que as sub-redes declaradas (<em>localhost</em>, DMZ e Intranet, novamente) terão permissão para utilizar os serviços de resolução de nomes.</p>
+</li>
+<li>
+<p><code>server/local-zone</code> e <code>server/domain-insecure</code>: define opções para as zonais locais <code>intnet.</code> e <code>42.0.10.in-addr.arpa.</code>, e que a cadeia de confiança DNSSEC não será verificada para esses domínios.</p>
+</li>
+<li>
+<p><code>server/hide-version</code> e <code>server/hide-identity</code>: controles que objetivam mascarar o software rodando na máquina local, dificultando a tarefa de <em>banner grabbing</em> e identificação de <em>exploits</em> por parte de eventuais atacantes.</p>
+</li>
+<li>
+<p><code>stub-zone</code> e <code>stub-zone/stub-addr</code>: declara zonas autoritativas locais que devem ser consultadas para os domínios especificados, para as quais o registro público DNS não será usado. Usaremos o servidor NSD rodando em <em>localhost</em>, consultando a porta 8053/UDP.</p>
+</li>
+<li>
+<p><code>forward-zone</code> e <code>forward-zone/forward-addr</code>: define servidores nos quais o Unbound irá buscar recursão caso não consiga resolver um nome. Como está sendo declarado o nome de zona <code>"."</code>,  todas as pesquisas serão redirecionadas para os servidores indicados em <code>forward-addr</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos verificar o funcionamento do <em>daemon</em>. Inicie o Unbound usando o <code>unbound-control</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># unbound-control start</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique seu funcionamento usando o <code>ss</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ss -unlp | grep :53
+UNCONN     0      0      192.168.42.1:53                    *:*                   users:(("unbound",pid=2084,fd=7))
+UNCONN     0      0      10.0.42.1:53                       *:*                   users:(("unbound",pid=2084,fd=5))
+UNCONN     0      0      127.0.0.1:53                       *:*                   users:(("unbound",pid=2084,fd=3))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Reconfigure o DNS <em>system-wide</em>, no arquivo <code>/etc/resolv.conf</code>.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/resolv.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/resolv.conf
+domain intnet.
+search intnet.
+nameserver 10.0.42.1
+nameserver 10.0.42.2</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Devido ao fato de estarmos usando DHCP na interface de saída (<code>enp0s3</code>), o arquivo <code>/etc/resolv.conf</code> poderá ser sobrescrito sempre que as interfaces de rede forem reiniciadas, ou após o <em>reboot</em> da máquina. Para evitar isso, marque o arquivo como imutável:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># chattr +i /etc/resolv.conf</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Feito! Vamos testar a resolução de domínios internos <code>unbound</code> com a ferramenta <code>dig</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># dig fw.intnet +noquestion +noadditional
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; fw.intnet +noquestion +noadditional
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 63613
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+fw.intnet.              86400   IN      CNAME   ns1.intnet.
+ns1.intnet.             86400   IN      A       10.0.42.1
+
+;; Query time: 0 msec
+;; SERVER: 10.0.42.1#53(10.0.42.1)
+;; WHEN: Mon Nov 12 09:39:55 -02 2018
+;; MSG SIZE  rcvd: 72</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E quanto a nomes de domínio externos, usando recursão? Vejamos:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dig openbsd.org +noquestion +noadditional
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; openbsd.org +noquestion +noadditional
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 5694
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+openbsd.org.            21599   IN      A       129.128.5.194
+
+;; Query time: 420 msec
+;; SERVER: 10.0.42.1#53(10.0.42.1)
+;; WHEN: Mon Nov 12 09:40:33 -02 2018
+;; MSG SIZE  rcvd: 56</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Ainda não acabou! Lembre-se que nossas regras de firewall configuradas no começo desta sessão estão extremamente restritivas, então temos que criar exceções para que a consulta de nomes funcione. Vamos ver os tipos de acesso que precisamos liberar:</p>
+<div class="openblock">
+<div class="content">
+<div class="olist loweralpha">
+<ol class="loweralpha">
+<li>
+<p>O NSD será consultado apenas pelo Unbound em <em>localhost</em> (não é necessário criar regras neste caso), e pelo servidor DNS secundário em 10.0.42.2. Como nesse caso será feita transferência de zonas entre os servidores, é necessário liberar tráfego nos protocolos TCP e UDP na porta 8053.</p>
+</li>
+<li>
+<p>O Unbound local será consultado por todas as máquinas da DMZ e Intranet, na porta 53/UDP.</p>
+</li>
+<li>
+<p>Os clientes da Intranet devem conseguir consultar o Unbound rodando no servidor DNS secundário, porta 53/UDP. Não é necessário criar uma regra para a DMZ, neste caso, pois as máquinas estão na mesma sub-rede e portanto seu tráfego não passa pelo firewall (na <em>chain</em> FORWARD).</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos ao requisito (a):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 10.0.42.2/32 -p tcp -m tcp --dport 8053 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 10.0.42.2/32 -p udp -m udp --dport 8053 -j ACCEPT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, o requisito (b):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 10.0.42.0/24,192.168.42.0/24 -p udp -m udp --dport 53 -j ACCEPT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E, finalmente, o critério (c) estabelecido inicialmente:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.2/32 -p udp -m udp --dport 53 -j ACCEPT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Salve as regras na configuração do firewall local:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent save
+[....] Saving netfilter rules...run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+done.</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_configuração_do_dnssec">5) Configuração do DNSSEC</h3>
+<div class="paragraph">
+<p>Vamos agora configurar o DNSSEC em nosso servidor autoritativo, de forma a produzir consultas assinadas digitalmente. Evidentemente, como estamos configurando um domínio fictício não iremos conseguir propagar a assinatura pela cadeia de confiança raiz, mas esta atividade servirá como um exemplo caso você queira fazê-lo em sua organização posteriormente.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Primeiro, vamos instalar as ferramentas de suporte para gestão/geração de chaves DNSSEC:</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install ldnsutils haveged</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos criar as chaves de assinatura de zona (ZSK, ou <em>Zone Signing Key</em>) e chave (KSK, ou <em>Key Signing Key</em>). O KSK é um par de chaves público/privada usado para gerar uma assinatura digital para o ZSK. O ZSK, por sua vez, é um par de chaves público/privada para gerar uma assinatura digital conhecida como RRSIG (<em>Resource Record Signature</em>) para cada um dos RRSETs (<em>Resource Record Sets</em>) da zona. O website da Cloudflare (<a href="https://www.cloudflare.com/dns/dnssec/how-dnssec-works/" class="bare">https://www.cloudflare.com/dns/dnssec/how-dnssec-works/</a>) possui uma excelente explicação sobre o sistema DNSSEC que pode ser usada para consulta.</p>
+<div class="paragraph">
+<p>Primeiro, entre no diretório <code>/etc/nsd</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cd /etc/nsd/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, vamos gerar o ZSK/KSK e armazenar seus nomes em uma variável temporária. Os algoritmos escolhidos estão de acordo com as melhores práticas recomendadas na RFC 6944 (<a href="https://tools.ietf.org/html/rfc6944" class="bare">https://tools.ietf.org/html/rfc6944</a>).</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># export ZSK=$( ldns-keygen -a RSASHA512 -b 2048 intnet )</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># export KSK=$( ldns-keygen -k -a RSASHA512 -b 2048 intnet )</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Podemos remover o registro DS (<em>Delegation of Signing</em>) auto-gerado, já que iremos regerá-lo futuramente sob demanda.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rm Kintnet.*.ds</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vejamos como ficaram as chaves ZSK/KSK para o domínio:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -1 Kintnet.*
+Kintnet.+010+14936.key
+Kintnet.+010+14936.private
+Kintnet.+010+42867.key
+Kintnet.+010+42867.private</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para identificar qual dessas chaves é a ZSK e qual é a KSK, consulte as variáveis do <em>shell</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo $ZSK
+Kintnet.+010+14936</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo $KSK
+Kintnet.+010+42867</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos assinar a zona <code>intnet.zone</code> com o comando <code>ldns-signzone</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># ldns-signzone -n -p -s $(head -n 1000 /dev/urandom | sha1sum | cut -b 1-16) /etc/nsd/zones/intnet.zone $ZSK $KSK</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O que ocorreu? Verifique o conteúdo do diretório <code>/etc/nsd/zones</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -1 /etc/nsd/zones
+10.0.42.zone
+intnet.zone
+intnet.zone.signed</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos configurar o NSD para usar a zona assinada. Para isso, basta substituir o caminho de busca do arquivo de zona direta <code>/etc/nsd/zones/intnet.zone</code> por sua contraparte assinada:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/intnet\.zone/intnet\.zone\.signed/' /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep -B3 intnet.zone.signed /etc/nsd/nsd.conf
+zone:
+  name: "intnet"
+  include-pattern: "inslave"
+  zonefile: "intnet.zone.signed"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para informar ao NSD que o arquivo de zonas mudou, basta usar o programa <code>nsd-control</code> como mostrado a seguir:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-control reconfig
+reconfig start, read /etc/nsd/nsd.conf
+ok</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-control reload intnet
+ok</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos testar se nossa configuração surtiu efeito. Primeiro, pesquise pelos registros DNSKEY do domínio no NSD em <em>localhost</em>, verificando as chaves ZSK e KSK:</p>
+<div class="literalblock">
+<div class="content">
+<pre># dig -p 8053 @localhost DNSKEY intnet. +multiline +norec +noquestion
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; -p 8053 @localhost DNSKEY intnet. +multiline +norec +noquestion
+; (2 servers found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 18768
+;; flags: qr aa; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+intnet.                 86400 IN DNSKEY 256 3 10 (
+                                AwEAAerseiw1VUd7L90iBA4IgztUXpkw/k/6kKIHx5Qm
+                                Cm1HvtLTT/dSFk9JOHVBoQ2Rpk0LQBc+WZsnqz6dQZJn
+                                b9FkGzsAh39BnP8gOA1d+SfaGGkceEteQfgi3rKz5dnk
+                                EWgOonWk2vGOJ5oPDvcy4aUQqfTACY9Tk0qeWZT7enfy
+                                gdrg4AjaTKBdJ4kruBj2z3FKXBolDYO3HTPmosKe94Xr
+                                muiLQa3uHFvFvu6k/X0mH1kCS+lb91R/OF60mG40iW4/
+                                z8aLNSKPUuwJNddvZ0I14F7SwN7YGaVpoY11DAsxmbS5
+                                1lGxp6Fc0fWQpAfT4WG9/mbyHj29kZnP/Oxktsk=
+                                ) ; ZSK; alg = RSASHA512; key id = 14936
+intnet.                 86400 IN DNSKEY 257 3 10 (
+                                AwEAAdIo8BoUEY6ab3YBbs24FEj8Vt9aRByAFyKJk0sH
+                                BiNIy9I1vXZIGB+5wlIKPzT4ZVd3oYO3MDExxDYZ1HVS
+                                D1magCRBzLF2oeTCWY3kLz/9ls23RV9r5IMY68aPHMg0
+                                tDBJ8IZTC9SbO+os3L9jazwpoL22Akl34YN6iIC6kXpQ
+                                gN3TtNorzD8DIHkBvJ9NrpKYJjzt0g8oTyg0La3xTNcO
+                                6q51Q4eVBnlcXbbJ6gquSFzAnoJ9qzq5JUnbvAB9I4yv
+                                Spo3RGCX3lZFmsDvsDfnwkXShyeEPdGTr6m/mbqPrceW
+                                R53QLOWnZq1KrczPwTlKjgtzwg+F7ol8YDdQOwU=
+                                ) ; KSK; alg = RSASHA512; key id = 42867
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 11:13:56 -02 2018
+;; MSG SIZE  rcvd: 587</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito! Aparentemente, nossas chaves foram registradas e estão sendo utilizadas com sucesso. O Unbound, no entanto, ainda possui algumas entradas na <em>cache</em> desatualizadas, prévias à configuração do DNSSEC, que foram mantidas pelas consultas anteriores. Para limpá-las, basta usar o comando <code>unbound-control flush_zone</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># unbound-control flush_zone intnet.
+ok removed 4 rrsets, 2 messages and 0 key entries</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora sim, faça uma consulta via Unbound usando DNSSEC:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dig fw.intnet +dnssec +multiline +noquestion
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; fw.intnet +dnssec +multiline +noquestion
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 47390
+;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags: do; udp: 4096
+;; ANSWER SECTION:
+fw.intnet.              86355 IN CNAME ns1.intnet.
+fw.intnet.              86355 IN RRSIG CNAME 10 2 86400 (
+                                20181210130559 20181112130559 14936 intnet.
+                                u2DBcjAp91qYSYvspczvWiW8QuIX24aAoFTzfM8hJdUQ
+                                3VcjekyJeQQfNPIM4+rE9ZdTywADS4nKCFl/XqkHwFST
+                                kitVm9So17I4GBJ+sgpKkpoKEwh6IfbUB563Mmfj9jIQ
+                                SvuR0dP0ot9QV+DXWCFLD02tvXTOBSltBT9Nogx1h926
+                                5lkSZ0F+5x0Ss1Law5Rpn8ZKyAAwCYS0UNJIqB8XzIqb
+                                eSblG5Q4Si7Qwrccv7Ll6DscBbh1gjmnCAYCE63XF3SN
+                                s0N9SgTgfzibgVaVGw+S1SoVYjvxDVd5ZW/tpQxhx4kY
+                                Wt/c+541nj7xmFT58/dnoo8t6Meo/JCKgw== )
+ns1.intnet.             86297 IN A 10.0.42.1
+ns1.intnet.             86297 IN RRSIG A 10 2 86400 (
+                                20181210130559 20181112130559 14936 intnet.
+                                bmwQPD9b/GwUX2ZvpP6baOzyEXNW/ghcc9rqzZSWwUYn
+                                VfX+UqRwzon/2lxJfYO1uJh0v8noO2S5+zb7saroDsCi
+                                9/Oaukw+iAvwrZh6VO1dHDr6WjAlS4hi9MxmfJ94NwD7
+                                txB5WLG39KM0V/EpH+v4L6ser4v+oYFSer7a6EsZxCcD
+                                nfciKtN5L/QUWVMacduxpRM16+MI83bEf/ulC82xIThf
+                                2cVVdsDA4xfZvAOcYS/IXUauYXaj9fkE2TlVoyIC1UIM
+                                XE6CSbulo2iWc+V+lj5tkP9kctmqit3rfegWXJlQ4es3
+                                4fsxR64+Weqre/iTMpVxVss/TLus7g7OiA== )
+
+;; Query time: 0 msec
+;; SERVER: 10.0.42.1#53(10.0.42.1)
+;; WHEN: Mon Nov 12 11:17:12 -02 2018
+;; MSG SIZE  rcvd: 660</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Caso fosse desejável exportar a configuração DNS para um <em>registrar</em> hierarquicamente superior (fechando a cadeia de verificação DNS), pode-se gerar os registros DS das chaves com o comando abaixo.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ldns-key2ds -n -1 /etc/nsd/zones/intnet.zone.signed &amp;&amp; ldns-key2ds -n -2 /etc/nsd/zones/intnet.zone.signed
+intnet. 86400   IN      DS      42867 10 1 5b8c2c011bd011618f7e339667c075587e65ab05
+intnet. 86400   IN      DS      42867 10 2 424bcf7d7c09df8be1520c4230680b5c33a63598b4c6185c7884592ad3bce63b</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_automatizando_assinatura_dnssec_após_alterações">6) Automatizando assinatura DNSSEC após alterações</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>É claro, seria muito inconveniente ter que realizar todos os passos que fizemos na atividade (5) a cada alteração no servidor DNS. Vamos automatizar a assinatura de zonas e reinício dos <em>daemons</em> relevantes com um <em>script shell</em>. Crie o arquivo novo <code>/root/scripts/signzone-intnet.sh</code> com o seguinte conteúdo:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/bin/bash
+
+ZSK="ZSKSTUB"
+KSK="KSKSTUB"
+ZONE_FILE="/etc/nsd/zones/intnet.zone"
+
+cd /etc/nsd
+
+ldns-signzone -n \
+  -p \
+  -s $(head -n 1000 /dev/random | sha1sum | cut -b 1-16) \
+  $ZONE_FILE \
+  $ZSK \
+  $KSK
+
+nsd-control reconfig
+nsd-control reload intnet
+nsd-control reload 42.0.10.in-addr.arpa
+unbound-control flush_zone intnet.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que é necessário substituir as variáveis <code>ZSKSTUB</code> e <code>KSKSTUB</code> com os valores da variáveis <code>$ZSK</code> e <code>$KSK</code> no seu <em>shell</em> corrente, como se segue:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i "s/ZSKSTUB/${ZSK}/" /root/scripts/signzone-intnet.sh</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i "s/KSKSTUB/${KSK}/" /root/scripts/signzone-intnet.sh</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Teste a assinatura de zonas usando o <em>script</em>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># bash scripts/signzone-intnet.sh
+reconfig start, read /etc/nsd/nsd.conf
+ok
+ok
+ok
+ok removed 4 rrsets, 2 messages and 0 key entries</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Ao atualizar arquivos de zona, não se esqueça que além de adicionar registros A, CNAME ou PTR conforme necessário, é também <strong>imprescindível</strong> incrementar o valor do <em>serial</em> do arquivo, próximo do topo no registro SOA. Se isso não for feito, o NSD não irá detectar que o arquivo de zona foi atualizado e suas modificações não serão propagadas.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_7_reconfiguração_da_vm_debian_template">7) Reconfiguração da VM <strong><em>debian-template</em></strong></h3>
+<div class="paragraph">
+<p>Agora que temos um firewall e servidores DNS na rede é interessante que alteremos a configuração padrão da VM <code>debian-template</code> para que as novas máquinas, clonadas a partir dela, já estejam corretamente ajustadas para operar em nosso <em>datacenter</em> simulado.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Ligue a máquina <code>debian-template</code> e acesse o terminal como o usuário <code>root</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+debian-template
+root</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Com a máquina <code>debian-template</code> ligada, acesse na janela principal do Virtualbox o menu <em>Settings</em> &gt; <em>Network</em> &gt; <em>Adapter 1</em> &gt; <em>Attached to</em> e altere a opção para <em>Host-only Adapter</em>. O nome da rede <em>host-only</em> escolhido deve ser o mesmo alocado para a interface de rede da máquina virtual <code>ns1</code> que está conectada à DMZ. Seguindo o exemplo mostrado no início desta sessão, portanto, a rede escolhida seria a <code>Virtualbox Host-Only Ethernet Adapter #2</code>.</p>
+</li>
+<li>
+<p>De volta ao terminal da máquina <code>debian-template</code>, vamos configurar a rede: edite o arquivo <code>/etc/network/interfaces</code> como se segue:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/network/interfaces
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/network/interfaces
+source /etc/network/interfaces.d/*
+
+auto lo enp0s3
+
+iface lo inet loopback
+
+iface enp0s3 inet static
+address 10.0.42.253/24
+gateway 10.0.42.1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para garantir que nenhum endereço IP antigo, primário, se mantenha alocado às interfaces, execute o comando <code>flush</code> e em seguida reinicie a rede do sistema:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip addr flush label 'enp0s*' ; systemctl restart networking</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verifique que as interfaces estão com os endereços corretamente alocados:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}'
+10.0.42.253/24 enp0s3</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, configure a resolução de nomes no arquivo <code>/etc/resolv.conf</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/resolv.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/resolv.conf
+domain intnet.
+search intnet.
+nameserver 10.0.42.1
+nameserver 10.0.42.2</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos alterar o <em>script</em> <code>/root/scripts/changehost.sh</code> para que possamos configurar, de uma vez só, informações como endereço IP e <em>hostname</em> na máquina clonada. Apague todo o conteúdo do <em>script</em> original e substitua-o pelo seguinte:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/bin/bash
+
+
+# exibir uso do script e sair
+function usage() {
+  echo "  Usage: $0 -h HOSTNAME -i IPADDR -g GATEWAY"
+  echo "  Netmask is assumed as /24."
+  exit 1
+}
+
+
+# testar sintaxe valida de HOSTNAME
+function valid_host() {
+  if [[ "$nhost" =~ [^a-z0-9-] ]]; then
+    echo "  [*] HOSTNAME must be lowercase alphanumeric: [a-z0-9]*"
+    usage
+  elif [ ${#nhost} -gt 63 ]; then
+    echo "  [*] HOSTNAME must have &lt;63 chars"
+    usage
+  fi
+}
+
+
+# testar sintaxe valida de IPADDR/GATEWAY
+function valid_ip() {
+  local  ip=$1
+  local  stat=1
+
+  if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    OIFS=$IFS
+    IFS='.'
+    ip=($ip)
+    IFS=$OIFS
+    [[ ${ip[0]} -le 255 &amp;&amp; \
+       ${ip[1]} -le 255 &amp;&amp; \
+       ${ip[2]} -le 255 &amp;&amp; \
+       ${ip[3]} -le 255 ]]
+        stat=$?
+  fi
+
+  if [ $stat -ne 0 ] ; then
+    echo "  [*] Invalid syntax for $2"
+    usage
+  fi
+}
+
+
+while getopts ":g:h:i:" opt; do
+  case "$opt" in
+    g)
+      ngw=${OPTARG}
+      ;;
+    h)
+      nhost=${OPTARG}
+      ;;
+    i)
+      nip=${OPTARG}
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+# testar se parametros foram informados
+[ -z $ngw ]   &amp;&amp; { echo "  [*] No gateway?"; usage; }
+[ -z $nhost ] &amp;&amp; { echo "  [*] No hostname?"; usage; }
+[ -z $nip ]   &amp;&amp; { echo "  [*] No ipaddr?"; usage; }
+
+# testar sintaxe de parametros
+valid_ip $nip "IPADDR"
+valid_ip $ngw "GATEWAY"
+valid_host $nhost
+
+# alterar endereco ip/gateway
+iff="/etc/network/interfaces"
+cip="$( egrep '^address ' $iff | awk -F'[ /]' '{print $2}' )"
+cgw="$( egrep '^gateway ' $iff | awk '{print $NF}' )"
+sed -i "s|${cip}|${nip}|g" $iff
+sed -i "s|${cgw}|${ngw}|g" $iff
+ip addr flush label 'enp0s*'
+
+# alterar hostname local
+chost="$( hostname -s )"
+sed -i "s/${chost}/${nhost}/g" /etc/hosts
+sed -i "s/${chost}/${nhost}/g" /etc/hostname
+
+invoke-rc.d hostname.sh restart
+invoke-rc.d networking restart
+hostnamectl set-hostname $nhost
+
+# re-gerar chaves SSH
+rm -f /etc/ssh/ssh_host_* 2&gt; /dev/null
+dpkg-reconfigure openssh-server &amp;&gt; /dev/null</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em relação ao <em>script</em> original, algumas diferenças: adicionou-se um <em>loop</em> para leitura de opções a partir da linha de comando (<em>hostname</em>, endereço IP e <em>gateway</em> a serem utilizados pela nova máquina), verificação de sintaxe dessas opções e efetiva alteração do endereço IP e <em>gateway</em> no arquivo <code>/etc/network/interfaces</code>.</p>
+</div>
+<div class="paragraph">
+<p>Feito isso, desligue a máquina <code>debian-template</code>.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_8_criação_da_vm_de_dns_secundário">8) Criação da VM de DNS secundário</h3>
+<div class="paragraph">
+<p>Vamos agora criar a segunda máquina de nosso <em>datacenter</em> simulado, a máquina <code>ns2</code>. Ela atuará como um servidor DNS secundário sob o endereço IP 10.0.42.2/24, dentre outras funções que serão configuradas em sessões posteriores.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Clone a máquina <code>debian-template</code> seguindo os mesmos passos da atividade (6) da sessão 1. Para o nome da máquina, escolha <code>ns2</code>.</p>
+</li>
+<li>
+<p>Ligue a máquina <code>ns2</code> e, após o <em>boot</em>, faça login como o usuário <code>root</code>. Usando o script <code>/root/scripts/changehost.sh</code>, efetue a configuração automática da máquina:</p>
+<div class="literalblock">
+<div class="content">
+<pre># ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}' ; hostname ; whoami
+10.0.42.253/24 enp0s3
+debian-template
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># bash ~/scripts/changehost.sh -h ns2 -i 10.0.42.2 -g 10.0.42.1</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip addr show label 'enp0s*' | grep 'inet ' | awk '{print $2,$NF}' ; hostname ; whoami
+10.0.42.2/24 enp0s3
+ns2
+root</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_9_configuração_do_dns_secundário">9) Configuração do DNS secundário</h3>
+<div class="paragraph">
+<p>A configuração do NSD como um servidor DNS secundário é bastante similar à do servidor primário, com algumas poucas diferenças na seção <code>pattern</code> do arquivo original. Já a configuração do Unbound, por outro lado, é absolutamente idêntica. Vamos ao trabalho:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Instale os pacotes relevantes:</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install nsd unbound dnsutils</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Durante a pós-configuração do Unbound o sistema pode demorar um pouco a retornar para o <em>shell</em>&#8201;&#8212;&#8201;seja paciente, em alguns segundos a instalação será concluída.</p>
+</div>
+</li>
+<li>
+<p>Primeiro, o <strong>NSD</strong>. Queremos copiar o arquivo <code>/etc/nsd/nsd.conf</code> da máquina <code>ns1</code> e fazer as alterações necessárias&#8201;&#8212;&#8201;no entanto, o acesso SSH à essa máquina pela DMZ está proibido pelas configurações de firewall que fizemos no começo desta sessão. Assim sendo, vamos fazer a cópia no sentido oposto: da máquina <code>ns1</code> para a máquina <code>ns2</code>.</p>
+<div class="paragraph">
+<p>Logue como <code>root</code> na máquina <code>ns1</code> e copie o arquivo usando o <code>scp</code>, como se segue:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+ns1
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># scp /etc/nsd/nsd.conf aluno@ns2:~
+The authenticity of host 'ns2 (10.0.42.2)' can't be established.
+ECDSA key fingerprint is SHA256:jxd7SPFgwNSsaMS7ApIEMpdAmxEnWeJ83s/K4h2XV5o.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'ns2,10.0.42.2' (ECDSA) to the list of known hosts.
+aluno@ns2's password:
+nsd.conf                                                                           100%  909     2.5MB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito, o arquivo foi copiado para <code>/home/aluno/nsd.conf</code> na máquina <code>ns2</code>&#8201;&#8212;&#8201;note que não fizemos o login remoto com o usuário <code>root</code> pois esse acesso não é permitido pela política padrão do <em>daemon</em> <code>sshd</code> no Debian.</p>
+</div>
+</li>
+<li>
+<p>De volta à máquina <code>ns2</code> como o usuário <code>root</code>, pare o NSD e gere as chaves TLS de controle:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+ns2
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop nsd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-control-setup
+setup in directory /etc/nsd
+nsd_server.key exists
+nsd_control.key exists
+create nsd_server.pem (self signed certificate)
+create nsd_control.pem (signed client certificate)
+Signature ok
+subject=CN = nsd-control
+Getting CA Private Key
+Setup success. Certificates created.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos fazer o backup do arquivo de configuração original:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mv /etc/nsd/nsd.conf /etc/nsd/nsd.conf.orig</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Copie o arquivo <code>/home/aluno/nsd.conf</code> para a pasta <code>/etc/nsd</code> e ajuste suas permissões:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cp /home/aluno/nsd.conf /etc/nsd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># chown root. /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -ld /etc/nsd/nsd.conf
+-rw-r--r-- 1 root root 909 nov 12 12:14 /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Excelente. Temos agora que editar o arquivo com as configurações do servidor secundário, o que faremos através do uso do <code>sed</code> nos comandos a seguir:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/^\( *ip-address:\) 10\.0\.42\.1/\1 10\.0\.42\.2/' /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i '/^ *zonesdir:/d' /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/\"inslave\"/\"inmaster\"/' /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/^\( *\)notify:[0-9@. ]*\(.*\)/\1allow-notify: 10\.0\.42\.1 \2/' /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/^\( *\)provide-xfr:[0-9. ]*\(.*\)/\1request-xfr: AXFR 10\.0\.42\.1@8053 \2/' /etc/nsd/nsd.conf</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O que esses comandos fizeram, afinal? O comando <code>diff</code> pode ser usado para comparar arquivos, evidenciando as diferenças entre eles:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># diff -u /home/aluno/nsd.conf /etc/nsd/nsd.conf
+--- /home/aluno/nsd.conf        2018-11-12 20:51:45.040000000 -0200
++++ /etc/nsd/nsd.conf   2018-11-12 20:55:34.156000000 -0200
+@@ -1,10 +1,9 @@
+ server:
+   ip-address: 127.0.0.1
+-  ip-address: 10.0.42.1
++  ip-address: 10.0.42.2
+   do-ip4: yes
+   port: 8053
+   username: nsd
+-  zonesdir: "/etc/nsd/zones"
+
+   logfile: "/var/log/nsd.log"
+   pidfile: "/run/nsd/nsd.pid"
+@@ -27,17 +26,17 @@
+   secret: "i7IoB5VDHVOCW9wvuOGQuFLNu8hzfAblVAbCD1SbPL4="
+
+ pattern:
+-  name: "inslave"
+-  notify: 10.0.42.2@8053 inkey
+-  provide-xfr: 10.0.42.2 inkey
++  name: "inmaster"
++  allow-notify: 10.0.42.1 inkey
++  request-xfr: AXFR 10.0.42.1@8053 inkey
+
+ zone:
+   name: "intnet"
+-  include-pattern: "inslave"
++  include-pattern: "inmaster"
+   zonefile: "intnet.zone.signed"
+
+ zone:
+   name: "42.0.10.in-addr.arpa"
+-  include-pattern: "inslave"
++  include-pattern: "inmaster"
+   zonefile: "10.0.42.zone"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Não se esqueça de remover o arquivo <code>/home/aluno/nsd.conf</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rm /home/aluno/nsd.conf</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Inicie o <em>daemon</em> do NSD usando o <code>nsd-control</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nsd-control start</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que não foi necessário criar o diretório de zonas no servidor secundário, <code>/etc/nsd/zones</code>, já que as zonas transferidas ficam mantidas no diretório <code>/var/lib/nsd</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -1 /var/lib/nsd
+nsd.db
+xfrd.state</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos testar? Tente efetuar uma resolução direta de nomes no servidor local usando a ferramenta <code>dig</code>, também testando o funcionamento do DNSSEC:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dig @127.0.0.1 -p 8053 ns1.intnet +dnssec +noadditional +noquestion +multiline +noauthority
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; @127.0.0.1 -p 8053 ns1.intnet +dnssec +noadditional +noquestion +multiline +noauthority
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 29660
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 3, ADDITIONAL: 3
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags: do; udp: 4096
+;; ANSWER SECTION:
+ns1.intnet.             86400 IN A 10.0.42.1
+ns1.intnet.             86400 IN RRSIG A 10 2 86400 (
+                                20181210223558 20181112223558 14936 intnet.
+                                TdK1Ivm1Ykdk1MBaMQSqNHANV14FQbfdBCgiOznMc7wT
+                                vqZPa2TBMTe2GYvcjbWd2WzH4o88pOAzwmCxMnnAxGJ4
+                                7IglUx4GlQKTG/hx/5vxpFYgczJLAKpt/HEMfrInYVyP
+                                qvCFpCyUudgA7kV8w05+BvBiK4IQAWZCiH8GcC3ERFoC
+                                B/ZNE/f8YnMyi2sNqdN8Mhtkgz2vMZnACiLrifnV7hlI
+                                3uvqn0fQetnDWLF/xSeHoAE4WMZ6KwMgutUT1H9lQwOg
+                                Ci5PemGKnOn2Va4ARzvQeTzBdLHZlVi04X25NHIeKZTj
+                                8Sx1vRnBwPfT8qlyI1oaOozuiLSyrII3Mw== )
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 20:58:05 -02 2018
+;; MSG SIZE  rcvd: 985</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Excelente. E quanto à resolução reversa?</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dig @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; @127.0.0.1 -p 8053 -x 10.0.42.2 +noadditional +noquestion
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 44932
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; ANSWER SECTION:
+2.42.0.10.in-addr.arpa. 86400   IN      PTR     ns2.intnet.
+
+;; AUTHORITY SECTION:
+42.0.10.in-addr.arpa.   86400   IN      NS      ns1.intnet.
+42.0.10.in-addr.arpa.   86400   IN      NS      ns2.intnet.
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#8053(127.0.0.1)
+;; WHEN: Mon Nov 12 20:58:17 -02 2018
+;; MSG SIZE  rcvd: 107</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos configurar o <strong>Unbound</strong>. Como feito anteriormente, logue como <code>root</code> na máquina <code>ns1</code> e copie desta vez o arquivo <code>/etc/unbound/unbound.conf</code> usando o <code>scp</code>, como se segue:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+ns1
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># scp /etc/unbound/unbound.conf aluno@ns2:~
+aluno@ns2's password:
+unbound.conf                                                                       100%  820     2.4MB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O arquivo foi copiado para <code>/home/aluno/unbound.conf</code> na máquina <code>ns2</code>, como objetivado.</p>
+</div>
+</li>
+<li>
+<p>De volta a <code>ns2</code> como o usuário <code>root</code>, pare o <em>daemon</em> do Unbound e configure as chaves de controle:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+ns2
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop unbound</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># unbound-control-setup
+setup in directory /etc/unbound
+unbound_server.key exists
+unbound_control.key exists
+create unbound_server.pem (self signed certificate)
+create unbound_control.pem (signed client certificate)
+Signature ok
+subject=CN = unbound-control
+Getting CA Private Key
+Setup success. Certificates created.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Faça o backup do arquivo de configuração original:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.orig</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Copie o arquivo <code>/home/aluno/unbound.conf</code> para a pasta <code>/etc/unbound</code> e ajuste suas permissões:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cp /home/aluno/unbound.conf /etc/unbound</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># chown root. /etc/unbound/unbound.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ls -ld /etc/unbound/unbound.conf
+-rw-r--r-- 1 root root 820 nov 12 22:15 /etc/unbound/unbound.conf</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Edite o arquivo com as configurações do servidor secundário via <code>sed</code>, como se segue:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/^\( *interface: 10\.0\.42\.\)1/\12/' /etc/unbound/unbound.conf</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i '/^ *interface: 192.*/d' /etc/unbound/unbound.conf</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use o comando <code>diff</code> para verificar as diferenças entre o arquivo original e as alterações feitas com o <code>sed</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># diff -u /home/aluno/unbound.conf /etc/unbound/unbound.conf
+--- /home/aluno/unbound.conf    2018-11-12 22:13:47.276000000 -0200
++++ /etc/unbound/unbound.conf   2018-11-12 22:24:48.564000000 -0200
+@@ -1,7 +1,6 @@
+ server:
+   interface: 127.0.0.1
+-  interface: 10.0.42.1
+-  interface: 192.168.42.1
++  interface: 10.0.42.2
+   port: 53
+
+   access-control: 127.0.0.0/8 allow</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Remova o arquivo de configuração do Unbound no diretório <code>/home/aluno</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rm /home/aluno/unbound.conf</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos proceder aos testes. Inicie o Unbound usando o comando <code>unbound-control</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># unbound-control start</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Teste uma resolução direta qualquer no servidor Unbound local, solicitando DNSSEC:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dig @127.0.0.1 mx1.intnet +dnssec +multiline +noquestion +noadditional
+
+; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Debian &lt;&lt;&gt;&gt; @127.0.0.1 mx1.intnet +dnssec +multiline +noquestion +noadditional
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 53007
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags: do; udp: 4096
+;; ANSWER SECTION:
+mx1.intnet.             86388 IN A 10.0.42.91
+mx1.intnet.             86388 IN RRSIG A 10 2 86400 (
+                                20181210223558 20181112223558 14936 intnet.
+                                YPluG8EXq3WwlKIlMpeXc+C1C3AZhC+P1ej+6I5ax9Aw
+                                xQ+Zp6lwMXz64e7nPN2mjNa1PcAVuUNc8gE77U5dohhI
+                                Al++b4+1mPHLzN6EY4UuSsWqkE5NacSaUngmhV52Mrwj
+                                cwXtmJgJm9vhSTLKnUSYhSwFWZlC2FxI96kTQhtzJuDd
+                                KI7SVpYsNZPGiKwj5r9F8Wr/sKpCc0PgVnseewyPmNGY
+                                5pJEV3Ox6XgzQk0qjatoO4IxSj3CqX6ghU+MykcU2L+n
+                                56LfqqrV+R6TzzVst9/bFC7UgSXjF4v9eDKvPc86mcGn
+                                J9giG3w+07D2+jv7Ap6RfQWnx1zBy5CWFA== )
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Mon Nov 12 22:45:11 -02 2018
+;; MSG SIZE  rcvd: 349</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2018-11-19 08:30:05 -0200
+</div>
+</div>
+</body>
+</html>

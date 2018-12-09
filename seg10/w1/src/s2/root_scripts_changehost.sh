@@ -11,7 +11,7 @@ function usage() {
 
 # testar sintaxe valida de HOSTNAME
 function valid_host() {
-  if [[ "$nhost" =~ [^a-z0-9] ]]; then
+  if [[ "$nhost" =~ [^a-z0-9-] ]]; then
     echo "  [*] HOSTNAME must be lowercase alphanumeric: [a-z0-9]*"
     usage
   elif [ ${#nhost} -gt 63 ]; then

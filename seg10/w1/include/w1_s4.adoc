@@ -31,8 +31,8 @@ image::Topologia_SEG10_S4.png[align="center"]
 
 Teremos agora quatro máquinas:
 
-* `ns1`, com _alias_ `firewall`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
-* `ns2`, com _alias_ `ns2`, localizada na DMZ e atuando como DNS secundário, servidor LDAP de autenticação centralizada e repositório de chaves SSH-CA. Endereço IP 10.0.42.2/24.
+* `ns1`, com _alias_ `fw`, atuando como firewall de rede e DNS primário. Endereços IP via DHCP (interface _bridge_), 10.0.42.1/24 (interface DMZ) e 192.168.42.1/24 (interface Intranet).
+* `ns2`, com _alias_ `ldap`, localizada na DMZ e atuando como DNS secundário, servidor LDAP de autenticação centralizada e repositório de chaves SSH-CA. Endereço IP 10.0.42.2/24.
 * `nfs`, com _alias_ `files`, localizada na DMZ e atuando como servidor de arquivos NFS. Endereço IP 10.0.42.3/24.
 * `client`, localizada na Intranet e usada como ponto de partida para logins remotos nos diferentes servidores do _datacenter_ simulado. Endereço IP 192.168.42.2/24.
 
@@ -718,7 +718,7 @@ Em seu lugar, vamos criar duas regras: uma que reautoriza o acesso da Intranet a
 3. Ainda temos que tratar do acesso da Intranet ao serviço NFS, que configuraremos na atividade a seguir. Para nossa sorte, a configuração do firewall para o NFS versão 4 (que utilizaremos neste curso) é significativamente mais fácil que as versões anteriores, bastando liberar o tráfego dos clientes para a porta 2049/TCP do servidor remoto (em nosso caso, a máquina `nfs`). A regra a seguir irá atender este requisito:
 +
 ....
-# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.3/24 -p tcp -m tcp --dport 2049 -j ACCEPT
+# iptables -A FORWARD -s 192.168.42.0/24 -d 10.0.42.3/32 -p tcp -m tcp --dport 2049 -j ACCEPT
 ....
 
 4. Finalmente, salve as regras de firewall atuais:
