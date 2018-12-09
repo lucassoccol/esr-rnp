@@ -235,232 +235,439 @@ image::3_XCP-ng-s1/xcpng33.png[align="center"]
 
 No XCP-ng Center, são suportados repositórios de ISOs, acessados via protocolos CIFS ou NFS. Desta forma, o XCP-ng Center exige a utilização de um servidor de arquivos para o gerenciamento das ISOs. Neste curso, iremos utilizar um servidor NFS pré-configurado, cujo endereço de acesso será disponibilizado pelo instrutor.
 
-1. Para criar um repositório de imagens ISO no XenCenter, clique no botão New Storage na barra de ferramentas superior e em ISO Library selecione a opção Windows File Sharing (SMB/CIFS).
-
-.desc
+1. Para criar um repositório de imagens ISO no XCP-ng, clique no botão _New Storage_ na barra de ferramentas superior; em _ISO Library_, selecione a opção _NFS ISO_.
++
+.Adição de repositório ISO, parte 1
 [#img-xcpng34.png]
 image::3_XCP-ng-s1/xcpng34.png[align="center"]
 
-.desc
+2. Escolha um nome para o repositório.
++
+.Adição de repositório ISO, parte 2
 [#img-xcpng35.png]
 image::3_XCP-ng-s1/xcpng35.png[align="center"]
 
-.desc
+3. Informe o caminho completo para o repositório NFS, e a versão do protocolo.
++
+.Adição de repositório ISO, parte 3
 [#img-xcpng36.png]
 image::3_XCP-ng-s1/xcpng36.png[align="center"]
 
-.desc
+4. Ao final do processo, acesse a aba _Storage_ do repositório recém-adicionado para visualizar seu conteúdo, como mostrado a seguir.
++
+.Adição de repositório ISO, parte 4
 [#img-xcpng37.png]
 image::3_XCP-ng-s1/xcpng37.png[align="center"]
 
-.desc
+=== 6) Criação de máquinas virtuais
+
+O XCP-ng permite criar máquinas virtuais paravirtualizadas a partir de _templates_ pré-configurados ou máquinas virtuais em virtualização completa sem a necessidade de um _template_ pré-configurado. Um _template_ descreve algumas configurações da máquina virtual a ser criada (modo de virtualização, tamanho mínimo de memória, disco, etc.). A instalação pode ser tanto a partir de uma mídia ou através da rede, para alguns sistemas.
+
+1. Utilize a ferramenta de criação de máquinas virtuais pressionando o botão _New VM_. Selecione o template _Windows 10 (64-bit)_, como mostrado a seguir:
++
+.Criação de VM nova, parte 1
 [#img-xcpng38.png]
 image::3_XCP-ng-s1/xcpng38.png[align="center"]
 
-.desc
+2. Defina o nome da nova máquina virtual a ser criada, que contenha alguma identificação do grupo (p. ex., `win10-dX-gX`).
++
+.Criação de VM nova, parte 2
 [#img-xcpng39.png]
 image::3_XCP-ng-s1/xcpng39.png[align="center"]
 
-.desc
+3. Agora, selecione a imagem ISO de instalação do sistema disponível no repositório ISO adicionado anteriormente.
++
+.Criação de VM nova, parte 3
 [#img-xcpng40.png]
 image::3_XCP-ng-s1/xcpng40.png[align="center"]
 
-.desc
+4. Escolha o servidor-destino da VM, que será o único hypervisor disponível até aqui.
++
+.Criação de VM nova, parte 4
 [#img-xcpng41.png]
 image::3_XCP-ng-s1/xcpng41.png[align="center"]
 
-.desc
+5. Para o número de vCPUs, defina `2`, e escolha 4 GB de memória RAM total disponibilizada para a VM.
++
+.Criação de VM nova, parte 5
 [#img-xcpng42.png]
 image::3_XCP-ng-s1/xcpng42.png[align="center"]
 
-.desc
+6. Na escolha de GPUs dedicadas, simplemente clique em _Next_ para passar ao próximo passo.
++
+.Criação de VM nova, parte 6
 [#img-xcpng43.png]
 image::3_XCP-ng-s1/xcpng43.png[align="center"]
 
-.desc
+7. Na configuração de _storage_ da VM, cliqueno botão _Edit_.
++
+.Criação de VM nova, parte 7
 [#img-xcpng44.png]
 image::3_XCP-ng-s1/xcpng44.png[align="center"]
-
-.desc
++
+Aumente o tamanho do disco para 40 GB, como mostrado a seguir.
++
+.Criação de VM nova, parte 8
 [#img-xcpng45.png]
 image::3_XCP-ng-s1/xcpng45.png[align="center"]
-
-.desc
++
+Confirme que o tamanho do disco está corretamente especificado e clique em _Next_.
++
+.Criação de VM nova, parte 9
 [#img-xcpng46.png]
 image::3_XCP-ng-s1/xcpng46.png[align="center"]
 
-.desc
+8. Para a configuração de rede, aceite a opção-padrão do _wizard_.
++
+.Criação de VM nova, parte 10
 [#img-xcpng47.png]
 image::3_XCP-ng-s1/xcpng47.png[align="center"]
 
-.desc
+9. Na tela _Finish_, confira que todos os dados da VM estão de acordo com o desejado, e clique em _Create Now_.
++
+.Criação de VM nova, parte 11
 [#img-xcpng48.png]
 image::3_XCP-ng-s1/xcpng48.png[align="center"]
 
-.desc
+10. Após um curto período, a máquina virtual será criada. Acesse a aba _General_ para visualizar suas características gerais.
++
+.VM nova criada com sucesso
 [#img-xcpng49.png]
 image::3_XCP-ng-s1/xcpng49.png[align="center"]
 
-.desc
+11. Acessando a aba _Console_, podemos visualizar a tela de instalação do Windows 10. Escolha idioma, teclado e clique em _Avançar_.
++
+.Instalação do Windows 10, parte 1
 [#img-xcpng50.png]
 image::3_XCP-ng-s1/xcpng50.png[align="center"]
-
-.desc
++
+Em seguida, clique em _Instalar agora_.
++
+.Instalação do Windows 10, parte 2
 [#img-xcpng51.png]
 image::3_XCP-ng-s1/xcpng51.png[align="center"]
-
-.desc
++
+Na tela de ativação do Windows, clique em _Não tenho a chave do produto_ para prosseguir.
++
+.Instalação do Windows 10, parte 3
 [#img-xcpng52.png]
 image::3_XCP-ng-s1/xcpng52.png[align="center"]
-
-.desc
++
+Na escolha de versão do sistema, defina _Windows 10 Pro_ e avance.
++
+.Instalação do Windows 10, parte 4
 [#img-xcpng53.png]
 image::3_XCP-ng-s1/xcpng53.png[align="center"]
-
-.desc
++
+Aceite os termos de licença do Windows, e prossiga.
++
+.Instalação do Windows 10, parte 5
 [#img-xcpng54.png]
 image::3_XCP-ng-s1/xcpng54.png[align="center"]
-
-.desc
++
+Em tipo de instalação, defina _Personalizada: Instalar apenas o Windows (avançado)_.
++
+.Instalação do Windows 10, parte 6
 [#img-xcpng55.png]
 image::3_XCP-ng-s1/xcpng55.png[align="center"]
-
-.desc
++
+Escolha o único disco disponível, e clique em avançar.
++
+.Instalação do Windows 10, parte 7
 [#img-xcpng56.png]
 image::3_XCP-ng-s1/xcpng56.png[align="center"]
-
-.desc
++
+O processo de instalação será iniciado, como mostrado a seguir.
++
+.Instalação do Windows 10, progresso
 [#img-xcpng57.png]
 image::3_XCP-ng-s1/xcpng57.png[align="center"]
 
-.desc
+12. Durante a instalação da máquina virtual, utilize a aba _Performance_ para monitorar a utilização de recursos da máquina virtual.
++
+.Monitoramento de performance de VM
 [#img-xcpng58.png]
 image::3_XCP-ng-s1/xcpng58.png[align="center"]
 
-.desc
+13. Após a instalação e reinício da máquina (e algum tempo de espera), os passos de finalização da instalação irão começar. Na escolha de região, defina _Brasil_ e prossiga.
++
+.Finalizando a instalação do Windows 10, parte 1
 [#img-xcpng59.png]
 image::3_XCP-ng-s1/xcpng59.png[align="center"]
-
-.desc
++
+Escolha o _layout_ de teclado _Português (Brasil ABNT2)_.
++
+.Finalizando a instalação do Windows 10, parte 2
 [#img-xcpng60.png]
 image::3_XCP-ng-s1/xcpng60.png[align="center"]
-
-.desc
++
+Pule o passo para definição de um _layout_ de teclado secundário.
++
+.Finalizando a instalação do Windows 10, parte 3
 [#img-xcpng61.png]
 image::3_XCP-ng-s1/xcpng61.png[align="center"]
-
-.desc
++
+Configure a VM para uso pessoal, como mostrado abaixo.
++
+.Finalizando a instalação do Windows 10, parte 4
 [#img-xcpng62.png]
 image::3_XCP-ng-s1/xcpng62.png[align="center"]
-
-.desc
++
+Quando da criação de conta, clique em _Conta offline_ para criar um usuário local.
++
+.Finalizando a instalação do Windows 10, parte 5
 [#img-xcpng63.png]
 image::3_XCP-ng-s1/xcpng63.png[align="center"]
-
-.desc
++
+Na tela seguinte, confirme sua escolha clicando em _Não_.
++
+.Finalizando a instalação do Windows 10, parte 6
 [#img-xcpng64.png]
 image::3_XCP-ng-s1/xcpng64.png[align="center"]
-
-.desc
++
+Defina o nome do usuário local como `aluno`.
++
+.Finalizando a instalação do Windows 10, parte 7
 [#img-xcpng65.png]
 image::3_XCP-ng-s1/xcpng65.png[align="center"]
-
-.desc
++
+Em seguida, defina sua senha como `Virt3sr`.
++
+.Finalizando a instalação do Windows 10, parte 8
 [#img-xcpng66.png]
 image::3_XCP-ng-s1/xcpng66.png[align="center"]
-
-.desc
++
+Confirme-a:
++
+.Finalizando a instalação do Windows 10, parte 9
 [#img-xcpng67.png]
 image::3_XCP-ng-s1/xcpng67.png[align="center"]
-
-.desc
++
+Agora, surgirão três telas de definição de perguntas de segurança para a conta. Escolha quaisquer combinações de perguntas/respostas e prossiga.
++
+.Finalizando a instalação do Windows 10, parte 10
 [#img-xcpng68.png]
 image::3_XCP-ng-s1/xcpng68.png[align="center"]
-
-.desc
++
+Quando perguntado se deseja tornar a Cortana sua assistente pessoal, recuse.
++
+.Finalizando a instalação do Windows 10, parte 11
 [#img-xcpng69.png]
 image::3_XCP-ng-s1/xcpng69.png[align="center"]
-
-.desc
++
+Não aceite a configuração de histórico de atividades.
++
+.Finalizando a instalação do Windows 10, parte 12
 [#img-xcpng70.png]
 image::3_XCP-ng-s1/xcpng70.png[align="center"]
-
-.desc
++
+Finalmente, para as configurações de privacidade do sistema, desabilite todas as opções de clique em _Aceitar_.
++
+.Finalizando a instalação do Windows 10, parte 13
 [#img-xcpng71.png]
 image::3_XCP-ng-s1/xcpng71.png[align="center"]
++
+Pronto! O Windows 10 está instalado e configurado.
 
-.desc
+=== 7) Instalação dos adicionais de convidado
+
+1. Para instalar os adicionais de convidado no XCP-ng Center, o primeiro passo é atualizar a máquina-alvo. Abra o _Windows Update_ e inicie o processo de atualização.
++
+.Atualização da VM, parte 1
 [#img-xcpng72.png]
 image::3_XCP-ng-s1/xcpng72.png[align="center"]
-
-.desc
++
+Caso seja necessário reiniciar a máquina, aceite.
++
+.Atualização da VM, parte 2
 [#img-xcpng73.png]
 image::3_XCP-ng-s1/xcpng73.png[align="center"]
-
-.desc
++
+Ao final do processo (pode ser necessário invocar o processo de atualização múltiplas vezes), você deverá ver a mensagem _Você está atualizado_, como mostrado a seguir.
++
+.Atualização da VM, parte 3
 [#img-xcpng74.png]
 image::3_XCP-ng-s1/xcpng74.png[align="center"]
 
-.desc
-[#img-xcpng75.txt]
-image::3_XCP-ng-s1/xcpng75.txt[align="center"]
-
-.desc
+2. Como o XCP-ng é uma versão _open-source_ do XenServer proprietário da Citrix, não há permissão para distribuir os binários de instalação dos adicionais de convidade diretamente, como documentado em https://github.com/xcp-ng/xcp/wiki/Guest-Tools . Fizemos a extração da ISO de instalação dos _guest tools_ a partir do CD de instalação da versão comercial do XenServer, disponibilizando-o no repositório de ISOs sob o nome `XenServer-guest-tools-VERSION.iso`.
++
+Na console de acesso à VM, altere a imagem no drive de DVD virtual da máquina para a ISO de instalação dos _guest tools_, como mostrado a seguir:
++
+.Instalação do Guest Tools, parte 1
 [#img-xcpng76.png]
 image::3_XCP-ng-s1/xcpng76.png[align="center"]
-
-.desc
++
+Execute a instalação do pacote.
++
+.Instalação do Guest Tools, parte 2
 [#img-xcpng77.png]
 image::3_XCP-ng-s1/xcpng77.png[align="center"]
-
-.desc
++
+A máquina deverá ser reiniciada para instalação dos _PV Drivers_ do XenServer, como visto abaixo.
++
+.Instalação do Guest Tools, parte 3
 [#img-xcpng78.png]
 image::3_XCP-ng-s1/xcpng78.png[align="center"]
 
-.desc
+3. Ao final do processo de instalação, abra o _Gerenciador de Dispositivos_ da máquina virtual e confira, em _Controladores de armazenamento_, que o _driver_ _XenServer PV Storage Host Adapter_ está instalado.
++
+.Instalação dos drivers de storage PV
 [#img-xcpng79.png]
 image::3_XCP-ng-s1/xcpng79.png[align="center"]
 
-.desc
+4. De volta à console do XCP-ng Center, cheque que o estado de virtualização da VM mostra que o I/O está otimizado, e que o agente de gerenciamento está instalado.
++
+.Guest Tools instalado com sucesso
 [#img-xcpng80.png]
 image::3_XCP-ng-s1/xcpng80.png[align="center"]
 
-.desc
+5. Na aba _Performance_, confira que os dados reportados pela máquina virtual estão muito mais precisos, após a instalação do agente.
++
+.Dados de performance após guest tools
 [#img-xcpng81.png]
 image::3_XCP-ng-s1/xcpng81.png[align="center"]
 
-.desc
+6. Não se esqueça de ejetar a imagem ISO acessando a aba _Storage_ > _Eject_.
++
+.Ejetando imagem ISO
 [#img-xcpng82.png]
 image::3_XCP-ng-s1/xcpng82.png[align="center"]
 
-.desc
-[#img-xcpng83.txt]
-image::3_XCP-ng-s1/xcpng83.txt[align="center"]
+=== 8) Acesso ao hypervisor via SSH
 
-.desc
+1. Durante as atividades deste curso iremos ter que digitar alguns comandos no terminal das VMs, os quais serão mostrados nos cadernos de atividade de cada sessão. Alguns desses comandos serão bastante longos e/ou terão uma sintaxe complicada -- nesse caso, o ideal é que tenhamos a possibilidade de copiá-los diretamente do caderno para a console, evitando erros de digitação.
++
+O protocolo de login remoto SSH é ideal para solucionar essa tarefa. Em ambiente Windows, dois dos métodos mais populares para efetuar logins remotos via SSH são os programas PuTTY (https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) ou Cygwin (https://cygwin.com/install.html). Vamos, primeiro, visualizar os passos necessários usando o PuTTY.
++
+Em qualquer caso, o primeiro passo é sempre descobrir qual o endereço IP da máquina remota à qual queremos nos conectar. No caso do hypervisor XCP-ng, basta visualizar o endereço IP da máquina observando a página de sumário em seu host físico.
++
+O uso do *PuTTY*, por se tratar de um programa _standalone_ com o objetivo único de efetuar login via SSH, é mais simples. Faça o download do PuTTY em sua máquina física Windows, usando a URL informada acima. Em seguida, apenas abra o programa e digite na caixa _Host Name_ o endereço IP da máquina remota descoberto acima. Em seguida, clique em _Open_.
++
+.Login via SSH usando o PuTTY, parte 1
+[#img-ssh1]
+image::3_XCP-ng-s1/ssh1.png[align="center"]
++
+Será mostrado um alerta de segurança avisando que a chave do _host_ remoto não se encontra na _cache_ local, o que pode configurar um risco de segurança. Clique em _Yes_ para prosseguir com a tentativa de login.
++
+Em seguida, será solicitado o nome de usuário com o qual efetuar a conexão. Informe o usuário `root`, com senha `Virt3sr`. Em caso de sucesso, você verá a tela parecida com a que se segue:
++
+.Login via SSH usando o PuTTY, parte 2
+[#img-ssh2]
+image::3_XCP-ng-s1/ssh2.png[align="center"]
++
+Para copiar/colar comandos no PuTTY, basta selecionar o texto desejado no ambiente da máquina física e digitar `CTRL + C`, e em seguida clicar com o botão direito na janela do PuTTY. O texto selecionado será colado na posição do cursor.
+
+2. O uso do Cygwin é um pouco mais envolvido, já que seu objetivo é mais complexo: prover, em ambiente Windows, funcionalidade equivalente à que temos disponível em uma distribuição Linux. Para começar, faça o download e execute o instalador do Cygwin em sua máquina física Windows.
++
+A instalação é, em grande parte, bastante similar à de qualquer aplicativo Windows. Na tela inicial, clique em _Next_. Em _Choose a Download Source_, mantenha marcada a caixa _Install from Internet_ e clique em _Next_. Em _Select Root Install Directory_, os valores padrão estão apropriados -- clique em _Next_. Na tela _Select Local Package Directory_, novamente, mantenha o valor padrão e clique em _Next_.
++
+Agora, vamos selecionar a fonte de pacotes. Em _Select Your Internet Connection_, a menos que haja um _proxy_ na rede local (informe-se com seu instrutor), mantenha marcada a caixa _Direct Connection_ e clique em _Next_. Será feito o download da lista de espelhos disponíveis para o Cygwin. Em _Choose A Download Site_, qualquer espelho irá funcionar, mas evidentemente é desejável que escolhamos um que possua maior velocidade de download -- o site http://linorg.usp.br é provavelmente uma boa opção, nesse caso. Clique em _Next_, e o instalador irá baixar a lista de pacotes disponíveis.
++
+Em adição ao sistema-base padrão, é necessário instalar o OpenSSH para efetuar logins remotos. Na caixa de busca _Search_, no topo da tela, digite o termo de busca `openssh`. Expanda a árvore `Net` e clique na palavra _Skip_ na linha do pacote `openssh: The OpenSSH server and client programs` -- ela irá alterar para a versão a ser instalada, `7.9p1-1` no caso da figura mostrada abaixo:
++
+.Instalação do OpenSSH no Cygwin
+[#img-ssh3]
+image::3_XCP-ng-s1/ssh3.png[align="center"]
++
+Clique em _Next_. Em _Review and confirm changes_, verifique que o Cygwin irá instalar o OpenSSH e todas as demais dependências do sistema-base Linux, como o _shell_ `bash` ou ferramentas como o `grep`, e clique em _Next_. O instalador irá fazer o download e instalação dos pacotes selecionados.
++
+Concluído o processo, procure pelo programa `Cygwin Terminal` no menu iniciar da sua máquina física Windows, e execute-o. Agora, tente fazer login via SSH normalmente, como se estivesse em um _shell_ Linux:
++
+.Login via SSH usando o Cygwin
+[#img-ssh4]
+image::3_XCP-ng-s1/ssh4.png[align="center"]
++
+Para copiar/colar comandos no Cygwin, basta selecionar o texto desejado no ambiente da máquina física e digitar `CTRL + C`, e em seguida mudar o foco para a janela do Cygwin e digitar a combinação `SHIFT + Insert`. Para copiar texto a partir da janela do Cygwin, selecione-o e use a combinação de teclas `CTRL + Insert`. Para encontrar os arquivos localizados em sua máquina física, o diretório `/cygdrive/X` pode ser usado para mapear para os discos da máquina local -- por exemplo, o diretório `/cygdrive/c` mapeia diretamente para o `C:\` da máquina Windows.
+
+=== 9) Armazenamento de dados das máquinas virtuais
+
+Quando novos discos virtuais são criados para as máquinas virtuais, é alocado espaço na partição LVM do hypervisor. Nesta etapa, será vista a relação entre os volumes virtuais gerenciados com o XCP-ng e a infraestrutura LVM. Utilize o comando `xe help` para praticar outros comando além dos exemplos abaixo.
+
+1. Acesse o hypervisor via PuTTY ou Cygwin, como mencionado na atividade anterior. Utilize o comando `xe vm-disk-list` para listar os discos associados com uma VM específica (pode-se utilizar a tecla `TAB` para completar o nome da máquina virtual automaticamente).
++
+....
+[root@xcp-ng-d1-g1 ~]# xe vm-disk-list vm=win10-d1-g1
+Disk 0 VBD:
+uuid ( RO)             : 40f50b9b-dac8-ada1-09fa-79024a5dece0
+    vm-name-label ( RO): win10-d1-g1
+       userdevice ( RW): 0
+
+
+Disk 0 VDI:
+uuid ( RO)             : 7354b5b1-debe-4b0a-b03c-7d3707f72525
+       name-label ( RW): win10-d1-g1 0
+    sr-name-label ( RO): Local storage
+     virtual-size ( RO): 42949672960
+....
+
+2. Utilize o comando `lvdisplay` para exibir os volumes lógicos do LVM. Observe que, após a criação da nova máquina virtual, há um novo volume lógico cujo nome corresponde ao UUID do disco da VM e ao _Storage Repository_ _Local Storage_.
++
+....
+[root@xcp-ng-d1-g1 ~]# lvdisplay /dev/VG_XenStorage-9f9f3987-d606-87c4-c543-7277d8f2848a/VHD-7354b5b1-debe-4b0a-b03c-7d3707f72525
+  /run/lvm/lvmetad.socket: connect failed: No such file or directory
+  WARNING: Failed to connect to lvmetad. Falling back to internal scanning.
+  --- Logical volume ---
+  LV Path                /dev/VG_XenStorage-9f9f3987-d606-87c4-c543-7277d8f2848a/VHD-7354b5b1-debe-4b0a-b03c-7d3707f72525
+  LV Name                VHD-7354b5b1-debe-4b0a-b03c-7d3707f72525
+  VG Name                VG_XenStorage-9f9f3987-d606-87c4-c543-7277d8f2848a
+  LV UUID                6YpqDE-1TYW-0g71-coRz-CVeN-svZg-cxvV6O
+  LV Write Access        read/write
+  LV Creation host, time xcp-ng-d1-g1, 2018-11-28 10:29:41 -0200
+  LV Status              available
+  # open                 1
+  LV Size                40.09 GiB
+  Current LE             10262
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     256
+  Block device           253:1
+....
+
+=== 10) Snapshots de máquinas virtuais
+
+Um _snapshot_ de uma máquina virtual é uma cópia do seu estado em um determinado momento. Estas cópias podem ser utilizadas para fins de backup, gerando diversas versões funcionais da máquina virtual e recuperando um estado anterior, quando necessário.
+
+1. Para criar um _snapshot_, acesse a aba _Snapshots_ da VM e clique no botão _Take Snapshot_.
++
+.Criação de snapshots, parte 1
 [#img-xcpng84.png]
 image::3_XCP-ng-s1/xcpng84.png[align="center"]
-
-.desc
++
+Defina o nome do _snapshot_, e se deseja guardar apenas o estado dos discos ou também da memória da VM.
++
+.Criação de snapshots, parte 2
 [#img-xcpng85.png]
 image::3_XCP-ng-s1/xcpng85.png[align="center"]
 
-.desc
+2. Concluído o _snapshot_, vamos testar sua funcionalidade. Abra a console da VM e crie um arquivo texto no Desktop do usuário `aluno`, com qualquer conteúdo.
++
+.Alteração do estado da VM
 [#img-xcpng86.png]
 image::3_XCP-ng-s1/xcpng86.png[align="center"]
 
-.desc
+3. Com a função _Revert To_, é possível retornar para algum dos estados previamente salvos. Em _Actions_, é possível utilizar um _snapshot_ para criar novas máquinas virtuais. Um _snapshot_ também pode ser convertido em um arquivo de backup ou _template_: como arquivo de backup, ele pode ser posteriormente restaurado em caso de perda dos dados no _storage_; já como _template_, uma nova máquina virtual pode ser gerada a partir do _snapshot_.
++
+Selecione o _snapshot_ criado no passo (1) e clique em _Revert To_:
++
+.Revertendo estado da VM, parte 1
 [#img-xcpng87.png]
 image::3_XCP-ng-s1/xcpng87.png[align="center"]
-
-.desc
++
+Confirme a reversão do estado da VM.
++
+.Revertendo estado da VM, parte 2
 [#img-xcpng88.png]
 image::3_XCP-ng-s1/xcpng88.png[align="center"]
-
-.desc
++
+Após a reversão do estado, note que o _snapshot_ continua existindo e podendo ser usado posteriormente.
++
+.Revertendo estado da VM, parte 3
 [#img-xcpng89.png]
 image::3_XCP-ng-s1/xcpng89.png[align="center"]
 
-.desc
+4. Retorne à console da VM -- note que o arquivo texto que havíamos criado sumiu!
++
+.Estado da VM revertido com sucesso
 [#img-xcpng90.png]
 image::3_XCP-ng-s1/xcpng90.png[align="center"]
