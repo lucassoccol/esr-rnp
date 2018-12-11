@@ -15,4 +15,4 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 6: 
+== Sessão 6: Hyper-V avançado

@@ -15,4 +15,4 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 9: 
+== Sessão 9: Clouds privadas com o OpenStack

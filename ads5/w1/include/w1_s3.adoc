@@ -15,7 +15,7 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 3:
+== Sessão 3: Introdução ao XCP-ng
 
 === 1) Instalação do XCP-ng
 

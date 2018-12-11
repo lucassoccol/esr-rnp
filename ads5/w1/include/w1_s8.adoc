@@ -15,4 +15,4 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 8: 
+== Sessão 8: VSphere avançados

@@ -234,7 +234,7 @@ Clique em Finish para finalizar a criação.
 
 === 8) Iniciando a máquina virtual
 
-As máquinas virtuais disponíveis serão exibidas na janela principal do VMware Workstation. Selecione a máquina virtual criada (VM-ADS5) e  inicie clicando em Power on this virtual machine.
+1. As máquinas virtuais disponíveis serão exibidas na janela principal do VMware Workstation. Selecione a máquina virtual criada (VM-ADS5) e  inicie clicando em Power on this virtual machine.
 +
 .Iniciar VM
 [#img-vbox22]

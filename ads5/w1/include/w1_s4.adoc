@@ -15,4 +15,266 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 4: 
+== Sessão 4: XCP-ng avançado
+
+=== 1) Criação de pools
+
+1. Para criar um novo _pool_, é necessário que o XCP-ng Center esteja conectado aos dois hypervisors do grupo. Utilize o botão _Add New Server_ para adicionar os dois hypervisors ao mesmo XCP-ng Center. A partir de agora, o gerenciamento dos hypervisors do grupo será centralizado em uma única máquina. Façam um revezamento no gerenciamento e comuniquem-se para melhor entendimento da atividade proposta.
++
+Como mencionado, o primeiro passo é adicionar o segundo hypervisor usando o botão _Add New Server_.
++
+.Adicionando novo servidor ao XCP-ng Center
+[#img-xcpng-2-1]
+image::4_XCP-ng-s2/xcpng1.png[align=center]
+
+2. É necessário remover um dos repositórios ISO dos servidores, para evitar duplicidade. No exemplo abaixo, iremos remover o repositório ISO da máquina `xpc-ng-d2-g1`:
++
+.Removendo repositório ISO, parte 1
+[#img-xcpng-2-2]
+image::4_XCP-ng-s2/xcpng2.png[align=center]
++
+Confirme a remoção:
++
+.Removendo repositório ISO, parte 2
+[#img-xcpng-2-3]
+image::4_XCP-ng-s2/xcpng3.png[align=center]
++
+E o "esquecimento" do repositório de ISOs, finalmente.
++
+.Removendo repositório ISO, parte 3
+[#img-xcpng-2-4]
+image::4_XCP-ng-s2/xcpng4.png[align=center]
+
+3. Agora, vamos criar o _pool_ -- clique na raiz dos elementos do _datacenter_ e em seguida no botão _New Pool_:
++
+.Criação de pool, parte 1
+[#img-xcpng-2-5]
+image::4_XCP-ng-s2/xcpng5.png[align=center]
++
+Escolha um nome sugestivo para o _pool_ (no exemplo abaixo, `pool-g1`), e inclua ambos os servidores no mesmo.
++
+.Criação de pool, parte 2
+[#img-xcpng-2-6]
+image::4_XCP-ng-s2/xcpng6.png[align=center]
+
+4. Findo o processo, você verá o _pool_ recém-criado com ambos os hypervisors abarcados.
++
+.Pool criado com sucesso
+[#img-xcpng-2-7]
+image::4_XCP-ng-s2/xcpng7.png[align=center]
+
+=== 2) Dispositivo de armazenamento remoto
+
+Para possibilitar a movimentação de uma máquina virtual entre dois hypervisors, é necessário a existência de um dispositivo de armazenamento compartilhado entre os mesmos. Isto pode ser feito através do compartilhamento de rede como NFS ou com dispositivos de disco remotos. Neste curso, iremos utilizar um _storage_ baseado em software (FreeNAS), configurado durante a sessão 2. O acesso ao _storage_ se dará através do protocolo iSCSI, encapsulando comandos SCSI através da rede padrão do sistema.
+
+1. No XCP-ng Center, selecione o _pool_ do grupo e em seguida o botão _New Storage_. Em _Block based storage_, selecione a opção iSCSI e prossiga.
++
+.Criação de storage compartilhado, parte 1
+[#img-xcpng-2-8]
+image::4_XCP-ng-s2/xcpng8.png[align=center]
++
+Escolha um nome para o _storage_ compartilhado:
++
+.Criação de storage compartilhado, parte 2
+[#img-xcpng-2-9]
+image::4_XCP-ng-s2/xcpng9.png[align=center]
++
+Informe o endereço IP da máquina que possui o FreeNAS instalado para o grupo, e mantenha a porta padrão 3260. Clique em _Scan Target Host_ -- os campos _Target IQN_ e _Target LUN_ devem ser preenchidos automaticamente.
++
+.Criação de storage compartilhado, parte 3
+[#img-xcpng-2-10]
+image::4_XCP-ng-s2/xcpng10.png[align=center]
++
+Confirme a formatação da LUN:
++
+.Criação de storage compartilhado, parte 4
+[#img-xcpng-2-11]
+image::4_XCP-ng-s2/xcpng11.png[align=center]
++
+Ao final do processo, a LUN compartilhada deve ser adicionada ao _pool_ de servidores. Confira as informações da mesma acessando a aba _General_.
++
+.Storage compartilhado adicionado com sucesso
+[#img-xcpng-2-12]
+image::4_XCP-ng-s2/xcpng12.png[align=center]
+
+=== 3) Movendo máquinas virtuais para o Storage compartilhado
+
+O disco das máquinas virtuais devem ser movidos para um dispositivo de armazenamento compartilhado, de forma que seja possível movê-las entre hypervisors na atividade seguinte.
+
+1. Se ligada, desligue uma das VMs do grupo. Em seguida, clique com o botão direito sobre a mesma e selecione _Move VM_.
++
+.Movendo máquina virtual, parte 1
+[#img-xcpng-2-13]
+image::4_XCP-ng-s2/xcpng13.png[align=center]
++
+Defina o _pool_ do grupo como destino para a máquina virtual -- não é necessário especificar um servidor-destino.
++
+.Movendo máquina virtual, parte 2
+[#img-xcpng-2-14]
+image::4_XCP-ng-s2/xcpng14.png[align=center]
++
+Escolha o _storage_ compartilhado configurado na atividade anterior como SR (_storage repository_) alvo para a movimentação da VM.
++
+.Movendo máquina virtual, parte 3
+[#img-xcpng-2-15]
+image::4_XCP-ng-s2/xcpng15.png[align=center]
+
+2. Você pode acompanhar o progresso de movimentação da VM na janela _Events_:
++
+.Progresso de movimentação da VM
+[#img-xcpng-2-16]
+image::4_XCP-ng-s2/xcpng16.png[align=center]
+
+3. Ao final do processo, navegue até a LUN compartilhada e observe na aba _Storage_ que o disco da máquina virtual encontra-se lá:
++
+.movimentação de máquina virtual realizada com sucesso
+[#img-xcpng-2-17]
+image::4_XCP-ng-s2/xcpng17.png[align=center]
+
+4. Para evitar confusões nos passos posteriores, remova a máquina virtual que *NÃO* foi movimentada para o _storage_ compartilhado -- no exemplo abaixo, a VM `win10-d2-g1`:
++
+.Removendo VM não-compartilhada, parte 1
+[#img-xcpng-2-18]
+image::4_XCP-ng-s2/xcpng18.png[align=center]
++
+Confirme que a VM sendo removida é de fato a que não se encontra no _storage_ comum, e confirme.
++
+.Removendo VM não-compartilhada, parte 2
+[#img-xcpng-2-19]
+image::4_XCP-ng-s2/xcpng19.png[align=center]
+
+=== 4) Migração manual de máquinas virtuais no pool
+
+Uma vez que o disco da máquina virtual encontra-se no dispositivo compartilhado, é possível efetuar a migração on-line dentro de um mesmo _pool_ entre hypervisors.
+
+1. Ligue a VM que se encontra no _storage_ compartilhado.
++
+.Ligando VM
+[#img-xcpng-2-20]
+image::4_XCP-ng-s2/xcpng20.png[align=center]
+
+2. Após o _boot_, descubra o endereço IP da VM usando o comando `ipconfig`, no _prompt_ de comando do Windows.
++
+.Descobrindo IP da VM
+[#img-xcpng-2-21]
+image::4_XCP-ng-s2/xcpng21.png[align=center]
++
+Para permitir `ping` para a VM, é necessário habilitar regras no firewall do Windows. Abra o _Windows Defender Firewall com Segurança Avançada_ e habilite as regras de `Solicitação de Eco -- ICMPv4 in`.
++
+.Habilitando ping no firewall
+[#img-xcpng-2-22]
+image::4_XCP-ng-s2/xcpng22.png[align=center]
+
+3. Em sua máquina física, inicie um `ping` sem limite de pacotes (com a opção `-t`) para o IP da máquina virtual. Você deverá ver respostas como as mostradas na janela abaixo:
++
+.Ping para a VM com sucesso
+[#img-xcpng-2-23]
+image::4_XCP-ng-s2/xcpng23.png[align=center]
+
+4. Agora, vamos mover a VM. Clique com o botão direito sobre a mesma e selecione _Migrate to Server_, especificando o outro servidor do _pool_.
++
+.Movendo máquina virtual
+[#img-xcpng-2-24]
+image::4_XCP-ng-s2/xcpng24.png[align=center]
+
+5. Acompanhe o progresso de movimentação na janela _Events_.
++
+.Progresso da movimentação de VM
+[#img-xcpng-2-25]
+image::4_XCP-ng-s2/xcpng25.png[align=center]
+
+6. Em sua janela de `ping` no host físico, note que um baixíssimo número de pacotes foi perdido durante a migração -- no exemplo abaixo, apenas um:
++
+.Perda de pacotes durante migração
+[#img-xcpng-2-26]
+image::4_XCP-ng-s2/xcpng26.png[align=center]
+
+7. Na aba _Performance_ da VM, observe o comportamento do servidor durante o período de migração.
++
+.desc
+[#img-xcpng-2-27]
+image::4_XCP-ng-s2/xcpng27.png[align=center]
+
+=== 5) Ativando a Alta Disponibilidade - HA
+
+1. Agora, vamos ativar a alta disponibilidade para o _pool_ de servidores configurado. Clique com o botão direito sobre o _pool_ e selecione _High Availability_.
++
+.Ativando alta disponibilidade, parte 1
+[#img-xcpng-2-29]
+image::4_XCP-ng-s2/xcpng29.png[align=center]
++
+Na tela inicial, clique em _Next_.
++
+.Ativando alta disponibilidade, parte 2
+[#img-xcpng-2-30]
+image::4_XCP-ng-s2/xcpng30.png[align=center]
++
+Escolha o SR compartilhado para _heartbeat_ entre os membros do _pool_.
++
+.Ativando alta disponibilidade, parte 3
+[#img-xcpng-2-31]
+image::4_XCP-ng-s2/xcpng31.png[align=center]
++
+Ative o HA para a VM compartilhada do _pool_, mantendo o _HA restart priority_ como _Restart_ e _Failures tolerated_ como 1 (como são utilizados apenas dois hypervisors, só é possível suportar uma falha).
++
+.Ativando alta disponibilidade, parte 4
+[#img-xcpng-2-32]
+image::4_XCP-ng-s2/xcpng32.png[align=center]
++
+Revise as configurações, e confirme a criação do HA.
++
+.Ativando alta disponibilidade, finalização
+[#img-xcpng-2-33]
+image::4_XCP-ng-s2/xcpng33.png[align=center]
+
+2. Vamos testar! Inicie um `ping` infinito para a VM.
++
+.Ping iniciado para a VM
+[#img-xcpng-2-34]
+image::4_XCP-ng-s2/xcpng34.png[align=center]
+
+3. Determine em qual hypervisor a VM está rodando. No exemplo abaixo, ela está na máquina `xcp-ng-d2-g1`.
++
+.VM rodando num hypervisor do pool
+[#img-xcpng-2-35]
+image::4_XCP-ng-s2/xcpng35.png[align=center]
+
+4. Retire o cabo de rede ou desligue abruptamente o host físico no qual a VM está operando. Após algum tempo, ela será reiniciada no host remanescente do pool, como mostrado abaixo.
++
+.VM reiniciada em hypervisor ativo
+[#img-xcpng-2-36]
+image::4_XCP-ng-s2/xcpng36.png[align=center]
+
+5. Note que o período de indisponibilidade de `ping` é altíssimo -- além do período de inatividade e detecção, temos que esperar a VM reiniciar para voltar a obter resposta.
++
+.Indisponibilidade de ping
+[#img-xcpng-2-37]
+image::4_XCP-ng-s2/xcpng37.png[align=center]
+
+6. Em _Notifications_ > _Alerts_, note as mensagens de alerta levantadas para o _pool_.
++
+.Alertas de indisponibilidade no pool
+[#img-xcpng-2-38]
+image::4_XCP-ng-s2/xcpng38.png[align=center]
+
+=== 6) Indisponibilização do pool master
+
+1. Agora, vamos fazer o contrário. Retorne o _pool_ ao seu estado de normalidade, com ambas as máquinas ativas. Feito isso, derrube o hypervisor que se manteve ativo nos passos anteriores, que deve estar rodando a VM compartilhada e operando como _pool master_ (em nosso exemplo, a máquina `xcp-ng-d1-g1`).
++
+.Pool master indisponibilizado
+[#img-xcpng-2-39]
+image::4_XCP-ng-s2/xcpng39.png[align=center]
++
+Como mostrado a seguir, após algum tempo a máquina remanescente assume como _pool master_, e o _failover_ de alta disponibilidade se torna inviável.
++
+.Hypervisor assume como pool master
+[#img-xcpng-2-40]
+image::4_XCP-ng-s2/xcpng40.png[align=center]
+
+2. O comportamento do XCP-ng quando da indisponibilização do _pool master_ pode parecer um pouco estranho, a princípio -- isso se deve ao fato de que a recomendação para operação do mesmo é que haja no mínimo 3 hypervisors no _pool_, e não apenas 2, para estabelecimento de maioria. Os links a seguir documentam esse comportamento e oferecem sugestões de configuração para ambientes com menos máquinas disponíveis para integração ao _pool_:
++
+--
+* https://support.citrix.com/article/CTX129721
+* https://docs.citrix.com/en-us/xenserver/current-release/high-availability.html
+* https://xenserver.org/blog/entry/xenserver-high-availability-alternative-ha-lizard-1.html
+--

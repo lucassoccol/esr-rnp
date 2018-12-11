@@ -15,4 +15,501 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 5: 
+== Sessão 5: Introdução ao Hyper-V
+
+=== 1) Instalação do Hyper-V
+
+O Hyper-V é instalado como um complemento em todas as edições Windows Server. Para criar um _cluster_ de hypervisors, é necessário associá-los a um mesmo domínio. A criação deste domínio foge ao escopo do curso -- por este motivo, para desenvolvimento das práticas desta sessão, utilizaremos um servidor AD com domínio (`virtesr.edu.br`) e usuários já configurado pela equipe de apoio local da unidade.
+
+1. Crie uma mídia bootável com o instalador do Windows Server 2016, conforme instruções providas pelo instrutor. Em seguida, insira a mídia na máquina destacada como hypervisor para a dupla e execute o _boot_ via USB. Você verá a tela a seguir:
++
+.Instalação do Hyper-V, parte 1
+[#img-hyperv1]
+image::5_Hyper-V-s1/hyperv1.png[align=center]
++
+Selecione o idioma, formato de tempo/moeda e teclado, e clique em _Next_.
+
+2. Na tela seguinte, clique em _Install now_.
++
+.Instalação do Hyper-V, parte 2
+[#img-hyperv2]
+image::5_Hyper-V-s1/hyperv2.png[align=center]
+
+3. Na escolha de versão do Windows Server 2016, selecione _Datacenter Evaluation (Desktop Experience)_.
++
+.Instalação do Hyper-V, parte 3
+[#img-hyperv3]
+image::5_Hyper-V-s1/hyperv3.png[align=center]
+
+4. Aceite os termos de licença, e prossiga.
++
+.Instalação do Hyper-V, parte 4
+[#img-hyperv4]
+image::5_Hyper-V-s1/hyperv4.png[align=center]
+
+5. Para o tipo de instalação, selecione _Custom: Install Windows only (advanced)_.
++
+.Instalação do Hyper-V, parte 5
+[#img-hyperv5]
+image::5_Hyper-V-s1/hyperv5.png[align=center]
+
+6. Selecione o único disco disponível, e prossiga.
++
+.Instalação do Hyper-V, parte 6
+[#img-hyperv6]
+image::5_Hyper-V-s1/hyperv6.png[align=center]
++
+Caso o disco não esteja formatado, apague todas as partições antes de prosseguir -- se houver problemas com o formato atual do disco, pode ser necessário corrigir a tabela de partições usando um disco de recuperação Linux (consulte seu instrutor).
+
+7. O Windows Server 2016 começará a ser instalado. Aguarde a conclusão do processo.
++
+.Instalação do Hyper-V em progresso
+[#img-hyperv7]
+image::5_Hyper-V-s1/hyperv7.png[align=center]
+
+8. Concluído o procedimento, o sistema será reiniciado. Defina a senha do usuário `Administrator` como `Virt3sr`, como mostrado abaixo:
++
+.Definição da senha administrativa
+[#img-hyperv8]
+image::5_Hyper-V-s1/hyperv8.png[align=center]
++
+Faça login no sistema, a seguir.
++
+.Login inicial
+[#img-hyperv9]
+image::5_Hyper-V-s1/hyperv9.png[align=center]
++
+Tudo pronto! O sistema foi instalado com sucesso.
++
+.Conclusão do processo de instalação
+[#img-hyperv10]
+image::5_Hyper-V-s1/hyperv10.png[align=center]
+
+9. Vamos colocar o servidor no domínio `virtesr.edu.br`. O primeiro passo é alterar o servidor DNS primário, o que pode ser feito através das opções IPv4 do sistema. Use o endereço indicado pelo instrutor.
++
+.Configuração do DNS primário
+[#img-hyperv11]
+image::5_Hyper-V-s1/hyperv11.png[align=center]
++
+Desabilite ainda o protocolo IPv6 da máquina, para evitar que outros servidores DNS sejam consultados prioritariamente.
++
+.Desabilitando o protocolo IPv6
+[#img-hyperv12]
+image::5_Hyper-V-s1/hyperv12.png[align=center]
+
+10. Em _System_ > _System Properties_, altere o domínio da máquina atual. Defina o nome de máquina como `HYPERV-DX-GY` (substituindo `X` e `Y` por sua dupla/grupo), e torne-o membro do domínio `virtesr.edu.br`.
++
+.Alterando domínio da máquina
+[#img-hyperv13]
+image::5_Hyper-V-s1/hyperv13.png[align=center]
++
+Para ingressar no domínio, será necessário informar um usuário com permissão de _Domain Admin_. Use a combinação de usuário/senha informada pelo instrutor para esse fim.
++
+.Autenticação no domínio
+[#img-hyperv14]
+image::5_Hyper-V-s1/hyperv14.png[align=center]
++
+Se houver sucesso no procedimento, você verá a janela a seguir:
++
+.Ingresso no domínio com sucesso
+[#img-hyperv15]
+image::5_Hyper-V-s1/hyperv15.png[align=center]
++
+O sistema deverá ser reiniciado. Aceite a sugestão da janela subsequente.
++
+.Reiniciando o sistema
+[#img-hyperv16]
+image::5_Hyper-V-s1/hyperv16.png[align=center]
+
+11. Após o _reboot_, faça login com o usuário do domínio. Abra o _prompt_ de comando e use os comandos `whoami` e `hostname` para verificar que suas configurações foram realizadas com sucesso.
++
+.Integração ao domínio concluída
+[#img-hyperv17]
+image::5_Hyper-V-s1/hyperv17.png[align=center]
+
+12. Vamos instalar o Hyper-V. Abra o _Server Manager_, e em seguida execute o _wizard_ _Add Roles and Features_. Na página inicial deste, clique em _Next_.
++
+.Instalação do Hyper-V, parte 1
+[#img-hyperv19]
+image::5_Hyper-V-s1/hyperv19.png[align=center]
++
+Mantenha a caixa _Role-base or feature-based installation_ marcada, e clique em _Next_.
++
+.Instalação do Hyper-V, parte 2
+[#img-hyperv20]
+image::5_Hyper-V-s1/hyperv20.png[align=center]
++
+Selecione seu servidor no _pool_ (deve ser o único disponível), e prossiga.
++
+.Instalação do Hyper-V, parte 3
+[#img-hyperv21]
+image::5_Hyper-V-s1/hyperv21.png[align=center]
++
+Em _Select server roles_, marque a caixa _Hyper-V_.
++
+.Instalação do Hyper-V, parte 4
+[#img-hyperv22]
+image::5_Hyper-V-s1/hyperv22.png[align=center]
++
+Aceite a instalação das _features_ adicionais, necessárias ao funcionamento do Hyper-V.
++
+.Instalação do Hyper-V, parte 5
+[#img-hyperv23]
+image::5_Hyper-V-s1/hyperv23.png[align=center]
++
+Na tela _Select features_, clique em _Next_.
++
+.Instalação do Hyper-V, parte 6
+[#img-hyperv24]
+image::5_Hyper-V-s1/hyperv24.png[align=center]
++
+Leia os avisos na tela _Hyper-V_, e prossiga.
++
+.Instalação do Hyper-V, parte 7
+[#img-hyperv25]
+image::5_Hyper-V-s1/hyperv25.png[align=center]
++
+Em _Virtual Switches_, marque a caixa com seu adaptador Ethernet físico e prossiga.
++
+.Instalação do Hyper-V, parte 8
+[#img-hyperv26]
+image::5_Hyper-V-s1/hyperv26.png[align=center]
++
+Para migração de VMs, mantenha todas as configurações inalteradas e prossiga. Iremos configurar esta característica em uma atividade futura.
++
+.Instalação do Hyper-V, parte 9
+[#img-hyperv27]
+image::5_Hyper-V-s1/hyperv27.png[align=center]
++
+Em _Default Stores_, mantenha os diretórios de armazenamento padrão do sistema e prossiga.
++
+.Instalação do Hyper-V, parte 10
+[#img-hyperv28]
+image::5_Hyper-V-s1/hyperv28.png[align=center]
++
+Confirme que todos os dados de instalação estão corretos, marque a caixa _Restart the destination server automatically if required_ e inicie a instalação do Hyper-V.
++
+.Instalação do Hyper-V, confirmação
+[#img-hyperv29]
+image::5_Hyper-V-s1/hyperv29.png[align=center]
++
+Ao final do processo, clique em _Close_. Reinicie sua máquina, se ela não houver feito isso automaticamente.
++
+.Instalação do Hyper-V concluída
+[#img-hyperv30]
+image::5_Hyper-V-s1/hyperv30.png[align=center]
+
+=== 2) Gerenciamento do Hyper-V
+
+O Hyper-V pode ser gerenciado através do centro de controle do servidor ou por ferramentas que utilizem a interface _Windows Management Instrumentation_ (WMI) . Scripts para _PowerShell_ que utilizam esta infraestrutura podem ser encontrados em: http://pshyperv.codeplex.com/
+
+Durante o curso, o _Server Manager_ será utilizado para acessar o _snap-in_ de gerenciamento do Hyper-V.
+
+1. Para acessar a interface de gerenciamento, clique em _Server Manager_ > _Tools_ e selecione _Hyper-V Manager_.
+
+2. Localize a entrada para a máquina local, e clique no atalho _Hyper-V Settings_.
++
+.Configurações do Hyper-V
+[#img-hyperv31]
+image::5_Hyper-V-s1/hyperv31.png[align=center]
+
+3. Em _Virtual Hard Disks_ e _Virtual Machines_, localize o caminho padrão utilizados para armazenar as imagens e configurações das máquinas virtuais. O Hyper-V mantém o particionamento efetuado na instalação do Windows.
++
+.Armazenamento de VHDs
+[#img-hyperv32]
+image::5_Hyper-V-s1/hyperv32.png[align=center]
++
+.Armazenamento de configurações de VMs
+[#img-hyperv33]
+image::5_Hyper-V-s1/hyperv33.png[align=center]
+
+4. Em _Keyboard_, observe o mapeamento das teclas modificadoras (`Ctrl`, `Alt` e `Windows`) quando utilizadas nas máquinas virtuais.
++
+.Configurações de atalhos de teclado
+[#img-hyperv34]
+image::5_Hyper-V-s1/hyperv34.png[align=center]
+
+5. Volte a interface de gerenciamento e utilize o link _Virtual Switch Manager_ para editar as configurações de rede do ambiente virtual. Acesse as configurações da interface de rede local disponível em _Virtual Networks_, e configure a interface de rede como externa. Marque também a caixa _Allow management operating system to share this network adapter_.
++
+.Configurações de rede virtual
+[#img-hyperv35]
+image::5_Hyper-V-s1/hyperv35.png[align=center]
+
+6. Durante a instalação do Hyper-V, foi configurada uma rede virtual conectada a uma interface física de rede. Observe que as redes podem ser do tipo:
++
+--
+* Externa: rede conectada a uma interface física;
+* Somente Interno: para comunicação entre máquinas virtuais e o hypervisor;
+* Privada: somente visível para as máquinas virtuais.
+--
++
+Os endereços MACs são atribuídos durante a criação das máquinas virtuais e, podem ser alterados em _MAC Address Range_.
++
+.Faixa de endereços MAC
+[#img-hyperv36]
+image::5_Hyper-V-s1/hyperv36.png[align=center]
+
+=== 3) Acesso ao servidor de ISOs
+
+No Hyper-V, o acesso ao servidor com os arquivos ISO utilizadas para instalação de máquinas virtuais deve ser realizado através de uma unidade de rede mapeada no Hypervisor.
+
+1. Acessando o _Windows Explorer_ clique em _Computer_ e, na parte superior da janela, clique em _Map network drive_.
++
+.Mapeando unidade de rede, parte 1
+[#img-hyperv37]
+image::5_Hyper-V-s1/hyperv37.png[align=center]
++
+Selecione uma letra (`Z`, por exemplo) e informe o caminho completo até o compartilhamento CIFS (URL informada pelo instrutor). Marque a caixa _Reconnect at sign-in_.
++
+.Mapeando unidade de rede, parte 2
+[#img-hyperv38]
+image::5_Hyper-V-s1/hyperv38.png[align=center]
++
+Após o mapeamento, navegue para a unidade de rede e verifique seu conteúdo.
++
+.Unidade de rede mapeada com sucesso
+[#img-hyperv39]
+image::5_Hyper-V-s1/hyperv39.png[align=center]
+
+=== 4)  Criação de máquinas virtuais
+
+1. De volta ao _Hyper-V Manager_, acesse _New_ > _Virtual Machine_. Na tela inicial, clique em _Next_.
++
+.Criação de VM, parte 1
+[#img-hyperv40]
+image::5_Hyper-V-s1/hyperv40.png[align=center]
++
+Especifique um nome relevante para a VM (no exemplo abaixo, `win10-d1-g1`), e clique em _Next_.
++
+.Criação de VM, parte 2
+[#img-hyperv41]
+image::5_Hyper-V-s1/hyperv41.png[align=center]
++
+Agora, escolha a geração 2 para a VM:
++
+.Criação de VM, parte 3
+[#img-hyperv42]
+image::5_Hyper-V-s1/hyperv42.png[align=center]
++
+Na alocação de memória para a VM, determine 4 GB.
++
+.Criação de VM, parte 4
+[#img-hyperv43]
+image::5_Hyper-V-s1/hyperv43.png[align=center]
++
+Em rede, defina como conexão o único _virtual switch_ disponível em seu ambiente.
++
+.Criação de VM, parte 5
+[#img-hyperv44]
+image::5_Hyper-V-s1/hyperv44.png[align=center]
++
+Na configuração do VHDX, mantenha como padrão o caminho de armazenamento e altere seu tamanho para 40 GB.
++
+.Criação de VM, parte 6
+[#img-hyperv45]
+image::5_Hyper-V-s1/hyperv45.png[align=center]
++
+Na definição de uma imagem ISO para instalação do sistema-alvo, aponte o compartilhamento de rede que foi adicionado na atividade anterior. Caso ele não esteja sendo mostrado pelo Windows Explorer, digite manualmente o caminho completo até o _share_ CIFS com a imagem ISO de instalação do Windows 10, como mostrado no exemplo abaixo.
++
+.Criação de VM, parte 7
+[#img-hyperv46]
+image::5_Hyper-V-s1/hyperv46.png[align=center]
++
+Na tela de sumário final, confirme que as informações de criação da VM estão corretas e clique em _Finish_.
++
+.Criação de VM, finalização
+[#img-hyperv47]
+image::5_Hyper-V-s1/hyperv47.png[align=center]
+
+2. Uma vez criada a VM, clique com o botão direito na mesma em em seguida em _Connect_ para abrir a console de interação.
++
+.Abrindo a console da VM
+[#img-hyperv48]
+image::5_Hyper-V-s1/hyperv48.png[align=center]
++
+Agora, clique em _Start_ para ligar a máquina virtual.
++
+.Ligando a VM
+[#img-hyperv49]
+image::5_Hyper-V-s1/hyperv49.png[align=center]
+
+3. Você verá a tela de instalação do Windows 10, da mesma forma que fizemos em sessões anteriores. Faça a instalação do SO seguindo os passos delineados na sessão 3.
++
+.Instalação do Windows 10
+[#img-hyperv50]
+image::5_Hyper-V-s1/hyperv50.png[align=center]
++
+Instalado e configurado o SO, você estará o Desktop padrão do Windows 10, como mostrado a seguir.
++
+.Windows 10 instalado com sucesso
+[#img-hyperv51]
+image::5_Hyper-V-s1/hyperv51.png[align=center]
+
+=== 5) Configuração padrão das máquinas virtuais
+
+No atalho _Settings_, é possível alterar quase todos os recursos associados a uma máquina virtual.
+
+1. Em _Processor_, é possível definir a quantidade de processadores lógicos, reservas de recursos e limites de utilização.
++
+.Configurações de processador da VM
+[#img-hyperv52]
+image::5_Hyper-V-s1/hyperv52.png[align=center]
+
+2. Em _SCSI Controller_ > _Hard Drive_, note que o disco virtual criado utiliza conexão SCSI, por padrão.
+.desc
+[#img-hyperv53]
+image::5_Hyper-V-s1/hyperv53.png[align=center]
++
+Observe atentamente a localização do arquivo VHDX da máquina virtual: iremos movê-lo brevemente, na atividade a seguir.
+
+=== 6) Replicação de VM entre Hyper-V
+
+Nesta atividade iremos testar uma das mais importantes funcionalidades do Hyper-V: replicação de máquinas virtuais. O processo de configuração é simples e por consumir poucos recursos pode ser implementado em pequenas e médias empresas. Siga os passos abaixo com bastante atenção para conhecer melhor seu funcionamento.
+
+1. Vamos preparar o sistema para replicação das VMs. Primeiro, desligue a máquina virtual criada na atividade (4), se estiver ligada.
++
+Em seguida, crie a pasta nova `C:\vms`, como mostrado a seguir.
++
+.Criando pasta de compartilhamento
+[#img-hyperv54]
+image::5_Hyper-V-s1/hyperv54.png[align=center]
++
+Agora, vá ao local de armazenamento do arquivo VHDX da máquina virtual (que visualizamos no passo 2 da atividade 5), recorte-o e cole na pasta `C:\vms`, como se segue:
++
+.Movendo VHDX da máquina virtual
+[#img-hyperv55]
+image::5_Hyper-V-s1/hyperv55.png[align=center]
+
+2. De volta ao _Hyper-V Manager_, em _Settings_ > _Hardware_ > _SCSI Controller_ > _Hard Drive_, informe o novo caminho do disco virtual para o Hyper-V.
++
+.Relocando caminho do VHDX
+[#img-hyperv56]
+image::5_Hyper-V-s1/hyperv56.png[align=center]
+
+3. Em _Replication Configuration_, marque a caixa _Enable this computer as a Replica server_. Marque a caixa _Use Kerberos (HTTP)_, na porta 80. Finalmente, em _Authorization and storage_, marque o botão _Allow replication from any authenticated server_ e especifique o caminho de busca `C:\vms`. Confira abaixo:
++
+.Configurações de replicação
+[#img-hyperv58]
+image::5_Hyper-V-s1/hyperv58.png[align=center]
++
+O Hyper-V irá avisar que é necessário configurar o firewall local para permitir tráfego na porta indicada.
++
+.Aviso de configuração de firewall
+[#img-hyperv59]
+image::5_Hyper-V-s1/hyperv59.png[align=center]
+
+4. Abra o _Windows Firewall with Advanced Security_ e habilite a regra _Hyper-V Replica HTTP Listener (TCP-In)_.
++
+.Habilitando regra de firewall
+[#img-hyperv60]
+image::5_Hyper-V-s1/hyperv60.png[align=center]
+
+5. Agora sim! De volta ao _Hyper-V Manager_, clique com o botão direito sobre a VM e depois em _Enable Replication_.
++
+.Habilitando replicação, parte 1
+[#img-hyperv61]
+image::5_Hyper-V-s1/hyperv61.png[align=center]
++
+Na tela inicial, clique em _Next_.
++
+.Habilitando replicação, parte 2
+[#img-hyperv62]
+image::5_Hyper-V-s1/hyperv62.png[align=center]
++
+Em _Replica server_, digite o nome de máquina do hypervisor remoto que receberá a réplica de VM. No exemplo abaixo, especificamos a máquina `HYPERV-D2-G1`.
++
+.Habilitando replicação, parte 3
+[#img-hyperv63]
+image::5_Hyper-V-s1/hyperv63.png[align=center]
++
+Em _Specify Connection Parameters_, mantenha a porta de conexão em 80, uso de autenticação Kerberos (HTTP) e marque a caixa _Compress the data that is transmitted over the network_.
++
+.Habilitando replicação, parte 4
+[#img-hyperv64]
+image::5_Hyper-V-s1/hyperv64.png[align=center]
++
+Na escolha de VHDs de replicação, marque o disco virtual da VM corrente.
++
+.Habilitando replicação, parte 5
+[#img-hyperv65]
+image::5_Hyper-V-s1/hyperv65.png[align=center]
++
+Quanto à frequência de atualização de envio de mudanças para o servidor de réplica, selecione 30 segundos.
++
+.Habilitando replicação, parte 6
+[#img-hyperv66]
+image::5_Hyper-V-s1/hyperv66.png[align=center]
++
+Na configuração de pontos de restauração, marque _Create additional hourly recovery points_, com frequência de 24h, e marque a caixa que habilita criação de _snapshots_ VSS, com frequência de 4h.
++
+.Habilitando replicação, parte 7
+[#img-hyperv67]
+image::5_Hyper-V-s1/hyperv67.png[align=center]
++
+No método inicial de replicação, marque a caixa _Send initial copy over the network_, e _Start replication immediately_. Clique em _Next_.
++
+.Habilitando replicação, parte 8
+[#img-hyperv68]
+image::5_Hyper-V-s1/hyperv68.png[align=center]
++
+Confirme que as opções de replicação estão corretas, e clique em _Finish_.
++
+.Habilitando replicação, finalização
+[#img-hyperv69]
+image::5_Hyper-V-s1/hyperv69.png[align=center]
+
+6. Acompanhe o progresso de envio da réplica através da coluna _Status_ da VM.
++
+.Progresso de envio de réplica
+[#img-hyperv70]
+image::5_Hyper-V-s1/hyperv70.png[align=center]
++
+Ao receber a réplica da máquina virtual do hypervisor de seu colega, também é possível acompanhar o progresso de recebimento de mudanças na coluna _Status_.
++
+.Progresso de recebimento de réplica
+[#img-hyperv71]
+image::5_Hyper-V-s1/hyperv71.png[align=center]
+
+7. Terminados os processos de replicação, tente iniciar a VM remota.
++
+.Iniciando VM sob replicação
+[#img-hyperv72]
+image::5_Hyper-V-s1/hyperv72.png[align=center]
++
+O sistema reporta erro, informando que a máquina está em processo contínuo de replicação.
++
+.Erro ao inicial VM sob replicação
+[#img-hyperv73]
+image::5_Hyper-V-s1/hyperv73.png[align=center]
+
+8. Vamos testar a funcionalidade de replicação. Inicie um ping infinito (`ping -t`) para uma das VMs da dupla.
++
+.Ping para VM em operação
+[#img-hyperv74]
+image::5_Hyper-V-s1/hyperv74.png[align=center]
++
+Remova o cabo de rede ou desligue abruptamente o hypervisor-pai da VM que está recebendo o ping. No outro hypervisor, navegue para _Replication_ > _View Replication Health_ para visualizar o que aconteceu com a máquina.
++
+.Monitoramento de replicação
+[#img-hyperv75]
+image::5_Hyper-V-s1/hyperv75.png[align=center]
++
+Note que o sistema reporta problemas, informando que não é possível contatar o hypervisor responsável pela replicação.
++
+.Replicação com problemas
+[#img-hyperv76]
+image::5_Hyper-V-s1/hyperv76.png[align=center]
++
+Em _Replication_ > _Failover_, vamos ativar a tolerância a falhas da VM, assumindo o controle pela operação da máquina sendo replicada.
++
+.Ativação do failover de VM
+[#img-hyperv77]
+image::5_Hyper-V-s1/hyperv77.png[align=center]
++
+O sistema avisa que o _failover_ deve ser ativado apenas se a VM primária estiver em estado de falha. Como este é o caso (já que indisponibilizamos o hypervisor primário), confirme a operação de _failover_.
++
+.Confirmação de failover de VM
+[#img-hyperv78]
+image::5_Hyper-V-s1/hyperv78.png[align=center]
++
+Espere a VM ligar, e depois verifique: é possível efetuar `ping` para a máquina virtual? Outra pergunta: caso o hypervisor primário volte a tornar-se disponível, quais passos devem ser realizados para retirar a VM secundária do estado de _failover_ e retorná-la para o estado de replicação?
