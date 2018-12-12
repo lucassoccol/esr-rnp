@@ -438,13 +438,970 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_sessão_6_hyper_v_avançado">Sessão 6: Hyper-V avançado</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_1_configuração_de_cluster">1) Configuração de Cluster</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Antes de iniciar a configuração do <em>cluster</em>, devemos desabilitar a replicação ativada no final da sessão anterior. Em ambas as VMs, clique com o botão direito e navegue para <em>Replication</em> &gt; <em>Remove Replication</em>.</p>
+<div id="img-hyperv-2-1" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv1.png" alt="hyperv1">
+</div>
+<div class="title">Figure 1. Removendo replicação, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Confirme a operação.</p>
+</div>
+<div id="img-hyperv-2-2" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv2.png" alt="hyperv2">
+</div>
+<div class="title">Figure 2. Removendo replicação, parte 2</div>
+</div>
+</li>
+<li>
+<p>O Windows Server 2016 oferece um recurso para a agregação de servidores em <em>clusters</em> de alta disponibilidade. Para adicionar, abra o <em>Server Manager</em> e acesse <em>Add Roles and Features</em>.</p>
+<div id="img-hyperv-2-3" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv3.png" alt="hyperv3">
+</div>
+<div class="title">Figure 3. Instalação do Failover Cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Confirme a instalação baseada em <em>roles</em>.</p>
+</div>
+<div id="img-hyperv-2-4" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv4.png" alt="hyperv4">
+</div>
+<div class="title">Figure 4. Instalação do Failover Cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Selecione o servidor para instalação no <em>pool</em>.</p>
+</div>
+<div id="img-hyperv-2-5" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv5.png" alt="hyperv5">
+</div>
+<div class="title">Figure 5. Instalação do Failover Cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Select server roles</em>, clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-6" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv6.png" alt="hyperv6">
+</div>
+<div class="title">Figure 6. Instalação do Failover Cluster, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Select features</em>, marque a caixa <em>Failover Clustering</em>.</p>
+</div>
+<div id="img-hyperv-2-7" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv7.png" alt="hyperv7">
+</div>
+<div class="title">Figure 7. Instalação do Failover Cluster, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Confirme a instalação de <em>features</em> adicionais necessárias ao funcionamento do <em>Failover Cluster</em>.</p>
+</div>
+<div id="img-hyperv-2-8" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv8.png" alt="hyperv8">
+</div>
+<div class="title">Figure 8. Instalação do Failover Cluster, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Confirme a instalação, na janela seguinte.</p>
+</div>
+<div id="img-hyperv-2-9" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv9.png" alt="hyperv9">
+</div>
+<div class="title">Figure 9. Instalação do Failover Cluster, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Concluído o processo, clique em <em>Close</em>.</p>
+</div>
+<div id="img-hyperv-2-10" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv10.png" alt="hyperv10">
+</div>
+<div class="title">Figure 10. Instalação do Failover Cluster, parte 8</div>
+</div>
+</li>
+<li>
+<p>A partir deste ponto, a atividade deverá ser realizada em <strong>grupo</strong>, em <strong>apenas um</strong> dos hypervisors Windows Server 2016. Para iniciar a configuração do <em>cluster</em>, acesse <em>Tools</em> &gt; <em>Failover Cluster Manager</em> dentro do <em>Server Manager</em>.</p>
+<div id="img-hyperv-2-11" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv11.png" alt="hyperv11">
+</div>
+<div class="title">Figure 11. Configuração do Failover Cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, na aba <em>Management</em>, clique em <em>Create Cluster</em>. O assistente de criação de <em>clusters</em> será iniciado em seguida.</p>
+</div>
+<div id="img-hyperv-2-12" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv12.png" alt="hyperv12">
+</div>
+<div class="title">Figure 12. Configuração do Failover Cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Leia as informações iniciais na tela <em>Before You Begin</em>, e em seguida clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-13" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv13.png" alt="hyperv13">
+</div>
+<div class="title">Figure 13. Configuração do Failover Cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Select Servers</em>, digite o nome dos <strong>dois</strong> hypervisors do grupo, usando a nomenclatura de nome de máquina (FQDN) registrado junto ao <em>Active Directory</em>. Pode-se usar o endereço IP das máquinas, se desejado. Confira o exemplo a seguir:</p>
+</div>
+<div id="img-hyperv-2-14" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv14.png" alt="hyperv14">
+</div>
+<div class="title">Figure 14. Configuração do Failover Cluster, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Validation Warning</em>, marque o botão <em>Yes. When I click Next (&#8230;&#8203;)</em> para confirmar a execução de testes de validação antes da criação do <em>cluster</em>.</p>
+</div>
+<div id="img-hyperv-2-15" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv15.png" alt="hyperv15">
+</div>
+<div class="title">Figure 15. Configuração do Failover Cluster, parte 5</div>
+</div>
+<div class="paragraph">
+<p>O assistente de validação de configuração será aberto. Na janela inicial, leia as informações preliminares e clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-16" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv16.png" alt="hyperv16">
+</div>
+<div class="title">Figure 16. Configuração do Failover Cluster, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Testing Options</em>, marque o botão <em>Run only tests I select</em> para visualizar e especificar quais testes de validação serão realizados.</p>
+</div>
+<div id="img-hyperv-2-17" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv17.png" alt="hyperv17">
+</div>
+<div class="title">Figure 17. Configuração do Failover Cluster, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Na tela <em>Test Selection</em>, mantenha todas as caixas exceto <em>Storage Spaces Direct</em> marcadas, e clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-18" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv18.png" alt="hyperv18">
+</div>
+<div class="title">Figure 18. Configuração do Failover Cluster, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Confirmation</em>, verifique a lista de testes a serem realizados, e inicie-os.</p>
+</div>
+<div id="img-hyperv-2-19" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv19.png" alt="hyperv19">
+</div>
+<div class="title">Figure 19. Configuração do Failover Cluster, parte 9</div>
+</div>
+<div class="paragraph">
+<p>Após algum tempo, a lista de resultados será mostrada, como exemplificado abaixo. Observe que foram levantados alertas devido à falta de um disco compartilhado entre os nós do <em>cluster</em>, o que iremos resolver a seguir.</p>
+</div>
+<div id="img-hyperv-2-20" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv20.png" alt="hyperv20">
+</div>
+<div class="title">Figure 20. Configuração do Failover Cluster, parte 10</div>
+</div>
+<div class="paragraph">
+<p>De volta ao <em>wizard</em> de configuração do <em>Failover Cluster</em>, defina um nome sugestivo para o <em>cluster</em> da dupla.</p>
+</div>
+<div id="img-hyperv-2-21" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv21.png" alt="hyperv21">
+</div>
+<div class="title">Figure 21. Configuração do Failover Cluster, parte 11</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Confirmation</em>, verifique as informações do <em>cluster</em>, marque a caixa <em>Add all eligible storage to the cluster</em> e finalmente clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-22" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv22.png" alt="hyperv22">
+</div>
+<div class="title">Figure 22. Configuração do Failover Cluster, parte 12</div>
+</div>
+<div class="paragraph">
+<p>Concluído o processo, clique em <em>Finish</em>.</p>
+</div>
+<div id="img-hyperv-2-23" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv23.png" alt="hyperv23">
+</div>
+<div class="title">Figure 23. Configuração do Failover Cluster, concluído</div>
+</div>
+</li>
+<li>
+<p>Confira se o <em>cluster</em> criado pode ser visualizado nos dois hypervisors do grupo, usando o <em>Failover Cluster Manager</em>.</p>
+<div id="img-hyperv-2-24" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv24.png" alt="hyperv24">
+</div>
+<div class="title">Figure 24. Cluster criado com sucesso</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Nodes</em>, note que é possível observar que ambas as máquinas estão conectadas ao <em>cluster</em> em estado <em>Up</em>.</p>
+</div>
+<div id="img-hyperv-2-25" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv25.png" alt="hyperv25">
+</div>
+<div class="title">Figure 25. Nodes conectados ao cluster</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_configuração_de_storage_compartilhado">2) Configuração de storage compartilhado</h3>
+<div class="paragraph">
+<p>Da mesma forma que em outras atividades foi necessário configurar um dispositivo de armazenamento compartilhado (FreeNAS) entre os <em>nodes</em>, aqui faremos o mesmo. Este compartilhamento permitirá a migração de máquinas virtuais.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Este passo deve ser realizado em <strong>ambos</strong> os hypervisors da dupla.</p>
+<div class="paragraph">
+<p>No <em>Server Manager</em>, inicie a ferramenta <em>Tools</em> &gt; <em>iSCSI Initiator</em>.</p>
+</div>
+<div id="img-hyperv-2-26" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv26.png" alt="hyperv26">
+</div>
+<div class="title">Figure 26. Configuração iSCSI, parte 1</div>
+</div>
+<div class="paragraph">
+<p>O sistema irá informar que o serviço iSCSI não foi iniciado. Clique em <em>Yes</em> para iniciá-lo, bem como configurá-lo como ativado em <em>boots</em> subsequentes do servidor.</p>
+</div>
+<div id="img-hyperv-2-27" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv27.png" alt="hyperv27">
+</div>
+<div class="title">Figure 27. Configuração iSCSI, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela que se abrir, digite em <em>Target</em> o endereço IP do FreeNAS que será usado como <em>storage</em> compartilhado entre os nodos do <em>cluster</em>. Evidentemente, deve-se usar o mesmo <em>storage</em> para ambos os hypervisors. Em seguida, clique em <em>Quick Connect</em>.</p>
+</div>
+<div id="img-hyperv-2-28" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv28.png" alt="hyperv28">
+</div>
+<div class="title">Figure 28. Configuração iSCSI, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, verifique que a LUN correta foi exibida pelo <em>iSCSI Initiator</em>, e clique em <em>Done</em>.</p>
+</div>
+<div id="img-hyperv-2-29" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv29.png" alt="hyperv29">
+</div>
+<div class="title">Figure 29. Configuração iSCSI, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Na aba <em>Discovery</em>, note que o endereço IP e porta corretos do servidor FreeNAS figuram em ambos os hypervisors do grupo.</p>
+</div>
+<div id="img-hyperv-2-30" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv30.png" alt="hyperv30">
+</div>
+<div class="title">Figure 30. Configuração iSCSI, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Agora, navegue para a aba <em>Volumes and Devices</em> e clique no botão <em>Auto Configure</em>.</p>
+</div>
+<div id="img-hyperv-2-31" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv31.png" alt="hyperv31">
+</div>
+<div class="title">Figure 31. Configuração iSCSI, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Deverá surgir uma <em>string</em> longa representando o mapeamento da LUN do <em>storage</em> remoto no sistema local, como mostrado no figura a seguir.</p>
+</div>
+<div id="img-hyperv-2-32" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv32.png" alt="hyperv32">
+</div>
+<div class="title">Figure 32. Configuração iSCSI, parte 7</div>
+</div>
+</li>
+<li>
+<p>Realize os passos seguintes em <strong>apenas um</strong> hypervisor do grupo.</p>
+<div class="paragraph">
+<p>No <em>Server Manager</em>, acesse <em>Tools</em> &gt; <em>Computer Management</em>.</p>
+</div>
+<div id="img-hyperv-2-33" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv33.png" alt="hyperv33">
+</div>
+<div class="title">Figure 33. Inicialização da LUN, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Storage</em> &gt; <em>Disk Management</em>, note que há um novo disco de 80 GB conectado; este disco corresponde à LUN no <em>storage</em> remoto. Observe, ainda, que ele se encontra em estado <em>offline</em>.</p>
+</div>
+<div id="img-hyperv-2-34" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv34.png" alt="hyperv34">
+</div>
+<div class="title">Figure 34. Inicialização da LUN, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Clique na proximidade da palavra <em>Offline</em> dentro do quadro do disco e depois em <em>Online</em> para torná-lo disponível.</p>
+</div>
+<div id="img-hyperv-2-35" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv35.png" alt="hyperv35">
+</div>
+<div class="title">Figure 35. Inicialização da LUN, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Agora, clique novamente e selecione <em>Initialize Disk</em>.</p>
+</div>
+<div id="img-hyperv-2-36" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv36.png" alt="hyperv36">
+</div>
+<div class="title">Figure 36. Inicialização da LUN, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, marque a caixa com o nome do disco e selecione o tipo de partição MBR para o mesmo.</p>
+</div>
+<div id="img-hyperv-2-37" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv37.png" alt="hyperv37">
+</div>
+<div class="title">Figure 37. Inicialização da LUN, parte 5</div>
+</div>
+<div class="paragraph">
+<p>De volta à janela principal, clique com o botão direito sobre o espaço não-inicializado do disco e selecione a opção <em>New Simple Volume</em>.</p>
+</div>
+<div id="img-hyperv-2-38" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv38.png" alt="hyperv38">
+</div>
+<div class="title">Figure 38. Inicialização da LUN, parte 6</div>
+</div>
+<div class="paragraph">
+<p>O <em>wizard</em> de configuração de disco será aberto. Clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-39" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv39.png" alt="hyperv39">
+</div>
+<div class="title">Figure 39. Inicialização da LUN, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Para o tamanho do volume do disco, mantenho o valor máximo especificado automaticamente.</p>
+</div>
+<div id="img-hyperv-2-40" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv40.png" alt="hyperv40">
+</div>
+<div class="title">Figure 40. Inicialização da LUN, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Assinale uma letra qualquer para o disco (no exemplo, <code>X</code>), e clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-41" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv41.png" alt="hyperv41">
+</div>
+<div class="title">Figure 41. Inicialização da LUN, parte 9</div>
+</div>
+<div class="paragraph">
+<p>Formate o volume em NTFS, selecione um <em>label</em> com nome apropriado e marque a caixa <em>Perform a quick format</em>.</p>
+</div>
+<div id="img-hyperv-2-42" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv42.png" alt="hyperv42">
+</div>
+<div class="title">Figure 42. Inicialização da LUN, parte 10</div>
+</div>
+<div class="paragraph">
+<p>Na janela final, confirme suas seleções e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-hyperv-2-43" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv43.png" alt="hyperv43">
+</div>
+<div class="title">Figure 43. Inicialização da LUN, parte 11</div>
+</div>
+<div class="paragraph">
+<p>De volta ao <em>Computer Management</em>, note que o disco foi inicializado e uma letra foi assinalada a ele.</p>
+</div>
+<div id="img-hyperv-2-44" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv44.png" alt="hyperv44">
+</div>
+<div class="title">Figure 44. Inicialização da LUN, concluída</div>
+</div>
+<div class="paragraph">
+<p>Repita os passos desta etapa no segundo hypervisor da dupla. Não será necessário formatar o disco novamente, mas os passos de inicialização e assinalar letra ao disco deverão ser realizados. Ao final do processo, o disco deverá estar disponível de forma análoga ao que foi mostrado na tela acima.</p>
+</div>
+</li>
+<li>
+<p>Realize os passos seguintes em <strong>apenas um</strong> hypervisor do grupo.</p>
+<div class="paragraph">
+<p>Abra o <em>Failover Cluster Manager</em> e em <em>Storage</em> &gt; <em>Disks</em>, clique em <em>Add Disk</em>.</p>
+</div>
+<div id="img-hyperv-2-45" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv45.png" alt="hyperv45">
+</div>
+<div class="title">Figure 45. Adicionando disco compartilhado ao cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na janela seguinte, o disco compartilhado (que deve estar disponível nos dois membros do <em>cluster</em>) é mostrado. Marque a caixa e clique em <em>OK</em>.</p>
+</div>
+<div id="img-hyperv-2-46" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv46.png" alt="hyperv46">
+</div>
+<div class="title">Figure 46. Adicionando disco compartilhado ao cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>De volta ao <em>Failover Cluster</em>, note que o disco foi adicionado e encontra-se em estado <em>Online</em>.</p>
+</div>
+<div id="img-hyperv-2-47" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv47.png" alt="hyperv47">
+</div>
+<div class="title">Figure 47. Adicionando disco compartilhado ao cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Clique com o botão direito sobre o disco, e em seguida em <em>Add to Cluster Shared Volumes</em>.</p>
+</div>
+<div id="img-hyperv-2-48" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv48.png" alt="hyperv48">
+</div>
+<div class="title">Figure 48. Adicionando disco compartilhado ao cluster, parte 4</div>
+</div>
+<div class="paragraph">
+<p>O <em>storage</em> compartilhado será adicionado ao <em>cluster</em>, nos dois hypervisors. Acesse o caminho <code>C:\ClusterStorage\Volume1</code> para acessar o volume compartilhado.</p>
+</div>
+<div id="img-hyperv-2-49" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv49.png" alt="hyperv49">
+</div>
+<div class="title">Figure 49. Adicionando disco compartilhado ao cluster, concluído</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_migração_de_máquinas_virtuais">3) Migração de máquinas virtuais</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Em <strong>apenas um</strong> dos hypervisors do grupo, copie o arquivo VHDX da máquina virtual local para o <em>storage</em> compartilhado.</p>
+<div id="img-hyperv-2-50" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv50.png" alt="hyperv50">
+</div>
+<div class="title">Figure 50. Cópia do arquivo VHDX</div>
+</div>
+<div class="paragraph">
+<p>Acompanhe o progresso da cópia:</p>
+</div>
+<div id="img-hyperv-2-51" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv51.png" alt="hyperv51">
+</div>
+<div class="title">Figure 51. Progresso de cópia</div>
+</div>
+<div class="paragraph">
+<p>Ao final do processo, a pasta <code>C:\ClusterStorage\Volume1</code> deve conter o arquivo VHDX da máquina virtual original.</p>
+</div>
+<div id="img-hyperv-2-52" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv52.png" alt="hyperv52">
+</div>
+<div class="title">Figure 52. Cópia concluída</div>
+</div>
+</li>
+<li>
+<p>No <em>Failover Cluster</em>, vamos criar uma nova máquina virtual que utilize o VHDX copiado anteriormente. Acesse <em>Roles</em> &gt; <em>Virtual Machines</em> &gt; <em>New Virtual Machine</em>.</p>
+<div id="img-hyperv-2-53" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv53.png" alt="hyperv53">
+</div>
+<div class="title">Figure 53. Criação de VM no cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Selecione o nodo-alvo para a VM (qualquer um é uma opção válida).</p>
+</div>
+<div id="img-hyperv-2-54" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv54.png" alt="hyperv54">
+</div>
+<div class="title">Figure 54. Criação de VM no cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Defina um nome apropriado para a VM do <em>cluster</em>, marque a caixa <em>Store the virtual machine in a different location</em> e aponte a pasta <code>C:\ClusterStorage\Volume1\Virtual Machines</code> para armazenamento da configuração da VM. Crie a pasta, caso esta não exista.</p>
+</div>
+<div id="img-hyperv-2-55" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv55.png" alt="hyperv55">
+</div>
+<div class="title">Figure 55. Criação de VM no cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Escolha a geração 2 para a VM.</p>
+</div>
+<div id="img-hyperv-2-56" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv56.png" alt="hyperv56">
+</div>
+<div class="title">Figure 56. Criação de VM no cluster, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Defina 4 GB de memória RAM para a máquina virtual.</p>
+</div>
+<div id="img-hyperv-2-57" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv57.png" alt="hyperv57">
+</div>
+<div class="title">Figure 57. Criação de VM no cluster, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Escolha o único <em>virtual switch</em> disponível para a saída de rede da VM.</p>
+</div>
+<div id="img-hyperv-2-58" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv58.png" alt="hyperv58">
+</div>
+<div class="title">Figure 58. Criação de VM no cluster, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Na tela <em>Connect Virtual Hard Disk</em>, marque a caixa <em>Use an existing virtual disk</em> e navegue até o caminho do arquivo VHDX que foi copiado no pass (1) desta atividade.</p>
+</div>
+<div id="img-hyperv-2-59" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv59.png" alt="hyperv59">
+</div>
+<div class="title">Figure 59. Criação de VM no cluster, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Na tela de sumário, confirme as opções de criação da máquina virtual e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-hyperv-2-60" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv60.png" alt="hyperv60">
+</div>
+<div class="title">Figure 60. Criação de VM no cluster, finalização</div>
+</div>
+<div class="paragraph">
+<p>O <em>Failover Cluster</em> irá reportar a criação da VM com sucesso, a seguir.</p>
+</div>
+<div id="img-hyperv-2-61" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv61.png" alt="hyperv61">
+</div>
+<div class="title">Figure 61. VM criada no cluster com sucesso</div>
+</div>
+</li>
+<li>
+<p>Observe a VM disponível na janela <em>Roles</em> do <em>Failover Cluster</em>. Clique em <em>Connect</em> para abrir a console de comunicação com a máquina virtual.</p>
+<div id="img-hyperv-2-62" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv62.png" alt="hyperv62">
+</div>
+<div class="title">Figure 62. Acesso à VM do cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Com a console aberta, clique em <em>Start</em> para ligar a VM.</p>
+</div>
+<div id="img-hyperv-2-63" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv63.png" alt="hyperv63">
+</div>
+<div class="title">Figure 63. Acesso à VM do cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Uma vez ligada a VM, use o <em>prompt</em> de comando do Windows para descobrir o endereço IP da máquina, via comando <code>ipconfig</code>.</p>
+</div>
+<div id="img-hyperv-2-64" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv64.png" alt="hyperv64">
+</div>
+<div class="title">Figure 64. Acesso à VM do cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Lembre-se de desativar o firewall do Windows para permitir que pacotes ICMP sejam respondidos pela VM.</p>
+</div>
+<div id="img-hyperv-2-65" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv65.png" alt="hyperv65">
+</div>
+<div class="title">Figure 65. Acesso à VM do cluster, parte 4</div>
+</div>
+</li>
+<li>
+<p>De sua máquina física, inicie um ping infinito (comando <code>ping -t</code>) para a VM, acompanhando a resposta aos pacotes.</p>
+<div id="img-hyperv-2-66" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv66.png" alt="hyperv66">
+</div>
+<div class="title">Figure 66. Ping iniciado para VM no cluster</div>
+</div>
+</li>
+<li>
+<p>No <em>Failover Cluster</em>, clique com o botão direito na VM e selecione <em>Move</em> &gt; <em>Live Migration</em> &gt; <em>Select Node</em>.</p>
+<div id="img-hyperv-2-67" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv67.png" alt="hyperv67">
+</div>
+<div class="title">Figure 67. Migração de VM, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Selecione o nó do <em>cluster</em> para o qual a máquina será movida.</p>
+</div>
+<div id="img-hyperv-2-68" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv68.png" alt="hyperv68">
+</div>
+<div class="title">Figure 68. Migração de VM, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Na coluna <em>Information</em>, acompanhe o progresso de migração da máquina virtual.</p>
+</div>
+<div id="img-hyperv-2-69" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv69.png" alt="hyperv69">
+</div>
+<div class="title">Figure 69. Migração de VM, parte 3</div>
+</div>
+</li>
+<li>
+<p>Concluído o <em>Live Migration</em>, volte ao comando ping rodando em sua máquina física e observe quantos pacotes foram perdidos durante o processo&#8201;&#8212;&#8201;poucos, não é mesmo? No exemplo abaixo, apenas 3 pacotes ICMP foram perdidos:</p>
+<div id="img-hyperv-2-70" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv70.png" alt="hyperv70">
+</div>
+<div class="title">Figure 70. Pacotes perdidos durante migração de VM</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_alta_disponibilidade">4) Alta Disponibilidade</h3>
+<div class="paragraph">
+<p>O Hyper-V oferece suporte ao monitoramento de servidores por <em>heartbeat</em> e a reinicialização das máquinas virtuais que se tornam inoperantes por causa de falhas no sistema. Vamos testar essa funcionalidade?</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para que o <em>cluster</em> consiga negociar a alta dispobilidade, é necessário que seja criado um disco compartilhado dedicado à manutenção do estado do <em>cluster</em>, o chamado <strong>quórum</strong>.</p>
+<div class="paragraph">
+<p>Abra a configuração do servidor FreeNAS que está sendo usado pelo <em>cluster</em>, e em <em>Armazenamento</em>, clique sobre o volume ZFS e depois em <em>Criar zvol</em>.</p>
+</div>
+<div id="img-hyperv-2-71" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv71.png" alt="hyperv71">
+</div>
+<div class="title">Figure 71. Criação de volume compartilhado no storage, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Defina um nome para o <em>zvol</em>, um comentário apropriado e tamanho de 2 GB. Note que não é necessário que o disco de quórum seja particularmente grande&#8201;&#8212;&#8201;de fato, de acordo com a documentação da Microsoft (<a href="https://support.microsoft.com/en-hk/help/280345/quorum-drive-configuration-information" class="bare">https://support.microsoft.com/en-hk/help/280345/quorum-drive-configuration-information</a>), 500 MB são suficientes para essa partição.</p>
+</div>
+<div id="img-hyperv-2-72" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv72.png" alt="hyperv72">
+</div>
+<div class="title">Figure 72. Criação de volume compartilhado no storage, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Compartilhamento</em> &gt; <em>Block (iSCSI)</em> &gt; <em>Targets</em>, crie uma segunda LUN para o disco compartilhado recém-criado.</p>
+</div>
+<div id="img-hyperv-2-73" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv73.png" alt="hyperv73">
+</div>
+<div class="title">Figure 73. Criação de volume compartilhado no storage, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Extents</em>, crie um novo <em>extent</em> para fazer a amarração da LUN.</p>
+</div>
+<div id="img-hyperv-2-74" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv74.png" alt="hyperv74">
+</div>
+<div class="title">Figure 74. Criação de volume compartilhado no storage, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, em <em>Destinos Associados</em>, correlacione o <em>Target</em> e o <em>Extent</em> sob um número de LUN.</p>
+</div>
+<div id="img-hyperv-2-75" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv75.png" alt="hyperv75">
+</div>
+<div class="title">Figure 75. Criação de volume compartilhado no storage, parte 5</div>
+</div>
+</li>
+<li>
+<p>Em <strong>ambos</strong> os hypervisors do grupo, abra o <em>Server Manager</em> &gt; <em>Tools</em> &gt; <em>iSCSI Initiator</em> e reconecte-se no <em>storage</em> FreeNAS para fazer um <em>rescan</em> das LUNs disponíveis, com o botão <em>Quick Connect</em>.</p>
+<div id="img-hyperv-2-76" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv76.png" alt="hyperv76">
+</div>
+<div class="title">Figure 76. Adicionando nova LUN ao cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, note que a LUN 2 é detectada. Clique sobre a mesma e em seguida em <em>Connect</em>.</p>
+</div>
+<div id="img-hyperv-2-77" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv77.png" alt="hyperv77">
+</div>
+<div class="title">Figure 77. Adicionando nova LUN ao cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Na aba <em>Volumes and Devices</em>, clique em <em>Auto Configure</em> para que a LUN seja relacionada a um <em>mount point</em> local no servidor.</p>
+</div>
+<div id="img-hyperv-2-78" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv78.png" alt="hyperv78">
+</div>
+<div class="title">Figure 78. Adicionando nova LUN ao cluster, parte 3</div>
+</div>
+</li>
+<li>
+<p>Em <strong>apenas um</strong> dos hypervisors, abra o <em>Server Manager</em> &gt; <em>Tools</em> &gt; <em>Computer Management</em> . Navegue para <em>Storage</em> &gt; <em>Disks</em> e torne o disco <em>Online</em>, como fizemos antes. Em seguida, clique em <em>Initialize Disk</em> e selecione o formato MBR.</p>
+<div id="img-hyperv-2-79" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv79.png" alt="hyperv79">
+</div>
+<div class="title">Figure 79. Inicializando disco de quórum, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Da mesma forma que fizemos antes, inicie <em>New Simple Volume</em> e defina uma letra para o disco. Na tela de escolha de sistema de arquivos, mantenha NTFS e defina um <em>label</em> apropriado para o disco.</p>
+</div>
+<div id="img-hyperv-2-80" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv80.png" alt="hyperv80">
+</div>
+<div class="title">Figure 80. Inicializando disco de quórum, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Ao final do processo, o disco de quórum deve estar disponível como mostrado na figura abaixo:</p>
+</div>
+<div id="img-hyperv-2-81" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv81.png" alt="hyperv81">
+</div>
+<div class="title">Figure 81. Inicializando disco de quórum, concluído</div>
+</div>
+<div class="paragraph">
+<p>No <strong>outro</strong> hypervisor do grupo faça configurações análogas de forma a tornar o disco de quórum acessível, como fizemos nos passos acima. Não é necessário reformatar o disco.</p>
+</div>
+</li>
+<li>
+<p>Em <strong>apenas um</strong> dos hypervisors, acesse o <em>Failover Cluster</em>. Em <em>Storage</em> &gt; <em>Disks</em>, clique em <em>Add Disk</em>.</p>
+<div id="img-hyperv-2-82" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv82.png" alt="hyperv82">
+</div>
+<div class="title">Figure 82. Adicionando disco de quórum ao cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Selecione o disco de quórum, com capacidade de 2 GB.</p>
+</div>
+<div id="img-hyperv-2-83" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv83.png" alt="hyperv83">
+</div>
+<div class="title">Figure 83. Adicionando disco de quórum ao cluster, parte 2</div>
+</div>
+</li>
+<li>
+<p>Clique com o botão direito sobre o <em>cluster</em>, e em seguida em <em>More Actions</em> &gt; <em>Configure Cluster Quorum Settings</em>.</p>
+<div id="img-hyperv-2-84" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv84.png" alt="hyperv84">
+</div>
+<div class="title">Figure 84. Configurando o quórum do cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na tela inicial do <em>wizard</em> de configuração do quórum do <em>cluster</em> clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-85" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv85.png" alt="hyperv85">
+</div>
+<div class="title">Figure 85. Configurando o quórum do cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Select Quorum Configuration Option</em>, marque o botão do meio, <em>Select the quorum witness</em>.</p>
+</div>
+<div id="img-hyperv-2-86" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv86.png" alt="hyperv86">
+</div>
+<div class="title">Figure 86. Configurando o quórum do cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Depois, selecione <em>Configure a disk witness</em>.</p>
+</div>
+<div id="img-hyperv-2-87" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv87.png" alt="hyperv87">
+</div>
+<div class="title">Figure 87. Configurando o quórum do cluster, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Selecione o disco que foi configurado como quórum, que deve ser o único disponível para o <em>cluster</em>.</p>
+</div>
+<div id="img-hyperv-2-88" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv88.png" alt="hyperv88">
+</div>
+<div class="title">Figure 88. Configurando o quórum do cluster, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Verifique que suas configurações estão corretas, e clique em <em>Next</em>.</p>
+</div>
+<div id="img-hyperv-2-89" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv89.png" alt="hyperv89">
+</div>
+<div class="title">Figure 89. Configurando o quórum do cluster, parte 6</div>
+</div>
+<div class="paragraph">
+<p>No sumário final, clique em <em>Finish</em> para encerrar o <em>wizard</em> de configuração.</p>
+</div>
+<div id="img-hyperv-2-90" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv90.png" alt="hyperv90">
+</div>
+<div class="title">Figure 90. Configurando o quórum do cluster, finalizado</div>
+</div>
+</li>
+<li>
+<p>De volta ao <em>Failover Cluster</em>, em <em>Storage</em> &gt; <em>Disks</em>, verifique que o <em>Cluster Shared Volume</em> e o <em>Disk Witness in Quorum</em> estão ambos corretamente configurados.</p>
+<div id="img-hyperv-2-91" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv91.png" alt="hyperv91">
+</div>
+<div class="title">Figure 91. Quórum configurado com sucesso</div>
+</div>
+<div class="paragraph">
+<p>Note que o quórum possui um <em>Owner node</em>, ou nó-dono. Neste nó, é possível visualizar o disco de quórum montado diretamente no Windows Explorer.</p>
+</div>
+<div id="img-hyperv-2-92" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv92.png" alt="hyperv92">
+</div>
+<div class="title">Figure 92. Disco de quórum disponível no nó-dono</div>
+</div>
+</li>
+<li>
+<p>Vamos testar a alta disponibilidade! Navegue para <em>Roles</em> e determine qual o nó-dono da máquina virtual em operação no <em>cluster</em>.</p>
+<div id="img-hyperv-2-93" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv93.png" alt="hyperv93">
+</div>
+<div class="title">Figure 93. Nó-dono da VM identificado</div>
+</div>
+<div class="paragraph">
+<p>Inicie um ping infinito (<code>ping -t</code>) para a VM. Em seguida, desligue o nó-dono da máquina virtual ordeiramente (i.e. selecionando a opção <em>Shut Down</em> no menu Iniciar do Windows Server 2016). Observe como rapidamente o nó-dono da VM é repassado para o outro host físico do <em>cluster</em>, e poucos pacotes são perdidos durante a migração da máquina.</p>
+</div>
+<div id="img-hyperv-2-94" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv94.png" alt="hyperv94">
+</div>
+<div class="title">Figure 94. Migração automática em caso de indisponibilidade</div>
+</div>
+</li>
+<li>
+<p>Claro, o teste do passo anterior foi feito de "caso pensado": ou seja, o servidor Windows que foi indisponibilizado foi desligado ordeiramente, e teve a oportunidade de avisar o outro membro do <em>cluster</em> e mover o estado da VM antes de concluir seu desligamento. E se essa máquina fosse desligada abruptamente?</p>
+<div class="paragraph">
+<p>Vamos testar: faça um <em>live migration</em> da VM de volta para o servidor original.</p>
+</div>
+<div id="img-hyperv-2-95" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv95.png" alt="hyperv95">
+</div>
+<div class="title">Figure 95. Migração da VM de volta para o nó-dono original</div>
+</div>
+<div class="paragraph">
+<p>Agora, inicie um ping infinito para a VM e puxe o cabo de rede ou desligue "no botão" o nó-dono da VM, causando um desligamento abrupto. Observe que a VM entra em estado <em>Unmonitored</em> e os pacotes ICMP começam a ser perdidos.</p>
+</div>
+<div id="img-hyperv-2-96" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv96.png" alt="hyperv96">
+</div>
+<div class="title">Figure 96. VM indisponível após desligamento abrupto</div>
+</div>
+<div class="paragraph">
+<p>De fato, a VM fica indisponível por um longo período, como visto abaixo. O nó remanescente do <em>cluster</em> irá aguardar um período de 4 minutos (valor padrão, configurável, como documentado em <a href="https://blogs.msdn.microsoft.com/clustering/2015/06/03/virtual-machine-compute-resiliency-in-windows-server-2016/" class="bare">https://blogs.msdn.microsoft.com/clustering/2015/06/03/virtual-machine-compute-resiliency-in-windows-server-2016/</a>)</p>
+</div>
+<div id="img-hyperv-2-97" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv97.png" alt="hyperv97">
+</div>
+<div class="title">Figure 97. VM indisponível por longo período</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Nodes</em>, observe que após 4 minutos o hypervisor desligado entra em estado <em>Isolated</em>.</p>
+</div>
+<div id="img-hyperv-2-98" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv98.png" alt="hyperv98">
+</div>
+<div class="title">Figure 98. Hypervisor em estado Isolated</div>
+</div>
+<div class="paragraph">
+<p>A VM é reiniciada no nó remanescente do <em>cluster</em>, e os pacotes ICMP começam a ser respondidos novamente:</p>
+</div>
+<div id="img-hyperv-2-99" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv99.png" alt="hyperv99">
+</div>
+<div class="title">Figure 99. VM reiniciada e disponível</div>
+</div>
+</li>
+<li>
+<p>Note que todos os testes exemplificados até aqui buscaram desligar o hypervisor que <strong>não</strong> atuava como mestre do <em>cluster</em> e <strong>não</strong> era o nó-dono do disco de quórum. E se fizermos isso, o que acontece?</p>
+<div id="img-hyperv-2-100" class="imageblock text-center">
+<div class="content">
+<img src="../img/6_Hyper-V-s2/hyperv100.png" alt="hyperv100">
+</div>
+<div class="title">Figure 100. Testando indisponibilização do nó-mestre do cluster</div>
+</div>
+<div class="paragraph">
+<p>Mova o disco de quórum e VM para o mesmo nó, que deverá atuar como mestre do <em>cluster</em>. Em seguida, teste: o que acontece se desligarmos abruptamente esse host físico? O disco de quórum, VM e liderança do <em>cluster</em> serão assumidos pelo outro membro? E, se sim, após quanto tempo?</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-12-10 15:01:21 -0200
+Last updated 2018-12-11 13:42:56 -0200
 </div>
 </div>
 </body>

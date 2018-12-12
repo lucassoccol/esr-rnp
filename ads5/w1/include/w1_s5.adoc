@@ -121,7 +121,7 @@ O sistema deverá ser reiniciado. Aceite a sugestão da janela subsequente.
 [#img-hyperv16]
 image::5_Hyper-V-s1/hyperv16.png[align=center]
 
-11. Após o _reboot_, faça login com o usuário do domínio. Abra o _prompt_ de comando e use os comandos `whoami` e `hostname` para verificar que suas configurações foram realizadas com sucesso.
+11. Após o _reboot_, faça login com o usuário do domínio (*NÃO* utilize o usuário `Administrator` local, use uma das contas `UserX`, dependendo da máquina que você esteja usando -- consulte o mapa de sala). Abra o _prompt_ de comando e use os comandos `whoami` e `hostname` para verificar que suas configurações foram realizadas com sucesso.
 +
 .Integração ao domínio concluída
 [#img-hyperv17]
@@ -416,7 +416,7 @@ Na tela inicial, clique em _Next_.
 [#img-hyperv62]
 image::5_Hyper-V-s1/hyperv62.png[align=center]
 +
-Em _Replica server_, digite o nome de máquina do hypervisor remoto que receberá a réplica de VM. No exemplo abaixo, especificamos a máquina `HYPERV-D2-G1`.
+Em _Replica server_, digite o nome de máquina do hypervisor remoto que receberá a réplica de VM (este será o hypervisor *do seu colega*, não a máquina local). No exemplo abaixo, especificamos a máquina `HYPERV-D2-G1`.
 +
 .Habilitando replicação, parte 3
 [#img-hyperv63]

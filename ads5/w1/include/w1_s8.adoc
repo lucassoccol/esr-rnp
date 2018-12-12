@@ -15,4 +15,799 @@ ifdef::oneof[]
 include::../../share/attributes.adoc[]
 endif::oneof[]
 
-== Sessão 8: VSphere avançados
+== Sessão 8: VSphere avançado
+
+=== 1) Instalando o vCenter
+
+O vCenter é uma ferramenta que, através de seus recursos, proporciona ao gestor de um ambiente virtualizado a possibilidade de gerenciamento central de todos os hypervisors (ESXi) de uma organização. Em nosso laboratório, o vCenter será usado para gerenciar de forma central os dois hypervisors de um grupo -- assim, sua instalação deve ser feita em *apenas uma* máquina do grupo, devendo esta atividade ser executada em equipe.
+
+1. Para iniciar a instalação do vCenter, o primeiro passo é montar a ISO de instalação (consulte seu instrutor sobre a localização deste arquivo). Use a funcionalidade nativa do Windows ou aplicativos externos (como o Virtual CloneDrive) para montar o disco.
++
+.Montando ISO de instalação do vCenter
+[#img-vmw-2-1]
+image::8_VSphere-s2/vmw1.png[align=center]
++
+A imagem será montada em sua máquina física sob uma letra qualquer (no exemplo abaixo, `E:\`). Acesse a raiz desse ponto de montagem, e depois entre na pasta `vcsa-ui-installer\win32`. Em seguida, execute o programa `installer.exe`, como mostrado abaixo.
++
+.Execução do instalador do vCenter
+[#img-vmw-2-2]
+image::8_VSphere-s2/vmw2.png[align=center]
+
+2. O instalador do vCenter será iniciado. Na janela de abertura, selecione a opção _Install_.
++
+.Instalação do vCenter, estágio 1, parte 1
+[#img-vmw-2-3]
+image::8_VSphere-s2/vmw3.png[align=center]
++
+Na tela introdutória, clique em _Next_.
++
+.Instalação do vCenter, estágio 1, parte 2
+[#img-vmw-2-4]
+image::8_VSphere-s2/vmw4.png[align=center]
++
+Aceite os termos de licença da ferramenta, e clique em _Next_.
++
+.Instalação do vCenter, estágio 1, parte 3
+[#img-vmw-2-5]
+image::8_VSphere-s2/vmw5.png[align=center]
++
+Para o tipo de _deployment_, selecione _vCenter Server with an Embedded Platform Services Controller_, e prossiga.
++
+.Instalação do vCenter, estágio 1, parte 4
+[#img-vmw-2-6]
+image::8_VSphere-s2/vmw6.png[align=center]
++
+Para o alvo da instalação do vCenter, indique o endereço IP de um dos hypervisors do grupo. Especifique a porta 443, usuário `root`, e senha de acesso definida na sessão anterior.
++
+.Instalação do vCenter, estágio 1, parte 5
+[#img-vmw-2-7]
+image::8_VSphere-s2/vmw7.png[align=center]
++
+Será mostrado um aviso sobre o certificado auto-assinado do hypervisor ESXi ao qual estamos nos conectando. Clique em _Yes_ para prosseguir.
++
+.Instalação do vCenter, estágio 1, parte 6
+[#img-vmw-2-8]
+image::8_VSphere-s2/vmw8.png[align=center]
++
+Agora, defina as informações do _appliance_ do vCenter. Escolha um nome apropriado para a VM, e `Virt3sr!` como senha de acesso administrativo.
++
+.Instalação do vCenter, estágio 1, parte 7
+[#img-vmw-2-9]
+image::8_VSphere-s2/vmw9.png[align=center]
++
+Para o tamanho do _deployment_, escolha _Tiny_. O _storage size_ pode ser mantido como _Default_.
++
+.Instalação do vCenter, estágio 1, parte 8
+[#img-vmw-2-10]
+image::8_VSphere-s2/vmw10.png[align=center]
++
+Em seguida, escolha o `datastore1` como alvo de armazenamento do disco virtual do _appliance_. Habilite a opção _Enable Thin Disk Mode_.
++
+.Instalação do vCenter, estágio 1, parte 9
+[#img-vmw-2-11]
+image::8_VSphere-s2/vmw11.png[align=center]
++
+Nas configurações de rede, defina a rede-alvo _VM Network_, com configuração IPv4 e DHCP habilitados. Não altere as portas comuns, 80/HTTP e 443/HTTPS.
++
+.Instalação do vCenter, estágio 1, parte 10
+[#img-vmw-2-12]
+image::8_VSphere-s2/vmw12.png[align=center]
++
+Tudo pronto para iniciar o estágio 1 de instalação. Revise suas opções, e clique em _Finish_ para prosseguir.
++
+.Instalação do vCenter, estágio 1, finalizado
+[#img-vmw-2-13]
+image::8_VSphere-s2/vmw13.png[align=center]
++
+Acompanhe o progresso de instalação da ferramenta, que pode levar algum tempo.
++
+.Progresso de instalação do vCenter, estágio 1
+[#img-vmw-2-14]
+image::8_VSphere-s2/vmw14.png[align=center]
++
+Ao final do processo de instalação, clique em _Continue_.
++
+.Estágio 1 de instalação do vCenter concluído
+[#img-vmw-2-15]
+image::8_VSphere-s2/vmw15.png[align=center]
+
+3. Vamos para o estágio 2 de instalação do vCenter. Na tela de apresentação, clique em _Next_.
++
+.Instalação do vCenter, estágio 2, parte 1
+[#img-vmw-2-16]
+image::8_VSphere-s2/vmw16.png[align=center]
++
+Selecione a sincronização de hora com o host ESXi, e mantenha o acesso SSH habilitado.
++
+.Instalação do vCenter, estágio 2, parte 2
+[#img-vmw-2-17]
+image::8_VSphere-s2/vmw17.png[align=center]
++
+Agora, configure o SSO (_Single Sign-On_). Selecione _Create a new SSO domain_ e, em seguida, defina um nome para o domínio SSO (guarde esse nome, pois ele será necessário para o login no ambiente do vCenter): no exemplo abaixo, sugerimos o nome `vcenter-gX.virtesr.edu.br` -- substitua `X` pelo número do seu grupo. Defina a senha de acesso ao ambiente como `Virt3sr!`.
++
+.Instalação do vCenter, estágio 2, parte 3
+[#img-vmw-2-18]
+image::8_VSphere-s2/vmw18.png[align=center]
++
+Na tela do CEIP (VMWare _Customer Experience Improvement Program_), mantenha a caixa de ingresso no programa desmarcada e clique em _Next_.
++
+.Instalação do vCenter, estágio 2, parte 4
+[#img-vmw-2-19]
+image::8_VSphere-s2/vmw19.png[align=center]
++
+Na tela de finalização, revise suas opções e clique em _Finish_.
++
+.Instalação do vCenter, estágio 2, finalizado
+[#img-vmw-2-20]
+image::8_VSphere-s2/vmw20.png[align=center]
++
+O sistema avisa que o processo de instalação não poderá ser pausado ou interrompido uma vez que seja iniciado. Confirme clicando em _Ok_.
++
+.Confirmação de instalação do vCenter, estágio 2
+[#img-vmw-2-21]
+image::8_VSphere-s2/vmw21.png[align=center]
++
+Concluído o processo, clique em _Close_.
++
+.Instalação do vCenter, estágio 2, concluído
+[#img-vmw-2-22]
+image::8_VSphere-s2/vmw22.png[align=center]
+
+=== 2) Gerenciando um datacenter com o vCenter
+
+1. Para conectar-se ao vCenter, o primeiro passo é descobrir seu endereço IP. Acesse a interface web do host ESXi no qual o _appliance_ do vCenter foi instalado, e localize sua máquina virtual.
++
+.Localizando VM do vCenter
+[#img-vmw-2-23]
+image::8_VSphere-s2/vmw23.png[align=center]
++
+Clique em _Console_ para abrir a tela da VM, o observe o endereço IP alocado à mesma na parte de baixo da tela (no exemplo, o IP do vCenter é o `200.130.46.12`).
++
+.Determinando IP do vCenter
+[#img-vmw-2-24]
+image::8_VSphere-s2/vmw24.png[align=center]
+
+2. Abra o navegador web em sua máquina física, acessando o IP do vCenter via HTTPS. Você verá uma tela apontando erro no certificado auto-assinado, como mostrado abaixo.
++
+.Erro no certificado ao acessar o vCenter
+[#img-vmw-2-25]
+image::8_VSphere-s2/vmw25.png[align=center]
++
+Há duas opções para uso da interface web do vCenter: selecione a versão HTML5 do _vSphere Web Client_.
++
+.Seleção de versão do cliente web
+[#img-vmw-2-26]
+image::8_VSphere-s2/vmw26.png[align=center]
++
+Agora, vamos ao login. Entre com o usuário `administrator@DOMAIN`, substituindo `DOMAIN` pelo domínio SSO definido durante o estágio 2, parte 3 de instalação do vCenter na atividade anterior. Use a senha de acesso definida anteriormente, provavelmente `Virt3sr!`.
++
+.Login no vCenter
+[#img-vmw-2-27]
+image::8_VSphere-s2/vmw27.png[align=center]
++
+Enfim, você terá acesso à interface do vCenter. Navegue pelas janelas e abas para se ambientar com a ferramenta.
++
+.Interface do vCenter
+[#img-vmw-2-28]
+image::8_VSphere-s2/vmw28.png[align=center]
+
+3. Agora, vamos criar um _datacenter_ de gerência. Clique com o botão direito sobre o IP do vCenter na aba à esquerda da janela, e selecione _New Datacenter_.
++
+.Criação de datacenter, parte 1
+[#img-vmw-2-29]
+image::8_VSphere-s2/vmw29.png[align=center]
++
+Escolha um nome sugestivo para seu _datacenter_ (no exemplo, `datacenter-gX`), e clique em _Ok_.
++
+.Criação de datacenter, parte 2
+[#img-vmw-2-30]
+image::8_VSphere-s2/vmw30.png[align=center]
+
+4. Criado o _datacenter_, vamos adicionar hosts a ele. Clique com o botão direito sobre o _datacenter_ e selecione _Add Host_.
++
+.Adição de hosts ao datacenter, parte 1
+[#img-vmw-2-31]
+image::8_VSphere-s2/vmw31.png[align=center]
++
+Digite o endereço IP do hypervisor ESXi que será adicionado ao _datacenter_.
++
+.Adição de hosts ao datacenter, parte 2
+[#img-vmw-2-32]
+image::8_VSphere-s2/vmw32.png[align=center]
++
+Informe o usuário/senha de acesso ao host.
++
+.Adição de hosts ao datacenter, parte 3
+[#img-vmw-2-33]
+image::8_VSphere-s2/vmw33.png[align=center]
++
+Confirme a aceitação do certificado auto-assinado.
++
+.Adição de hosts ao datacenter, parte 4
+[#img-vmw-2-34]
+image::8_VSphere-s2/vmw34.png[align=center]
++
+Revise as informações do host em _Host summary_, e clique em _Next_.
++
+.Adição de hosts ao datacenter, parte 5
+[#img-vmw-2-35]
+image::8_VSphere-s2/vmw35.png[align=center]
++
+Ao assinalar licenças, mantenha a opção _Evaluation License_ habilitada e clique em _Next_.
++
+.Adição de hosts ao datacenter, parte 6
+[#img-vmw-2-36]
+image::8_VSphere-s2/vmw36.png[align=center]
++
+Em _Lockdown mode_, mantenha o botão _Disabled_ marcado e clique em _Next_.
++
+.Adição de hosts ao datacenter, parte 7
+[#img-vmw-2-37]
+image::8_VSphere-s2/vmw37.png[align=center]
++
+Em _VM location_ selecione o _datacenter_ de destino do host (só deve have um disponível) e prossiga.
++
+.Adição de hosts ao datacenter, parte 8
+[#img-vmw-2-38]
+image::8_VSphere-s2/vmw38.png[align=center]
++
+Revise as opções selecionadas e clique em _Finish_.
++
+.Adição de hosts ao datacenter, finalizado
+[#img-vmw-2-39]
+image::8_VSphere-s2/vmw39.png[align=center]
++
+O primeiro host foi adicionado com sucesso! Novamente, clique com o botão direito no _datacenter_ e selecione _Add Host_ para adicionar o segundo hypervisor.
++
+.Adição do segundo hypervisor ao datacenter
+[#img-vmw-2-40]
+image::8_VSphere-s2/vmw40.png[align=center]
++
+Repita os passos anteriores, alterando o endereço IP do hypervisor a ser adicionado e quaisquer outras informações relevantes. Ao final do processo, sua tela de finalização deve estar como se segue:
++
+.Adição do segundo hypervisor ao datacenter, finalizado
+[#img-vmw-2-41]
+image::8_VSphere-s2/vmw41.png[align=center]
++
+Ao final do processo, ambos os hosts devem estar incluídos no _datacenter_, como mostrado abaixo.
++
+.Todos os hosts incluídos no datacenter
+[#img-vmw-2-42]
+image::8_VSphere-s2/vmw42.png[align=center]
+
+=== 3) Configurando Acesso ao Storage
+
+Antes de iniciar esta atividade, garante que o FreeNAS está ligado e acessível -- assim como em sessões anteriores, iremos usar apenas um servidor FreeNAS como _storage_ centralizado para ambos os hypervisors do grupo. Verifique, ainda, que a VM que será usada para testes está com VMWare Tools instalado.
+
+1. Para adicionar uma _storage_ externa, clique sobre um dos hosts do _datacenter_ e acesse _Configure_ > _Storage_ > _Storage Adapters_ > _Add Software Adapter_.
++
+.Adição de storage compartilhado, parte 1
+[#img-vmw-2-43]
+image::8_VSphere-s2/vmw43.png[align=center]
++
+Na nova janela, selecione _Add software iSCSI adapter_.
++
+.Adição de storage compartilhado, parte 2
+[#img-vmw-2-44]
+image::8_VSphere-s2/vmw44.png[align=center]
++
+Clique sobre o novo adaptador adicionado (abaixo da seção _Model: iSCSI Software Adapter_), e em _Dynamic Discovery_ clique em _Add_.
++
+.Adição de storage compartilhado, parte 3
+[#img-vmw-2-45]
+image::8_VSphere-s2/vmw45.png[align=center]
++
+Na nova janela, digite o IP do servidor FreeNAS e mantenha a porta padrão 3260. Clique em _Ok_.
++
+.Adição de storage compartilhado, parte 4
+[#img-vmw-2-46]
+image::8_VSphere-s2/vmw46.png[align=center]
++
+Feito isso, clique em _Rescan Storage_ para encontrar as LUNs disponíveis.
++
+.Adição de storage compartilhado, parte 5
+[#img-vmw-2-47]
+image::8_VSphere-s2/vmw47.png[align=center]
++
+Mantenha ambas as opções de _rescan_ marcadas, e clique em _Ok_.
++
+.Adição de storage compartilhado, parte 6
+[#img-vmw-2-48]
+image::8_VSphere-s2/vmw48.png[align=center]
++
+Na aba à esquerda, alterne para _Storage_ > _Storage Devices_. Você deve conseguir visualizar as duas LUNs disponíveis no FreeNAS na janela, como mostrado abaixo.
++
+.Adição de storage compartilhado, concluído
+[#img-vmw-2-50]
+image::8_VSphere-s2/vmw50.png[align=center]
++
+Temos que tornar o _storage_ compartilhado acessível também pelo outro hypervisor. Selecione o outro host físico e acesse _Configure_ > _Storage_ > _Storage Adapters_ > _Add Software Adapter_.
++
+.Adição de storage compartilhado no outro hypervisor
+[#img-vmw-2-51]
+image::8_VSphere-s2/vmw51.png[align=center]
++
+Repita os passos de adição de adaptador iSCSI, descoberta e _rescan_, como fizemos antes. Ao final do processo, você deverá conseguir enxergar as LUNs do _storage_ compartilhado a partir do segundo hypervisor, como mostrado a seguir.
++
+.Adição de storage compartilhado no outro hypervisor, concluído
+[#img-vmw-2-52]
+image::8_VSphere-s2/vmw52.png[align=center]
+
+2. Antes de criar um _cluster_ em nosso _datacenter_, vamos desligar as VMs em operação (*exceto* a VM do _appliance_ do vCenter). Clique com o botão direito sobre a VM do Windows 10 em um dos hypervisors do grupo, e acesse _Power_ > _Power Off_.
++
+.Desligando VMs, parte 1
+[#img-vmw-2-53]
+image::8_VSphere-s2/vmw53.png[align=center]
++
+Confirme o desligamento.
++
+.Desligando VMs, parte 2
+[#img-vmw-2-54]
+image::8_VSphere-s2/vmw54.png[align=center]
++
+Faça o mesmo com a VM Windows 10 operando no outro hypervisor.
++
+.Desligando VMs, parte 3
+[#img-vmw-2-55]
+image::8_VSphere-s2/vmw55.png[align=center]
+
+3. Agora sim, vamos criar o _cluster_. Clique com o botão direito sobre o _datacenter_ e selecione _New Cluster_.
++
+.Criando cluster no datacenter, parte 1
+[#img-vmw-2-56]
+image::8_VSphere-s2/vmw56.png[align=center]
++
+Selecione um nome apropriado para o _cluster_ (no exemplo, `cluster-gX`), e habilite *apenas* a funcionalidade _vSphere HA_. Em seguida, clique em _Ok_.
++
+.Criando cluster no datacenter, parte 2
+[#img-vmw-2-57]
+image::8_VSphere-s2/vmw57.png[align=center]
++
+Vamos adicionar máquinas ao _cluster_. Clique com o botão direito sobre o _cluster_, e em seguida em _Add Hosts_.
++
+.Criando cluster no datacenter, parte 3
+[#img-vmw-2-58]
+image::8_VSphere-s2/vmw58.png[align=center]
++
+Na tela inicial, selecione a aba _Existing hosts_ e marque os dois hypervisors do grupo, como mostrado abaixo.
++
+.Criando cluster no datacenter, parte 4
+[#img-vmw-2-59]
+image::8_VSphere-s2/vmw59.png[align=center]
++
+Caso sejam reportados _warnings_ para um dos hypervisors, ignore e clique em _Next_ para prosseguir.
++
+.Criando cluster no datacenter, parte 5
+[#img-vmw-2-60]
+image::8_VSphere-s2/vmw60.png[align=center]
++
+Na tela final, revise as opções de criação do _cluster_ e clique em _Finish_.
++
+.Criando cluster no datacenter, finalizado
+[#img-vmw-2-61]
+image::8_VSphere-s2/vmw61.png[align=center]
++
+De volta à console principal do vCenter, note que ambos os hypervisors estão dentro do _cluster_, e todas as VMs são vistas como parte do mosmo _pool_ de recursos. Se aplicável, clique nos hypervisors para removê-los do _Maintenance Mode_ (modo de manutenção).
++
+.Hypervisors disponíveis dentro do cluster
+[#img-vmw-2-63]
+image::8_VSphere-s2/vmw63.png[align=center]
+
+4. Vamos adicionar o _storage_ compartilhado ao _cluster_. Clique com o botão direito sobre o _cluster_ e acesse _Storage_ > _New Datastore_.
++
+.Adicionando storage compartilhado ao cluster, parte 1
+[#img-vmw-2-64]
+image::8_VSphere-s2/vmw64.png[align=center]
++
+Em _Type_, selecione o tipo VMFS.
++
+.Adicionando storage compartilhado ao cluster, parte 2
+[#img-vmw-2-65]
+image::8_VSphere-s2/vmw65.png[align=center]
++
+Escolha um nome apropriado para o _datastore_ (no exemplo abaixo, `ds-gX`), e aponte a LUN com tamanho de 80 GB no FreeNAS como alvo.
++
+.Adicionando storage compartilhado ao cluster, parte 3
+[#img-vmw-2-66]
+image::8_VSphere-s2/vmw66.png[align=center]
++
+Selecione a versão 6 do VMFS, e prossiga.
++
+.Adicionando storage compartilhado ao cluster, parte 4
+[#img-vmw-2-67]
+image::8_VSphere-s2/vmw67.png[align=center]
++
+Na configuração de particionamento, em _Partition Configuration_ selecione _Use all available partitions_; use a totalidade do tamanho do _datastore_, 80 GB, e mantenha o tamanho de bloco e granularidade em seus valores padrão. Em seguida, clique em _Next_.
++
+.Adicionando storage compartilhado ao cluster, parte 5
+[#img-vmw-2-68]
+image::8_VSphere-s2/vmw68.png[align=center]
++
+Confirme as opções de adição do _datastore_ a o_cluster_, e clique em _Finish_.
++
+.Adicionando storage compartilhado ao cluster, finalizado
+[#img-vmw-2-69]
+image::8_VSphere-s2/vmw69.png[align=center]
++
+Tudo certo! Ou... está mesmo? Note que ocorrerá um erro ao criar a partição no _datastore_ compartilhado: "_Cannot change the host configuration_". Como resolver?
++
+.Erro ao adicionar storagem compartilhado ao cluster
+[#img-vmw-2-70]
+image::8_VSphere-s2/vmw70.png[align=center]
++
+Clique em um dos hypervisors do grupo e acesse _Configure_ > _Storage_ > _Storage Devices_, e selecione a LUN do FreeNAS que tentamos adicionar ao _cluster_ anteriormente. Observe o caminho até a LUN na linha _Location_, como destacado na figura abaixo.
++
+.Caminho de acesso no sistema de arquivos à LUN compartilhada
+[#img-vmw-2-71]
+image::8_VSphere-s2/vmw71.png[align=center]
++
+Acesse o hypervisor (o *mesmo* que foi utilizado no passo anterior) via SSH e invoque o comando `partedUtil setptbl LUNPATH msdos`, substituindo `LUNPATH` pelo caminho da LUN descoberto anteriormente. Esse comando irá apagar a tabela de partições da LUN, criando uma nova (em formato MBR) e vazia. Confira no exemplo abaixo:
++
+.Formatando tabela de partições da LUN
+[#img-vmw-2-72]
+image::8_VSphere-s2/vmw72.png[align=center]
++
+Vamos tentar novamente? Volte à console do vCenter e clique com o botão direito no _cluster_, acessando _Storage_ > _New Datastore_. Repita os passos de adição do _datastore_ compartilhado que fizemos antes.
++
+.Adicionando storage compartilhado ao cluster, segunda tentativa
+[#img-vmw-2-73]
+image::8_VSphere-s2/vmw73.png[align=center]
++
+Na tela de finalização, revise os parâmetros de adição do _storage_, como se segue. Em seguida, clique em _Finish_.
++
+.Adicionando storage compartilhado ao cluster, finalizado (de novo)
+[#img-vmw-2-74]
+image::8_VSphere-s2/vmw74.png[align=center]
++
+Agora sim, o processo obtém sucesso. Veja na aba _Recent Tasks_ que a criação do _datastore_ VMFS é completada corretamente, desta vez.
++
+.Storage compartilhado formatado com sucesso
+[#img-vmw-2-75]
+image::8_VSphere-s2/vmw75.png[align=center]
+
+5. Clique em um dos hypervisors do grupo, e acesse a aba _Datastores_. O _storage_ compartilhado deve estar visível sob o nome `ds-gX`.
++
+.Visualizando datastore compartilhado, hypervisor 1
+[#img-vmw-2-76]
+image::8_VSphere-s2/vmw76.png[align=center]
++
+Faça a conferência no outro hypervisor:
++
+.Visualizando datastore compartilhado, hypervisor 2
+[#img-vmw-2-77]
+image::8_VSphere-s2/vmw77.png[align=center]
+
+=== 4) Migração de máquinas virtuais
+
+Para esta atividade recomendamos a migração de apenas uma das VMs do grupo, já que o _storage_ FreeNAS não possui espaço útil para armazenar mais do que uma máquina virtual em _fault tolerance_.
+
+Uma vez configurado o _storage_ compartilhado entre os hosts do _cluster_, é possível efetuar a migração das máquinas virtuais entre eles. Para tanto deve-se, primeiramente, mover os discos virtuais das máquinas para o _storage_ compartilhado.
+
+1. Selecione uma das VMs do grupo como alvo para migração entre os hosts do _cluster_. Antes de começar, deve-se remover todos os _snapshots_ de máquina acessando _Snapshots_ > _Delete All Snapshots_.
++
+.Removendo snapshots de máquina, parte 1
+[#img-vmw-2-78]
+image::8_VSphere-s2/vmw78.png[align=center]
++
+Confirme a remoção dos _snapshots_ clicando em _Ok_.
++
+.Removendo snapshots de máquina, parte 2
+[#img-vmw-2-79]
+image::8_VSphere-s2/vmw79.png[align=center]
+
+2. Agora, vamos migrar o disco da VM para o _storage_ compartilhado. Clique com o botão direito sobre a VM e acesse _Migrate_.
++
+.Migração de VM para o storage compartilhado, parte 1
+[#img-vmw-2-80]
+image::8_VSphere-s2/vmw80.png[align=center]
++
+Na escolha do tipo de migração a ser feita, marque o botão _Change storage only_.
++
+.Migração de VM para o storage compartilhado, parte 2
+[#img-vmw-2-81]
+image::8_VSphere-s2/vmw81.png[align=center]
++
+Mantenha o formato do disco em _Same format as source_, e marque como destino o _datastore_ compartilhado (no exemplo abaixo, `ds-gX`). Clique em _Next_.
++
+.Migração de VM para o storage compartilhado, parte 3
+[#img-vmw-2-82]
+image::8_VSphere-s2/vmw82.png[align=center]
++
+Confirme as opções de migração, e clique em _Finish_.
++
+.Migração de VM para o storage compartilhado, finalizado
+[#img-vmw-2-83]
+image::8_VSphere-s2/vmw83.png[align=center]
++
+O processo de migração do _storage_ da VM pode demorar um certo tempo. Acompanhe seu progresso através da aba _Recent Tasks_.
+
+3. Confirme que o disco da máquina virtual foi de fato movido para o _storage_: clique com o botão direito na VM, e acesse _Edit Settings_. Em _Virtual Hardware_ > _Hard Disk 1_ > _Disk File_, verifique que o _datastore_ de origem do arquivo é, de fato, a LUN do FreeNAS (no exemplo abaixo, `ds-gX`).
++
+.Disco virtual da VM localizado no datastore compartilhado
+[#img-vmw-2-84]
+image::8_VSphere-s2/vmw84.png[align=center]
+
+4. Vamos agora fazer a configuração da rede virtual dos hypervisors para suportar o vMotion. Clique em um dos hypervisors do grupo e acesse _Configure_ > _Networking_ > _VMkernel adapters_ > _Add Networking_.
++
+.Configuração de rede para o vMotion, parte 1
+[#img-vmw-2-85]
+image::8_VSphere-s2/vmw85.png[align=center]
++
+Para o tipo de conexão, selecione _VMkernel Network Adapter_.
++
+.Configuração de rede para o vMotion, parte 2
+[#img-vmw-2-86]
+image::8_VSphere-s2/vmw86.png[align=center]
++
+Em _Select target device_, marque o botão _Select an existing standard switch_ e clique em _Browse_.
++
+.Configuração de rede para o vMotion, parte 3
+[#img-vmw-2-87]
+image::8_VSphere-s2/vmw87.png[align=center]
++
+Selecione o único switch disponível, `vSwitch0`.
++
+.Configuração de rede para o vMotion, parte 4
+[#img-vmw-2-88]
+image::8_VSphere-s2/vmw88.png[align=center]
++
+Em seguida, clique em _Ok_.
++
+.Configuração de rede para o vMotion, parte 5
+[#img-vmw-2-89]
+image::8_VSphere-s2/vmw89.png[align=center]
++
+Selecione um _label_ apropriado para o adaptador de rede (no exemplo, `VMotion`), não indique nenhum ID de VLAN, e mantenha configurações de IPv4, MTU e pilha TCP/IP inalteradas. Para os serviços habilitados, marque as caixas _vMotion_ e _Fault Tolerance logging_ e, então, clique em _Next_.
++
+.Configuração de rede para o vMotion, parte 6
+[#img-vmw-2-90]
+image::8_VSphere-s2/vmw90.png[align=center]
++
+Nas configurações IPv4, mantenha o botão _Obtain IPv4 settings automatically_ marcado.
++
+.Configuração de rede para o vMotion, parte 7
+[#img-vmw-2-91]
+image::8_VSphere-s2/vmw91.png[align=center]
++
+Revise as opções de configuração do adaptador de rede, e clique em _Finish_.
++
+.Configuração de rede para o vMotion, finalizado
+[#img-vmw-2-92]
+image::8_VSphere-s2/vmw92.png[align=center]
++
+De volta à console do vCenter, acesse _Virtual switches_ para visualizar graficamente a organização dos switches virtuais do hypervisor corrente. Clique em _Edit_.
++
+.Configuração de switch virtual, parte 1
+[#img-vmw-2-93]
+image::8_VSphere-s2/vmw93.png[align=center]
++
+Em _vSwitch0 - Edit Setting_, acesse a aba _Teaming and failover_ e mova a placa `vmnic0` para a seção _Standby adapters_, como ilustrado pela figura abaixo.
++
+.Configuração de switch virtual, parte 2
+[#img-vmw-2-94]
+image::8_VSphere-s2/vmw94.png[align=center]
++
+O sistema irá avisar que nenhum adaptador de rede está em estado _Active_. Ignore o aviso e clique em _Ok_.
++
+.Configuração de switch virtual, finalizado
+[#img-vmw-2-95]
+image::8_VSphere-s2/vmw95.png[align=center]
++
+Ufa, tudo pronto! Ou quase... agora, clique no outro hypervisor do grupo e repita as configurações de rede realizadas até aqui. Acesse _Configure_ > _Networking_ > _VMkernel adapters_ > _Add Networking_ para adicionar um adaptador de rede para o _vMotion_:
++
+.Configuração de rede para o vMotion, hypervisor 2
+[#img-vmw-2-96]
+image::8_VSphere-s2/vmw96.png[align=center]
++
+Depois, navegue para _Virtual switches_ e configure o adaptador em _Standby_.
++
+.Configuração de switch virtual, hypervisor 2
+[#img-vmw-2-97]
+image::8_VSphere-s2/vmw97.png[align=center]
+
+5. Vamos testar! Ligue a VM cujo disco encontra-se no _storage_ compartilhado em _Power_ > _Power On_.
++
+.Ligando VM para teste de migração
+[#img-vmw-2-98]
+image::8_VSphere-s2/vmw98.png[align=center]
++
+Após o _boot_, é possível visualizar o endereço IP da VM diretamente na interface do vCenter, como destacado na imagem abaixo.
++
+.Endereço IP da VM em operação
+[#img-vmw-2-99]
+image::8_VSphere-s2/vmw99.png[align=center]
++
+Para permitir que pacotes ICMP atinjam a máquina virtual Windows 10, acesse a console desta e desative o firewall do Windows.
++
+.Desabilitando firewall do Windows para permitir ICMP
+[#img-vmw-2-100]
+image::8_VSphere-s2/vmw100.png[align=center]
++
+Agora, inicie um ping infinito (`ping -t`) para o endereço IP da VM Windows 10.
++
+.Ping iniciado para VM
+[#img-vmw-2-101]
+image::8_VSphere-s2/vmw101.png[align=center]
++
+De volta à console do vCenter, determine em qual host físico a máquina virtual está operando. Essa informação pode ser visualizada na tela de sumário da VM, em _Related Objects_ > _Host_.
++
+.Host físico hospedando VM
+[#img-vmw-2-102]
+image::8_VSphere-s2/vmw102.png[align=center]
++
+Vamos migrar a máquina virtual. Clique com o botão direito sobre a mesma e selecione _Migrate_.
++
+.Migrando VM, parte 1
+[#img-vmw-2-103]
+image::8_VSphere-s2/vmw103.png[align=center]
++
+No tipo de migração, selecione _Change compute resource only_, já que o _storage_ está compartilhado no FreeNAS.
++
+.Migrando VM, parte 2
+[#img-vmw-2-104]
+image::8_VSphere-s2/vmw104.png[align=center]
++
+Selecione o host de destino para a VM: o outro hipervisor, com IP diferente do que determinamos anteriormente.
++
+.Migrando VM, parte 3
+[#img-vmw-2-105]
+image::8_VSphere-s2/vmw105.png[align=center]
++
+Não é necessário fazer quaisquer alterações na configuração de rede da VM.
++
+.Migrando VM, parte 4
+[#img-vmw-2-106]
+image::8_VSphere-s2/vmw106.png[align=center]
++
+Selecione o vMotion com alta prioridade, para acelerar o processo de migração.
++
+.Migrando VM, parte 5
+[#img-vmw-2-107]
+image::8_VSphere-s2/vmw107.png[align=center]
++
+Na tela de finalização, revise suas opções e clique em _Finish_.
++
+.Migrando VM, finalizado
+[#img-vmw-2-108]
+image::8_VSphere-s2/vmw108.png[align=center]
++
+Acompanhe o progresso de migração da VM na aba _Recent Tasks_, como destacado.
++
+.Progresso de migração da VM
+[#img-vmw-2-109]
+image::8_VSphere-s2/vmw109.png[align=center]
++
+Em sua console rodando o comando `ping`, note que um número baixíssimo de pacotes é perdido durante a migração -- no exemplo abaixo, apenas um pacote foi perdido.
++
+.Pacotes perdidos durante migração de VM
+[#img-vmw-2-110]
+image::8_VSphere-s2/vmw110.png[align=center]
++
+Finalmente, na tela de sumário da VM, confirme que o host hospedeiro foi de fato alterado para o outro hypervisor do grupo.
++
+.Hypervisor hospedeiro alterado após vMotion
+[#img-vmw-2-111]
+image::8_VSphere-s2/vmw111.png[align=center]
+
+=== 5) Ativando alta disponibilidade e tolerância a falhas
+
+.desc
+[#img-vmw-2-112]
+image::8_VSphere-s2/vmw112.png[align=center]
+
+.desc
+[#img-vmw-2-113]
+image::8_VSphere-s2/vmw113.png[align=center]
+
+.desc
+[#img-vmw-2-114]
+image::8_VSphere-s2/vmw114.png[align=center]
+
+.desc
+[#img-vmw-2-115]
+image::8_VSphere-s2/vmw115.png[align=center]
+
+.desc
+[#img-vmw-2-116]
+image::8_VSphere-s2/vmw116.png[align=center]
+
+.text: vmw116-info.txt
+---
+https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html
+---
+
+.desc
+[#img-vmw-2-117]
+image::8_VSphere-s2/vmw117.png[align=center]
+
+.desc
+[#img-vmw-2-118]
+image::8_VSphere-s2/vmw118.png[align=center]
+
+.desc
+[#img-vmw-2-119]
+image::8_VSphere-s2/vmw119.png[align=center]
+
+.desc
+[#img-vmw-2-120]
+image::8_VSphere-s2/vmw120.png[align=center]
+
+.desc
+[#img-vmw-2-121]
+image::8_VSphere-s2/vmw121.png[align=center]
+
+.desc
+[#img-vmw-2-122]
+image::8_VSphere-s2/vmw122.png[align=center]
+
+.desc
+[#img-vmw-2-123]
+image::8_VSphere-s2/vmw123.png[align=center]
+
+.desc
+[#img-vmw-2-124]
+image::8_VSphere-s2/vmw124.png[align=center]
+
+.desc
+[#img-vmw-2-125]
+image::8_VSphere-s2/vmw125.png[align=center]
+
+.desc
+[#img-vmw-2-126]
+image::8_VSphere-s2/vmw126.png[align=center]
+
+.desc
+[#img-vmw-2-127]
+image::8_VSphere-s2/vmw127.png[align=center]
+
+.desc
+[#img-vmw-2-128]
+image::8_VSphere-s2/vmw128.png[align=center]
+
+.desc
+[#img-vmw-2-129]
+image::8_VSphere-s2/vmw129.png[align=center]
+
+.desc
+[#img-vmw-2-130]
+image::8_VSphere-s2/vmw130.png[align=center]
+
+.desc
+[#img-vmw-2-131]
+image::8_VSphere-s2/vmw131.png[align=center]
+
+.desc
+[#img-vmw-2-132]
+image::8_VSphere-s2/vmw132.png[align=center]
+
+.desc
+[#img-vmw-2-133]
+image::8_VSphere-s2/vmw133.png[align=center]
+
+.desc
+[#img-vmw-2-134]
+image::8_VSphere-s2/vmw134.png[align=center]
+
+.desc
+[#img-vmw-2-135]
+image::8_VSphere-s2/vmw135.png[align=center]
+
+.desc
+[#img-vmw-2-136]
+image::8_VSphere-s2/vmw136.png[align=center]
+
+.desc
+[#img-vmw-2-137]
+image::8_VSphere-s2/vmw137.png[align=center]
+
+.desc
+[#img-vmw-2-138]
+image::8_VSphere-s2/vmw138.png[align=center]
+
+.desc
+[#img-vmw-2-139]
+image::8_VSphere-s2/vmw139.png[align=center]
+
+.desc
+[#img-vmw-2-140]
+image::8_VSphere-s2/vmw140.png[align=center]

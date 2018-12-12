@@ -16,3 +16,373 @@ include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 7: Introdução ao VSphere
+
+=== 1) Instalação do VMware ESXi
+
+1. Crie uma mídia bootável com o instalador do ESXi, conforme instruções providas pelo instrutor. Em seguida, insira a mídia na máquina destacada como hypervisor para a dupla e execute o _boot_ via USB. Você verá a tela a seguir:
++
+.Tela inicial de boot do ESXi
+[#img-vmw1]
+image::7_VSphere-s1/vmw1.png[align=center]
++
+Selecione a primeira opção para iniciar o instalador.
+
+2. Você verá a tela de boas-vindas do ESXi. Aperte `ENTER` para continuar.
++
+.Instalação do ESXi, parte 1
+[#img-vmw2]
+image::7_VSphere-s1/vmw2.png[align=center]
+
+3. Pressione `F11` para aceitar o termo de licença da ferramenta, e prossiga.
++
+.Instalação do ESXi, parte 2
+[#img-vmw3]
+image::7_VSphere-s1/vmw3.png[align=center]
+
+4. Selecione o disco físico da máquina local (provavelmente do tipo SATA ou ATA, como mostrado abaixo) para instalar o hypervisor.
++
+.Instalação do ESXi, parte 3
+[#img-vmw4]
+image::7_VSphere-s1/vmw4.png[align=center]
++
+O instalador avisa que os dados do disco serão apagados com o processo de instalação. Pressione `ENTER` para continuar.
++
+.Instalação do ESXi, parte 4
+[#img-vmw5]
+image::7_VSphere-s1/vmw5.png[align=center]
+
+5. Selecione `Brazilian` como o mapa de teclado do sistema.
++
+.Instalação do ESXi, parte 5
+[#img-vmw6]
+image::7_VSphere-s1/vmw6.png[align=center]
+
+6. Devido à exigência de parâmetro mínimo de senha por parte do ESXi, escolha `Virt3sr!` como a senha do usuário `root`.
++
+.Instalação do ESXi, parte 6
+[#img-vmw7]
+image::7_VSphere-s1/vmw7.png[align=center]
+
+7. Caso o instalador avise que algum hardware pode não ser suportado em versões posteriores do ESXi, pressione `ENTER` para prosseguir.
++
+.Instalação do ESXi, parte 7
+[#img-vmw8]
+image::7_VSphere-s1/vmw8.png[align=center]
+
+8. Finalmente, pressione `F11` para confirmar a instalação do hypervisor.
++
+.Instalação do ESXi, parte 8
+[#img-vmw9]
+image::7_VSphere-s1/vmw9.png[align=center]
++
+Após algum tempo, o sistema será instalado com sucesso. Pressione `ENTER` para reiniciar, e remova a mídia USB de instalação.
++
+.Instalação do ESXi, concluída
+[#img-vmw10]
+image::7_VSphere-s1/vmw10.png[align=center]
+
+9. Após o _reboot_, você verá a console administrativa do ESXi como mostrado na figura a seguir:
++
+.Console administrativa do ESXi
+[#img-vmw11]
+image::7_VSphere-s1/vmw11.png[align=center]
+
+=== 2) Conhecendo o VMware ESXi
+
+É possível acessar o hypervisor via SSH após sua habilitação, ou diretamente no console do ESXi. Faremos o primeiro acesso através da console administrativa na máquina física.
+
+1. Pressione `F2` para acessar o menu _Customize System_. Faça login com o usuário `root` e a senha configurada no passo (6) da atividade anterior.
++
+.Login na console administrativa do ESXi
+[#img-vmw12]
+image::7_VSphere-s1/vmw12.png[align=center]
++
+Nesta interface é possível configurar algumas opções do hypervisor, como senha de acesso do administrador, rede de gerência, teclado, consulta a informações para suporte, visualização dos logs do sistema, entre outros.
+
+2. Acesse _Configure Management Network_ > _DNS Configuration_.
++
+.Configurações DNS
+[#img-vmw13]
+image::7_VSphere-s1/vmw13.png[align=center]
++
+Altere o _hostname_ da máquina para um valor significativo (no exemplo abaixo, estamos usando `esxi-d1-g1`).
++
+.Alteração do hostname local
+[#img-vmw14]
+image::7_VSphere-s1/vmw14.png[align=center]
++
+Em _Network Adapters_ é possível visualizar as interfaces de gerenciamento deste host. Caso o servidor disponha de duas placas de rede, o ESXi atribui por padrão a gerência do host à primeira interface de rede física (vmnic0).
++
+.Interfaces de rede do host físico
+[#img-vmw15]
+image::7_VSphere-s1/vmw15.png[align=center]
++
+Pressione `ESC` para sair do menu corrente, e confirme as alterações teclando `Y` (_yes_).
++
+.Confirmação de mudanças
+[#img-vmw16]
+image::7_VSphere-s1/vmw16.png[align=center]
+
+3. Em _Troubleshooting Mode Options_ > _Enable SSH_, habilite o acesso remoto ao hypervisor via SSH.
++
+.Habilitando acesso remoto
+[#img-vmw17]
+image::7_VSphere-s1/vmw17.png[align=center]
++
+Novamente, saia do menu corrente e confirme suas alterações.
+
+4. Usando o PuTTY ou Cygwin, logue via SSH no hypervisor ESXi. Informações a respeito do ambiente podem ser obtidas com o comando `esxcfg-info`. Este comando apresenta dados sobre o hardware, configurações do console de gerenciamento, além de informações sobre o estado dos recursos (CPU, memória etc.) e configurações relativas ao comportamento do hypervisor, armazenamento, alocação de memória para as máquinas virtuais, entre outros.
++
+.Consulta do UUID do sistema via esxcfg-info
+[#img-vmw18]
+image::7_VSphere-s1/vmw18.png[align=center]
+
+5. No ESXi, os dispositivos de armazenamento são gerenciados através do sistema VMFS. Estes dispositivos são agrupados em unidades lógicas chamadas _datastores_, onde são armazenados os dados das máquinas virtuais.
++
+Na instalação padrão do ESXi, é criado um espaço de armazenamento (`datastore1`), acessível pelo caminho `/vmfs`. Dentro do subdiretório `Volumes` são armazenados os dados das máquinas virtuais.
++
+O acesso de uma máquina virtual à rede externa é feito através de um _Virtual Switch_ (_vSwitch_). Cada interface de rede de uma máquina virtual é associada a um _vSwitch_. Em cada um deles, é possível definir políticas de acesso à rede externa, configurações de firewall etc. Com a utilização de vários switches virtuais é possível criar configurações com redes isoladas, controlar tráfego de rede de grupos de máquinas virtuais ou com configurações de segurança distintas.
++
+Um switch virtual possui um número de portas nas quais são conectadas as interfaces das máquinas virtuais. Observe que três destas portas são ocupadas na configuração padrão. Em uma destas portas, é conectado o dispositivo de rede físico `vmnic0`. Um switch pode estar conectado a várias interfaces físicas para prover balanceamento de carga ou tolerância a falhas. As outras duas portas são ocupadas pela rede padrão das novas máquinas virtuais e pelo console do hypervisor.
++
+Abaixo, mostramos um exemplo de saída que exemplifica os temas apresentados neste passo:
++
+.Informações de datastores e vSwitches
+[#img-vmw19]
+image::7_VSphere-s1/vmw19.png[align=center]
+
+=== 3) Acessando a interface web de configuração
+
+1. Para acessar a interface web de configuração do ESXi, digite o endereço apresentado na parte de baixo da console administrativa. Será apresentada uma tela de aviso de conexão TLS não confiável -- aceite o certificado auto-assinado.
++
+.Acesso à interface web do ESXi
+[#img-vmw20]
+image::7_VSphere-s1/vmw20.png[align=center]
+
+2. Faça login na interface web com a conta `root` e a senha definida durante a instalação.
++
+.Login na interface web
+[#img-vmw21]
+image::7_VSphere-s1/vmw21.png[align=center]
++
+Quando perguntado se deseja ingressar no programa de melhoria de experiência do cliente VMWare, decline
++
+.Ingresso no programa de melhoria de experiência do cliente VMWare
+[#img-vmw22]
+image::7_VSphere-s1/vmw22.png[align=center]
+
+3. Finalmente, teremos acesso à interface web do ESXi. Navegue pelas diferentes janelas e abas para se ambientar com o sistema.
++
+.Acesso à interface web do ESXi
+[#img-vmw23]
+image::7_VSphere-s1/vmw23.png[align=center]
+
+=== 4) Adicionando repositório de arquivos ISO
+
+1. Vamos adicionar um repositório de imagens ISO para instalar novas VMs. Acesse _Storage_ > _Datastores_ > _New datastore_.
++
+.Criação de datastore ISO, parte 1
+[#img-vmw24]
+image::7_VSphere-s1/vmw24.png[align=center]
++
+Na janela _Select creation type_, escolha _Mount NFS datastore_.
++
+.Criação de datastore ISO, parte 2
+[#img-vmw25]
+image::7_VSphere-s1/vmw25.png[align=center]
++
+Escolha um nome, e informe o endereço IP e caminho para o _mount_ NFS contendo os arquivos ISO (consulte seu instrutor para obter o caminho correto). Defina a versão 4 do protocolo NFS.
++
+.Criação de datastore ISO, parte 3
+[#img-vmw26]
+image::7_VSphere-s1/vmw26.png[align=center]
++
+Na tela de confirmação, revise os dados e clique em _Finish_.
++
+.Criação de datastore ISO, concluído
+[#img-vmw27]
+image::7_VSphere-s1/vmw27.png[align=center]
+
+2. Uma vez criado o _datastore_, clique com o botão direito sobre o mesmo e selecione _Browse_.
++
+.Visualizando arquivos no datastore, parte 1
+[#img-vmw28]
+image::7_VSphere-s1/vmw28.png[align=center]
++
+Observe que as imagens ISO de instalação dos SOs estão disponíveis para uso.
++
+.Visualizando arquivos no datastore, parte 2
+[#img-vmw29]
+image::7_VSphere-s1/vmw29.png[align=center]
+
+=== 5) Criação de máquinas virtuais
+
+1. Agora, acesse _Virtual Machines_ > _Create/Register VM_.
++
+.Criando VMs, parte 1
+[#img-vmw30]
+image::7_VSphere-s1/vmw30.png[align=center]
++
+Em _Select creation type_, escolha _Create a new virtual machine_.
++
+.Criando VMs, parte 2
+[#img-vmw31]
+image::7_VSphere-s1/vmw31.png[align=center]
++
+Escolha um nome sugestivo para a VM, defina sua compatibilidade com hypervisors ESXi, sistema operacional (Windows) e versão do SO hóspede (Microsoft Windows 10 64-bit). Habilite a caixa _Enable Windows Virtualization Based Security_.
++
+.Criando VMs, parte 3
+[#img-vmw32]
+image::7_VSphere-s1/vmw32.png[align=center]
++
+Para o armazenamento, escolha o `datastore1` local.
++
+.Criando VMs, parte 4
+[#img-vmw33]
+image::7_VSphere-s1/vmw33.png[align=center]
++
+Agora, vamos configurar o hardware da VM. Aloque 2 processadores, 4 GB de RAM e 40 GB de armazenamento no disco virtual.
++
+.Criando VMs, parte 5
+[#img-vmw34]
+image::7_VSphere-s1/vmw34.png[align=center]
++
+Mais abaixo, na mesma tela, conecte ao _CD/DVD Drive 1_ um arquivo ISO do _datastore_.
++
+.Criando VMs, parte 6
+[#img-vmw35]
+image::7_VSphere-s1/vmw35.png[align=center]
++
+Aponte a imagem ISO de instalação do Windows 10, como mostrado a seguir.
++
+.Criando VMs, parte 7
+[#img-vmw36]
+image::7_VSphere-s1/vmw36.png[align=center]
++
+Feito isso, clique em _Next_.
++
+.Criando VMs, parte 8
+[#img-vmw37]
+image::7_VSphere-s1/vmw37.png[align=center]
++
+Confirme as opções de criação da VM e clique em _Finish_.
++
+.Criando VMs, concluído
+[#img-vmw38]
+image::7_VSphere-s1/vmw38.png[align=center]
+
+2. Após a criação da máquina virtual, selecione-a e clique em _Power On_ para ligar.
++
+.Ligando VM
+[#img-vmw39]
+image::7_VSphere-s1/vmw39.png[align=center]
++
+A tela de instalação do Windows 10 surgirá, brevemente. Proceda com a instalação do SO como feito em sessões anteriores.
++
+.Instalação do Windows 10 na VM, iniciada
+[#img-vmw40]
+image::7_VSphere-s1/vmw40.png[align=center]
++
+Após a conclusão do processo você terá o Desktop do usuário `aluno`, na VM Windows 10, como mostrado abaixo.
++
+.Instalação do Windows 10 na VM, concluída
+[#img-vmw41]
+image::7_VSphere-s1/vmw41.png[align=center]
+
+3. Agora, vamos instalar os adicionais para convidado do ESXi: clique com o botão direito sobre a VM e acesse _Guest OS_ > _Install VMWare Tools_.
++
+.Instalação do VMWare Tools, parte 1
+[#img-vmw42]
+image::7_VSphere-s1/vmw42.png[align=center]
++
+O CD de instalação será inserido no drive virtual da VM. Abra o Windows Explorer e inicie a execução automática da mídia, como mostrado abaixo.
++
+.Instalação do VMWare Tools, parte 2
+[#img-vmw43]
+image::7_VSphere-s1/vmw43.png[align=center]
++
+O programa de instalação do VMWare Tools será iniciado.
++
+.Instalação do VMWare Tools, parte 3
+[#img-vmw44]
+image::7_VSphere-s1/vmw44.png[align=center]
++
+Selecione a instalação típica:
++
+.Instalação do VMWare Tools, parte 4
+[#img-vmw45]
+image::7_VSphere-s1/vmw45.png[align=center]
++
+E, finalmente, pressione _Install_ para iniciar o processo de instalação; aguarde sua conclusão.
++
+.Instalação do VMWare Tools, parte 5
+[#img-vmw46]
+image::7_VSphere-s1/vmw46.png[align=center]
++
+Após a conclusão do processo, clique em _Finish_.
++
+.Instalação do VMWare Tools, concluída
+[#img-vmw47]
+image::7_VSphere-s1/vmw47.png[align=center]
++
+Será necessário reiniciar a VM após a instalação do VMWare Tools. Confirme essa ação clicando em _Yes_.
++
+.Reiniciando VM após instalação do VMWare Tools
+[#img-vmw48]
+image::7_VSphere-s1/vmw48.png[align=center]
++
+Após o _reboot_ verifique, na página de _status_ da máquina virtual, que o VMWare Tools está instalado e detectado pelo hypervisor, como mostrado abaixo.
++
+.VMWare Tools detectado pelo hypervisor
+[#img-vmw49]
+image::7_VSphere-s1/vmw49.png[align=center]
+
+=== 6) Criação de snapshots
+
+1. Para criar _snapshots_ de máquinas virtuais, basta clicar com o botão direito sobre a mesma e acessar _Snapshots_ > _Take Snapshot_.
++
+.Criação de snapshots, parte 1
+[#img-vmw50]
+image::7_VSphere-s1/vmw50.png[align=center]
++
+Na janela seguinte, selecione um nome para o _snapshot_. Se a VM estiver ligada, pode ser interessante incluir o _snapshot_ de memória marcando a caixa _Snapshot the virtual machine's memory_.
++
+.Criação de snapshots, parte 2
+[#img-vmw51]
+image::7_VSphere-s1/vmw51.png[align=center]
+
+2. Uma vez criado o _snapshot_, podemos gerenciá-los através do menu _Snapshots_ > _Manage Snapshots_.
++
+.Gerenciando snapshots, parte 1
+[#img-vmw52]
+image::7_VSphere-s1/vmw52.png[align=center]
++
+A tela seguinte mostrará a lista de _snapshots_ disponíveis para a VM, bem como seu estado atual.
++
+.Gerenciando snapshots, parte 2
+[#img-vmw53]
+image::7_VSphere-s1/vmw53.png[align=center]
+
+3. Acesse a VM e crie um arquivo texto, com qualquer conteúdo, no Desktop do usuário `aluno`.
++
+.Alterando estado atual da máquina
+[#img-vmw54]
+image::7_VSphere-s1/vmw54.png[align=center]
+
+4. Agora, volte à gerência de _snapshots_, selecione o _snapshot_ criado durante o passo (1) e clique em _Restore snapshot_.
++
+.Restaurando snapshot, parte 1
+[#img-vmw55]
+image::7_VSphere-s1/vmw55.png[align=center]
++
+O sistema avisa que o estado atual da máquina será perdido, se não for salvo de antemão. Clique em _Restore_ para confirmar a restauração.
++
+.Restaurando snapshot, parte 2
+[#img-vmw56]
+image::7_VSphere-s1/vmw56.png[align=center]
+
+5. Acesse novamente a console da VM. Note que o arquivo texto, que havíamos criado anteriormente, já não existe mais.
++
+.Arquivo texto pós-snapshot apagado
+[#img-vmw57]
+image::7_VSphere-s1/vmw57.png[align=center]

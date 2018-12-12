@@ -438,13 +438,591 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_sessão_7_introdução_ao_vsphere">Sessão 7: Introdução ao VSphere</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_1_instalação_do_vmware_esxi">1) Instalação do VMware ESXi</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Crie uma mídia bootável com o instalador do ESXi, conforme instruções providas pelo instrutor. Em seguida, insira a mídia na máquina destacada como hypervisor para a dupla e execute o <em>boot</em> via USB. Você verá a tela a seguir:</p>
+<div id="img-vmw1" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw1.png" alt="vmw1">
+</div>
+<div class="title">Figure 1. Tela inicial de boot do ESXi</div>
+</div>
+<div class="paragraph">
+<p>Selecione a primeira opção para iniciar o instalador.</p>
+</div>
+</li>
+<li>
+<p>Você verá a tela de boas-vindas do ESXi. Aperte <code>ENTER</code> para continuar.</p>
+<div id="img-vmw2" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw2.png" alt="vmw2">
+</div>
+<div class="title">Figure 2. Instalação do ESXi, parte 1</div>
+</div>
+</li>
+<li>
+<p>Pressione <code>F11</code> para aceitar o termo de licença da ferramenta, e prossiga.</p>
+<div id="img-vmw3" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw3.png" alt="vmw3">
+</div>
+<div class="title">Figure 3. Instalação do ESXi, parte 2</div>
+</div>
+</li>
+<li>
+<p>Selecione o disco físico da máquina local (provavelmente do tipo SATA ou ATA, como mostrado abaixo) para instalar o hypervisor.</p>
+<div id="img-vmw4" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw4.png" alt="vmw4">
+</div>
+<div class="title">Figure 4. Instalação do ESXi, parte 3</div>
+</div>
+<div class="paragraph">
+<p>O instalador avisa que os dados do disco serão apagados com o processo de instalação. Pressione <code>ENTER</code> para continuar.</p>
+</div>
+<div id="img-vmw5" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw5.png" alt="vmw5">
+</div>
+<div class="title">Figure 5. Instalação do ESXi, parte 4</div>
+</div>
+</li>
+<li>
+<p>Selecione <code>Brazilian</code> como o mapa de teclado do sistema.</p>
+<div id="img-vmw6" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw6.png" alt="vmw6">
+</div>
+<div class="title">Figure 6. Instalação do ESXi, parte 5</div>
+</div>
+</li>
+<li>
+<p>Devido à exigência de parâmetro mínimo de senha por parte do ESXi, escolha <code>Virt3sr!</code> como a senha do usuário <code>root</code>.</p>
+<div id="img-vmw7" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw7.png" alt="vmw7">
+</div>
+<div class="title">Figure 7. Instalação do ESXi, parte 6</div>
+</div>
+</li>
+<li>
+<p>Caso o instalador avise que algum hardware pode não ser suportado em versões posteriores do ESXi, pressione <code>ENTER</code> para prosseguir.</p>
+<div id="img-vmw8" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw8.png" alt="vmw8">
+</div>
+<div class="title">Figure 8. Instalação do ESXi, parte 7</div>
+</div>
+</li>
+<li>
+<p>Finalmente, pressione <code>F11</code> para confirmar a instalação do hypervisor.</p>
+<div id="img-vmw9" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw9.png" alt="vmw9">
+</div>
+<div class="title">Figure 9. Instalação do ESXi, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Após algum tempo, o sistema será instalado com sucesso. Pressione <code>ENTER</code> para reiniciar, e remova a mídia USB de instalação.</p>
+</div>
+<div id="img-vmw10" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw10.png" alt="vmw10">
+</div>
+<div class="title">Figure 10. Instalação do ESXi, concluída</div>
+</div>
+</li>
+<li>
+<p>Após o <em>reboot</em>, você verá a console administrativa do ESXi como mostrado na figura a seguir:</p>
+<div id="img-vmw11" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw11.png" alt="vmw11">
+</div>
+<div class="title">Figure 11. Console administrativa do ESXi</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_conhecendo_o_vmware_esxi">2) Conhecendo o VMware ESXi</h3>
+<div class="paragraph">
+<p>É possível acessar o hypervisor via SSH após sua habilitação, ou diretamente no console do ESXi. Faremos o primeiro acesso através da console administrativa na máquina física.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Pressione <code>F2</code> para acessar o menu <em>Customize System</em>. Faça login com o usuário <code>root</code> e a senha configurada no passo (6) da atividade anterior.</p>
+<div id="img-vmw12" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw12.png" alt="vmw12">
+</div>
+<div class="title">Figure 12. Login na console administrativa do ESXi</div>
+</div>
+<div class="paragraph">
+<p>Nesta interface é possível configurar algumas opções do hypervisor, como senha de acesso do administrador, rede de gerência, teclado, consulta a informações para suporte, visualização dos logs do sistema, entre outros.</p>
+</div>
+</li>
+<li>
+<p>Acesse <em>Configure Management Network</em> &gt; <em>DNS Configuration</em>.</p>
+<div id="img-vmw13" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw13.png" alt="vmw13">
+</div>
+<div class="title">Figure 13. Configurações DNS</div>
+</div>
+<div class="paragraph">
+<p>Altere o <em>hostname</em> da máquina para um valor significativo (no exemplo abaixo, estamos usando <code>esxi-d1-g1</code>).</p>
+</div>
+<div id="img-vmw14" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw14.png" alt="vmw14">
+</div>
+<div class="title">Figure 14. Alteração do hostname local</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Network Adapters</em> é possível visualizar as interfaces de gerenciamento deste host. Caso o servidor disponha de duas placas de rede, o ESXi atribui por padrão a gerência do host à primeira interface de rede física (vmnic0).</p>
+</div>
+<div id="img-vmw15" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw15.png" alt="vmw15">
+</div>
+<div class="title">Figure 15. Interfaces de rede do host físico</div>
+</div>
+<div class="paragraph">
+<p>Pressione <code>ESC</code> para sair do menu corrente, e confirme as alterações teclando <code>Y</code> (<em>yes</em>).</p>
+</div>
+<div id="img-vmw16" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw16.png" alt="vmw16">
+</div>
+<div class="title">Figure 16. Confirmação de mudanças</div>
+</div>
+</li>
+<li>
+<p>Em <em>Troubleshooting Mode Options</em> &gt; <em>Enable SSH</em>, habilite o acesso remoto ao hypervisor via SSH.</p>
+<div id="img-vmw17" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw17.png" alt="vmw17">
+</div>
+<div class="title">Figure 17. Habilitando acesso remoto</div>
+</div>
+<div class="paragraph">
+<p>Novamente, saia do menu corrente e confirme suas alterações.</p>
+</div>
+</li>
+<li>
+<p>Usando o PuTTY ou Cygwin, logue via SSH no hypervisor ESXi. Informações a respeito do ambiente podem ser obtidas com o comando <code>esxcfg-info</code>. Este comando apresenta dados sobre o hardware, configurações do console de gerenciamento, além de informações sobre o estado dos recursos (CPU, memória etc.) e configurações relativas ao comportamento do hypervisor, armazenamento, alocação de memória para as máquinas virtuais, entre outros.</p>
+<div id="img-vmw18" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw18.png" alt="vmw18">
+</div>
+<div class="title">Figure 18. Consulta do UUID do sistema via esxcfg-info</div>
+</div>
+</li>
+<li>
+<p>No ESXi, os dispositivos de armazenamento são gerenciados através do sistema VMFS. Estes dispositivos são agrupados em unidades lógicas chamadas <em>datastores</em>, onde são armazenados os dados das máquinas virtuais.</p>
+<div class="paragraph">
+<p>Na instalação padrão do ESXi, é criado um espaço de armazenamento (<code>datastore1</code>), acessível pelo caminho <code>/vmfs</code>. Dentro do subdiretório <code>Volumes</code> são armazenados os dados das máquinas virtuais.</p>
+</div>
+<div class="paragraph">
+<p>O acesso de uma máquina virtual à rede externa é feito através de um <em>Virtual Switch</em> (<em>vSwitch</em>). Cada interface de rede de uma máquina virtual é associada a um <em>vSwitch</em>. Em cada um deles, é possível definir políticas de acesso à rede externa, configurações de firewall etc. Com a utilização de vários switches virtuais é possível criar configurações com redes isoladas, controlar tráfego de rede de grupos de máquinas virtuais ou com configurações de segurança distintas.</p>
+</div>
+<div class="paragraph">
+<p>Um switch virtual possui um número de portas nas quais são conectadas as interfaces das máquinas virtuais. Observe que três destas portas são ocupadas na configuração padrão. Em uma destas portas, é conectado o dispositivo de rede físico <code>vmnic0</code>. Um switch pode estar conectado a várias interfaces físicas para prover balanceamento de carga ou tolerância a falhas. As outras duas portas são ocupadas pela rede padrão das novas máquinas virtuais e pelo console do hypervisor.</p>
+</div>
+<div class="paragraph">
+<p>Abaixo, mostramos um exemplo de saída que exemplifica os temas apresentados neste passo:</p>
+</div>
+<div id="img-vmw19" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw19.png" alt="vmw19">
+</div>
+<div class="title">Figure 19. Informações de datastores e vSwitches</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_acessando_a_interface_web_de_configuração">3) Acessando a interface web de configuração</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para acessar a interface web de configuração do ESXi, digite o endereço apresentado na parte de baixo da console administrativa. Será apresentada uma tela de aviso de conexão TLS não confiável&#8201;&#8212;&#8201;aceite o certificado auto-assinado.</p>
+<div id="img-vmw20" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw20.png" alt="vmw20">
+</div>
+<div class="title">Figure 20. Acesso à interface web do ESXi</div>
+</div>
+</li>
+<li>
+<p>Faça login na interface web com a conta <code>root</code> e a senha definida durante a instalação.</p>
+<div id="img-vmw21" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw21.png" alt="vmw21">
+</div>
+<div class="title">Figure 21. Login na interface web</div>
+</div>
+<div class="paragraph">
+<p>Quando perguntado se deseja ingressar no programa de melhoria de experiência do cliente VMWare, decline</p>
+</div>
+<div id="img-vmw22" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw22.png" alt="vmw22">
+</div>
+<div class="title">Figure 22. Ingresso no programa de melhoria de experiência do cliente VMWare</div>
+</div>
+</li>
+<li>
+<p>Finalmente, teremos acesso à interface web do ESXi. Navegue pelas diferentes janelas e abas para se ambientar com o sistema.</p>
+<div id="img-vmw23" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw23.png" alt="vmw23">
+</div>
+<div class="title">Figure 23. Acesso à interface web do ESXi</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_adicionando_repositório_de_arquivos_iso">4) Adicionando repositório de arquivos ISO</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Vamos adicionar um repositório de imagens ISO para instalar novas VMs. Acesse <em>Storage</em> &gt; <em>Datastores</em> &gt; <em>New datastore</em>.</p>
+<div id="img-vmw24" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw24.png" alt="vmw24">
+</div>
+<div class="title">Figure 24. Criação de datastore ISO, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na janela <em>Select creation type</em>, escolha <em>Mount NFS datastore</em>.</p>
+</div>
+<div id="img-vmw25" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw25.png" alt="vmw25">
+</div>
+<div class="title">Figure 25. Criação de datastore ISO, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Escolha um nome, e informe o endereço IP e caminho para o <em>mount</em> NFS contendo os arquivos ISO (consulte seu instrutor para obter o caminho correto). Defina a versão 4 do protocolo NFS.</p>
+</div>
+<div id="img-vmw26" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw26.png" alt="vmw26">
+</div>
+<div class="title">Figure 26. Criação de datastore ISO, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Na tela de confirmação, revise os dados e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw27" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw27.png" alt="vmw27">
+</div>
+<div class="title">Figure 27. Criação de datastore ISO, concluído</div>
+</div>
+</li>
+<li>
+<p>Uma vez criado o <em>datastore</em>, clique com o botão direito sobre o mesmo e selecione <em>Browse</em>.</p>
+<div id="img-vmw28" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw28.png" alt="vmw28">
+</div>
+<div class="title">Figure 28. Visualizando arquivos no datastore, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Observe que as imagens ISO de instalação dos SOs estão disponíveis para uso.</p>
+</div>
+<div id="img-vmw29" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw29.png" alt="vmw29">
+</div>
+<div class="title">Figure 29. Visualizando arquivos no datastore, parte 2</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_criação_de_máquinas_virtuais">5) Criação de máquinas virtuais</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Agora, acesse <em>Virtual Machines</em> &gt; <em>Create/Register VM</em>.</p>
+<div id="img-vmw30" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw30.png" alt="vmw30">
+</div>
+<div class="title">Figure 30. Criando VMs, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Select creation type</em>, escolha <em>Create a new virtual machine</em>.</p>
+</div>
+<div id="img-vmw31" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw31.png" alt="vmw31">
+</div>
+<div class="title">Figure 31. Criando VMs, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Escolha um nome sugestivo para a VM, defina sua compatibilidade com hypervisors ESXi, sistema operacional (Windows) e versão do SO hóspede (Microsoft Windows 10 64-bit). Habilite a caixa <em>Enable Windows Virtualization Based Security</em>.</p>
+</div>
+<div id="img-vmw32" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw32.png" alt="vmw32">
+</div>
+<div class="title">Figure 32. Criando VMs, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Para o armazenamento, escolha o <code>datastore1</code> local.</p>
+</div>
+<div id="img-vmw33" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw33.png" alt="vmw33">
+</div>
+<div class="title">Figure 33. Criando VMs, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Agora, vamos configurar o hardware da VM. Aloque 2 processadores, 4 GB de RAM e 40 GB de armazenamento no disco virtual.</p>
+</div>
+<div id="img-vmw34" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw34.png" alt="vmw34">
+</div>
+<div class="title">Figure 34. Criando VMs, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Mais abaixo, na mesma tela, conecte ao <em>CD/DVD Drive 1</em> um arquivo ISO do <em>datastore</em>.</p>
+</div>
+<div id="img-vmw35" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw35.png" alt="vmw35">
+</div>
+<div class="title">Figure 35. Criando VMs, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Aponte a imagem ISO de instalação do Windows 10, como mostrado a seguir.</p>
+</div>
+<div id="img-vmw36" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw36.png" alt="vmw36">
+</div>
+<div class="title">Figure 36. Criando VMs, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Feito isso, clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw37" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw37.png" alt="vmw37">
+</div>
+<div class="title">Figure 37. Criando VMs, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Confirme as opções de criação da VM e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw38" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw38.png" alt="vmw38">
+</div>
+<div class="title">Figure 38. Criando VMs, concluído</div>
+</div>
+</li>
+<li>
+<p>Após a criação da máquina virtual, selecione-a e clique em <em>Power On</em> para ligar.</p>
+<div id="img-vmw39" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw39.png" alt="vmw39">
+</div>
+<div class="title">Figure 39. Ligando VM</div>
+</div>
+<div class="paragraph">
+<p>A tela de instalação do Windows 10 surgirá, brevemente. Proceda com a instalação do SO como feito em sessões anteriores.</p>
+</div>
+<div id="img-vmw40" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw40.png" alt="vmw40">
+</div>
+<div class="title">Figure 40. Instalação do Windows 10 na VM, iniciada</div>
+</div>
+<div class="paragraph">
+<p>Após a conclusão do processo você terá o Desktop do usuário <code>aluno</code>, na VM Windows 10, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw41" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw41.png" alt="vmw41">
+</div>
+<div class="title">Figure 41. Instalação do Windows 10 na VM, concluída</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos instalar os adicionais para convidado do ESXi: clique com o botão direito sobre a VM e acesse <em>Guest OS</em> &gt; <em>Install VMWare Tools</em>.</p>
+<div id="img-vmw42" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw42.png" alt="vmw42">
+</div>
+<div class="title">Figure 42. Instalação do VMWare Tools, parte 1</div>
+</div>
+<div class="paragraph">
+<p>O CD de instalação será inserido no drive virtual da VM. Abra o Windows Explorer e inicie a execução automática da mídia, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw43" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw43.png" alt="vmw43">
+</div>
+<div class="title">Figure 43. Instalação do VMWare Tools, parte 2</div>
+</div>
+<div class="paragraph">
+<p>O programa de instalação do VMWare Tools será iniciado.</p>
+</div>
+<div id="img-vmw44" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw44.png" alt="vmw44">
+</div>
+<div class="title">Figure 44. Instalação do VMWare Tools, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Selecione a instalação típica:</p>
+</div>
+<div id="img-vmw45" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw45.png" alt="vmw45">
+</div>
+<div class="title">Figure 45. Instalação do VMWare Tools, parte 4</div>
+</div>
+<div class="paragraph">
+<p>E, finalmente, pressione <em>Install</em> para iniciar o processo de instalação; aguarde sua conclusão.</p>
+</div>
+<div id="img-vmw46" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw46.png" alt="vmw46">
+</div>
+<div class="title">Figure 46. Instalação do VMWare Tools, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Após a conclusão do processo, clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw47" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw47.png" alt="vmw47">
+</div>
+<div class="title">Figure 47. Instalação do VMWare Tools, concluída</div>
+</div>
+<div class="paragraph">
+<p>Será necessário reiniciar a VM após a instalação do VMWare Tools. Confirme essa ação clicando em <em>Yes</em>.</p>
+</div>
+<div id="img-vmw48" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw48.png" alt="vmw48">
+</div>
+<div class="title">Figure 48. Reiniciando VM após instalação do VMWare Tools</div>
+</div>
+<div class="paragraph">
+<p>Após o <em>reboot</em> verifique, na página de <em>status</em> da máquina virtual, que o VMWare Tools está instalado e detectado pelo hypervisor, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw49" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw49.png" alt="vmw49">
+</div>
+<div class="title">Figure 49. VMWare Tools detectado pelo hypervisor</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_criação_de_snapshots">6) Criação de snapshots</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para criar <em>snapshots</em> de máquinas virtuais, basta clicar com o botão direito sobre a mesma e acessar <em>Snapshots</em> &gt; <em>Take Snapshot</em>.</p>
+<div id="img-vmw50" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw50.png" alt="vmw50">
+</div>
+<div class="title">Figure 50. Criação de snapshots, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na janela seguinte, selecione um nome para o <em>snapshot</em>. Se a VM estiver ligada, pode ser interessante incluir o <em>snapshot</em> de memória marcando a caixa <em>Snapshot the virtual machine&#8217;s memory</em>.</p>
+</div>
+<div id="img-vmw51" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw51.png" alt="vmw51">
+</div>
+<div class="title">Figure 51. Criação de snapshots, parte 2</div>
+</div>
+</li>
+<li>
+<p>Uma vez criado o <em>snapshot</em>, podemos gerenciá-los através do menu <em>Snapshots</em> &gt; <em>Manage Snapshots</em>.</p>
+<div id="img-vmw52" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw52.png" alt="vmw52">
+</div>
+<div class="title">Figure 52. Gerenciando snapshots, parte 1</div>
+</div>
+<div class="paragraph">
+<p>A tela seguinte mostrará a lista de <em>snapshots</em> disponíveis para a VM, bem como seu estado atual.</p>
+</div>
+<div id="img-vmw53" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw53.png" alt="vmw53">
+</div>
+<div class="title">Figure 53. Gerenciando snapshots, parte 2</div>
+</div>
+</li>
+<li>
+<p>Acesse a VM e crie um arquivo texto, com qualquer conteúdo, no Desktop do usuário <code>aluno</code>.</p>
+<div id="img-vmw54" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw54.png" alt="vmw54">
+</div>
+<div class="title">Figure 54. Alterando estado atual da máquina</div>
+</div>
+</li>
+<li>
+<p>Agora, volte à gerência de <em>snapshots</em>, selecione o <em>snapshot</em> criado durante o passo (1) e clique em <em>Restore snapshot</em>.</p>
+<div id="img-vmw55" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw55.png" alt="vmw55">
+</div>
+<div class="title">Figure 55. Restaurando snapshot, parte 1</div>
+</div>
+<div class="paragraph">
+<p>O sistema avisa que o estado atual da máquina será perdido, se não for salvo de antemão. Clique em <em>Restore</em> para confirmar a restauração.</p>
+</div>
+<div id="img-vmw56" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw56.png" alt="vmw56">
+</div>
+<div class="title">Figure 56. Restaurando snapshot, parte 2</div>
+</div>
+</li>
+<li>
+<p>Acesse novamente a console da VM. Note que o arquivo texto, que havíamos criado anteriormente, já não existe mais.</p>
+<div id="img-vmw57" class="imageblock text-center">
+<div class="content">
+<img src="../img/7_VSphere-s1/vmw57.png" alt="vmw57">
+</div>
+<div class="title">Figure 57. Arquivo texto pós-snapshot apagado</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-12-10 15:01:29 -0200
+Last updated 2018-12-12 08:37:42 -0200
 </div>
 </div>
 </body>

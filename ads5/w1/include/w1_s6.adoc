@@ -16,3 +16,631 @@ include::../../share/attributes.adoc[]
 endif::oneof[]
 
 == Sessão 6: Hyper-V avançado
+
+=== 1) Configuração de Cluster
+
+1. Antes de iniciar a configuração do _cluster_, devemos desabilitar a replicação ativada no final da sessão anterior. Em ambas as VMs, clique com o botão direito e navegue para _Replication_ > _Remove Replication_.
++
+.Removendo replicação, parte 1
+[#img-hyperv-2-1]
+image::6_Hyper-V-s2/hyperv1.png[align=center]
++
+Confirme a operação.
++
+.Removendo replicação, parte 2
+[#img-hyperv-2-2]
+image::6_Hyper-V-s2/hyperv2.png[align=center]
+
+2. O Windows Server 2016 oferece um recurso para a agregação de servidores em _clusters_ de alta disponibilidade. Para adicionar, abra o _Server Manager_ e acesse _Add Roles and Features_.
++
+.Instalação do Failover Cluster, parte 1
+[#img-hyperv-2-3]
+image::6_Hyper-V-s2/hyperv3.png[align=center]
++
+Confirme a instalação baseada em _roles_.
++
+.Instalação do Failover Cluster, parte 2
+[#img-hyperv-2-4]
+image::6_Hyper-V-s2/hyperv4.png[align=center]
++
+Selecione o servidor para instalação no _pool_.
++
+.Instalação do Failover Cluster, parte 3
+[#img-hyperv-2-5]
+image::6_Hyper-V-s2/hyperv5.png[align=center]
++
+Em _Select server roles_, clique em _Next_.
++
+.Instalação do Failover Cluster, parte 4
+[#img-hyperv-2-6]
+image::6_Hyper-V-s2/hyperv6.png[align=center]
++
+Em _Select features_, marque a caixa _Failover Clustering_.
++
+.Instalação do Failover Cluster, parte 5
+[#img-hyperv-2-7]
+image::6_Hyper-V-s2/hyperv7.png[align=center]
++
+Confirme a instalação de _features_ adicionais necessárias ao funcionamento do _Failover Cluster_.
++
+.Instalação do Failover Cluster, parte 6
+[#img-hyperv-2-8]
+image::6_Hyper-V-s2/hyperv8.png[align=center]
++
+Confirme a instalação, na janela seguinte.
++
+.Instalação do Failover Cluster, parte 7
+[#img-hyperv-2-9]
+image::6_Hyper-V-s2/hyperv9.png[align=center]
++
+Concluído o processo, clique em _Close_.
++
+.Instalação do Failover Cluster, parte 8
+[#img-hyperv-2-10]
+image::6_Hyper-V-s2/hyperv10.png[align=center]
+
+3.  A partir deste ponto, a atividade deverá ser realizada em *grupo*, em *apenas um* dos hypervisors Windows Server 2016. Para iniciar a configuração do _cluster_, acesse _Tools_ > _Failover Cluster Manager_ dentro do _Server Manager_.
++
+.Configuração do Failover Cluster, parte 1
+[#img-hyperv-2-11]
+image::6_Hyper-V-s2/hyperv11.png[align=center]
++
+Na nova janela, na aba _Management_, clique em _Create Cluster_. O assistente de criação de _clusters_ será iniciado em seguida.
++
+.Configuração do Failover Cluster, parte 2
+[#img-hyperv-2-12]
+image::6_Hyper-V-s2/hyperv12.png[align=center]
++
+Leia as informações iniciais na tela _Before You Begin_, e em seguida clique em _Next_.
++
+.Configuração do Failover Cluster, parte 3
+[#img-hyperv-2-13]
+image::6_Hyper-V-s2/hyperv13.png[align=center]
++
+Em _Select Servers_, digite o nome dos *dois* hypervisors do grupo, usando a nomenclatura de nome de máquina (FQDN) registrado junto ao _Active Directory_. Pode-se usar o endereço IP das máquinas, se desejado. Confira o exemplo a seguir:
++
+.Configuração do Failover Cluster, parte 4
+[#img-hyperv-2-14]
+image::6_Hyper-V-s2/hyperv14.png[align=center]
++
+Em _Validation Warning_, marque o botão _Yes. When I click Next (...)_ para confirmar a execução de testes de validação antes da criação do _cluster_.
++
+.Configuração do Failover Cluster, parte 5
+[#img-hyperv-2-15]
+image::6_Hyper-V-s2/hyperv15.png[align=center]
++
+O assistente de validação de configuração será aberto. Na janela inicial, leia as informações preliminares e clique em _Next_.
++
+.Configuração do Failover Cluster, parte 6
+[#img-hyperv-2-16]
+image::6_Hyper-V-s2/hyperv16.png[align=center]
++
+Em _Testing Options_, marque o botão _Run only tests I select_ para visualizar e especificar quais testes de validação serão realizados.
++
+.Configuração do Failover Cluster, parte 7
+[#img-hyperv-2-17]
+image::6_Hyper-V-s2/hyperv17.png[align=center]
++
+Na tela _Test Selection_, mantenha todas as caixas exceto _Storage Spaces Direct_ marcadas, e clique em _Next_.
++
+.Configuração do Failover Cluster, parte 8
+[#img-hyperv-2-18]
+image::6_Hyper-V-s2/hyperv18.png[align=center]
++
+Em _Confirmation_, verifique a lista de testes a serem realizados, e inicie-os.
++
+.Configuração do Failover Cluster, parte 9
+[#img-hyperv-2-19]
+image::6_Hyper-V-s2/hyperv19.png[align=center]
++
+Após algum tempo, a lista de resultados será mostrada, como exemplificado abaixo. Observe que foram levantados alertas devido à falta de um disco compartilhado entre os nós do _cluster_, o que iremos resolver a seguir.
++
+.Configuração do Failover Cluster, parte 10
+[#img-hyperv-2-20]
+image::6_Hyper-V-s2/hyperv20.png[align=center]
++
+De volta ao _wizard_ de configuração do _Failover Cluster_, defina um nome sugestivo para o _cluster_ da dupla.
++
+.Configuração do Failover Cluster, parte 11
+[#img-hyperv-2-21]
+image::6_Hyper-V-s2/hyperv21.png[align=center]
++
+Em _Confirmation_, verifique as informações do _cluster_, marque a caixa _Add all eligible storage to the cluster_ e finalmente clique em _Next_.
++
+.Configuração do Failover Cluster, parte 12
+[#img-hyperv-2-22]
+image::6_Hyper-V-s2/hyperv22.png[align=center]
++
+Concluído o processo, clique em _Finish_.
++
+.Configuração do Failover Cluster, concluído
+[#img-hyperv-2-23]
+image::6_Hyper-V-s2/hyperv23.png[align=center]
+
+4. Confira se o _cluster_ criado pode ser visualizado nos dois hypervisors do grupo, usando o _Failover Cluster Manager_.
++
+.Cluster criado com sucesso
+[#img-hyperv-2-24]
+image::6_Hyper-V-s2/hyperv24.png[align=center]
++
+Em _Nodes_, note que é possível observar que ambas as máquinas estão conectadas ao _cluster_ em estado _Up_.
++
+.Nodes conectados ao cluster
+[#img-hyperv-2-25]
+image::6_Hyper-V-s2/hyperv25.png[align=center]
+
+=== 2) Configuração de storage compartilhado
+
+Da mesma forma que em outras atividades foi necessário configurar um dispositivo de armazenamento compartilhado (FreeNAS) entre os _nodes_, aqui faremos o mesmo. Este compartilhamento permitirá a migração de máquinas virtuais.
+
+1. Este passo deve ser realizado em *ambos* os hypervisors da dupla.
++
+No _Server Manager_, inicie a ferramenta _Tools_ > _iSCSI Initiator_.
++
+.Configuração iSCSI, parte 1
+[#img-hyperv-2-26]
+image::6_Hyper-V-s2/hyperv26.png[align=center]
++
+O sistema irá informar que o serviço iSCSI não foi iniciado. Clique em _Yes_ para iniciá-lo, bem como configurá-lo como ativado em _boots_ subsequentes do servidor.
++
+.Configuração iSCSI, parte 2
+[#img-hyperv-2-27]
+image::6_Hyper-V-s2/hyperv27.png[align=center]
++
+Na nova janela que se abrir, digite em _Target_ o endereço IP do FreeNAS que será usado como _storage_ compartilhado entre os nodos do _cluster_. Evidentemente, deve-se usar o mesmo _storage_ para ambos os hypervisors. Em seguida, clique em _Quick Connect_.
++
+.Configuração iSCSI, parte 3
+[#img-hyperv-2-28]
+image::6_Hyper-V-s2/hyperv28.png[align=center]
++
+Na nova janela, verifique que a LUN correta foi exibida pelo _iSCSI Initiator_, e clique em _Done_.
++
+.Configuração iSCSI, parte 4
+[#img-hyperv-2-29]
+image::6_Hyper-V-s2/hyperv29.png[align=center]
++
+Na aba _Discovery_, note que o endereço IP e porta corretos do servidor FreeNAS figuram em ambos os hypervisors do grupo.
++
+.Configuração iSCSI, parte 5
+[#img-hyperv-2-30]
+image::6_Hyper-V-s2/hyperv30.png[align=center]
++
+Agora, navegue para a aba _Volumes and Devices_ e clique no botão _Auto Configure_.
++
+.Configuração iSCSI, parte 6
+[#img-hyperv-2-31]
+image::6_Hyper-V-s2/hyperv31.png[align=center]
++
+Deverá surgir uma _string_ longa representando o mapeamento da LUN do _storage_ remoto no sistema local, como mostrado no figura a seguir.
++
+.Configuração iSCSI, parte 7
+[#img-hyperv-2-32]
+image::6_Hyper-V-s2/hyperv32.png[align=center]
+
+2. Realize os passos seguintes em *apenas um* hypervisor do grupo.
++
+No _Server Manager_, acesse _Tools_ > _Computer Management_.
++
+.Inicialização da LUN, parte 1
+[#img-hyperv-2-33]
+image::6_Hyper-V-s2/hyperv33.png[align=center]
++
+Em _Storage_ > _Disk Management_, note que há um novo disco de 80 GB conectado; este disco corresponde à LUN no _storage_ remoto. Observe, ainda, que ele se encontra em estado _offline_.
++
+.Inicialização da LUN, parte 2
+[#img-hyperv-2-34]
+image::6_Hyper-V-s2/hyperv34.png[align=center]
++
+Clique na proximidade da palavra _Offline_ dentro do quadro do disco e depois em _Online_ para torná-lo disponível.
++
+.Inicialização da LUN, parte 3
+[#img-hyperv-2-35]
+image::6_Hyper-V-s2/hyperv35.png[align=center]
++
+Agora, clique novamente e selecione _Initialize Disk_.
++
+.Inicialização da LUN, parte 4
+[#img-hyperv-2-36]
+image::6_Hyper-V-s2/hyperv36.png[align=center]
++
+Na nova janela, marque a caixa com o nome do disco e selecione o tipo de partição MBR para o mesmo.
++
+.Inicialização da LUN, parte 5
+[#img-hyperv-2-37]
+image::6_Hyper-V-s2/hyperv37.png[align=center]
++
+De volta à janela principal, clique com o botão direito sobre o espaço não-inicializado do disco e selecione a opção _New Simple Volume_.
++
+.Inicialização da LUN, parte 6
+[#img-hyperv-2-38]
+image::6_Hyper-V-s2/hyperv38.png[align=center]
++
+O _wizard_ de configuração de disco será aberto. Clique em _Next_.
++
+.Inicialização da LUN, parte 7
+[#img-hyperv-2-39]
+image::6_Hyper-V-s2/hyperv39.png[align=center]
++
+Para o tamanho do volume do disco, mantenho o valor máximo especificado automaticamente.
++
+.Inicialização da LUN, parte 8
+[#img-hyperv-2-40]
+image::6_Hyper-V-s2/hyperv40.png[align=center]
++
+Assinale uma letra qualquer para o disco (no exemplo, `X`), e clique em _Next_.
++
+.Inicialização da LUN, parte 9
+[#img-hyperv-2-41]
+image::6_Hyper-V-s2/hyperv41.png[align=center]
++
+Formate o volume em NTFS, selecione um _label_ com nome apropriado e marque a caixa _Perform a quick format_.
++
+.Inicialização da LUN, parte 10
+[#img-hyperv-2-42]
+image::6_Hyper-V-s2/hyperv42.png[align=center]
++
+Na janela final, confirme suas seleções e clique em _Finish_.
++
+.Inicialização da LUN, parte 11
+[#img-hyperv-2-43]
+image::6_Hyper-V-s2/hyperv43.png[align=center]
++
+De volta ao _Computer Management_, note que o disco foi inicializado e uma letra foi assinalada a ele.
++
+.Inicialização da LUN, concluída
+[#img-hyperv-2-44]
+image::6_Hyper-V-s2/hyperv44.png[align=center]
++
+Repita os passos desta etapa no segundo hypervisor da dupla. Não será necessário formatar o disco novamente, mas os passos de inicialização e assinalar letra ao disco deverão ser realizados. Ao final do processo, o disco deverá estar disponível de forma análoga ao que foi mostrado na tela acima.
+
+3. Realize os passos seguintes em *apenas um* hypervisor do grupo.
++
+Abra o _Failover Cluster Manager_ e em _Storage_ > _Disks_, clique em _Add Disk_.
++
+.Adicionando disco compartilhado ao cluster, parte 1
+[#img-hyperv-2-45]
+image::6_Hyper-V-s2/hyperv45.png[align=center]
++
+Na janela seguinte, o disco compartilhado (que deve estar disponível nos dois membros do _cluster_) é mostrado. Marque a caixa e clique em _OK_.
++
+.Adicionando disco compartilhado ao cluster, parte 2
+[#img-hyperv-2-46]
+image::6_Hyper-V-s2/hyperv46.png[align=center]
++
+De volta ao _Failover Cluster_, note que o disco foi adicionado e encontra-se em estado _Online_.
++
+.Adicionando disco compartilhado ao cluster, parte 3
+[#img-hyperv-2-47]
+image::6_Hyper-V-s2/hyperv47.png[align=center]
++
+Clique com o botão direito sobre o disco, e em seguida em _Add to Cluster Shared Volumes_.
++
+.Adicionando disco compartilhado ao cluster, parte 4
+[#img-hyperv-2-48]
+image::6_Hyper-V-s2/hyperv48.png[align=center]
++
+O _storage_ compartilhado será adicionado ao _cluster_, nos dois hypervisors. Acesse o caminho `C:\ClusterStorage\Volume1` para acessar o volume compartilhado.
++
+.Adicionando disco compartilhado ao cluster, concluído
+[#img-hyperv-2-49]
+image::6_Hyper-V-s2/hyperv49.png[align=center]
+
+=== 3) Migração de máquinas virtuais
+
+1. Em *apenas um* dos hypervisors do grupo, copie o arquivo VHDX da máquina virtual local para o _storage_ compartilhado.
++
+.Cópia do arquivo VHDX
+[#img-hyperv-2-50]
+image::6_Hyper-V-s2/hyperv50.png[align=center]
++
+Acompanhe o progresso da cópia:
++
+.Progresso de cópia
+[#img-hyperv-2-51]
+image::6_Hyper-V-s2/hyperv51.png[align=center]
++
+Ao final do processo, a pasta `C:\ClusterStorage\Volume1` deve conter o arquivo VHDX da máquina virtual original.
++
+.Cópia concluída
+[#img-hyperv-2-52]
+image::6_Hyper-V-s2/hyperv52.png[align=center]
+
+2. No _Failover Cluster_, vamos criar uma nova máquina virtual que utilize o VHDX copiado anteriormente. Acesse _Roles_ > _Virtual Machines_ > _New Virtual Machine_.
++
+.Criação de VM no cluster, parte 1
+[#img-hyperv-2-53]
+image::6_Hyper-V-s2/hyperv53.png[align=center]
++
+Selecione o nodo-alvo para a VM (qualquer um é uma opção válida).
++
+.Criação de VM no cluster, parte 2
+[#img-hyperv-2-54]
+image::6_Hyper-V-s2/hyperv54.png[align=center]
++
+Defina um nome apropriado para a VM do _cluster_, marque a caixa _Store the virtual machine in a different location_ e aponte a pasta `C:\ClusterStorage\Volume1\Virtual Machines` para armazenamento da configuração da VM. Crie a pasta, caso esta não exista.
++
+.Criação de VM no cluster, parte 3
+[#img-hyperv-2-55]
+image::6_Hyper-V-s2/hyperv55.png[align=center]
++
+Escolha a geração 2 para a VM.
++
+.Criação de VM no cluster, parte 4
+[#img-hyperv-2-56]
+image::6_Hyper-V-s2/hyperv56.png[align=center]
++
+Defina 4 GB de memória RAM para a máquina virtual.
++
+.Criação de VM no cluster, parte 5
+[#img-hyperv-2-57]
+image::6_Hyper-V-s2/hyperv57.png[align=center]
++
+Escolha o único _virtual switch_ disponível para a saída de rede da VM.
++
+.Criação de VM no cluster, parte 6
+[#img-hyperv-2-58]
+image::6_Hyper-V-s2/hyperv58.png[align=center]
++
+Na tela _Connect Virtual Hard Disk_, marque a caixa _Use an existing virtual disk_ e navegue até o caminho do arquivo VHDX que foi copiado no pass (1) desta atividade.
++
+.Criação de VM no cluster, parte 7
+[#img-hyperv-2-59]
+image::6_Hyper-V-s2/hyperv59.png[align=center]
++
+Na tela de sumário, confirme as opções de criação da máquina virtual e clique em _Finish_.
++
+.Criação de VM no cluster, finalização
+[#img-hyperv-2-60]
+image::6_Hyper-V-s2/hyperv60.png[align=center]
++
+O _Failover Cluster_ irá reportar a criação da VM com sucesso, a seguir.
++
+.VM criada no cluster com sucesso
+[#img-hyperv-2-61]
+image::6_Hyper-V-s2/hyperv61.png[align=center]
+
+3. Observe a VM disponível na janela _Roles_ do _Failover Cluster_. Clique em _Connect_ para abrir a console de comunicação com a máquina virtual.
++
+.Acesso à VM do cluster, parte 1
+[#img-hyperv-2-62]
+image::6_Hyper-V-s2/hyperv62.png[align=center]
++
+Com a console aberta, clique em _Start_ para ligar a VM.
++
+.Acesso à VM do cluster, parte 2
+[#img-hyperv-2-63]
+image::6_Hyper-V-s2/hyperv63.png[align=center]
++
+Uma vez ligada a VM, use o _prompt_ de comando do Windows para descobrir o endereço IP da máquina, via comando `ipconfig`.
++
+.Acesso à VM do cluster, parte 3
+[#img-hyperv-2-64]
+image::6_Hyper-V-s2/hyperv64.png[align=center]
++
+Lembre-se de desativar o firewall do Windows para permitir que pacotes ICMP sejam respondidos pela VM.
++
+.Acesso à VM do cluster, parte 4
+[#img-hyperv-2-65]
+image::6_Hyper-V-s2/hyperv65.png[align=center]
+
+4. De sua máquina física, inicie um ping infinito (comando `ping -t`) para a VM, acompanhando a resposta aos pacotes.
++
+.Ping iniciado para VM no cluster
+[#img-hyperv-2-66]
+image::6_Hyper-V-s2/hyperv66.png[align=center]
+
+5. No _Failover Cluster_, clique com o botão direito na VM e selecione _Move_ > _Live Migration_ > _Select Node_.
++
+.Migração de VM, parte 1
+[#img-hyperv-2-67]
+image::6_Hyper-V-s2/hyperv67.png[align=center]
++
+Selecione o nó do _cluster_ para o qual a máquina será movida.
++
+.Migração de VM, parte 2
+[#img-hyperv-2-68]
+image::6_Hyper-V-s2/hyperv68.png[align=center]
++
+Na coluna _Information_, acompanhe o progresso de migração da máquina virtual.
++
+.Migração de VM, parte 3
+[#img-hyperv-2-69]
+image::6_Hyper-V-s2/hyperv69.png[align=center]
+
+6. Concluído o _Live Migration_, volte ao comando ping rodando em sua máquina física e observe quantos pacotes foram perdidos durante o processo -- poucos, não é mesmo? No exemplo abaixo, apenas 3 pacotes ICMP foram perdidos:
++
+.Pacotes perdidos durante migração de VM
+[#img-hyperv-2-70]
+image::6_Hyper-V-s2/hyperv70.png[align=center]
+
+=== 4) Alta Disponibilidade
+
+O Hyper-V oferece suporte ao monitoramento de servidores por _heartbeat_ e a reinicialização das máquinas virtuais que se tornam inoperantes por causa de falhas no sistema. Vamos testar essa funcionalidade?
+
+1. Para que o _cluster_ consiga negociar a alta dispobilidade, é necessário que seja criado um disco compartilhado dedicado à manutenção do estado do _cluster_, o chamado *quórum*.
++
+Abra a configuração do servidor FreeNAS que está sendo usado pelo _cluster_, e em _Armazenamento_, clique sobre o volume ZFS e depois em _Criar zvol_.
++
+.Criação de volume compartilhado no storage, parte 1
+[#img-hyperv-2-71]
+image::6_Hyper-V-s2/hyperv71.png[align=center]
++
+Defina um nome para o _zvol_, um comentário apropriado e tamanho de 2 GB. Note que não é necessário que o disco de quórum seja particularmente grande -- de fato, de acordo com a documentação da Microsoft (https://support.microsoft.com/en-hk/help/280345/quorum-drive-configuration-information), 500 MB são suficientes para essa partição.
++
+.Criação de volume compartilhado no storage, parte 2
+[#img-hyperv-2-72]
+image::6_Hyper-V-s2/hyperv72.png[align=center]
++
+Em _Compartilhamento_ > _Block (iSCSI)_ > _Targets_, crie uma segunda LUN para o disco compartilhado recém-criado.
++
+.Criação de volume compartilhado no storage, parte 3
+[#img-hyperv-2-73]
+image::6_Hyper-V-s2/hyperv73.png[align=center]
++
+Em _Extents_, crie um novo _extent_ para fazer a amarração da LUN.
++
+.Criação de volume compartilhado no storage, parte 4
+[#img-hyperv-2-74]
+image::6_Hyper-V-s2/hyperv74.png[align=center]
++
+Finalmente, em _Destinos Associados_, correlacione o _Target_ e o _Extent_ sob um número de LUN.
++
+.Criação de volume compartilhado no storage, parte 5
+[#img-hyperv-2-75]
+image::6_Hyper-V-s2/hyperv75.png[align=center]
+
+2. Em *ambos* os hypervisors do grupo, abra o _Server Manager_ > _Tools_ > _iSCSI Initiator_ e reconecte-se no _storage_ FreeNAS para fazer um _rescan_ das LUNs disponíveis, com o botão _Quick Connect_.
++
+.Adicionando nova LUN ao cluster, parte 1
+[#img-hyperv-2-76]
+image::6_Hyper-V-s2/hyperv76.png[align=center]
++
+Na nova janela, note que a LUN 2 é detectada. Clique sobre a mesma e em seguida em _Connect_.
++
+.Adicionando nova LUN ao cluster, parte 2
+[#img-hyperv-2-77]
+image::6_Hyper-V-s2/hyperv77.png[align=center]
++
+Na aba _Volumes and Devices_, clique em _Auto Configure_ para que a LUN seja relacionada a um _mount point_ local no servidor.
++
+.Adicionando nova LUN ao cluster, parte 3
+[#img-hyperv-2-78]
+image::6_Hyper-V-s2/hyperv78.png[align=center]
+
+3. Em *apenas um* dos hypervisors, abra o _Server Manager_ > _Tools_ > _Computer Management_ . Navegue para _Storage_ > _Disks_ e torne o disco _Online_, como fizemos antes. Em seguida, clique em _Initialize Disk_ e selecione o formato MBR.
++
+.Inicializando disco de quórum, parte 1
+[#img-hyperv-2-79]
+image::6_Hyper-V-s2/hyperv79.png[align=center]
++
+Da mesma forma que fizemos antes, inicie _New Simple Volume_ e defina uma letra para o disco. Na tela de escolha de sistema de arquivos, mantenha NTFS e defina um _label_ apropriado para o disco.
++
+.Inicializando disco de quórum, parte 2
+[#img-hyperv-2-80]
+image::6_Hyper-V-s2/hyperv80.png[align=center]
++
+Ao final do processo, o disco de quórum deve estar disponível como mostrado na figura abaixo:
++
+.Inicializando disco de quórum, concluído
+[#img-hyperv-2-81]
+image::6_Hyper-V-s2/hyperv81.png[align=center]
++
+No *outro* hypervisor do grupo faça configurações análogas de forma a tornar o disco de quórum acessível, como fizemos nos passos acima. Não é necessário reformatar o disco.
+
+4. Em *apenas um* dos hypervisors, acesse o _Failover Cluster_. Em _Storage_ > _Disks_, clique em _Add Disk_.
++
+.Adicionando disco de quórum ao cluster, parte 1
+[#img-hyperv-2-82]
+image::6_Hyper-V-s2/hyperv82.png[align=center]
++
+Selecione o disco de quórum, com capacidade de 2 GB.
++
+.Adicionando disco de quórum ao cluster, parte 2
+[#img-hyperv-2-83]
+image::6_Hyper-V-s2/hyperv83.png[align=center]
+
+5. Clique com o botão direito sobre o _cluster_, e em seguida em _More Actions_ > _Configure Cluster Quorum Settings_.
++
+.Configurando o quórum do cluster, parte 1
+[#img-hyperv-2-84]
+image::6_Hyper-V-s2/hyperv84.png[align=center]
++
+Na tela inicial do _wizard_ de configuração do quórum do _cluster_ clique em _Next_.
++
+.Configurando o quórum do cluster, parte 2
+[#img-hyperv-2-85]
+image::6_Hyper-V-s2/hyperv85.png[align=center]
++
+Em _Select Quorum Configuration Option_, marque o botão do meio, _Select the quorum witness_.
++
+.Configurando o quórum do cluster, parte 3
+[#img-hyperv-2-86]
+image::6_Hyper-V-s2/hyperv86.png[align=center]
++
+Depois, selecione _Configure a disk witness_.
++
+.Configurando o quórum do cluster, parte 4
+[#img-hyperv-2-87]
+image::6_Hyper-V-s2/hyperv87.png[align=center]
++
+Selecione o disco que foi configurado como quórum, que deve ser o único disponível para o _cluster_.
++
+.Configurando o quórum do cluster, parte 5
+[#img-hyperv-2-88]
+image::6_Hyper-V-s2/hyperv88.png[align=center]
++
+Verifique que suas configurações estão corretas, e clique em _Next_.
++
+.Configurando o quórum do cluster, parte 6
+[#img-hyperv-2-89]
+image::6_Hyper-V-s2/hyperv89.png[align=center]
++
+No sumário final, clique em _Finish_ para encerrar o _wizard_ de configuração.
++
+.Configurando o quórum do cluster, finalizado
+[#img-hyperv-2-90]
+image::6_Hyper-V-s2/hyperv90.png[align=center]
+
+6. De volta ao _Failover Cluster_, em _Storage_ > _Disks_, verifique que o _Cluster Shared Volume_ e o _Disk Witness in Quorum_ estão ambos corretamente configurados.
++
+.Quórum configurado com sucesso
+[#img-hyperv-2-91]
+image::6_Hyper-V-s2/hyperv91.png[align=center]
++
+Note que o quórum possui um _Owner node_, ou nó-dono. Neste nó, é possível visualizar o disco de quórum montado diretamente no Windows Explorer.
++
+.Disco de quórum disponível no nó-dono
+[#img-hyperv-2-92]
+image::6_Hyper-V-s2/hyperv92.png[align=center]
+
+7. Vamos testar a alta disponibilidade! Navegue para _Roles_ e determine qual o nó-dono da máquina virtual em operação no _cluster_.
++
+.Nó-dono da VM identificado
+[#img-hyperv-2-93]
+image::6_Hyper-V-s2/hyperv93.png[align=center]
++
+Inicie um ping infinito (`ping -t`) para a VM. Em seguida, desligue o nó-dono da máquina virtual ordeiramente (i.e. selecionando a opção _Shut Down_ no menu Iniciar do Windows Server 2016). Observe como rapidamente o nó-dono da VM é repassado para o outro host físico do _cluster_, e poucos pacotes são perdidos durante a migração da máquina.
++
+.Migração automática em caso de indisponibilidade
+[#img-hyperv-2-94]
+image::6_Hyper-V-s2/hyperv94.png[align=center]
+
+8. Claro, o teste do passo anterior foi feito de "caso pensado": ou seja, o servidor Windows que foi indisponibilizado foi desligado ordeiramente, e teve a oportunidade de avisar o outro membro do _cluster_ e mover o estado da VM antes de concluir seu desligamento. E se essa máquina fosse desligada abruptamente?
++
+Vamos testar: faça um _live migration_ da VM de volta para o servidor original.
++
+.Migração da VM de volta para o nó-dono original
+[#img-hyperv-2-95]
+image::6_Hyper-V-s2/hyperv95.png[align=center]
++
+Agora, inicie um ping infinito para a VM e puxe o cabo de rede ou desligue "no botão" o nó-dono da VM, causando um desligamento abrupto. Observe que a VM entra em estado _Unmonitored_ e os pacotes ICMP começam a ser perdidos.
++
+.VM indisponível após desligamento abrupto
+[#img-hyperv-2-96]
+image::6_Hyper-V-s2/hyperv96.png[align=center]
++
+De fato, a VM fica indisponível por um longo período, como visto abaixo. O nó remanescente do _cluster_ irá aguardar um período de 4 minutos (valor padrão, configurável, como documentado em https://blogs.msdn.microsoft.com/clustering/2015/06/03/virtual-machine-compute-resiliency-in-windows-server-2016/)
++
+.VM indisponível por longo período
+[#img-hyperv-2-97]
+image::6_Hyper-V-s2/hyperv97.png[align=center]
++
+Em _Nodes_, observe que após 4 minutos o hypervisor desligado entra em estado _Isolated_.
++
+.Hypervisor em estado Isolated
+[#img-hyperv-2-98]
+image::6_Hyper-V-s2/hyperv98.png[align=center]
++
+A VM é reiniciada no nó remanescente do _cluster_, e os pacotes ICMP começam a ser respondidos novamente:
++
+.VM reiniciada e disponível
+[#img-hyperv-2-99]
+image::6_Hyper-V-s2/hyperv99.png[align=center]
+
+9. Note que todos os testes exemplificados até aqui buscaram desligar o hypervisor que *não* atuava como mestre do _cluster_ e *não* era o nó-dono do disco de quórum. E se fizermos isso, o que acontece?
++
+.Testando indisponibilização do nó-mestre do cluster
+[#img-hyperv-2-100]
+image::6_Hyper-V-s2/hyperv100.png[align=center]
++
+Mova o disco de quórum e VM para o mesmo nó, que deverá atuar como mestre do _cluster_. Em seguida, teste: o que acontece se desligarmos abruptamente esse host físico? O disco de quórum, VM e liderança do _cluster_ serão assumidos pelo outro membro? E, se sim, após quanto tempo?

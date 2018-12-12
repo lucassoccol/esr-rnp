@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>Sessão 8: VSphere avançados</title>
+<title>Sessão 8: VSphere avançado</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -436,15 +436,1184 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_sessão_8_vsphere_avançados">Sessão 8: VSphere avançados</h2>
+<h2 id="_sessão_8_vsphere_avançado">Sessão 8: VSphere avançado</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_1_instalando_o_vcenter">1) Instalando o vCenter</h3>
+<div class="paragraph">
+<p>O vCenter é uma ferramenta que, através de seus recursos, proporciona ao gestor de um ambiente virtualizado a possibilidade de gerenciamento central de todos os hypervisors (ESXi) de uma organização. Em nosso laboratório, o vCenter será usado para gerenciar de forma central os dois hypervisors de um grupo&#8201;&#8212;&#8201;assim, sua instalação deve ser feita em <strong>apenas uma</strong> máquina do grupo, devendo esta atividade ser executada em equipe.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para iniciar a instalação do vCenter, o primeiro passo é montar a ISO de instalação (consulte seu instrutor sobre a localização deste arquivo). Use a funcionalidade nativa do Windows ou aplicativos externos (como o Virtual CloneDrive) para montar o disco.</p>
+<div id="img-vmw-2-1" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw1.png" alt="vmw1">
+</div>
+<div class="title">Figure 1. Montando ISO de instalação do vCenter</div>
+</div>
+<div class="paragraph">
+<p>A imagem será montada em sua máquina física sob uma letra qualquer (no exemplo abaixo, <code>E:\</code>). Acesse a raiz desse ponto de montagem, e depois entre na pasta <code>vcsa-ui-installer\win32</code>. Em seguida, execute o programa <code>installer.exe</code>, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw-2-2" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw2.png" alt="vmw2">
+</div>
+<div class="title">Figure 2. Execução do instalador do vCenter</div>
+</div>
+</li>
+<li>
+<p>O instalador do vCenter será iniciado. Na janela de abertura, selecione a opção <em>Install</em>.</p>
+<div id="img-vmw-2-3" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw3.png" alt="vmw3">
+</div>
+<div class="title">Figure 3. Instalação do vCenter, estágio 1, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na tela introdutória, clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-4" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw4.png" alt="vmw4">
+</div>
+<div class="title">Figure 4. Instalação do vCenter, estágio 1, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Aceite os termos de licença da ferramenta, e clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-5" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw5.png" alt="vmw5">
+</div>
+<div class="title">Figure 5. Instalação do vCenter, estágio 1, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Para o tipo de <em>deployment</em>, selecione <em>vCenter Server with an Embedded Platform Services Controller</em>, e prossiga.</p>
+</div>
+<div id="img-vmw-2-6" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw6.png" alt="vmw6">
+</div>
+<div class="title">Figure 6. Instalação do vCenter, estágio 1, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Para o alvo da instalação do vCenter, indique o endereço IP de um dos hypervisors do grupo. Especifique a porta 443, usuário <code>root</code>, e senha de acesso definida na sessão anterior.</p>
+</div>
+<div id="img-vmw-2-7" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw7.png" alt="vmw7">
+</div>
+<div class="title">Figure 7. Instalação do vCenter, estágio 1, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Será mostrado um aviso sobre o certificado auto-assinado do hypervisor ESXi ao qual estamos nos conectando. Clique em <em>Yes</em> para prosseguir.</p>
+</div>
+<div id="img-vmw-2-8" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw8.png" alt="vmw8">
+</div>
+<div class="title">Figure 8. Instalação do vCenter, estágio 1, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Agora, defina as informações do <em>appliance</em> do vCenter. Escolha um nome apropriado para a VM, e <code>Virt3sr!</code> como senha de acesso administrativo.</p>
+</div>
+<div id="img-vmw-2-9" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw9.png" alt="vmw9">
+</div>
+<div class="title">Figure 9. Instalação do vCenter, estágio 1, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Para o tamanho do <em>deployment</em>, escolha <em>Tiny</em>. O <em>storage size</em> pode ser mantido como <em>Default</em>.</p>
+</div>
+<div id="img-vmw-2-10" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw10.png" alt="vmw10">
+</div>
+<div class="title">Figure 10. Instalação do vCenter, estágio 1, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, escolha o <code>datastore1</code> como alvo de armazenamento do disco virtual do <em>appliance</em>. Habilite a opção <em>Enable Thin Disk Mode</em>.</p>
+</div>
+<div id="img-vmw-2-11" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw11.png" alt="vmw11">
+</div>
+<div class="title">Figure 11. Instalação do vCenter, estágio 1, parte 9</div>
+</div>
+<div class="paragraph">
+<p>Nas configurações de rede, defina a rede-alvo <em>VM Network</em>, com configuração IPv4 e DHCP habilitados. Não altere as portas comuns, 80/HTTP e 443/HTTPS.</p>
+</div>
+<div id="img-vmw-2-12" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw12.png" alt="vmw12">
+</div>
+<div class="title">Figure 12. Instalação do vCenter, estágio 1, parte 10</div>
+</div>
+<div class="paragraph">
+<p>Tudo pronto para iniciar o estágio 1 de instalação. Revise suas opções, e clique em <em>Finish</em> para prosseguir.</p>
+</div>
+<div id="img-vmw-2-13" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw13.png" alt="vmw13">
+</div>
+<div class="title">Figure 13. Instalação do vCenter, estágio 1, finalizado</div>
+</div>
+<div class="paragraph">
+<p>Acompanhe o progresso de instalação da ferramenta, que pode levar algum tempo.</p>
+</div>
+<div id="img-vmw-2-14" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw14.png" alt="vmw14">
+</div>
+<div class="title">Figure 14. Progresso de instalação do vCenter, estágio 1</div>
+</div>
+<div class="paragraph">
+<p>Ao final do processo de instalação, clique em <em>Continue</em>.</p>
+</div>
+<div id="img-vmw-2-15" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw15.png" alt="vmw15">
+</div>
+<div class="title">Figure 15. Estágio 1 de instalação do vCenter concluído</div>
+</div>
+</li>
+<li>
+<p>Vamos para o estágio 2 de instalação do vCenter. Na tela de apresentação, clique em <em>Next</em>.</p>
+<div id="img-vmw-2-16" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw16.png" alt="vmw16">
+</div>
+<div class="title">Figure 16. Instalação do vCenter, estágio 2, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Selecione a sincronização de hora com o host ESXi, e mantenha o acesso SSH habilitado.</p>
+</div>
+<div id="img-vmw-2-17" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw17.png" alt="vmw17">
+</div>
+<div class="title">Figure 17. Instalação do vCenter, estágio 2, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Agora, configure o SSO (<em>Single Sign-On</em>). Selecione <em>Create a new SSO domain</em> e, em seguida, defina um nome para o domínio SSO (guarde esse nome, pois ele será necessário para o login no ambiente do vCenter): no exemplo abaixo, sugerimos o nome <code>vcenter-gX.virtesr.edu.br</code>&#8201;&#8212;&#8201;substitua <code>X</code> pelo número do seu grupo. Defina a senha de acesso ao ambiente como <code>Virt3sr!</code>.</p>
+</div>
+<div id="img-vmw-2-18" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw18.png" alt="vmw18">
+</div>
+<div class="title">Figure 18. Instalação do vCenter, estágio 2, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Na tela do CEIP (VMWare <em>Customer Experience Improvement Program</em>), mantenha a caixa de ingresso no programa desmarcada e clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-19" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw19.png" alt="vmw19">
+</div>
+<div class="title">Figure 19. Instalação do vCenter, estágio 2, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Na tela de finalização, revise suas opções e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-20" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw20.png" alt="vmw20">
+</div>
+<div class="title">Figure 20. Instalação do vCenter, estágio 2, finalizado</div>
+</div>
+<div class="paragraph">
+<p>O sistema avisa que o processo de instalação não poderá ser pausado ou interrompido uma vez que seja iniciado. Confirme clicando em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-21" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw21.png" alt="vmw21">
+</div>
+<div class="title">Figure 21. Confirmação de instalação do vCenter, estágio 2</div>
+</div>
+<div class="paragraph">
+<p>Concluído o processo, clique em <em>Close</em>.</p>
+</div>
+<div id="img-vmw-2-22" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw22.png" alt="vmw22">
+</div>
+<div class="title">Figure 22. Instalação do vCenter, estágio 2, concluído</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_gerenciando_um_datacenter_com_o_vcenter">2) Gerenciando um datacenter com o vCenter</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para conectar-se ao vCenter, o primeiro passo é descobrir seu endereço IP. Acesse a interface web do host ESXi no qual o <em>appliance</em> do vCenter foi instalado, e localize sua máquina virtual.</p>
+<div id="img-vmw-2-23" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw23.png" alt="vmw23">
+</div>
+<div class="title">Figure 23. Localizando VM do vCenter</div>
+</div>
+<div class="paragraph">
+<p>Clique em <em>Console</em> para abrir a tela da VM, o observe o endereço IP alocado à mesma na parte de baixo da tela (no exemplo, o IP do vCenter é o <code>200.130.46.12</code>).</p>
+</div>
+<div id="img-vmw-2-24" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw24.png" alt="vmw24">
+</div>
+<div class="title">Figure 24. Determinando IP do vCenter</div>
+</div>
+</li>
+<li>
+<p>Abra o navegador web em sua máquina física, acessando o IP do vCenter via HTTPS. Você verá uma tela apontando erro no certificado auto-assinado, como mostrado abaixo.</p>
+<div id="img-vmw-2-25" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw25.png" alt="vmw25">
+</div>
+<div class="title">Figure 25. Erro no certificado ao acessar o vCenter</div>
+</div>
+<div class="paragraph">
+<p>Há duas opções para uso da interface web do vCenter: selecione a versão HTML5 do <em>vSphere Web Client</em>.</p>
+</div>
+<div id="img-vmw-2-26" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw26.png" alt="vmw26">
+</div>
+<div class="title">Figure 26. Seleção de versão do cliente web</div>
+</div>
+<div class="paragraph">
+<p>Agora, vamos ao login. Entre com o usuário <code>administrator@DOMAIN</code>, substituindo <code>DOMAIN</code> pelo domínio SSO definido durante o estágio 2, parte 3 de instalação do vCenter na atividade anterior. Use a senha de acesso definida anteriormente, provavelmente <code>Virt3sr!</code>.</p>
+</div>
+<div id="img-vmw-2-27" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw27.png" alt="vmw27">
+</div>
+<div class="title">Figure 27. Login no vCenter</div>
+</div>
+<div class="paragraph">
+<p>Enfim, você terá acesso à interface do vCenter. Navegue pelas janelas e abas para se ambientar com a ferramenta.</p>
+</div>
+<div id="img-vmw-2-28" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw28.png" alt="vmw28">
+</div>
+<div class="title">Figure 28. Interface do vCenter</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos criar um <em>datacenter</em> de gerência. Clique com o botão direito sobre o IP do vCenter na aba à esquerda da janela, e selecione <em>New Datacenter</em>.</p>
+<div id="img-vmw-2-29" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw29.png" alt="vmw29">
+</div>
+<div class="title">Figure 29. Criação de datacenter, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Escolha um nome sugestivo para seu <em>datacenter</em> (no exemplo, <code>datacenter-gX</code>), e clique em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-30" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw30.png" alt="vmw30">
+</div>
+<div class="title">Figure 30. Criação de datacenter, parte 2</div>
+</div>
+</li>
+<li>
+<p>Criado o <em>datacenter</em>, vamos adicionar hosts a ele. Clique com o botão direito sobre o <em>datacenter</em> e selecione <em>Add Host</em>.</p>
+<div id="img-vmw-2-31" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw31.png" alt="vmw31">
+</div>
+<div class="title">Figure 31. Adição de hosts ao datacenter, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Digite o endereço IP do hypervisor ESXi que será adicionado ao <em>datacenter</em>.</p>
+</div>
+<div id="img-vmw-2-32" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw32.png" alt="vmw32">
+</div>
+<div class="title">Figure 32. Adição de hosts ao datacenter, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Informe o usuário/senha de acesso ao host.</p>
+</div>
+<div id="img-vmw-2-33" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw33.png" alt="vmw33">
+</div>
+<div class="title">Figure 33. Adição de hosts ao datacenter, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Confirme a aceitação do certificado auto-assinado.</p>
+</div>
+<div id="img-vmw-2-34" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw34.png" alt="vmw34">
+</div>
+<div class="title">Figure 34. Adição de hosts ao datacenter, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Revise as informações do host em <em>Host summary</em>, e clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-35" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw35.png" alt="vmw35">
+</div>
+<div class="title">Figure 35. Adição de hosts ao datacenter, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Ao assinalar licenças, mantenha a opção <em>Evaluation License</em> habilitada e clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-36" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw36.png" alt="vmw36">
+</div>
+<div class="title">Figure 36. Adição de hosts ao datacenter, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Lockdown mode</em>, mantenha o botão <em>Disabled</em> marcado e clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-37" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw37.png" alt="vmw37">
+</div>
+<div class="title">Figure 37. Adição de hosts ao datacenter, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Em <em>VM location</em> selecione o <em>datacenter</em> de destino do host (só deve have um disponível) e prossiga.</p>
+</div>
+<div id="img-vmw-2-38" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw38.png" alt="vmw38">
+</div>
+<div class="title">Figure 38. Adição de hosts ao datacenter, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Revise as opções selecionadas e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-39" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw39.png" alt="vmw39">
+</div>
+<div class="title">Figure 39. Adição de hosts ao datacenter, finalizado</div>
+</div>
+<div class="paragraph">
+<p>O primeiro host foi adicionado com sucesso! Novamente, clique com o botão direito no <em>datacenter</em> e selecione <em>Add Host</em> para adicionar o segundo hypervisor.</p>
+</div>
+<div id="img-vmw-2-40" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw40.png" alt="vmw40">
+</div>
+<div class="title">Figure 40. Adição do segundo hypervisor ao datacenter</div>
+</div>
+<div class="paragraph">
+<p>Repita os passos anteriores, alterando o endereço IP do hypervisor a ser adicionado e quaisquer outras informações relevantes. Ao final do processo, sua tela de finalização deve estar como se segue:</p>
+</div>
+<div id="img-vmw-2-41" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw41.png" alt="vmw41">
+</div>
+<div class="title">Figure 41. Adição do segundo hypervisor ao datacenter, finalizado</div>
+</div>
+<div class="paragraph">
+<p>Ao final do processo, ambos os hosts devem estar incluídos no <em>datacenter</em>, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw-2-42" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw42.png" alt="vmw42">
+</div>
+<div class="title">Figure 42. Todos os hosts incluídos no datacenter</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_configurando_acesso_ao_storage">3) Configurando Acesso ao Storage</h3>
+<div class="paragraph">
+<p>Antes de iniciar esta atividade, garante que o FreeNAS está ligado e acessível&#8201;&#8212;&#8201;assim como em sessões anteriores, iremos usar apenas um servidor FreeNAS como <em>storage</em> centralizado para ambos os hypervisors do grupo. Verifique, ainda, que a VM que será usada para testes está com VMWare Tools instalado.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para adicionar uma <em>storage</em> externa, clique sobre um dos hosts do <em>datacenter</em> e acesse <em>Configure</em> &gt; <em>Storage</em> &gt; <em>Storage Adapters</em> &gt; <em>Add Software Adapter</em>.</p>
+<div id="img-vmw-2-43" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw43.png" alt="vmw43">
+</div>
+<div class="title">Figure 43. Adição de storage compartilhado, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, selecione <em>Add software iSCSI adapter</em>.</p>
+</div>
+<div id="img-vmw-2-44" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw44.png" alt="vmw44">
+</div>
+<div class="title">Figure 44. Adição de storage compartilhado, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Clique sobre o novo adaptador adicionado (abaixo da seção <em>Model: iSCSI Software Adapter</em>), e em <em>Dynamic Discovery</em> clique em <em>Add</em>.</p>
+</div>
+<div id="img-vmw-2-45" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw45.png" alt="vmw45">
+</div>
+<div class="title">Figure 45. Adição de storage compartilhado, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, digite o IP do servidor FreeNAS e mantenha a porta padrão 3260. Clique em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-46" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw46.png" alt="vmw46">
+</div>
+<div class="title">Figure 46. Adição de storage compartilhado, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Feito isso, clique em <em>Rescan Storage</em> para encontrar as LUNs disponíveis.</p>
+</div>
+<div id="img-vmw-2-47" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw47.png" alt="vmw47">
+</div>
+<div class="title">Figure 47. Adição de storage compartilhado, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Mantenha ambas as opções de <em>rescan</em> marcadas, e clique em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-48" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw48.png" alt="vmw48">
+</div>
+<div class="title">Figure 48. Adição de storage compartilhado, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Na aba à esquerda, alterne para <em>Storage</em> &gt; <em>Storage Devices</em>. Você deve conseguir visualizar as duas LUNs disponíveis no FreeNAS na janela, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw-2-50" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw50.png" alt="vmw50">
+</div>
+<div class="title">Figure 49. Adição de storage compartilhado, concluído</div>
+</div>
+<div class="paragraph">
+<p>Temos que tornar o <em>storage</em> compartilhado acessível também pelo outro hypervisor. Selecione o outro host físico e acesse <em>Configure</em> &gt; <em>Storage</em> &gt; <em>Storage Adapters</em> &gt; <em>Add Software Adapter</em>.</p>
+</div>
+<div id="img-vmw-2-51" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw51.png" alt="vmw51">
+</div>
+<div class="title">Figure 50. Adição de storage compartilhado no outro hypervisor</div>
+</div>
+<div class="paragraph">
+<p>Repita os passos de adição de adaptador iSCSI, descoberta e <em>rescan</em>, como fizemos antes. Ao final do processo, você deverá conseguir enxergar as LUNs do <em>storage</em> compartilhado a partir do segundo hypervisor, como mostrado a seguir.</p>
+</div>
+<div id="img-vmw-2-52" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw52.png" alt="vmw52">
+</div>
+<div class="title">Figure 51. Adição de storage compartilhado no outro hypervisor, concluído</div>
+</div>
+</li>
+<li>
+<p>Antes de criar um <em>cluster</em> em nosso <em>datacenter</em>, vamos desligar as VMs em operação (<strong>exceto</strong> a VM do <em>appliance</em> do vCenter). Clique com o botão direito sobre a VM do Windows 10 em um dos hypervisors do grupo, e acesse <em>Power</em> &gt; <em>Power Off</em>.</p>
+<div id="img-vmw-2-53" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw53.png" alt="vmw53">
+</div>
+<div class="title">Figure 52. Desligando VMs, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Confirme o desligamento.</p>
+</div>
+<div id="img-vmw-2-54" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw54.png" alt="vmw54">
+</div>
+<div class="title">Figure 53. Desligando VMs, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Faça o mesmo com a VM Windows 10 operando no outro hypervisor.</p>
+</div>
+<div id="img-vmw-2-55" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw55.png" alt="vmw55">
+</div>
+<div class="title">Figure 54. Desligando VMs, parte 3</div>
+</div>
+</li>
+<li>
+<p>Agora sim, vamos criar o <em>cluster</em>. Clique com o botão direito sobre o <em>datacenter</em> e selecione <em>New Cluster</em>.</p>
+<div id="img-vmw-2-56" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw56.png" alt="vmw56">
+</div>
+<div class="title">Figure 55. Criando cluster no datacenter, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Selecione um nome apropriado para o <em>cluster</em> (no exemplo, <code>cluster-gX</code>), e habilite <strong>apenas</strong> a funcionalidade <em>vSphere HA</em>. Em seguida, clique em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-57" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw57.png" alt="vmw57">
+</div>
+<div class="title">Figure 56. Criando cluster no datacenter, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Vamos adicionar máquinas ao <em>cluster</em>. Clique com o botão direito sobre o <em>cluster</em>, e em seguida em <em>Add Hosts</em>.</p>
+</div>
+<div id="img-vmw-2-58" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw58.png" alt="vmw58">
+</div>
+<div class="title">Figure 57. Criando cluster no datacenter, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Na tela inicial, selecione a aba <em>Existing hosts</em> e marque os dois hypervisors do grupo, como mostrado abaixo.</p>
+</div>
+<div id="img-vmw-2-59" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw59.png" alt="vmw59">
+</div>
+<div class="title">Figure 58. Criando cluster no datacenter, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Caso sejam reportados <em>warnings</em> para um dos hypervisors, ignore e clique em <em>Next</em> para prosseguir.</p>
+</div>
+<div id="img-vmw-2-60" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw60.png" alt="vmw60">
+</div>
+<div class="title">Figure 59. Criando cluster no datacenter, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Na tela final, revise as opções de criação do <em>cluster</em> e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-61" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw61.png" alt="vmw61">
+</div>
+<div class="title">Figure 60. Criando cluster no datacenter, finalizado</div>
+</div>
+<div class="paragraph">
+<p>De volta à console principal do vCenter, note que ambos os hypervisors estão dentro do <em>cluster</em>, e todas as VMs são vistas como parte do mosmo <em>pool</em> de recursos. Se aplicável, clique nos hypervisors para removê-los do <em>Maintenance Mode</em> (modo de manutenção).</p>
+</div>
+<div id="img-vmw-2-63" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw63.png" alt="vmw63">
+</div>
+<div class="title">Figure 61. Hypervisors disponíveis dentro do cluster</div>
+</div>
+</li>
+<li>
+<p>Vamos adicionar o <em>storage</em> compartilhado ao <em>cluster</em>. Clique com o botão direito sobre o <em>cluster</em> e acesse <em>Storage</em> &gt; <em>New Datastore</em>.</p>
+<div id="img-vmw-2-64" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw64.png" alt="vmw64">
+</div>
+<div class="title">Figure 62. Adicionando storage compartilhado ao cluster, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Type</em>, selecione o tipo VMFS.</p>
+</div>
+<div id="img-vmw-2-65" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw65.png" alt="vmw65">
+</div>
+<div class="title">Figure 63. Adicionando storage compartilhado ao cluster, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Escolha um nome apropriado para o <em>datastore</em> (no exemplo abaixo, <code>ds-gX</code>), e aponte a LUN com tamanho de 80 GB no FreeNAS como alvo.</p>
+</div>
+<div id="img-vmw-2-66" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw66.png" alt="vmw66">
+</div>
+<div class="title">Figure 64. Adicionando storage compartilhado ao cluster, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Selecione a versão 6 do VMFS, e prossiga.</p>
+</div>
+<div id="img-vmw-2-67" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw67.png" alt="vmw67">
+</div>
+<div class="title">Figure 65. Adicionando storage compartilhado ao cluster, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Na configuração de particionamento, em <em>Partition Configuration</em> selecione <em>Use all available partitions</em>; use a totalidade do tamanho do <em>datastore</em>, 80 GB, e mantenha o tamanho de bloco e granularidade em seus valores padrão. Em seguida, clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-68" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw68.png" alt="vmw68">
+</div>
+<div class="title">Figure 66. Adicionando storage compartilhado ao cluster, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Confirme as opções de adição do <em>datastore</em> a o_cluster_, e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-69" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw69.png" alt="vmw69">
+</div>
+<div class="title">Figure 67. Adicionando storage compartilhado ao cluster, finalizado</div>
+</div>
+<div class="paragraph">
+<p>Tudo certo! Ou&#8230;&#8203; está mesmo? Note que ocorrerá um erro ao criar a partição no <em>datastore</em> compartilhado: "<em>Cannot change the host configuration</em>". Como resolver?</p>
+</div>
+<div id="img-vmw-2-70" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw70.png" alt="vmw70">
+</div>
+<div class="title">Figure 68. Erro ao adicionar storagem compartilhado ao cluster</div>
+</div>
+<div class="paragraph">
+<p>Clique em um dos hypervisors do grupo e acesse <em>Configure</em> &gt; <em>Storage</em> &gt; <em>Storage Devices</em>, e selecione a LUN do FreeNAS que tentamos adicionar ao <em>cluster</em> anteriormente. Observe o caminho até a LUN na linha <em>Location</em>, como destacado na figura abaixo.</p>
+</div>
+<div id="img-vmw-2-71" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw71.png" alt="vmw71">
+</div>
+<div class="title">Figure 69. Caminho de acesso no sistema de arquivos à LUN compartilhada</div>
+</div>
+<div class="paragraph">
+<p>Acesse o hypervisor (o <strong>mesmo</strong> que foi utilizado no passo anterior) via SSH e invoque o comando <code>partedUtil setptbl LUNPATH msdos</code>, substituindo <code>LUNPATH</code> pelo caminho da LUN descoberto anteriormente. Esse comando irá apagar a tabela de partições da LUN, criando uma nova (em formato MBR) e vazia. Confira no exemplo abaixo:</p>
+</div>
+<div id="img-vmw-2-72" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw72.png" alt="vmw72">
+</div>
+<div class="title">Figure 70. Formatando tabela de partições da LUN</div>
+</div>
+<div class="paragraph">
+<p>Vamos tentar novamente? Volte à console do vCenter e clique com o botão direito no <em>cluster</em>, acessando <em>Storage</em> &gt; <em>New Datastore</em>. Repita os passos de adição do <em>datastore</em> compartilhado que fizemos antes.</p>
+</div>
+<div id="img-vmw-2-73" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw73.png" alt="vmw73">
+</div>
+<div class="title">Figure 71. Adicionando storage compartilhado ao cluster, segunda tentativa</div>
+</div>
+<div class="paragraph">
+<p>Na tela de finalização, revise os parâmetros de adição do <em>storage</em>, como se segue. Em seguida, clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-74" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw74.png" alt="vmw74">
+</div>
+<div class="title">Figure 72. Adicionando storage compartilhado ao cluster, finalizado (de novo)</div>
+</div>
+<div class="paragraph">
+<p>Agora sim, o processo obtém sucesso. Veja na aba <em>Recent Tasks</em> que a criação do <em>datastore</em> VMFS é completada corretamente, desta vez.</p>
+</div>
+<div id="img-vmw-2-75" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw75.png" alt="vmw75">
+</div>
+<div class="title">Figure 73. Storage compartilhado formatado com sucesso</div>
+</div>
+</li>
+<li>
+<p>Clique em um dos hypervisors do grupo, e acesse a aba <em>Datastores</em>. O <em>storage</em> compartilhado deve estar visível sob o nome <code>ds-gX</code>.</p>
+<div id="img-vmw-2-76" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw76.png" alt="vmw76">
+</div>
+<div class="title">Figure 74. Visualizando datastore compartilhado, hypervisor 1</div>
+</div>
+<div class="paragraph">
+<p>Faça a conferência no outro hypervisor:</p>
+</div>
+<div id="img-vmw-2-77" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw77.png" alt="vmw77">
+</div>
+<div class="title">Figure 75. Visualizando datastore compartilhado, hypervisor 2</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_migração_de_máquinas_virtuais">4) Migração de máquinas virtuais</h3>
+<div class="paragraph">
+<p>Para esta atividade recomendamos a migração de apenas uma das VMs do grupo, já que o <em>storage</em> FreeNAS não possui espaço útil para armazenar mais do que uma máquina virtual em <em>fault tolerance</em>.</p>
+</div>
+<div class="paragraph">
+<p>Uma vez configurado o <em>storage</em> compartilhado entre os hosts do <em>cluster</em>, é possível efetuar a migração das máquinas virtuais entre eles. Para tanto deve-se, primeiramente, mover os discos virtuais das máquinas para o <em>storage</em> compartilhado.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Selecione uma das VMs do grupo como alvo para migração entre os hosts do <em>cluster</em>. Antes de começar, deve-se remover todos os <em>snapshots</em> de máquina acessando <em>Snapshots</em> &gt; <em>Delete All Snapshots</em>.</p>
+<div id="img-vmw-2-78" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw78.png" alt="vmw78">
+</div>
+<div class="title">Figure 76. Removendo snapshots de máquina, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Confirme a remoção dos <em>snapshots</em> clicando em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-79" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw79.png" alt="vmw79">
+</div>
+<div class="title">Figure 77. Removendo snapshots de máquina, parte 2</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos migrar o disco da VM para o <em>storage</em> compartilhado. Clique com o botão direito sobre a VM e acesse <em>Migrate</em>.</p>
+<div id="img-vmw-2-80" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw80.png" alt="vmw80">
+</div>
+<div class="title">Figure 78. Migração de VM para o storage compartilhado, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Na escolha do tipo de migração a ser feita, marque o botão <em>Change storage only</em>.</p>
+</div>
+<div id="img-vmw-2-81" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw81.png" alt="vmw81">
+</div>
+<div class="title">Figure 79. Migração de VM para o storage compartilhado, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Mantenha o formato do disco em <em>Same format as source</em>, e marque como destino o <em>datastore</em> compartilhado (no exemplo abaixo, <code>ds-gX</code>). Clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-82" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw82.png" alt="vmw82">
+</div>
+<div class="title">Figure 80. Migração de VM para o storage compartilhado, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Confirme as opções de migração, e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-83" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw83.png" alt="vmw83">
+</div>
+<div class="title">Figure 81. Migração de VM para o storage compartilhado, finalizado</div>
+</div>
+<div class="paragraph">
+<p>O processo de migração do <em>storage</em> da VM pode demorar um certo tempo. Acompanhe seu progresso através da aba <em>Recent Tasks</em>.</p>
+</div>
+</li>
+<li>
+<p>Confirme que o disco da máquina virtual foi de fato movido para o <em>storage</em>: clique com o botão direito na VM, e acesse <em>Edit Settings</em>. Em <em>Virtual Hardware</em> &gt; <em>Hard Disk 1</em> &gt; <em>Disk File</em>, verifique que o <em>datastore</em> de origem do arquivo é, de fato, a LUN do FreeNAS (no exemplo abaixo, <code>ds-gX</code>).</p>
+<div id="img-vmw-2-84" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw84.png" alt="vmw84">
+</div>
+<div class="title">Figure 82. Disco virtual da VM localizado no datastore compartilhado</div>
+</div>
+</li>
+<li>
+<p>Vamos agora fazer a configuração da rede virtual dos hypervisors para suportar o vMotion. Clique em um dos hypervisors do grupo e acesse <em>Configure</em> &gt; <em>Networking</em> &gt; <em>VMkernel adapters</em> &gt; <em>Add Networking</em>.</p>
+<div id="img-vmw-2-85" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw85.png" alt="vmw85">
+</div>
+<div class="title">Figure 83. Configuração de rede para o vMotion, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Para o tipo de conexão, selecione <em>VMkernel Network Adapter</em>.</p>
+</div>
+<div id="img-vmw-2-86" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw86.png" alt="vmw86">
+</div>
+<div class="title">Figure 84. Configuração de rede para o vMotion, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Select target device</em>, marque o botão <em>Select an existing standard switch</em> e clique em <em>Browse</em>.</p>
+</div>
+<div id="img-vmw-2-87" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw87.png" alt="vmw87">
+</div>
+<div class="title">Figure 85. Configuração de rede para o vMotion, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Selecione o único switch disponível, <code>vSwitch0</code>.</p>
+</div>
+<div id="img-vmw-2-88" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw88.png" alt="vmw88">
+</div>
+<div class="title">Figure 86. Configuração de rede para o vMotion, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, clique em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-89" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw89.png" alt="vmw89">
+</div>
+<div class="title">Figure 87. Configuração de rede para o vMotion, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Selecione um <em>label</em> apropriado para o adaptador de rede (no exemplo, <code>VMotion</code>), não indique nenhum ID de VLAN, e mantenha configurações de IPv4, MTU e pilha TCP/IP inalteradas. Para os serviços habilitados, marque as caixas <em>vMotion</em> e <em>Fault Tolerance logging</em> e, então, clique em <em>Next</em>.</p>
+</div>
+<div id="img-vmw-2-90" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw90.png" alt="vmw90">
+</div>
+<div class="title">Figure 88. Configuração de rede para o vMotion, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Nas configurações IPv4, mantenha o botão <em>Obtain IPv4 settings automatically</em> marcado.</p>
+</div>
+<div id="img-vmw-2-91" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw91.png" alt="vmw91">
+</div>
+<div class="title">Figure 89. Configuração de rede para o vMotion, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Revise as opções de configuração do adaptador de rede, e clique em <em>Finish</em>.</p>
+</div>
+<div id="img-vmw-2-92" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw92.png" alt="vmw92">
+</div>
+<div class="title">Figure 90. Configuração de rede para o vMotion, finalizado</div>
+</div>
+<div class="paragraph">
+<p>De volta à console do vCenter, acesse <em>Virtual switches</em> para visualizar graficamente a organização dos switches virtuais do hypervisor corrente. Clique em <em>Edit</em>.</p>
+</div>
+<div id="img-vmw-2-93" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw93.png" alt="vmw93">
+</div>
+<div class="title">Figure 91. Configuração de switch virtual, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>vSwitch0 - Edit Setting</em>, acesse a aba <em>Teaming and failover</em> e mova a placa <code>vmnic0</code> para a seção <em>Standby adapters</em>, como ilustrado pela figura abaixo.</p>
+</div>
+<div id="img-vmw-2-94" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw94.png" alt="vmw94">
+</div>
+<div class="title">Figure 92. Configuração de switch virtual, parte 2</div>
+</div>
+<div class="paragraph">
+<p>O sistema irá avisar que nenhum adaptador de rede está em estado <em>Active</em>. Ignore o aviso e clique em <em>Ok</em>.</p>
+</div>
+<div id="img-vmw-2-95" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw95.png" alt="vmw95">
+</div>
+<div class="title">Figure 93. Configuração de switch virtual, finalizado</div>
+</div>
+<div class="paragraph">
+<p>Ufa, tudo pronto! Ou quase&#8230;&#8203; agora, clique no outro hypervisor do grupo e repita as configurações de rede realizadas até aqui. Acesse <em>Configure</em> &gt; <em>Networking</em> &gt; <em>VMkernel adapters</em> &gt; <em>Add Networking</em> para adicionar um adaptador de rede para o <em>vMotion</em>:</p>
+</div>
+<div id="img-vmw-2-96" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw96.png" alt="vmw96">
+</div>
+<div class="title">Figure 94. Configuração de rede para o vMotion, hypervisor 2</div>
+</div>
+<div class="paragraph">
+<p>Depois, navegue para <em>Virtual switches</em> e configure o adaptador em <em>Standby</em>.</p>
+</div>
+<div id="img-vmw-2-97" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw97.png" alt="vmw97">
+</div>
+<div class="title">Figure 95. Configuração de switch virtual, hypervisor 2</div>
+</div>
+</li>
+<li>
+<p>Vamos testar! Ligue a VM cujo disco encontra-se no <em>storage</em> compartilhado em <em>Power</em> &gt; <em>Power On</em>.</p>
+<div id="img-vmw-2-98" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw98.png" alt="vmw98">
+</div>
+<div class="title">Figure 96. Ligando VM para teste de migração</div>
+</div>
+<div class="paragraph">
+<p>Após o <em>boot</em>, é possível visualizar o endereço IP da VM diretamente na interface do vCenter, como destacado na imagem abaixo.</p>
+</div>
+<div id="img-vmw-2-99" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw99.png" alt="vmw99">
+</div>
+<div class="title">Figure 97. Endereço IP da VM em operação</div>
+</div>
+<div class="paragraph">
+<p>Para permitir que pacotes ICMP atinjam a máquina virtual Windows 10, acesse a console desta e desative o firewall do Windows.</p>
+</div>
+<div id="img-vmw-2-100" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw100.png" alt="vmw100">
+</div>
+<div class="title">Figure 98. Desabilitando firewall do Windows para permitir ICMP</div>
+</div>
+</li>
+</ol>
+</div>
+<div id="img-vmw-2-101" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw101.png" alt="vmw101">
+</div>
+<div class="title">Figure 99. desc</div>
+</div>
+<div id="img-vmw-2-102" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw102.png" alt="vmw102">
+</div>
+<div class="title">Figure 100. desc</div>
+</div>
+<div id="img-vmw-2-103" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw103.png" alt="vmw103">
+</div>
+<div class="title">Figure 101. desc</div>
+</div>
+<div id="img-vmw-2-104" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw104.png" alt="vmw104">
+</div>
+<div class="title">Figure 102. desc</div>
+</div>
+<div id="img-vmw-2-105" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw105.png" alt="vmw105">
+</div>
+<div class="title">Figure 103. desc</div>
+</div>
+<div id="img-vmw-2-106" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw106.png" alt="vmw106">
+</div>
+<div class="title">Figure 104. desc</div>
+</div>
+<div id="img-vmw-2-107" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw107.png" alt="vmw107">
+</div>
+<div class="title">Figure 105. desc</div>
+</div>
+<div id="img-vmw-2-108" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw108.png" alt="vmw108">
+</div>
+<div class="title">Figure 106. desc</div>
+</div>
+<div id="img-vmw-2-109" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw109.png" alt="vmw109">
+</div>
+<div class="title">Figure 107. desc</div>
+</div>
+<div id="img-vmw-2-110" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw110.png" alt="vmw110">
+</div>
+<div class="title">Figure 108. desc</div>
+</div>
+<div id="img-vmw-2-111" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw111.png" alt="vmw111">
+</div>
+<div class="title">Figure 109. desc</div>
+</div>
+<div id="img-vmw-2-112" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw112.png" alt="vmw112">
+</div>
+<div class="title">Figure 110. desc</div>
+</div>
+<div id="img-vmw-2-113" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw113.png" alt="vmw113">
+</div>
+<div class="title">Figure 111. desc</div>
+</div>
+<div id="img-vmw-2-114" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw114.png" alt="vmw114">
+</div>
+<div class="title">Figure 112. desc</div>
+</div>
+<div id="img-vmw-2-115" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw115.png" alt="vmw115">
+</div>
+<div class="title">Figure 113. desc</div>
+</div>
+<div id="img-vmw-2-116" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw116.png" alt="vmw116">
+</div>
+<div class="title">Figure 114. desc</div>
+</div>
+<hr>
+<div class="paragraph">
+<p><a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html" class="bare">https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html</a>
+---</p>
+</div>
+<div id="img-vmw-2-117" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw117.png" alt="vmw117">
+</div>
+<div class="title">Figure 115. desc</div>
+</div>
+<div id="img-vmw-2-118" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw118.png" alt="vmw118">
+</div>
+<div class="title">Figure 116. desc</div>
+</div>
+<div id="img-vmw-2-119" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw119.png" alt="vmw119">
+</div>
+<div class="title">Figure 117. desc</div>
+</div>
+<div id="img-vmw-2-120" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw120.png" alt="vmw120">
+</div>
+<div class="title">Figure 118. desc</div>
+</div>
+<div id="img-vmw-2-121" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw121.png" alt="vmw121">
+</div>
+<div class="title">Figure 119. desc</div>
+</div>
+<div id="img-vmw-2-122" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw122.png" alt="vmw122">
+</div>
+<div class="title">Figure 120. desc</div>
+</div>
+<div id="img-vmw-2-123" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw123.png" alt="vmw123">
+</div>
+<div class="title">Figure 121. desc</div>
+</div>
+<div id="img-vmw-2-124" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw124.png" alt="vmw124">
+</div>
+<div class="title">Figure 122. desc</div>
+</div>
+<div id="img-vmw-2-125" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw125.png" alt="vmw125">
+</div>
+<div class="title">Figure 123. desc</div>
+</div>
+<div id="img-vmw-2-126" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw126.png" alt="vmw126">
+</div>
+<div class="title">Figure 124. desc</div>
+</div>
+<div id="img-vmw-2-127" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw127.png" alt="vmw127">
+</div>
+<div class="title">Figure 125. desc</div>
+</div>
+<div id="img-vmw-2-128" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw128.png" alt="vmw128">
+</div>
+<div class="title">Figure 126. desc</div>
+</div>
+<div id="img-vmw-2-129" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw129.png" alt="vmw129">
+</div>
+<div class="title">Figure 127. desc</div>
+</div>
+<div id="img-vmw-2-130" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw130.png" alt="vmw130">
+</div>
+<div class="title">Figure 128. desc</div>
+</div>
+<div id="img-vmw-2-131" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw131.png" alt="vmw131">
+</div>
+<div class="title">Figure 129. desc</div>
+</div>
+<div id="img-vmw-2-132" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw132.png" alt="vmw132">
+</div>
+<div class="title">Figure 130. desc</div>
+</div>
+<div id="img-vmw-2-133" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw133.png" alt="vmw133">
+</div>
+<div class="title">Figure 131. desc</div>
+</div>
+<div id="img-vmw-2-134" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw134.png" alt="vmw134">
+</div>
+<div class="title">Figure 132. desc</div>
+</div>
+<div id="img-vmw-2-135" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw135.png" alt="vmw135">
+</div>
+<div class="title">Figure 133. desc</div>
+</div>
+<div id="img-vmw-2-136" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw136.png" alt="vmw136">
+</div>
+<div class="title">Figure 134. desc</div>
+</div>
+<div id="img-vmw-2-137" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw137.png" alt="vmw137">
+</div>
+<div class="title">Figure 135. desc</div>
+</div>
+<div id="img-vmw-2-138" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw138.png" alt="vmw138">
+</div>
+<div class="title">Figure 136. desc</div>
+</div>
+<div id="img-vmw-2-139" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw139.png" alt="vmw139">
+</div>
+<div class="title">Figure 137. desc</div>
+</div>
+<div id="img-vmw-2-140" class="imageblock text-center">
+<div class="content">
+<img src="../img/8_VSphere-s2/vmw140.png" alt="vmw140">
+</div>
+<div class="title">Figure 138. desc</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-12-10 15:01:35 -0200
+Last updated 2018-12-12 11:54:02 -0200
 </div>
 </div>
 </body>
