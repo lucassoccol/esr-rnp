@@ -517,6 +517,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_2_gerenciando_um_datacenter_com_o_vcenter">2) Gerenciando um datacenter com o vCenter</a></li>
 <li><a href="#_3_configurando_acesso_ao_storage">3) Configurando Acesso ao Storage</a></li>
 <li><a href="#_4_migração_de_máquinas_virtuais">4) Migração de máquinas virtuais</a></li>
+<li><a href="#_5_ativando_alta_disponibilidade_e_tolerância_a_falhas">5) Ativando alta disponibilidade e tolerância a falhas</a></li>
 </ul>
 </li>
 <li><a href="#_sessão_9_clouds_privadas_com_o_openstack">Sessão 9: Clouds privadas com o OpenStack</a></li>
@@ -6269,253 +6270,387 @@ uuid ( RO)             : 7354b5b1-debe-4b0a-b03c-7d3707f72525
 </div>
 <div class="title">Figure 535. Desabilitando firewall do Windows para permitir ICMP</div>
 </div>
-</li>
-</ol>
+<div class="paragraph">
+<p>Agora, inicie um ping infinito (<code>ping -t</code>) para o endereço IP da VM Windows 10.</p>
 </div>
 <div id="img-vmw-2-101" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw101.png" alt="vmw101">
 </div>
-<div class="title">Figure 536. desc</div>
+<div class="title">Figure 536. Ping iniciado para VM</div>
+</div>
+<div class="paragraph">
+<p>De volta à console do vCenter, determine em qual host físico a máquina virtual está operando. Essa informação pode ser visualizada na tela de sumário da VM, em <em>Related Objects</em> &gt; <em>Host</em>.</p>
 </div>
 <div id="img-vmw-2-102" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw102.png" alt="vmw102">
 </div>
-<div class="title">Figure 537. desc</div>
+<div class="title">Figure 537. Host físico hospedando VM</div>
+</div>
+<div class="paragraph">
+<p>Vamos migrar a máquina virtual. Clique com o botão direito sobre a mesma e selecione <em>Migrate</em>.</p>
 </div>
 <div id="img-vmw-2-103" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw103.png" alt="vmw103">
 </div>
-<div class="title">Figure 538. desc</div>
+<div class="title">Figure 538. Migrando VM, parte 1</div>
+</div>
+<div class="paragraph">
+<p>No tipo de migração, selecione <em>Change compute resource only</em>, já que o <em>storage</em> está compartilhado no FreeNAS.</p>
 </div>
 <div id="img-vmw-2-104" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw104.png" alt="vmw104">
 </div>
-<div class="title">Figure 539. desc</div>
+<div class="title">Figure 539. Migrando VM, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Selecione o host de destino para a VM: o outro hipervisor, com IP diferente do que determinamos anteriormente.</p>
 </div>
 <div id="img-vmw-2-105" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw105.png" alt="vmw105">
 </div>
-<div class="title">Figure 540. desc</div>
+<div class="title">Figure 540. Migrando VM, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Não é necessário fazer quaisquer alterações na configuração de rede da VM.</p>
 </div>
 <div id="img-vmw-2-106" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw106.png" alt="vmw106">
 </div>
-<div class="title">Figure 541. desc</div>
+<div class="title">Figure 541. Migrando VM, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Selecione o vMotion com alta prioridade, para acelerar o processo de migração.</p>
 </div>
 <div id="img-vmw-2-107" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw107.png" alt="vmw107">
 </div>
-<div class="title">Figure 542. desc</div>
+<div class="title">Figure 542. Migrando VM, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Na tela de finalização, revise suas opções e clique em <em>Finish</em>.</p>
 </div>
 <div id="img-vmw-2-108" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw108.png" alt="vmw108">
 </div>
-<div class="title">Figure 543. desc</div>
+<div class="title">Figure 543. Migrando VM, finalizado</div>
+</div>
+<div class="paragraph">
+<p>Acompanhe o progresso de migração da VM na aba <em>Recent Tasks</em>, como destacado.</p>
 </div>
 <div id="img-vmw-2-109" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw109.png" alt="vmw109">
 </div>
-<div class="title">Figure 544. desc</div>
+<div class="title">Figure 544. Progresso de migração da VM</div>
+</div>
+<div class="paragraph">
+<p>Em sua console rodando o comando <code>ping</code>, note que um número baixíssimo de pacotes é perdido durante a migração&#8201;&#8212;&#8201;no exemplo abaixo, apenas um pacote foi perdido.</p>
 </div>
 <div id="img-vmw-2-110" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw110.png" alt="vmw110">
 </div>
-<div class="title">Figure 545. desc</div>
+<div class="title">Figure 545. Pacotes perdidos durante migração de VM</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, na tela de sumário da VM, confirme que o host hospedeiro foi de fato alterado para o outro hypervisor do grupo.</p>
 </div>
 <div id="img-vmw-2-111" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw111.png" alt="vmw111">
 </div>
-<div class="title">Figure 546. desc</div>
+<div class="title">Figure 546. Hypervisor hospedeiro alterado após vMotion</div>
 </div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_ativando_alta_disponibilidade_e_tolerância_a_falhas">5) Ativando alta disponibilidade e tolerância a falhas</h3>
+<div class="paragraph">
+<p>O mecanismo de tolerância a falhas é habilitado apenas para máquinas virtuais selecionadas pelo administrador. Para estas, é mantida uma cópia em execução em outro host. Em caso de falhas, esta cópia entra em funcionamento imediatamente, diminuindo o tempo de recuperação de falhas.</p>
+</div>
+<div class="paragraph">
+<p>Inicialmente, os hosts devem ser configurados para que o suporte à alta disponibilidade funcione corretamente. Para isso, será necessário que o <em>vSwitch</em> utilizado para a migração da máquina virtual possua no mínimo duas interfaces de rede (uma ativa e uma em <em>standby</em> para o caso de falhas) e que cada servidor possua uma porta <em>VMkernel</em> para troca de mensagens sobre falhas. Embora a recomendação oficial seja que o hypervisor tenha uma interface de rede dedicada para fazer o <em>fault tolerance</em>, para fins de demonstração não será necessário dispor de duas interfaces de rede, como testaremos neste laboratório.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para ativar a funcionalidade de <em>fault tolerance</em> em uma VM, basta clicar com o botão direito sobre a mesma e acessar <em>Fault Tolerance</em> &gt; <em>Turn On Fault Tolerance</em>. Use a VM que foi configurada no <em>storage</em> compartilhado na atividade anterior.</p>
 <div id="img-vmw-2-112" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw112.png" alt="vmw112">
 </div>
-<div class="title">Figure 547. desc</div>
+<div class="title">Figure 547. Ativando fault tolerance em VM</div>
+</div>
+<div class="paragraph">
+<p>Imediatamente veremos erros relacionados à configuração da VM. Vamos corrigi-los antes de prosseguir.</p>
 </div>
 <div id="img-vmw-2-113" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw113.png" alt="vmw113">
 </div>
-<div class="title">Figure 548. desc</div>
+<div class="title">Figure 548. Erro ao ativar fault tolerance</div>
 </div>
+</li>
+<li>
+<p>Desligue a VM acessando <em>Power</em> &gt; <em>Power Off</em>.</p>
 <div id="img-vmw-2-114" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw114.png" alt="vmw114">
 </div>
-<div class="title">Figure 549. desc</div>
+<div class="title">Figure 549. Desligando VM</div>
 </div>
+</li>
+<li>
+<p>Agora, edite as configurações da máquina virtual acessando <em>Edit Settings</em>.</p>
 <div id="img-vmw-2-115" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw115.png" alt="vmw115">
 </div>
-<div class="title">Figure 550. desc</div>
+<div class="title">Figure 550. Editando configurações de VM, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Virtual Hardware</em>, reduza o número de CPUs da VM para 1, e remova os dispositivos <em>CD/DVD drive 1</em> e <em>USB Controller</em>.</p>
 </div>
 <div id="img-vmw-2-116" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw116.png" alt="vmw116">
 </div>
-<div class="title">Figure 551. desc</div>
+<div class="title">Figure 551. Editando configurações de VM, parte 2</div>
 </div>
-<hr>
 <div class="paragraph">
-<p><a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html" class="bare">https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html</a>
----</p>
-</div>
-<div id="img-vmw-2-117" class="imageblock text-center">
-<div class="content">
-<img src="./img/8_VSphere-s2/vmw117.png" alt="vmw117">
-</div>
-<div class="title">Figure 552. desc</div>
+<p>Ainda em <em>Virtual Hardware</em>, expanda o contexto <em>CPU</em> e desabilite a opção <em>Expose hardware assisted virtualization to the guest OS</em>.</p>
 </div>
 <div id="img-vmw-2-118" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw118.png" alt="vmw118">
 </div>
-<div class="title">Figure 553. desc</div>
+<div class="title">Figure 552. Editando configurações de VM, parte 3</div>
 </div>
+<div class="paragraph">
+<p>Em <em>VM Options</em>, desabilite a opção <em>Virtualization Based Security</em>.</p>
+</div>
+<div id="img-vmw-2-117" class="imageblock text-center">
+<div class="content">
+<img src="./img/8_VSphere-s2/vmw117.png" alt="vmw117">
+</div>
+<div class="title">Figure 553. Editando configurações de VM, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Essas alterações de configuração da VM são necessárias por uma série de limitações existentes no ESXi para máquinas em <em>fault tolerance</em>. A lista completa de limitações e requerimentos do ESXi para operação com o <em>fault tolerance</em> podem ser consultadas na documentação oficial, em <a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html" class="bare">https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html</a> .</p>
+</div>
+</li>
+<li>
+<p>Para funcionamento do <em>fault tolerance</em> o vCenter exige que seja disponibilizado um disco dedicado na <em>storage</em> para manter o estado de replicação da máquina virtual. Logue no FreeNAS como o usuário <code>root</code> e, em <em>Armazenamento</em>, edite o <code>zvol2</code>.</p>
 <div id="img-vmw-2-119" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw119.png" alt="vmw119">
 </div>
-<div class="title">Figure 554. desc</div>
+<div class="title">Figure 554. Disponibilizando disco de fault tolerance no storage, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Aumente o tamanho do <code>zvol2</code> para 50 GB.</p>
 </div>
 <div id="img-vmw-2-120" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw120.png" alt="vmw120">
 </div>
-<div class="title">Figure 555. desc</div>
+<div class="title">Figure 555. Disponibilizando disco de fault tolerance no storage, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Compartilhamento</em> &gt; <em>Block (iSCSI)</em> &gt; <em>Extents</em>, edite o <code>Extent2</code>, correspondente ao <code>zvol2</code>.</p>
 </div>
 <div id="img-vmw-2-121" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw121.png" alt="vmw121">
 </div>
-<div class="title">Figure 556. desc</div>
+<div class="title">Figure 556. Disponibilizando disco de fault tolerance no storage, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Dispositivo</em>, certifique-se que a LUN exposta pelo <em>extent</em> possui 50 GB, como esperado.</p>
 </div>
 <div id="img-vmw-2-122" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw122.png" alt="vmw122">
 </div>
-<div class="title">Figure 557. desc</div>
+<div class="title">Figure 557. Disponibilizando disco de fault tolerance no storage, parte 4</div>
 </div>
+</li>
+<li>
+<p>De volta à console do vCenter, clique em um dos hypervisors do <em>cluster</em> e acesse <em>Configure</em> &gt; <em>Storage</em> &gt; <em>Storage Adapters</em>. Selecione o adaptador abaixo da seção <em>Model: iSCSI Software Adapter</em> e clique em <em>Rescan Adapter</em>.</p>
 <div id="img-vmw-2-123" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw123.png" alt="vmw123">
 </div>
-<div class="title">Figure 558. desc</div>
+<div class="title">Figure 558. Verificando atualização da LUN no vCenter, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Devices</em>, logo abaixo, verifique que o tamanho da LUN 2 foi atualizado de 2 GB para 50 GB, seu novo tamanho.</p>
 </div>
 <div id="img-vmw-2-124" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw124.png" alt="vmw124">
 </div>
-<div class="title">Figure 559. desc</div>
+<div class="title">Figure 559. Verificando atualização da LUN no vCenter, parte 2</div>
 </div>
+</li>
+<li>
+<p>Vamos criar o disco de <em>fault tolerance</em>. Clique com o botão direito no <em>cluster</em> e acesse <em>Storage</em> &gt; <em>New Datastore</em>.</p>
 <div id="img-vmw-2-125" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw125.png" alt="vmw125">
 </div>
-<div class="title">Figure 560. desc</div>
+<div class="title">Figure 560. Adição de disco de fault tolerance, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Defina um nome apropriado para o disco (no exemplo, <code>ds-ft-gX</code>), e selecione a LUN 2 exposta pelo FreeNAS, com 50 GB.</p>
 </div>
 <div id="img-vmw-2-126" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw126.png" alt="vmw126">
 </div>
-<div class="title">Figure 561. desc</div>
+<div class="title">Figure 561. Adição de disco de fault tolerance, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Partition Configuration</em> selecione <em>Use all available partitions</em> e defina o <em>Datastore Size</em> como 50 GB.</p>
 </div>
 <div id="img-vmw-2-127" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw127.png" alt="vmw127">
 </div>
-<div class="title">Figure 562. desc</div>
+<div class="title">Figure 562. Adição de disco de fault tolerance, parte 3</div>
 </div>
+</li>
+<li>
+<p>Agora sim, vamos tentar novamente. Clique com o botão direito sobre a VM no <em>storage</em> compartilhado e acesse <em>Fault Tolerance</em> &gt; <em>Turn On Fault Tolerance</em>.</p>
 <div id="img-vmw-2-128" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw128.png" alt="vmw128">
 </div>
-<div class="title">Figure 563. desc</div>
+<div class="title">Figure 563. Habilitando fault tolerance, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Será mostrado um aviso referente à baixa largura de banda na placa de rede dos hosts do <em>cluster</em>. Clique em <em>Yes</em>.</p>
 </div>
 <div id="img-vmw-2-129" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw129.png" alt="vmw129">
 </div>
-<div class="title">Figure 564. desc</div>
+<div class="title">Figure 564. Habilitando fault tolerance, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Selecione o <em>datastore</em> recém-criado (dedicado ao <em>fault tolerance</em>, com 50 GB) para armazenar o disco da VM secundária e arquivos de configuração.</p>
 </div>
 <div id="img-vmw-2-130" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw130.png" alt="vmw130">
 </div>
-<div class="title">Figure 565. desc</div>
+<div class="title">Figure 565. Habilitando fault tolerance, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Selecione o host para a VM secundária.</p>
 </div>
 <div id="img-vmw-2-131" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw131.png" alt="vmw131">
 </div>
-<div class="title">Figure 566. desc</div>
+<div class="title">Figure 566. Habilitando fault tolerance, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Revise as opções de configuração do <em>fault tolerance</em> e clique em <em>Finish</em>.</p>
 </div>
 <div id="img-vmw-2-132" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw132.png" alt="vmw132">
 </div>
-<div class="title">Figure 567. desc</div>
+<div class="title">Figure 567. Habilitando fault tolerance, finalizado</div>
 </div>
+</li>
+<li>
+<p>Note que o ícone à esquerda da VM sob <em>fault tolerance</em> irá mudar, e em <em>Summary</em> é possível ver que o <em>fault tolerance</em> está habilitado (e não operacional ainda, já que a VM está desligada).</p>
 <div id="img-vmw-2-133" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw133.png" alt="vmw133">
 </div>
-<div class="title">Figure 568. desc</div>
+<div class="title">Figure 568. Fault tolerance configurado</div>
 </div>
+</li>
+<li>
+<p>Vamos ativar o <em>fault tolerance</em>. Ligue a VM em <em>Power</em> &gt; <em>Power On</em>.</p>
 <div id="img-vmw-2-134" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw134.png" alt="vmw134">
 </div>
-<div class="title">Figure 569. desc</div>
+<div class="title">Figure 569. Ligando VM em fault tolerance</div>
+</div>
+<div class="paragraph">
+<p>Note, em <em>Recent Tasks</em>, que o processo de ativação da VM secundária de <em>fault tolerance</em> poderá levar um bom tempo&#8201;&#8212;&#8201;neste momento, o disco da VM primária está sendo copiado entre LUNs no FreeNAS.</p>
 </div>
 <div id="img-vmw-2-135" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw135.png" alt="vmw135">
 </div>
-<div class="title">Figure 570. desc</div>
+<div class="title">Figure 570. Processo de ativação da VM secundária</div>
+</div>
+<div class="paragraph">
+<p>Após a conclusão do processo, na aba <em>Summary</em> da VM você verá que a mesma encontra-se com <em>fault tolerance</em> ativo e operacional, como exemplificado na figura abaixo:</p>
 </div>
 <div id="img-vmw-2-136" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw136.png" alt="vmw136">
 </div>
-<div class="title">Figure 571. desc</div>
+<div class="title">Figure 571. Fault tolerance operacional</div>
+</div>
+</li>
+<li>
+<p>Vamos testar? Primeiro, garanta que a VM <strong>não</strong> está rodando no hypervisor em que o <em>appliance</em> do vCenter está operando (haja vista que essa VM não está em <em>fault tolerance</em>).</p>
+<div class="paragraph">
+<p>Feito isso, inicie um ping infinito (<code>ping -t</code>) para o endereço IP da máquina virtual.</p>
 </div>
 <div id="img-vmw-2-137" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw137.png" alt="vmw137">
 </div>
-<div class="title">Figure 572. desc</div>
+<div class="title">Figure 572. Ping iniciado para VM sob fault tolerance</div>
+</div>
+<div class="paragraph">
+<p>Desligue abruptamente o hypervisor em que a VM primária em <em>fault tolerance</em> está rodando (cheque a linha <em>Host</em> na aba <em>Summary</em> da VM). Note que, imeditamente, o estado de tolerância a falha da VM é alterado na interface do vCenter:</p>
 </div>
 <div id="img-vmw-2-138" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw138.png" alt="vmw138">
 </div>
-<div class="title">Figure 573. desc</div>
+<div class="title">Figure 573. Hypervisor primário desligado abruptamente</div>
+</div>
+<div class="paragraph">
+<p>Volte à console em que o comando <code>ping</code> está sendo executado. Observe que, paradoxalmente, um número ínfimo de pacotes é perdido durante o processo de perda do host primário (no exemplo abaixo, apenas um pacote).</p>
 </div>
 <div id="img-vmw-2-139" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw139.png" alt="vmw139">
 </div>
-<div class="title">Figure 574. desc</div>
+<div class="title">Figure 574. Pacotes perdidos durante fault tolerance</div>
+</div>
+<div class="paragraph">
+<p>O host secundário sobe quase que imediatamente, portanto. Confira na aba <em>Summary</em> da VM que o estado do <em>fault tolerance</em> foi atualizado, e agora reporta que é necessário dispor de uma VM secundária para que a proteção fique ativa.</p>
 </div>
 <div id="img-vmw-2-140" class="imageblock text-center">
 <div class="content">
 <img src="./img/8_VSphere-s2/vmw140.png" alt="vmw140">
 </div>
-<div class="title">Figure 575. desc</div>
+<div class="title">Figure 575. Fault tolerance inativo, apenas um hypervisor disponível</div>
+</div>
+</li>
+</ol>
 </div>
 <div style="page-break-after: always;"></div>
 </div>

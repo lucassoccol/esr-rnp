@@ -691,123 +691,184 @@ image::8_VSphere-s2/vmw111.png[align=center]
 
 === 5) Ativando alta disponibilidade e tolerância a falhas
 
-.desc
+O mecanismo de tolerância a falhas é habilitado apenas para máquinas virtuais selecionadas pelo administrador. Para estas, é mantida uma cópia em execução em outro host. Em caso de falhas, esta cópia entra em funcionamento imediatamente, diminuindo o tempo de recuperação de falhas.
+
+Inicialmente, os hosts devem ser configurados para que o suporte à alta disponibilidade funcione corretamente. Para isso, será necessário que o _vSwitch_ utilizado para a migração da máquina virtual possua no mínimo duas interfaces de rede (uma ativa e uma em _standby_ para o caso de falhas) e que cada servidor possua uma porta _VMkernel_ para troca de mensagens sobre falhas. Embora a recomendação oficial seja que o hypervisor tenha uma interface de rede dedicada para fazer o _fault tolerance_, para fins de demonstração não será necessário dispor de duas interfaces de rede, como testaremos neste laboratório.
+
+1. Para ativar a funcionalidade de _fault tolerance_ em uma VM, basta clicar com o botão direito sobre a mesma e acessar _Fault Tolerance_ > _Turn On Fault Tolerance_. Use a VM que foi configurada no _storage_ compartilhado na atividade anterior.
++
+.Ativando fault tolerance em VM
 [#img-vmw-2-112]
 image::8_VSphere-s2/vmw112.png[align=center]
-
-.desc
++
+Imediatamente veremos erros relacionados à configuração da VM. Vamos corrigi-los antes de prosseguir.
++
+.Erro ao ativar fault tolerance
 [#img-vmw-2-113]
 image::8_VSphere-s2/vmw113.png[align=center]
 
-.desc
+2. Desligue a VM acessando _Power_ > _Power Off_.
++
+.Desligando VM
 [#img-vmw-2-114]
 image::8_VSphere-s2/vmw114.png[align=center]
 
-.desc
+3. Agora, edite as configurações da máquina virtual acessando _Edit Settings_.
++
+.Editando configurações de VM, parte 1
 [#img-vmw-2-115]
 image::8_VSphere-s2/vmw115.png[align=center]
-
-.desc
++
+Em _Virtual Hardware_, reduza o número de CPUs da VM para 1, e remova os dispositivos _CD/DVD drive 1_ e _USB Controller_.
++
+.Editando configurações de VM, parte 2
 [#img-vmw-2-116]
 image::8_VSphere-s2/vmw116.png[align=center]
-
-.text: vmw116-info.txt
----
-https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html
----
-
-.desc
-[#img-vmw-2-117]
-image::8_VSphere-s2/vmw117.png[align=center]
-
-.desc
++
+Ainda em _Virtual Hardware_, expanda o contexto _CPU_ e desabilite a opção _Expose hardware assisted virtualization to the guest OS_.
++
+.Editando configurações de VM, parte 3
 [#img-vmw-2-118]
 image::8_VSphere-s2/vmw118.png[align=center]
++
+Em _VM Options_, desabilite a opção _Virtualization Based Security_.
++
+.Editando configurações de VM, parte 4
+[#img-vmw-2-117]
+image::8_VSphere-s2/vmw117.png[align=center]
++
+Essas alterações de configuração da VM são necessárias por uma série de limitações existentes no ESXi para máquinas em _fault tolerance_. A lista completa de limitações e requerimentos do ESXi para operação com o _fault tolerance_ podem ser consultadas na documentação oficial, em https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-57929CF0-DA9B-407A-BF2E-E7B72708D825.html .
 
-.desc
+4. Para funcionamento do _fault tolerance_ o vCenter exige que seja disponibilizado um disco dedicado na _storage_ para manter o estado de replicação da máquina virtual. Logue no FreeNAS como o usuário `root` e, em _Armazenamento_, edite o `zvol2`.
++
+.Disponibilizando disco de fault tolerance no storage, parte 1
 [#img-vmw-2-119]
 image::8_VSphere-s2/vmw119.png[align=center]
-
-.desc
++
+Aumente o tamanho do `zvol2` para 50 GB.
++
+.Disponibilizando disco de fault tolerance no storage, parte 2
 [#img-vmw-2-120]
 image::8_VSphere-s2/vmw120.png[align=center]
-
-.desc
++
+Em _Compartilhamento_ > _Block (iSCSI)_ > _Extents_, edite o `Extent2`, correspondente ao `zvol2`.
++
+.Disponibilizando disco de fault tolerance no storage, parte 3
 [#img-vmw-2-121]
 image::8_VSphere-s2/vmw121.png[align=center]
-
-.desc
++
+Em _Dispositivo_, certifique-se que a LUN exposta pelo _extent_ possui 50 GB, como esperado.
++
+.Disponibilizando disco de fault tolerance no storage, parte 4
 [#img-vmw-2-122]
 image::8_VSphere-s2/vmw122.png[align=center]
 
-.desc
+5. De volta à console do vCenter, clique em um dos hypervisors do _cluster_ e acesse _Configure_ > _Storage_ > _Storage Adapters_. Selecione o adaptador abaixo da seção _Model: iSCSI Software Adapter_ e clique em _Rescan Adapter_.
++
+.Verificando atualização da LUN no vCenter, parte 1
 [#img-vmw-2-123]
 image::8_VSphere-s2/vmw123.png[align=center]
-
-.desc
++
+Em _Devices_, logo abaixo, verifique que o tamanho da LUN 2 foi atualizado de 2 GB para 50 GB, seu novo tamanho.
++
+.Verificando atualização da LUN no vCenter, parte 2
 [#img-vmw-2-124]
 image::8_VSphere-s2/vmw124.png[align=center]
 
-.desc
+6. Vamos criar o disco de _fault tolerance_. Clique com o botão direito no _cluster_ e acesse _Storage_ > _New Datastore_.
++
+.Adição de disco de fault tolerance, parte 1
 [#img-vmw-2-125]
 image::8_VSphere-s2/vmw125.png[align=center]
-
-.desc
++
+Defina um nome apropriado para o disco (no exemplo, `ds-ft-gX`), e selecione a LUN 2 exposta pelo FreeNAS, com 50 GB.
++
+.Adição de disco de fault tolerance, parte 2
 [#img-vmw-2-126]
 image::8_VSphere-s2/vmw126.png[align=center]
-
-.desc
++
+Em _Partition Configuration_ selecione _Use all available partitions_ e defina o _Datastore Size_ como 50 GB.
++
+.Adição de disco de fault tolerance, parte 3
 [#img-vmw-2-127]
 image::8_VSphere-s2/vmw127.png[align=center]
 
-.desc
+7. Agora sim, vamos tentar novamente. Clique com o botão direito sobre a VM no _storage_ compartilhado e acesse _Fault Tolerance_ > _Turn On Fault Tolerance_.
++
+.Habilitando fault tolerance, parte 1
 [#img-vmw-2-128]
 image::8_VSphere-s2/vmw128.png[align=center]
-
-.desc
++
+Será mostrado um aviso referente à baixa largura de banda na placa de rede dos hosts do _cluster_. Clique em _Yes_.
++
+.Habilitando fault tolerance, parte 2
 [#img-vmw-2-129]
 image::8_VSphere-s2/vmw129.png[align=center]
-
-.desc
++
+Selecione o _datastore_ recém-criado (dedicado ao _fault tolerance_, com 50 GB) para armazenar o disco da VM secundária e arquivos de configuração.
++
+.Habilitando fault tolerance, parte 3
 [#img-vmw-2-130]
 image::8_VSphere-s2/vmw130.png[align=center]
-
-.desc
++
+Selecione o host para a VM secundária.
++
+.Habilitando fault tolerance, parte 4
 [#img-vmw-2-131]
 image::8_VSphere-s2/vmw131.png[align=center]
-
-.desc
++
+Revise as opções de configuração do _fault tolerance_ e clique em _Finish_.
++
+.Habilitando fault tolerance, finalizado
 [#img-vmw-2-132]
 image::8_VSphere-s2/vmw132.png[align=center]
 
-.desc
+8. Note que o ícone à esquerda da VM sob _fault tolerance_ irá mudar, e em _Summary_ é possível ver que o _fault tolerance_ está habilitado (e não operacional ainda, já que a VM está desligada).
++
+.Fault tolerance configurado
 [#img-vmw-2-133]
 image::8_VSphere-s2/vmw133.png[align=center]
 
-.desc
+9. Vamos ativar o _fault tolerance_. Ligue a VM em _Power_ > _Power On_.
++
+.Ligando VM em fault tolerance
 [#img-vmw-2-134]
 image::8_VSphere-s2/vmw134.png[align=center]
-
-.desc
++
+Note, em _Recent Tasks_, que o processo de ativação da VM secundária de _fault tolerance_ poderá levar um bom tempo -- neste momento, o disco da VM primária está sendo copiado entre LUNs no FreeNAS.
++
+.Processo de ativação da VM secundária
 [#img-vmw-2-135]
 image::8_VSphere-s2/vmw135.png[align=center]
-
-.desc
++
+Após a conclusão do processo, na aba _Summary_ da VM você verá que a mesma encontra-se com _fault tolerance_ ativo e operacional, como exemplificado na figura abaixo:
++
+.Fault tolerance operacional
 [#img-vmw-2-136]
 image::8_VSphere-s2/vmw136.png[align=center]
 
-.desc
+10. Vamos testar? Primeiro, garanta que a VM *não* está rodando no hypervisor em que o _appliance_ do vCenter está operando (haja vista que essa VM não está em _fault tolerance_).
++
+Feito isso, inicie um ping infinito (`ping -t`) para o endereço IP da máquina virtual.
++
+.Ping iniciado para VM sob fault tolerance
 [#img-vmw-2-137]
 image::8_VSphere-s2/vmw137.png[align=center]
-
-.desc
++
+Desligue abruptamente o hypervisor em que a VM primária em _fault tolerance_ está rodando (cheque a linha _Host_ na aba _Summary_ da VM). Note que, imeditamente, o estado de tolerância a falha da VM é alterado na interface do vCenter:
++
+.Hypervisor primário desligado abruptamente
 [#img-vmw-2-138]
 image::8_VSphere-s2/vmw138.png[align=center]
-
-.desc
++
+Volte à console em que o comando `ping` está sendo executado. Observe que, paradoxalmente, um número ínfimo de pacotes é perdido durante o processo de perda do host primário (no exemplo abaixo, apenas um pacote).
++
+.Pacotes perdidos durante fault tolerance
 [#img-vmw-2-139]
 image::8_VSphere-s2/vmw139.png[align=center]
-
-.desc
++
+O host secundário sobe quase que imediatamente, portanto. Confira na aba _Summary_ da VM que o estado do _fault tolerance_ foi atualizado, e agora reporta que é necessário dispor de uma VM secundária para que a proteção fique ativa.
++
+.Fault tolerance inativo, apenas um hypervisor disponível
 [#img-vmw-2-140]
 image::8_VSphere-s2/vmw140.png[align=center]
