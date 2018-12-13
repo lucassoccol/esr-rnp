@@ -1,0 +1,80 @@
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/:
+FreeNAS
+ISOs Adicionais
+Microsoft Hyper-V
+OpenStack
+Oracle VM Virtualbox
+OVirt
+Ubuntu
+USB Writers
+VMWare VSphere
+VMWare Workstation
+XCP-ng
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/FreeNAS:
+FreeNAS-11.1-U6.iso
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/ISOs Adicionais:
+debian-9.6.0-amd64-xfce-CD-1.iso
+systemrescuecd-x86-5.3.2.iso
+Windows10.iso
+XenServer-guest-tools-7.32.0-2.iso
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/Microsoft Hyper-V:
+adksetup.exe
+adkwinpesetup.exe
+SCVMM_1801.exe
+SQLServer2017-SSEI-Eval.exe
+Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO
+WindowsAdminCenter1809.msi
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/OpenStack:
+debian-9.6.1-20181206-openstack-amd64.qcow2
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/Oracle VM Virtualbox:
+Oracle_VM_VirtualBox_Extension_Pack-5.2.22.vbox-extpack
+VirtualBox-5.2.22-126460-Win.exe
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/OVirt:
+CentOS-7-x86_64-DVD-1804.iso
+ovirt-node-ng-installer-ovirt-4.2-2018120506.iso
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/Ubuntu:
+ubuntu-18.04.1-live-server-amd64.iso
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/USB Writers:
+balenaEtcher-Setup-1.4.8-x64.exe
+MediaCreationTool1809.exe
+rufus.ini
+rufus_files
+rufus-3.3p.exe
+Windows7-USB-DVD-Download-Tool-Installer-en-US.exe
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/USB Writers/rufus_files:
+syslinux-4.07
+syslinux-6.03
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/USB Writers/rufus_files/syslinux-4.07:
+menu.c32
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/USB Writers/rufus_files/syslinux-6.03:
+20171017
+ldlinux.bss
+ldlinux.sys
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/USB Writers/rufus_files/syslinux-6.03/20171017:
+ldlinux.bss
+ldlinux.sys
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/VMWare VSphere:
+VMware-VCSA-all-6.7.0-10244745.iso
+VMware-VMvisor-Installer-6.7.0.update01-10302608.x86_64.iso
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/VMWare Workstation:
+VMware-converter-en-6.2.0-8466193.exe
+VMware-workstation-full-14.1.2-8497320.exe
+
+/cygdrive/c/Users/Aluno/Desktop/nginx-1.15.7/html/misc/XCP-ng:
+xcp-ng-7.6.0.iso
+XCP-ng-Center-7.6.1.16.msi
+XenServer-guest-tools-7.32.0-2.iso
