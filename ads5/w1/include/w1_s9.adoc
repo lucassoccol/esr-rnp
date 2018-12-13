@@ -208,9 +208,9 @@ Configure uma senha de acesso padrão às interfaces e bases de dados do OpenSta
 stack@ostk-d1-g1:~$ cat <<EOF > local.conf
 [[local|localrc]]
 ADMIN_PASSWORD=Virt3sr
-DATABASE_PASSWORD=$ADMIN_PASSWORD
-RABBIT_PASSWORD=$ADMIN_PASSWORD
-SERVICE_PASSWORD=$ADMIN_PASSWORD
+DATABASE_PASSWORD=\$ADMIN_PASSWORD
+RABBIT_PASSWORD=\$ADMIN_PASSWORD
+SERVICE_PASSWORD=\$ADMIN_PASSWORD
 EOF
 ....
 
