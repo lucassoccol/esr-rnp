@@ -1,2 +1,0 @@
-root@ostk-d1-g1:~# ip a s eno1 | grep ' *inet '
-    inet 200.130.46.21/24 brd 200.130.46.255 scope global dynamic eno1

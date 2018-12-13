@@ -1,3 +1,0 @@
-https://www.openstack.org/marketplace/public-clouds/
-https://www.openstack.org/marketplace/hosted-private-clouds/
-https://www.openstack.org/marketplace/remotely-managed-private-clouds/

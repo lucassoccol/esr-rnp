@@ -1,1 +1,0 @@
-Repetir inclusão do disco de quórum na máquina 2 do cluster

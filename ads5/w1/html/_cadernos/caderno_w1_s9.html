@@ -438,13 +438,972 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_sessão_9_clouds_privadas_com_o_openstack">Sessão 9: Clouds privadas com o OpenStack</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_instalação_do_ubuntu_server">1) Instalação do Ubuntu Server</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Crie uma mídia bootável com o instalador do Ubuntu Server, conforme instruções providas pelo instrutor. Em seguida, insira a mídia na máquina destacada como hypervisor para a dupla e execute o <em>boot</em> via USB. Você verá a tela a seguir:</p>
+<div id="img-openstack1" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack1.png" alt="openstack1">
+</div>
+<div class="title">Figure 1. Instalação do Ubuntu Server, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Escolha a linguagem de instalação como inglês (<em>English</em>) e prossiga.</p>
+</div>
+</li>
+<li>
+<p>Escolha o <em>layout</em> do teclado e variante como <em>Portuguese (Brazil)</em>.</p>
+<div id="img-openstack2" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack2.png" alt="openstack2">
+</div>
+<div class="title">Figure 2. Instalação do Ubuntu Server, parte 2</div>
+</div>
+</li>
+<li>
+<p>Selecione a versão tradicional, <em>Install Ubuntu</em>.</p>
+<div id="img-openstack3" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack3.png" alt="openstack3">
+</div>
+<div class="title">Figure 3. Instalação do Ubuntu Server, parte 3</div>
+</div>
+</li>
+<li>
+<p>Para a configuração de rede, mantenha o IP automático obtido via DHCP e prossiga.</p>
+<div id="img-openstack4" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack4.png" alt="openstack4">
+</div>
+<div class="title">Figure 4. Instalação do Ubuntu Server, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Mantenha a configuração de proxy vazia.</p>
+</div>
+<div id="img-openstack5" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack5.png" alt="openstack5">
+</div>
+<div class="title">Figure 5. Instalação do Ubuntu Server, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Não é necessário alterar o <em>mirror</em> padrão de instalação de pacotes de Ubuntu.</p>
+</div>
+<div id="img-openstack6" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack6.png" alt="openstack6">
+</div>
+<div class="title">Figure 6. Instalação do Ubuntu Server, parte 6</div>
+</div>
+</li>
+<li>
+<p>Na configuração de disco, selecione <em>Use An Entire Disk And Set Up LVM</em>.</p>
+<div id="img-openstack7" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack7.png" alt="openstack7">
+</div>
+<div class="title">Figure 7. Instalação do Ubuntu Server, parte 7</div>
+</div>
+<div class="paragraph">
+<p>Selecione o único disco disponível para instalação.</p>
+</div>
+<div id="img-openstack8" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack8.png" alt="openstack8">
+</div>
+<div class="title">Figure 8. Instalação do Ubuntu Server, parte 8</div>
+</div>
+<div class="paragraph">
+<p>Teremos que alterar o tamanho padrão da partição raiz (<code>/</code>). Mova o cursor para o volume <code>ubuntu-lv</code> e pressione <code>ENTER</code>.</p>
+</div>
+<div id="img-openstack9" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack9.png" alt="openstack9">
+</div>
+<div class="title">Figure 9. Instalação do Ubuntu Server, parte 9</div>
+</div>
+<div class="paragraph">
+<p>Na nova tela, edite o tamanho da partição para 50 GB e selecione <em>Save</em>.</p>
+</div>
+<div id="img-openstack10" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack10.png" alt="openstack10">
+</div>
+<div class="title">Figure 10. Instalação do Ubuntu Server, parte 10</div>
+</div>
+<div class="paragraph">
+<p>Revise as configurações de disco, e selecione <em>Done</em>.
+.Instalação do Ubuntu Server, parte 11</p>
+</div>
+<div id="img-openstack11" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack11.png" alt="openstack11">
+</div>
+</div>
+<div class="paragraph">
+<p>O sistema irá solicitar confirmação para formatar o disco. Selecione <em>Continue</em>.</p>
+</div>
+<div id="img-openstack12" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack12.png" alt="openstack12">
+</div>
+<div class="title">Figure 11. Instalação do Ubuntu Server, parte 12</div>
+</div>
+</li>
+<li>
+<p>Agora, defina um usuário não-privilegiado (<code>aluno</code>), hostname da máquina (sugestão: <code>ostk-dX-gX</code>) e senha para o usuário.</p>
+<div id="img-openstack13" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack13.png" alt="openstack13">
+</div>
+<div class="title">Figure 12. Instalação do Ubuntu Server, parte 13</div>
+</div>
+</li>
+<li>
+<p>Faremos a instalação de pacotes adicionais manualmente depois, então não é necessário instalar nenhum <em>snap</em>. Selecione <em>Done</em>.</p>
+<div id="img-openstack14" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack14.png" alt="openstack14">
+</div>
+<div class="title">Figure 13. Instalação do Ubuntu Server, parte 14</div>
+</div>
+</li>
+<li>
+<p>Acompanhe o progresso de instalação do sistema.</p>
+<div id="img-openstack15" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack15.png" alt="openstack15">
+</div>
+<div class="title">Figure 14. Instalação do Ubuntu Server, progresso</div>
+</div>
+<div class="paragraph">
+<p>Uma vez concluído, selecione <em>Reboot Now</em>. Retire a mídia de instalação e reinicie a máquina para <em>bootar</em> no sistema.</p>
+</div>
+<div id="img-openstack16" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack16.png" alt="openstack16">
+</div>
+<div class="title">Figure 15. Instalação do Ubuntu Server, concluída</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_instalação_do_openstack">2) Instalação do OpenStack</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para instalar o OpenStack, acesse o servidor via SSH usando o PuTTY ou Cygwin. Logue como o usuário <code>aluno</code>, fornecendo a senha configurada durante o processo de instalação.</p>
+<div class="literalblock">
+<div class="content">
+<pre>adr-010@DESKTOP-3GP5RKE ~
+$ ssh aluno@200.130.46.89
+The authenticity of host '200.130.46.89 (200.130.46.89)' can't be established.
+ECDSA key fingerprint is SHA256:8cHD89hWRgYFBm4zsTzBwRGMPYWKNPPZz7gn5tShuTs.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '200.130.46.89' (ECDSA) to the list of known hosts.
+aluno@200.130.46.89's password:
+Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.15.0-42-generic x86_64)
 
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Thu Dec  6 13:22:34 UTC 2018
+
+  System load:  0.68              Processes:           143
+  Usage of /:   47.1% of 3.87GB   Users logged in:     1
+  Memory usage: 1%                IP address for eno1: 200.130.46.89
+  Swap usage:   0%
+
+
+127 packages can be updated.
+51 updates are security updates.
+
+
+Last login: Thu Dec  6 13:22:09 2018
+To run a command as administrator (user "root"), use "sudo &lt;command&gt;".
+See "man sudo_root" for details.
+
+aluno@ostk-d1-g1:~$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos atualizar a máquina, antes de mais nada. Use o comando <code>sudo -i</code> para virar o usuário <code>root</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre>aluno@ostk-d1-g1:~$ sudo -i
+[sudo] password for aluno:
+root@ostk-d1-g1:~#</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, atualize via <code>apt-get</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>root@ostk-d1-g1:~# apt-get update ; apt-get -y dist-upgrade</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Findo o processo de atualização, reinicie a máquina se houverem sido realizadas atualizações ao kernel do sistema.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>root@ostk-d1-g1:~# reboot</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos usar um usuário dedicado para instalar o OpenStack. Crie-o:</p>
+<div class="literalblock">
+<div class="content">
+<pre>root@ostk-d1-g1:~# useradd -s /bin/bash -d /opt/stack -m stack</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Dê permissões de execução de comandos privilegiados para o usuário <code>stack</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>root@ostk-d1-g1:~# echo "stack ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/stack</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, use o comando <code>su</code> para alternar para esse usuário:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>root@ostk-d1-g1:~# su - stack</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>stack@ostk-d1-g1:~$ whoami
+stack</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos usar o <em>script</em> de instalação facilitada do OpenStack, denominado DevStack. Para isso, clone seu repositório usando o comando <code>git</code>, e em seguida entre na pasta:</p>
+<div class="literalblock">
+<div class="content">
+<pre>stack@ostk-d1-g1:~$ git clone https://git.openstack.org/openstack-dev/devstack ; cd devstack</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Configure uma senha de acesso padrão às interfaces e bases de dados do OpenStack usando um arquivo <code>local.conf</code>. O comando abaixo irá populá-lo automaticamente:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>stack@ostk-d1-g1:~$ cat &lt;&lt;EOF &gt; local.conf
+[[local|localrc]]
+ADMIN_PASSWORD=Virt3sr
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+EOF</pre>
+</div>
+</div>
+</li>
+<li>
+<p>O DevStack irá instalar uma série de pacotes durante sua execução, muitos dos quais se encontram na seção <code>multiverse</code> dos repositórios do Ubuntu. Adicione esse seção à base do <code>apt</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre>stack@ostk-d1-g1:~$ sudo add-apt-repository universe</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Tudo pronto! Execute o <em>script</em> <code>stack.sh</code> para instalar o OpenStack:</p>
+<div class="literalblock">
+<div class="content">
+<pre>stack@ostk-d1-g1:~$ ./stack.sh
+
+(...)
+
+This is your host IP address: 200.130.46.21
+This is your host IPv6 address: 2001:12f0:b05::279
+Horizon is now available at http://200.130.46.21/dashboard
+Keystone is serving at http://200.130.46.21/identity/
+The default users are: admin and demo
+The password: Virt3sr
+
+WARNING:
+Using lib/neutron-legacy is deprecated, and it will be removed in the future
+
+
+Services are running under systemd unit files.
+For more information see:
+https://docs.openstack.org/devstack/latest/systemd.html
+
+DevStack Version: stein
+Change: 7cc83a01caa70786bf6de6f272c1187da37be3a3 Merge "Setup branch in setup-devstack-source-dirs" 2018-12-07 00:35:19 +0000
+OS Version: Ubuntu 18.04 bionic
+
+2018-12-07 11:53:15.849 | stack.sh completed in 3249 seconds.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O processo de instalação é <strong>bastante</strong> demorado, então seja paciente. No exemplo acima, note que o tempo total de execução foi de cerca de 55 minutos.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_criação_de_vms_no_openstack">3) Criação de VMs no OpenStack</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Observe, na saída do último comando da atividade anterior, a linha <code>Horizon is now available at (&#8230;&#8203;)</code>&#8201;&#8212;&#8201;anote a URL figurando nesta linha.</p>
+<div class="paragraph">
+<p>Abra um navegador web em sua máquina física e acesse a URL: você deverá ver a tela de login do OpenStack, como mostrado abaixo. Entre com o usuário <code>admin</code> e senha configurada durante a instalação, provavelmente <code>Virt3sr</code>.</p>
+</div>
+<div id="img-openstack18" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack18.png" alt="openstack18">
+</div>
+<div class="title">Figure 16. Login no OpenStack</div>
+</div>
+<div class="paragraph">
+<p>Você verá o <em>dashboard</em> de configuração do OpenStack. Navegue pelas abas e janelas para ambientar-se com a ferramenta.</p>
+</div>
+<div id="img-openstack19" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack19.png" alt="openstack19">
+</div>
+<div class="title">Figure 17. Dashboard do OpenStack</div>
+</div>
+</li>
+<li>
+<p>Vamos criar uma máquina virtual no OpenStack. Embora seja possível utilizar imagens ISO e realizar o processo de instalação, como fizemos com os demais hypervisors, o método recomendado no OpenStack é que usemos imagens de VM pré-prontas e configuradas para operar nesse ambiente&#8201;&#8212;&#8201;claro, é possível também criar imagens customizadas de acordo com a necessidade específica de sua organização.</p>
+<div class="paragraph">
+<p>A página <a href="https://docs.openstack.org/image-guide/obtain-images.html" class="bare">https://docs.openstack.org/image-guide/obtain-images.html</a> lista maneiras de obter imagens de máquinas virtuais de diferentes sistemas e distribuições populares.</p>
+</div>
+<div class="paragraph">
+<p>Siga as orientações do instrutor para fazer o download da imagem de VM da distribuição Debian Linux. Em seguida, acesse <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Imagens</em> &gt; <em>Criar Imagem</em>.</p>
+</div>
+<div id="img-openstack21" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack21.png" alt="openstack21">
+</div>
+<div class="title">Figure 18. Criação de imagem de VM, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Defina um nome para a imagem, e navegue em seu computador até o local onde se encontra a imagem <code>qcow2</code> do Debian. Mantenha o formato <em>QCOW2 - Emulador QEMU</em>, e clique em <em>Criar Imagem</em>.</p>
+</div>
+<div id="img-openstack22" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack22.png" alt="openstack22">
+</div>
+<div class="title">Figure 19. Criação de imagem de VM, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Após um curto tempo de upload, a imagem será criada, como mostrado abaixo.</p>
+</div>
+<div id="img-openstack23" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack23.png" alt="openstack23">
+</div>
+<div class="title">Figure 20. Criação de imagem de VM, concluído</div>
+</div>
+</li>
+<li>
+<p>Vamos agora criar uma instância de execução dessa imagem: acesse <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Instâncias</em> &gt; <em>Disparar Instância</em>.</p>
+<div id="img-openstack24" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack24.png" alt="openstack24">
+</div>
+<div class="title">Figure 21. Criando instâncias, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Detalhes</em>, defina o nome da instância (no exemplo, usamos <code>debian9-ostk-dX-gX</code>).</p>
+</div>
+<div id="img-openstack25" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack25.png" alt="openstack25">
+</div>
+<div class="title">Figure 22. Criando instâncias, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Origem</em>, clique na seta para cima para selecionar a imagem do Debian que foi adicionada ao OpenStack no passo anterior.</p>
+</div>
+<div id="img-openstack26" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack26.png" alt="openstack26">
+</div>
+<div class="title">Figure 23. Criando instâncias, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Flavor</em>, vamos escolher o "sabor" (efetivamente, a alocação de recursos) da nova instância. Clique na seta para cima para selecionar o <em>flavor</em> <code>ds512M</code>, como ilustrado abaixo.</p>
+</div>
+<div id="img-openstack27" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack27.png" alt="openstack27">
+</div>
+<div class="title">Figure 24. Criando instâncias, parte 4</div>
+</div>
+<div class="paragraph">
+<p>Agora, iremos configurar o acesso SSH à instância que será criada. <strong>Recomenda-se</strong> o uso do Cygwin neste passo, já que a configuração do cliente SSH é significativamente mais fácil. Em sua máquina física, acesse o Cygwin com sua conta de usuário local e crie um par de chaves assimétricas com o comando <code>ssh-keygen</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>adr-010@DESKTOP-3GP5RKE ~
+$ ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/adr-010/.ssh/id_rsa):
+Created directory '/home/adr-010/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/adr-010/.ssh/id_rsa.
+Your public key has been saved in /home/adr-010/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:mDhg20jSFPHwwq6FzGy4WPyCXRcsMdWWRIPy6tOM7o4 adr-010@DESKTOP-3GP5RKE
+The key's randomart image is:
++---[RSA 2048]----+
+|  =oo..=+.       |
+| + +.+. +.       |
+|. B +oo.         |
+|=B * o.+         |
+|o=B =.+ S        |
+|oB o.o           |
+|= o..+           |
+|   o+ o          |
+|  E++.           |
++----[SHA256]-----+</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Imprima na tela a chave pública do par recém-gerado, com o comando a seguir:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>adr-010@DESKTOP-3GP5RKE ~
+$ cat ~/.ssh/id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDPxvsqAO0fvRMOpwtOui+fdVxCJWcVHRzuMP5he9Xp7zGCZaWQhMlAgXbq4hOWKU9zKHcKviRPEPTIwb3uyV50GiQqiX3dYsUNkfMlFyuSPGhbDDgQjS0vMES+eOZ/mekqGL8UAhDJric3rcOMQutMuk0KVLM5lQndOoVIVRMCyOOcraVU8zmV1IyGLPWdPKlFdY12qGw6wJcY0YmzQDLP/8RzK8cZ/s5zYYhd6xl9sFwgG5iovoxVmeereALzZhcMcZXUj/pUPyTBLVRwBxd/wER7r5t7B78yqokLDpXSPxe+cuofezX1OwMeJGUZe6DDO5g2cy9uOshk9Z3YKhAN adr-010@DESKTOP-3GP5RKE</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Copie para a área de transferência a saída do comando acima, desde <code>ssh-rsa (&#8230;&#8203;)</code> até o final da linha. Agora, volte para a interface do OpenStack e acesse <em>Par de chaves</em> &gt; <em>Importar par de chaves</em>.</p>
+</div>
+<div id="img-openstack29" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack29.png" alt="openstack29">
+</div>
+<div class="title">Figure 25. Criando instâncias, parte 5</div>
+</div>
+<div class="paragraph">
+<p>Escolha um nome sugestivo para o par de chaves, e cole o conteúdo da chave pública na caixa de texto na parte inferior da janela, como mostrado abaixo. Em seguida, clique em <em>Importar par de chaves</em>.</p>
+</div>
+<div id="img-openstack30" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack30.png" alt="openstack30">
+</div>
+<div class="title">Figure 26. Criando instâncias, parte 6</div>
+</div>
+<div class="paragraph">
+<p>Finalizado esse processo, clique em <em>Disparar Instância</em>.</p>
+</div>
+<div id="img-openstack31" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack31.png" alt="openstack31">
+</div>
+<div class="title">Figure 27. Criando instâncias, finalizado</div>
+</div>
+<div class="paragraph">
+<p>Após algum tempo, a instância será iniciada, como mostrado a seguir.</p>
+</div>
+<div id="img-openstack32" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack32.png" alt="openstack32">
+</div>
+<div class="title">Figure 28. Instância em operação</div>
+</div>
+<div class="paragraph">
+<p>Note que a instância possui apenas um IP privado alocado (10.0.0.3 no exemplo), o que impossibilita que a acessemos de forma direta, ainda. Vamos resolver isso.</p>
+</div>
+</li>
+<li>
+<p>Para configurar a conectividade de rede, acesse <em>Projeto</em> &gt; <em>Rede</em> &gt; <em>IPs Flutuantes</em> &gt; <em>Alocar IP para Projeto</em>.</p>
+<div id="img-openstack33" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack33.png" alt="openstack33">
+</div>
+<div class="title">Figure 29. Configuração de IPs flutuantes, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Escolha o <em>Pool</em> como <em>public</em>, e defina um nome qualquer para o IP flutuante. Em seguida, clique em <em>Alocar IP</em>.</p>
+</div>
+<div id="img-openstack34" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack34.png" alt="openstack34">
+</div>
+<div class="title">Figure 30. Configuração de IPs flutuantes, parte 2</div>
+</div>
+<div class="paragraph">
+<p>O IP flutuante será criado (no exemplo abaixo, 172.24.4.109). Para alocá-lo à instância em execução, clique em <em>Associar</em>.</p>
+</div>
+<div id="img-openstack35" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack35.png" alt="openstack35">
+</div>
+<div class="title">Figure 31. Configuração de IPs flutuantes, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Selecione o endereço IP, e em seguida o nome da instância à qual o IP será associado (no caso, a instância criada no passo anterior desta atividade).</p>
+</div>
+<div id="img-openstack36" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack36.png" alt="openstack36">
+</div>
+<div class="title">Figure 32. Configuração de IPs flutuantes, parte 4</div>
+</div>
+<div class="paragraph">
+<p>De volta à tela de instâncias, note que agora a instância possui dois endereços associados: o endereço privado, antigo, e o IP flutuante que acabamos de alocar a ela.</p>
+</div>
+<div id="img-openstack37" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack37.png" alt="openstack37">
+</div>
+<div class="title">Figure 33. Configuração de IPs flutuantes, concluído</div>
+</div>
+</li>
+<li>
+<p>Temos que configurar regras no firewall virtual que permitam o acesso à instância. Acesse <em>Projeto</em> &gt; <em>Rede</em> &gt; <em>Grupos de Segurança</em> &gt; <em>default</em> &gt; <em>Administrar regras</em>.</p>
+<div id="img-openstack38" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack38.png" alt="openstack38">
+</div>
+<div class="title">Figure 34. Criando regras no firewall virtual, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Agora, clique em <em>Adicionar Regra</em>.</p>
+</div>
+<div id="img-openstack39" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack39.png" alt="openstack39">
+</div>
+<div class="title">Figure 35. Criando regras no firewall virtual, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Primeiro, vamos fazer uma regra que permita resposta a <code>ping</code>. Selecione a regra <em>Tudo ICMP</em>, crie uma descrição qualquer, indique a direção <em>Ingresso</em> e defina que o endereço remoto será dado no formato <em>CIDR</em>, igual a <code>0.0.0.0/0</code>.</p>
+</div>
+<div id="img-openstack40" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack40.png" alt="openstack40">
+</div>
+<div class="title">Figure 36. Criando regras no firewall virtual, parte 3</div>
+</div>
+<div class="paragraph">
+<p>Crie uma segunda regra, permitindo <em>SSH</em>, com parâmetros iguais à anterior.</p>
+</div>
+<div id="img-openstack41" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack41.png" alt="openstack41">
+</div>
+<div class="title">Figure 37. Criando regras no firewall virtual, parte 4</div>
+</div>
+</li>
+<li>
+<p>Para visualizar a faixa de rede à qual as regras criadas acima se aplicam, acesse <em>Projeto</em> &gt; <em>Rede</em> &gt; <em>Redes</em> &gt; <em>public</em>. Note, no exemplo abaixo, que a faixa pública é a rede 172.24.4.0/24.</p>
+<div id="img-openstack42" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack42.png" alt="openstack42">
+</div>
+<div class="title">Figure 38. Definindo o escopo da faixa pública</div>
+</div>
+<div class="paragraph">
+<p>É possível ainda visualizar uma representação gráfica das redes e switches virtuais configurados no OpenStack na aba <em>Topologias de Rede</em>.</p>
+</div>
+<div id="img-openstack43" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack43.png" alt="openstack43">
+</div>
+<div class="title">Figure 39. Topologia de rede no OpenStack</div>
+</div>
+</li>
+<li>
+<p>Vamos adicionar uma rota estática no Windows para permitir o acesso à instância criada no OpenStack. Para isso, o primeiro passo é saber o IP da interface de rede externa do hypervisor, visível através da URL de acesso ao Horizon ou via linha de comando:</p>
+<div class="literalblock">
+<div class="content">
+<pre>root@ostk-d1-g1:~# ip a s eno1 | grep ' *inet '
+    inet 200.130.46.21/24 brd 200.130.46.255 scope global dynamic eno1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em sua máquina física, abra o <em>prompt</em> de comando como administrador.</p>
+</div>
+<div id="img-openstack45" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack45.png" alt="openstack45">
+</div>
+<div class="title">Figure 40. Prompt administrativo</div>
+</div>
+<div class="paragraph">
+<p>Para adicionar uma rota estática, digite o comando <code>route ADD PUBLICNETWORK MASK 255.255.255.0 OPENSTACKIP</code>, substituindo os valores <code>PUBLICNETWORK</code> pela faixa da rede <code>public</code> no OpenStack, e <code>OPENSTACKIP</code> pelo endereço IP do hypervisor do OpenStack. Veja um exemplo:</p>
+</div>
+<div id="img-openstack46" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack46.png" alt="openstack46">
+</div>
+<div class="title">Figure 41. Adicionando rota estática</div>
+</div>
+</li>
+<li>
+<p>Feito isso, podemos acessar! Crie uma sessão SSH para o IP flutuante da instância Debian, usando o usuário <code>debian</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre>adr-010@DESKTOP-3GP5RKE ~
+$ ssh debian@172.24.4.109
+The authenticity of host '172.24.4.109 (172.24.4.109)' can't be established.
+ECDSA key fingerprint is SHA256:45IOyBVJxjFl6qkMkoNBSTY5JvuVkER+vFpUCg32B1k.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '172.24.4.109' (ECDSA) to the list of known hosts.
+Linux debian9-ostk-d1-g1 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2 (2018-10-27) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+debian@debian9-ostk-d1-g1:~$</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito! Determine com qual usuário você está operando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>debian@debian9-ostk-d1-g1:~$ whoami
+debian</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>E o hostname da máquina que foi acessada:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>debian@debian9-ostk-d1-g1:~$ hostname
+debian9-ostk-d1-g1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Observe que apenas o IP privado é mostrado dentro das configurações de rede da VM. O mapeamento do IP flutuante é feito de forma externa, pela gestão de switches virtuais do OpenStack.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>debian@debian9-ostk-d1-g1:~$ ip a s
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether fa:16:3e:2c:0b:29 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.3/26 brd 10.0.0.63 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fdb3:49f6:c76e:0:f816:3eff:fe2c:b29/64 scope global mngtmpaddr dynamic
+       valid_lft 86396sec preferred_lft 14396sec
+    inet6 fe80::f816:3eff:fe2c:b29/64 scope link
+       valid_lft forever preferred_lft forever</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_trabalhando_com_snapshots_no_openstack">4) Trabalhando com snapshots no OpenStack</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Vamos atribuir um "propósito" para nossa instância: um servidor web. Para instalar pacotes, precisamos primeiro configurar o DNS local da máquina, via arquivo <code>/etc/resolv.conf</code>. Execute o comando a seguir:</p>
+<div class="literalblock">
+<div class="content">
+<pre>root@debian9-ostk-d1-g1:~# t=$( mktemp ) ; \
+grep -v '^nameserver' /etc/resolv.conf &gt; t ; \
+echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' &gt;&gt; t ; \
+mv t /etc/resolv.conf ;  \
+unset t</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, atualize a lista de pacotes disponíveis no repositório remoto e instale o servidor web Nginx:</p>
+<div class="literalblock">
+<div class="content">
+<pre>root@debian9-ostk-d1-g1:~# apt-get update &amp;&amp; apt-get install nginx -y</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Lembre-se que não criamos regras no firewall virtual para permitir acesso HTTP. Acesse <em>Projeto</em> &gt; <em>Rede</em> &gt; <em>Grupos de Segurança</em> &gt; <em>default</em> e crie uma nova regra para permitir acesso na porta TCP/80:</p>
+<div id="img-openstack48" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack48.png" alt="openstack48">
+</div>
+<div class="title">Figure 42. Criação de regra HTTP</div>
+</div>
+</li>
+<li>
+<p>No navegador da sua máquina física, acesse o endereço IP flutuante da instância Debian&#8201;&#8212;&#8201;você deverá ver a página inicial do servidor web.</p>
+<div id="img-openstack49" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack49.png" alt="openstack49">
+</div>
+<div class="title">Figure 43. Servidor web Nginx acessível na instância</div>
+</div>
+</li>
+<li>
+<p>Vamos criar um <em>snapshot</em> da instância e guardar seu estado atual. Em <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Instâncias</em>, clique em <em>Criar Snapshot</em>.</p>
+<div id="img-openstack50" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack50.png" alt="openstack50">
+</div>
+<div class="title">Figure 44. Criação de snapshot, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Defina um nome apropriado para o <em>snapshot</em>.</p>
+</div>
+<div id="img-openstack51" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack51.png" alt="openstack51">
+</div>
+<div class="title">Figure 45. Criação de snapshot, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Diferentemente de outros sistemas de virtualização que trabalhamos até aqui, note que o <em>snapshot</em> da instância é armazenado como uma imagem em separado&#8201;&#8212;&#8201;não necessariamente associada à instância original. Acesse <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Imagens</em> para visualizá-lo.</p>
+</div>
+<div id="img-openstack52" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack52.png" alt="openstack52">
+</div>
+<div class="title">Figure 46. Criação de snapshot, concluído</div>
+</div>
+</li>
+<li>
+<p>Vamos promover uma alteração na instância para testar a funcionalidade de <em>snapshots</em>. Logado como <code>root</code> via SSH na instância, execute o comando abaixo para sobrescrever o arquivo <code>index.html</code> do servidor web:</p>
+<div class="literalblock">
+<div class="content">
+<pre>root@debian9-ostk-d1-g1:~# echo "index.html post-snapshot" &gt; /var/www/html/index.nginx-debian.html</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Atualize a página web com o endereço IP flutuante da instância&#8201;&#8212;&#8201;note que o conteúdo da página foi alterado.</p>
+</div>
+<div id="img-openstack54" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack54.png" alt="openstack54">
+</div>
+<div class="title">Figure 47. Conteúdo da página web alterado</div>
+</div>
+</li>
+<li>
+<p>Vamos restaurar o <em>snapshot</em>. Em <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Imagens</em>, localize o nome do <em>snapshot</em> criado anteriormente e então clique em <em>Ativar</em>.</p>
+<div id="img-openstack55" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack55.png" alt="openstack55">
+</div>
+<div class="title">Figure 48. Ativando snapshot, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Note que abre-se uma janela de criação de instância exatamente igual à que usamos ao criar a instância Debian original. De fato, no OpenStack <em>snapshots</em> são tratados como imagens quaisquer, sem ligação com a instância original. Defina um nome para a nova instância.</p>
+</div>
+<div id="img-openstack56" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack56.png" alt="openstack56">
+</div>
+<div class="title">Figure 49. Ativando snapshot, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Flavor</em>, defina o tamanho da instância como <code>ds512M</code>, novamente. Clique em <em>Disparar Instância</em>. Após algum tempo, a instância será criada, como mostrado abaixo.</p>
+</div>
+<div id="img-openstack57" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack57.png" alt="openstack57">
+</div>
+<div class="title">Figure 50. Ativando snapshot, concluído</div>
+</div>
+</li>
+<li>
+<p>Em <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Instâncias</em>, localize a instância Debian original e selecione <em>Remover IP Flutuante</em>.</p>
+<div id="img-openstack58" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack58.png" alt="openstack58">
+</div>
+<div class="title">Figure 51. Alternando IP flutuante para o snapshot, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Confirme a remoção do IP, e <strong>não</strong> marque a caixa <em>Release Floating IP</em>. Clique em <em>Desassociar</em>.</p>
+</div>
+<div id="img-openstack59" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack59.png" alt="openstack59">
+</div>
+<div class="title">Figure 52. Alternando IP flutuante para o snapshot, parte 2</div>
+</div>
+<div class="paragraph">
+<p>De volta à tela anterior, localize a instância do <em>snapshot</em> recém-criado e selecione <em>Associar IP Flutuante</em>. Atribua à essa instância o IP flutuante que foi removido da instância Debian original.</p>
+</div>
+<div id="img-openstack60" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack60.png" alt="openstack60">
+</div>
+<div class="title">Figure 53. Alternando IP flutuante para o snapshot, parte 3</div>
+</div>
+</li>
+<li>
+<p>Atualize a página web em seu navegador. Você deverá ver a página inicial padrão do servidor web Nginx, inalterada.</p>
+<div id="img-openstack61" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack61.png" alt="openstack61">
+</div>
+<div class="title">Figure 54. Acessando servidor web do snapshot</div>
+</div>
+</li>
+<li>
+<p>Para "emular" o comportamento de um <em>snapshot</em> em um sistema de virtualização tradicional, você pode navegar até <em>Projeto</em> &gt; <em>Computação</em> &gt; <em>Instâncias</em>, localizar a instância Debian original e clicar em <em>Excluir Instâncias</em>.</p>
+<div id="img-openstack62" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack62.png" alt="openstack62">
+</div>
+<div class="title">Figure 55. Removendo instância original</div>
+</div>
+<div class="paragraph">
+<p>Após a remoção, restará apenas o <em>snapshot</em>. De certa forma, é como se tivéssemos "restaurado" a instância para sua versão do <em>snapshot</em>.</p>
+</div>
+<div id="img-openstack63" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack63.png" alt="openstack63">
+</div>
+<div class="title">Figure 56. Apenas instância do snapshot restando no OpenStack</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_conhecendo_outras_funcionalidades_do_openstack">5) Conhecendo outras funcionalidades do OpenStack</h3>
+<div class="paragraph">
+<p>No menu <em>Admin</em> podemos configurar aspectos administrativos do OpenStack, como limites de recursos para usuários, imagens de instâncias disponíveis e <em>flavors</em>. Vamos explorar algumas dessas capacidades.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Em <em>Admin</em> &gt; <em>Computação</em> &gt; <em>Hipervisores</em> é possível visualizar todos os hypervisors sendo gerenciados pelo OpenStack, e adicionar novos se desejado. Como estamos usando um ambiente específico para desenvolvimento, não iremos adicionar novos hypervisors neste momento.</p>
+<div class="paragraph">
+<p>O tutorial disponível em <a href="https://docs.openstack.org/devstack/latest/guides/multinode-lab.html" class="bare">https://docs.openstack.org/devstack/latest/guides/multinode-lab.html</a> mostra um exemplo de configuração para um laboratório <em>multi-node</em> com o OpenStack.</p>
+</div>
+<div id="img-openstack64" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack64.png" alt="openstack64">
+</div>
+<div class="title">Figure 57. Lista de hypervisors disponíveis</div>
+</div>
+</li>
+<li>
+<p>A lista de <em>flavors</em> de instância disponibilizados para os usuários pode ser visualizada e customizadas através do menu <em>Admin</em> &gt; <em>Computação</em> &gt; <em>Sabores</em>.</p>
+<div id="img-openstack65" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack65.png" alt="openstack65">
+</div>
+<div class="title">Figure 58. Lista de flavors de instância</div>
+</div>
+</li>
+<li>
+<p>As quotas de recursos disponibilizados aos usuários do OpenStack podem ser customizadas em <em>Admin</em> &gt; <em>Sistema</em> &gt; <em>Padrões</em>.</p>
+<div id="img-openstack66" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack66.png" alt="openstack66">
+</div>
+<div class="title">Figure 59. Edição de quotas de recursos</div>
+</div>
+<div class="paragraph">
+<p>Para realizar edições de quota com maior grau de granularidade (p.ex., quotas diferenciadas por usuários e grupos) é necessário interagir com os clientes de linha de comando do OpenStack, como abordado em <a href="https://docs.openstack.org/nova/latest/admin/quotas.html" class="bare">https://docs.openstack.org/nova/latest/admin/quotas.html</a> .</p>
+</div>
+</li>
+<li>
+<p>Podemos agrupar elementos do OpenStack em <em>Projetos</em>, <em>Grupos</em>, <em>Usuários</em> e <em>Papéis</em>. Os Projetos irão ditar quais conjuntos de recursos podem ser usados por um número de instâncias:</p>
+<div id="img-openstack67" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack67.png" alt="openstack67">
+</div>
+<div class="title">Figure 60. Lista de projetos</div>
+</div>
+<div class="paragraph">
+<p>Usuários, por sua vez, podem ser usados para garantir acesso ao OpenStack a diferentes pessoas, implementando uma <em>cloud</em> privada do tipo <em>IaaS</em> (<em>Infrastructure as a Service</em>).</p>
+</div>
+<div id="img-openstack68" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack68.png" alt="openstack68">
+</div>
+<div class="title">Figure 61. Lista de usuários</div>
+</div>
+<div class="paragraph">
+<p>Grupos podem ser usados para reunir usuários com um mesmo perfil de uso, ou por departamentos:</p>
+</div>
+<div id="img-openstack69" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack69.png" alt="openstack69">
+</div>
+<div class="title">Figure 62. Lista de grupos</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, pode-se usar Papéis para atribuir diferentes níveis de permissão de acesso na interface do OpenStack a Grupos de usuários:</p>
+</div>
+<div id="img-openstack70" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack70.png" alt="openstack70">
+</div>
+<div class="title">Figure 63. Lista de papéis</div>
+</div>
+</li>
+<li>
+<p>O OpenStack é uma solução largamente utilizada por empresas ao redor do mundo para implementar soluções de <em>clouds</em> públicas, híbridas e privadas. Isso fica bastante claro ao visualizarmos suas capacidades de <em>accounting</em> e contabilização de horas de uso de CPU, memória e disco no menu <em>Admin</em> &gt; <em>Visão Geral</em>.</p>
+<div id="img-openstack71" class="imageblock text-center">
+<div class="content">
+<img src="../img/9_OpenStack/openstack71.png" alt="openstack71">
+</div>
+<div class="title">Figure 64. Taxas de uso de recursos por projeto</div>
+</div>
+<div class="paragraph">
+<p>Esse sistema de contabilização permite suporte ao modelo <em>pay-by-use</em>, muito popular em provedores de <em>clouds</em> públicas. Confira abaixo uma lista de fornecedores de <em>clouds</em> que utilizam o OpenStack como base para sua infraestrutura:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><em>Clouds</em> públicas: <a href="https://www.openstack.org/marketplace/public-clouds/" class="bare">https://www.openstack.org/marketplace/public-clouds/</a></p>
+</li>
+<li>
+<p><em>Clouds</em> privadas <em>hosted</em>: <a href="https://www.openstack.org/marketplace/hosted-private-clouds/" class="bare">https://www.openstack.org/marketplace/hosted-private-clouds/</a></p>
+</li>
+<li>
+<p><em>Clouds</em> privadas gerenciadas remotamente: <a href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/" class="bare">https://www.openstack.org/marketplace/remotely-managed-private-clouds/</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-12-10 15:01:51 -0200
+Last updated 2018-12-13 08:53:51 -0200
 </div>
 </div>
 </body>

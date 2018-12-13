@@ -1,3 +1,0 @@
-Web FreeNAS password: root / rnpesr
-https://www.ixsystems.com/documentation/freenas/11/sharing.html#extents
-iSCSI access password: aluno / rnpesr123456

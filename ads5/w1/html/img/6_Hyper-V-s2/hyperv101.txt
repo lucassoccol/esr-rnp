@@ -1,1 +1,0 @@
-Refazer teste com Quorum/Cluster master rodando VM. Resultado: volumes vão para o outro membro de cluster, e após 4 minutos a VM é rebootada.
