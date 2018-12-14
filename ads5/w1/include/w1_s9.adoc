@@ -205,7 +205,7 @@ stack@ostk-d1-g1:~$ git clone https://git.openstack.org/openstack-dev/devstack ;
 Configure uma senha de acesso padrão às interfaces e bases de dados do OpenStack usando um arquivo `local.conf`. O comando abaixo irá populá-lo automaticamente:
 +
 ....
-stack@ostk-d1-g1:~$ cat <<EOF > local.conf
+stack@ostk-d1-g1:~$ cat <<EOF > ~/devstack/local.conf
 [[local|localrc]]
 ADMIN_PASSWORD=Virt3sr
 DATABASE_PASSWORD=\$ADMIN_PASSWORD
@@ -261,7 +261,9 @@ Abra um navegador web em sua máquina física e acesse a URL: você deverá ver 
 [#img-openstack18]
 image::9_OpenStack/openstack18.png[align=center]
 +
-Você verá o _dashboard_ de configuração do OpenStack. Navegue pelas abas e janelas para ambientar-se com a ferramenta.
+Você verá o _dashboard_ de configuração do OpenStack. Antes de mais nada, *garanta* que o projeto selecionado atualmente é o projeto _demo_ (a seleção pode ser feita ao lado do logo do OpenStack, na parte superior esquerda da tela).
++
+Feito isso, navegue pelas abas e janelas para ambientar-se com a ferramenta.
 +
 .Dashboard do OpenStack
 [#img-openstack19]
