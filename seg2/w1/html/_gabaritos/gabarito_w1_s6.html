@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.7.1">
+<title>Sessão 6: Autenticação, autorização e certificação digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Uncomment @import statement below to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite::before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
+#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #efefed}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+@media screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
+.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
+.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
+.quoteblock .quoteblock blockquote::before{display:none}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{word-spacing:0;line-height:1.6}
+.quoteblock.abstract blockquote::before,.quoteblock.abstract p::before{display:none}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd){background:#f8f8f7}
+table.stripes-none tr,table.stripes-odd tr:nth-of-type(even){background:none}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
+.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article">
+<div id="header">
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_sessão_6_autenticação_autorização_e_certificação_digital">Sessão 6: Autenticação, autorização e certificação digital</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_uso_de_criptografia_simétrica_em_arquivos">1) Uso de criptografia simétrica em arquivos</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Esta atividade será realizada nas máquinas virtuais <em>FWGW1-G</em> e <em>LinServer-G</em>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Na máquina <em>FWGW1-G</em>, descubra quais cifras simétricas são suportadas pelo programa <code>gpg</code> (<em>GNU Privacy Guard</em>).</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --version | grep Cipher -A1
+Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH,
+        CAMELLIA128, CAMELLIA192, CAMELLIA256</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Crie um arquivo <code>teste.txt</code> com qualquer conteúdo. Criptografe-o usando a cifra simétrica AES256, com senha <code>rnpesr</code>. Em seguida, copie o arquivo cifrado resultante para o diretório <em>home</em> do usuário <code>aluno</code>, na máquina <em>LinServer-G</em>, usando o comando <code>scp</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste de cifragem' &gt; teste.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --symmetric --cipher-algo AES256 teste.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls teste.txt*
+teste.txt  teste.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp teste.txt.gpg aluno@172.16.1.10:~
+teste.txt.gpg                                                           100%   94     0.1KB/s   00:00</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Na máquina <em>LinServer-G</em>, tente descriptografar o arquivo copiado. Seu conteúdo permanece o mesmo?</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls teste.txt*
+teste.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -o teste.txt.out -d teste.txt.gpg
+gpg: AES256 encrypted data
+gpg: encrypted with 1 passphrase</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat teste.txt.out
+teste de cifragem</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_uso_de_criptografia_assimétrica_em_arquivos">2) Uso de criptografia assimétrica em arquivos</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Esta atividade será realizada nas máquinas virtuais <em>FWGW1-G</em> e <em>LinServer-G</em>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Na máquina <em>FWGW1-G</em>, como usuário <code>root</code>, instale o pacote <code>rng-tools</code> e rode o comando <code>rngd -r /dev/urandom</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+FWGW1-A
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install rng-tools</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rngd -r /dev/urandom</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, como usuário <code>aluno</code>, descubra quais cifras assimétricas são suportadas pelo programa <code>gpg</code> (<em>GNU Privacy Guard</em>).</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname ; whoami ; pwd
+FWGW1-A
+aluno
+/home/aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --version | grep Pubkey
+Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos fazer um exercício de criptografia usando chaves assimétricas entre dois usuários fictícios, Alice (operando na máquina <em>FWGW1-G</em>) e Bobby (operando na máquina <em>LinServer-G</em>). Vamos começar por Alice&#8201;&#8212;&#8201;gere um par de chaves assimétricas RSA padrão, com 4096 bits e sem data de expiração para ela, usando o programa <code>gpg</code> com a opção <code>--full-generate-key</code>. O e-mail de Alice será <a href="mailto:alice@seg12.esr.rnp.br">alice@seg12.esr.rnp.br</a> , e a senha de acesso à chave será <code>rnpesr123</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --full-generate-key</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+Your selection? 1
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048) 4096
+Requested keysize is 4096 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      &lt;n&gt;  = key expires in n days
+      &lt;n&gt;w = key expires in n weeks
+      &lt;n&gt;m = key expires in n months
+      &lt;n&gt;y = key expires in n years
+Key is valid for? (0) 0
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: Alice
+Email address: alice@seg12.esr.rnp.br
+Comment:
+You selected this USER-ID:
+    "Alice &lt;alice@seg12.esr.rnp.br&gt;"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
+
+(...)
+
+gpg: key EB757978FB898C57 marked as ultimately trusted
+gpg: revocation certificate stored as '/home/aluno/.gnupg/openpgp-revocs.d/5A62CAF74E46B70509335DA7EB757978FB898C57.rev'
+public and secret key created and signed.
+
+pub   rsa4096 2018-10-16 [SC]
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+uid                      Alice &lt;alice@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Na máquina <em>LinServer-G</em>, como usuário <code>root</code>, instale o pacote <code>rng-tools</code> e rode o comando <code>rngd -r /dev/urandom</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+LinServer-A
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install rng-tools</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rngd -r /dev/urandom</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Como usuário <code>aluno</code>, gere a chave de Bobby na máquina <em>LinServer-G</em>. Repita o procedimento do passo (2), alterando o nome de usuário para Bobby e o email para <a href="mailto:bobby@seg12.esr.rnp.br">bobby@seg12.esr.rnp.br</a> .</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname ; whoami ; pwd
+LinServer-A
+aluno
+/home/aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --full-generate-key
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg: key 6F4EC30E8E0D7290 marked as ultimately trusted
+gpg: revocation certificate stored as '/home/aluno/.gnupg/openpgp-revocs.d/89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290.rev'
+public and secret key created and signed.
+
+pub   rsa4096 2018-10-16 [SC]
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+uid                      Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Temos que exportar as chaves públicas de ambos os usuários, copiá-las para a máquina remota, e importá-las. Comece pela chave de Alice, exportando-a em formato <em>ASCII armored</em>; em seguida, copie-a para a máquina <em>LinServer-G</em> usando o <code>scp</code>, importe-a usando <code>gpg --import</code> e assine a chave.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --armor --export Alice &gt; alice_public.asc</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp alice_public.asc aluno@172.16.1.10:~
+alice_public.asc                                                        100% 3083     3.0KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, na máquina <em>LinServer-G</em>, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --import alice_public.asc
+gpg: key EB757978FB898C57: public key "Alice &lt;alice@seg12.esr.rnp.br&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Valide</strong> a chave recebida com o remetente (por exemplo, verficando que o <em>fingerprint</em> está de fato correto), e posteriormente assine-a como mostrado a seguir.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --edit-key Alice
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+pub  rsa4096/EB757978FB898C57
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+sub  rsa4096/CDDA806670DAA306
+     created: 2018-10-16  expires: never       usage: E
+[ unknown] (1). Alice &lt;alice@seg12.esr.rnp.br&gt;</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; fpr
+pub   rsa4096/EB757978FB898C57 2018-10-16 Alice &lt;alice@seg12.esr.rnp.br&gt;
+ Primary key fingerprint: 5A62 CAF7 4E46 B705 0933  5DA7 EB75 7978 FB89 8C57</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; sign
+
+pub  rsa4096/EB757978FB898C57
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+ Primary key fingerprint: 5A62 CAF7 4E46 B705 0933  5DA7 EB75 7978 FB89 8C57
+
+     Alice &lt;alice@seg12.esr.rnp.br&gt;
+
+Are you sure that you want to sign this key with your
+key "Bobby &lt;bobby@seg12.esr.rnp.br&gt;" (6F4EC30E8E0D7290)
+
+Really sign? (y/N) y</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; quit
+Save changes? (y/N) y</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Faça o procedimento reverso, exportando/copiando/importando e assinando a chave de Bobby na máquina de Alice. Lembre-se que o <code>ssh</code> para a máquina <em>FWGW1-G</em> é permitido apenas a partir da Intranet, então pode ser mais interessante iniciar o procedimento de cópia a partir do firewall, e não da máquina <em>LinServer-G</em>.</p>
+<div class="paragraph">
+<p>Primeiro, na máquina <em>LinServer-G</em>, vamos exportar a chave:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --armor --export Bobby &gt; bobby_public.asc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Como não há regra que permita <code>ssh</code> da DMZ para a máquina <em>FWGW1-G</em>, vamos fazer a cópia no sentido inverso:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp aluno@172.16.1.10:~/bobby_public.asc ~
+bobby_public.asc                                                        100% 3083     3.0KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, basta importar e assinar a chave:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --import bobby_public.asc
+gpg: key 6F4EC30E8E0D7290: public key "Bobby &lt;bobby@seg12.esr.rnp.br&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --edit-key Bobby
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+
+pub  rsa4096/6F4EC30E8E0D7290
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+sub  rsa4096/DC5CA71609A03084
+     created: 2018-10-16  expires: never       usage: E
+[ unknown] (1). Bobby &lt;bobby@seg12.esr.rnp.br&gt;</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; fpr
+pub   rsa4096/6F4EC30E8E0D7290 2018-10-16 Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+ Primary key fingerprint: 89AD 21B9 914F 4E7E 91AA  89D0 6F4E C30E 8E0D 7290</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; sign
+
+pub  rsa4096/6F4EC30E8E0D7290
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+ Primary key fingerprint: 89AD 21B9 914F 4E7E 91AA  89D0 6F4E C30E 8E0D 7290
+
+     Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+
+Are you sure that you want to sign this key with your
+key "Alice &lt;alice@seg12.esr.rnp.br&gt;" (EB757978FB898C57)
+
+Really sign? (y/N) y</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; quit
+Save changes? (y/N) y</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, vamos fazer o teste de criptografia assimétrica propriamente dito. Na máquina <em>FWGW1-G</em>, verifique que as chaves estão de fato disponíveis. Em seguida, criptografe um documento de texto com conteúdo qualquer com a chave pública de Bobby, envie para a máquina <em>LinServer-G</em>, e tente decriptá-lo usando a chave privada de Bobby.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, vamos verificar se as chaves estão disponíveis:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --list-keys
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
+/home/aluno/.gnupg/pubring.kbx
+------------------------------
+pub   rsa4096 2018-10-16 [SC]
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+uid           [ultimate] Alice &lt;alice@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]
+
+pub   rsa4096 2018-10-16 [SC]
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+uid           [  full  ] Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito. Vamos criar um documento <code>asym.txt</code> com conteúdo qualquer e criptografá-lo com a chave pública de Bobby, e finalmente copiá-lo para a máquina <em>LinServer-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste assimetrico' &gt; asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -e -r Bobby asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls asym.txt*
+asym.txt  asym.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp asym.txt.gpg aluno@172.16.1.10:~
+asym.txt.gpg                                                            100%  614     0.6KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Na máquina <em>LinServer-G</em>, vamos tentar decriptar o arquivo com a chave privada de Bobby:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls asym.txt*
+asym.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -o asym.txt -d asym.txt.gpg
+gpg: encrypted with 4096-bit RSA key, ID DC5CA71609A03084, created 2018-10-16
+      "Bobby &lt;bobby@seg12.esr.rnp.br&gt;"</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat asym.txt
+teste assimetrico</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos agora testar a assinatura digital de arquivos. Começando a partir da máquina <em>LinServer-G</em>, crie um arquivo texto com conteúdo qualquer. Assine-o com a chave privada de Bobby, e copie o arquivo para a máquina <em>FWGW1-G</em>. Finalmente, verifique a assinatura usando o <em>keyring</em> de Alice.</p>
+<div class="paragraph">
+<p>Na máquina <em>LinServer-G</em>, vamos criar um arquivo com conteúdo qualquer e assiná-lo usando a chave privada de Bobby, em texto claro (opção <code>--clearsign</code>):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste assinatura' &gt; sign.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --clearsign sign.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls sign.txt*
+sign.txt      sign.txt.asc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que tanto o conteúdo do arquivo quanto a assinatura estão em texto claro, uma vez que a mensagem foi apenas assinada (e não criptografada).</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat sign.txt.asc
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+teste assinatura
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEia0huZFPTn6RqonQb07DDo4NcpAFAlvFs3oACgkQb07DDo4N
+cpB5CA/+JCdrJlc30UbFFuXhaIlK5uu73cc7Cy9pVAz0nZ9QNvQyAxF7EHOlsXM+
+NbohVHQRW3PU5nSKUzcybX/u3to0TJ8T2My4YyzS3xHktDdmoQZCSUqANG0aVpsd
+nuByu7Q0NX+yKETJlsVHskhBs/iQ7TXqxl80FmutfNHeh42EMD3wOajAsWS0YZbh
+YBwp1WGnyPmoEDeC+ijtsaNj2oXTQSQ0c208jeibQZC7v375ZwtU5dcfc+9WuA8G
+uG0eabHeINedQw0OWLDAvHCyC+uKI4Nny6vQYtS4PfDDWtxxl1UYQKyypcCIcwiN
+m5qKcMZED1/cxCWNKtopfbwaL5jPAGu1M+lGXwF1JQqI6o3gjP25w1kUkSXpB83F
+ljwYMzzZjSzk0XP1XRl/t4jTEdbDFIw4hzDMzlAu7ZljdMZ0+pkp73rPiZjvzexd
+z57jGZyYsR2y/VqctICEw8bQOv5OMvwUyCBQ6ucTtkPcsWKlIHZEKXXEKla3V3yD
+476t1ZkHQCquGI2MrOS1JMp3EFlHdkJeJoXrVmlsj5TmvPkvTjZPCPSXkMvgxkJQ
+grzQZcg3BSXpuHRkOvOYQIZXCpoJfMjREjqcqQW0cLEtVutjEYLcVEWglOLm49zS
+P26ADVE+YLgacS4EMIflK6qOELye/PKQrV3LZKEeKaOdrdJT4us=
+=zFNN
+-----END PGP SIGNATURE-----</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos copiar o arquivo para a máquina <em>FWGW1-G</em> (lembrando que a cópia deve ser iniciada no sentido inverso, devido às regras de firewall), e verificar a assinatura.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp aluno@172.16.1.10:~/sign.txt.asc ~
+sign.txt.asc                                                            100%  883     0.9KB/s   00:00</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --verify sign.txt.asc
+gpg: Signature made ter 16 out 2018 06:46:34 -03
+gpg:                using RSA key 89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+gpg: Good signature from "Bobby &lt;bobby@seg12.esr.rnp.br&gt;" [full]</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Finalmente, vamos "juntar tudo". Da máquina <em>FWGW1-G</em>, crie um arquivo texto com conteúdo qualquer e (1) assine-o com a <strong>chave privada de Alice</strong>, e (2) criptografe-o com a <strong>chave pública de Bobby</strong>. Copie o arquivo para a máquina <em>LinServer-G</em>, decripte-o e verifique sua assinatura.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, vamos criar um arquivo com conteúdo qualquer, assiná-lo, criptografá-lo e enviar para a máquina <em>LinServer-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste assinatura e criptografia assimetrica' &gt; sign-asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -s -e -r Bobby sign-asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls sign-asym.txt*
+sign-asym.txt  sign-asym.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp sign-asym.txt.gpg aluno@172.16.1.10:~
+sign-asym.txt.gpg                                                       100% 1207     1.2KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, na máquina <em>LinServer-G</em>, basta invocar a opção <code>-d</code> do <code>gpg</code>. Além de decriptar o arquivo, sua assinatura será verificada.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -o sign-asym.txt -d sign-asym.txt.gpg
+gpg: encrypted with 4096-bit RSA key, ID DC5CA71609A03084, created 2018-10-16
+      "Bobby &lt;bobby@seg12.esr.rnp.br&gt;"
+gpg: Signature made ter 16 out 2018 06:48:13 -03
+gpg:                using RSA key 5A62CAF74E46B70509335DA7EB757978FB898C57
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
+gpg: Good signature from "Alice &lt;alice@seg12.esr.rnp.br&gt;" [full]</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat sign-asym.txt
+teste assinatura e criptografia assimetrica</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_uso_de_criptografia_assimétrica_em_e_mails">3) Uso de criptografia assimétrica em e-mails</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Esta atividade será realizada em sua máquina física.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Vamos agora testar o procedimento de criptografia assimétrica usado na atividade (2) em um cenário mais prático: no envio e recebimento de e-mails.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Crie uma conta de e-mail gratuita no serviço GMail, do Google.</p>
+</li>
+<li>
+<p>Em sua máquina física, instale o programa <em>gpg4win</em> (que pode ser baixado em <a href="https://www.gpg4win.org/download.html" class="bare">https://www.gpg4win.org/download.html</a>). Durante a instalação, aceite todas as opções padrão, e desmarque a caixa <em>Executar Kleopatra</em> ao final do processo de instalação.</p>
+</li>
+<li>
+<p>Em sua máquina física, instale o cliente de e-mail <em>Mozilla Thunderbird</em> (que pode ser baixado em <a href="https://www.thunderbird.net/pt-BR/thunderbird/all/" class="bare">https://www.thunderbird.net/pt-BR/thunderbird/all/</a>). Durante a instalação, aceite todas as opções padrão.</p>
+</li>
+<li>
+<p>Ao abrir o Thunderbird, adicione a conta de e-mail criada no passo (1), como mostra a imagem a seguir:</p>
+<div id="img-thunderbird-addaccount" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/thunderbird-addaccount.png" alt="thunderbird addaccount">
+</div>
+<div class="title">Figure 1. Adicionando uma conta de e-mail ao Thunderbird</div>
+</div>
+<div class="paragraph">
+<p>Durante o processo de criação de conta, o <em>Thunderbird</em> irá abrir uma janela para autenticação no GMail, solicitando autorização para integração. Digite a senha da conta definida no passo (1) e garanta as permissões solicitadas.</p>
+</div>
+</li>
+<li>
+<p>No Thunderbird, navegue no menu localizado no canto superior direito. Clique em <em>Extensões</em> &gt; <em>Extensões</em>. No canto superior da janela, pesquise por <code>enigmail</code> e pressione ENTER. O primeiro resultado, a extensão <em>Enigmail</em>, é o que queremos: clique no botão <em>Adicionar ao Thunderbird</em> &gt; <em>Instalar agora</em>.</p>
+<div class="paragraph">
+<p>Após a instalação do <em>Enigmail</em>, reinicie o <em>Thunderbird</em> (feche e reabra o programa).</p>
+</div>
+</li>
+<li>
+<p>Desde a versão 2.0.0 do <code>Enigmail</code>, lançada em março de 2018, o modo padrão de operação é o <em>Enigmail/PeP</em>. O <em>PeP</em> (<em>pretty Easy privacy</em> cujo website é <a href="https://www.pep.security/" class="bare">https://www.pep.security/</a>) é uma implementação de segurança para e-mails com o objetivo expresso de ser simples e de baixa configuração. Para o nosso cenário, isso significa:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>Geração automática de pares de chaves assimétricas</p>
+</li>
+<li>
+<p>Distribuição automática de chaves públicas via anexo ou <em>upload</em> para servidores de chaves (<em>keyservers</em>)</p>
+</li>
+<li>
+<p>Criptografia e assinatura automática de mensagens</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Vamos testar esses conceitos. Envie uma mensagem para o seu colega usando o Thunderbird. Caso o <em>Enigmail/PeP</em> esteja funcionando corretamente, o botão <em>Habilitar a Proteção</em> deverá estar marcado no centro da tela:</p>
+<div id="img-thunderbird-pep1" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/thunderbird-pep1.png" alt="thunderbird pep1">
+</div>
+<div class="title">Figure 2. PeP habilitado no Thunderbird</div>
+</div>
+<div class="paragraph">
+<p>Logo abaixo, você visualizará o estado da privacidade como "Inseguro". Isso se deve ao fato de que você e seu colega ainda não fizeram a troca de chaves. O <em>Enigmail/PeP</em> irá se encarregar de anexar sua chave pública automaticamente à mensagem. Envie o email.</p>
+</div>
+</li>
+<li>
+<p>Na máquina do seu colega, a mensagem deverá ser recebida normalmente. Note que a mensagem está legível&#8201;&#8212;&#8201;não há criptografia ainda, apenas assinatura. Clique no triângulo amarelo na lateral direita para observas as características de confiança da mensagem:</p>
+<div id="img-thunderbird-pep2" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/thunderbird-pep2.png" alt="thunderbird pep2">
+</div>
+<div class="title">Figure 3. Mensagem segura, não confiável</div>
+</div>
+</li>
+<li>
+<p>Clique no botão <em>Negociação&#8230;&#8203;</em> para confirmar a veracidade da chave. Você verá a tela a seguir:</p>
+<div id="img-thunderbird-pep3" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/thunderbird-pep3.png" alt="thunderbird pep3">
+</div>
+<div class="title">Figure 4. Verificação de palavras confiáveis</div>
+</div>
+<div class="paragraph">
+<p>Serão mostradas cinco palavras confiáveis, que devem ser confirmadas com o seu colega. Se corretas, significa que a chave pública anexada à mensagem original é, de fato, correspondente à chave privada sob posso do seu colega. Clique no botão <em>Confirme palavras-confiáveis</em> para autenticar a chave.</p>
+</div>
+</li>
+<li>
+<p>Logo após, você verá a tela a seguir:</p>
+<div id="img-thunderbird-pep4" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/thunderbird-pep4.png" alt="thunderbird pep4">
+</div>
+<div class="title">Figure 5. Mensagem segura e confiável</div>
+</div>
+<div class="paragraph">
+<p>A partir desse momento, a chave pública do seu colega é conhecida pelo <em>Enigmail/PeP</em>, e é possível enviar mensagens criptografadas para ele e verificar mensagens assinadas. Envie um email-resposta para a mensagem original, e repita os passos (8) e (9) para autenticar a chave no sentido oposto. A partir desse momento, será possível trocar mensagens seguras entre as duas partes.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_criptografia_de_partições_e_volumes">4) Criptografia de partições e volumes</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Esta atividade será realizada em sua máquina física.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Instale o <em>VeraCrypt</em> (que pode ser baixado em <a href="https://www.veracrypt.fr/en/Downloads.html" class="bare">https://www.veracrypt.fr/en/Downloads.html</a>) em sua máquina física. Durante a instalação, aceite todas as opções padrão.</p>
+</li>
+<li>
+<p>O VeraCrypt pode criptografar partições inteiras ou apenas criar um contêiner seguro. Com isso, podemos gravar arquivos sigilosos no contêiner e transportá-lo através de mídia física ou meio não confiável de forma bastante conveniente. Na tela principal do VeraCrypt, clique em <em>Create Volume</em>.</p>
+<div id="img-veracrypt1" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/veracrypt1.png" alt="veracrypt1">
+</div>
+<div class="title">Figure 6. Criação de volumes no VeraCrypt, parte 1</div>
+</div>
+</li>
+<li>
+<p>Na tela seguinte, mantenha marcada a opção <em>Create an encrypted file container</em> e clique em <em>Next</em>.</p>
+<div id="img-veracrypt2" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/veracrypt2.png" alt="veracrypt2">
+</div>
+<div class="title">Figure 7. Criação de volumes no VeraCrypt, parte 2</div>
+</div>
+</li>
+<li>
+<p>Na tela subsequente, mantenha marcada a opção <em>Standard VeraCrypt volume</em> e clique em <em>Next</em>.</p>
+</li>
+<li>
+<p>Em <em>Volume Location</em>, selecione uma pasta/arquivo destino para o contêiner e clique em <em>Next</em>.</p>
+<div id="img-veracrypt3" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/veracrypt3.png" alt="veracrypt3">
+</div>
+<div class="title">Figure 8. Criação de volumes no VeraCrypt, parte 3</div>
+</div>
+</li>
+<li>
+<p>Para as opções de criptografia, mantenha o algoritmo AES e hash SHA-512, e clique em <em>Next</em>.</p>
+</li>
+<li>
+<p>Para o tamanho do volume, escolha 50MB, e clique em <em>Next</em>.</p>
+</li>
+<li>
+<p>Para a senha do contêiner, é importante escolher uma senha forte que não seja facilmente descoberta. Para fins de teste, usaremos <code>rnpesr123</code>. Clique em <em>Next</em>.</p>
+</li>
+<li>
+<p>Mantenha o <em>filesystem</em> em FAT, e mova o mouse para gerar entropia. Finalmente, clique em <em>Format</em>.</p>
+</li>
+<li>
+<p>Para montar o volume, selecione uma letra vazia no seu sistema. A seguir, no quadro <em>Volume</em> da tela principal do VeraCrypt, clique em <em>Select File&#8230;&#8203;</em> e selecione o arquivo indicado no passo (5). Depois, clique em <em>Mount</em> e digite a senha informada no passo (8).</p>
+<div id="img-veracrypt4" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="../img/veracrypt4.png" alt="veracrypt4">
+</div>
+<div class="title">Figure 9. Criação de volumes no VeraCrypt, parte 4</div>
+</div>
+</li>
+<li>
+<p>Pronto, o volume criptografado está montado. Basta escrever arquivos como desejado e, ao final do processo, clicar em <em>Dismount</em> na janela principal do VeraCrypt. Caso queira mover o volume criptografado para outro local, copie-o em um <em>pendrive</em>, mídia removível ou mesmo através da Internet, e remonte-o no local de destino.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_autenticação_usando_sistema_otp">5) Autenticação usando sistema OTP</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Esta atividade será realizada na máquina <em>LinServer-G</em>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Nesta atividade iremos instalar e configurar um sistema TOTP (<em>time-based one-time password</em>) usando a ferramenta <em>Google Authenticator</em> na máquina <em>LinServer-G</em>. Essa autenticação de duplo fator irá prover mais segurança durante logins SSH na máquina-alvo.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Instale <strong>em seu celular</strong> o aplicativo <em>Google Authenticator</em>:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>Sistemas Android: <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en" class="bare">https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en</a></p>
+</li>
+<li>
+<p>Sistemas Apple: <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" class="bare">https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Para conseguir ler o <em>QR code</em> na tela, será necessário ter uma tela maior do que a console padrão do Virtualbox&#8201;&#8212;&#8201;faça login via <code>ssh</code> na máquina <em>LinServer-G</em> usando o PuTTY ou Cygwin e vire superusuário usando o comando <code>su</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>fbs@FBS-DESKTOP ~
+$ hostname
+FBS-DESKTOP</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>fbs@FBS-DESKTOP ~
+$ ssh aluno@172.16.1.10
+Password:
+Last login: Thu Sep  6 09:31:40 2018 from 172.16.1.254
+aluno@LinServer-A:~$</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>aluno@LinServer-A:~$ su -
+Password:
+root@LinServer-A:~#</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Instale o pacote que implementa suporte ao Google Authenticator na biblioteca PAM:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install libpam-google-authenticator</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Depois, insira a linha <code>auth  required  pam_google_authenticator.so</code> imediatamente após a linha 4, <code>@include common-auth</code>, no arquivo <code>/etc/pam.d/sshd</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/pam.d/sshd
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># head -n5 /etc/pam.d/sshd | grep -v '^#' | sed '/^$/d'
+@include common-auth
+auth  required  pam_google_authenticator.so</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Configure o <code>ssh</code> para permitir autenticação via <em>challenge-response</em>, alterando a diretiva <code>ChallengeResponseAuthentication</code> no arquivo <code>/etc/ssh/sshd_config</code> (linha 49). Feito isso, não esqueça de reiniciar o daemon do <code>ssh</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/ssh/sshd_config
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^ChallengeResponseAuthentication' /etc/ssh/sshd_config
+ChallengeResponseAuthentication yes</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl restart ssh</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, na máquina <em>LinServer-G</em>, execute <strong>como um usuário não-privilegiado</strong> (como o usuário <code>aluno</code>) o comando <code>google-authenticator</code>.</p>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Opções do google-authenticator</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pergunta</th>
+<th class="tableblock halign-left valign-top">Opção</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do you want authentication tokens to be time-based?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do you want me to update your "/home/aluno/.google_authenticator" file?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do you want to disallow multiple uses of the same authentication token?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Increase token window from default size of 1:30min to about 4min?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do you want to enable rate-limiting?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Abra o aplicativo <em>Google Authenticator</em> em seu celular e clique no <code>+</code> vermelho no canto inferior direito da tela. Em seguida, clique em <em>Scan a barcode</em> e leia o <em>QR code</em> gerado no passo (6). Na tela principal, deverá surgir uma nova linha com seis dígitos (que serão re-gerados a cada 30s) e o identificador <code>aluno@LinServer-G</code>.</p>
+</li>
+<li>
+<p>Verifique que a hora atual do servidor está correta. Como configuramos o NTP na sessão 4, é provável que esteja tudo correto, mas a <em>timezone</em> pode estar desconfigurada, como mostrado abaixo:</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ date
+Thu Sep  6 09:40:05 EDT 2018</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Se esse for o caso, rode o comando <code>dpkg-reconfigure tzdata</code> como usuário <code>root</code>. Escolha <em>America</em> &gt; <em>Sao_Paulo</em> (ou outra <em>timezone</em>, se for esse o caso). Verifique que o relógio foi corrigido:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dpkg-reconfigure tzdata
+
+Current default time zone: 'America/Sao_Paulo'
+Local time is now:      Thu Sep  6 10:42:27 BRT 2018.
+Universal Time is now:  Thu Sep  6 13:42:27 UTC 2018.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># date
+Thu Sep  6 10:42:36 BRT 2018</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Perfeito, tudo pronto. <strong>NÃO</strong> feche a sessão <code>ssh</code> atual, pois em caso de erros poderá ser necessário verificar alguns arquivos. Em lugar disso, abra uma nova sessão <code>ssh</code>, como usuário <code>aluno</code>, para a máquina <em>LinServer-G</em>. No <em>prompt</em> <em>Verification code</em>, informe o código temporizado indicado pelo aplicativo instalado em seu celular.</p>
+<div class="literalblock">
+<div class="content">
+<pre>fbs@FBS-DESKTOP ~
+$ hostname
+FBS-DESKTOP</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>fbs@FBS-DESKTOP ~
+$ ssh aluno@172.16.1.10
+Password:
+Verification code:
+You have mail.
+Last login: Thu Sep  6 10:32:40 2018 from 172.16.1.254
+aluno@LinServer-A:~$</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>aluno@LinServer-A:~$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>aluno@LinServer-A:~$ whoami
+aluno</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2018-10-16 08:46:08 -03
+</div>
+</div>
+</body>
+</html>

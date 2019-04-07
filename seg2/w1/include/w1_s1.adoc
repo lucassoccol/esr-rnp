@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 08-10-2018
+:revdate: 07-04-2019
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -203,7 +203,68 @@ Digite livremente a seguir. Use as setas do teclado para navegar no texto, e `DE
 +
 Para salvar e sair do texto sendo editado, como mencionado acima, utilize `CTRL + X`.
 
-3. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
+3. Durante as atividades deste curso iremos ter que digitar vários comandos no terminal das VMs, os quais serão mostrados nos cadernos de atividade de cada sessão. Alguns desses comandos serão bastante longos e/ou terão uma sintaxe complicada -- nesse caso, o ideal é que tenhamos a possibilidade de copiá-los diretamente do caderno para a console, evitando erros de digitação.
++
+O protocolo de login remoto SSH é ideal para solucionar essa tarefa. Em ambiente Windows, dois dos métodos mais populares para efetuar logins remotos via SSH são os programas PuTTY (https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) ou Cygwin (https://cygwin.com/install.html). Vamos, primeiro, visualizar os passos necessários usando o PuTTY.
++
+Em qualquer caso, o primeiro passo é sempre descobrir qual o endereço IP da máquina remota à qual queremos nos conectar. Por exemplo, na máquina _FWGW1-G_:
++
+....
+# ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}' | cut -d'/' -f1
+192.168.29.103
+....
++
+O uso do *PuTTY*, por se tratar de um programa _standalone_ com o objetivo único de efetuar login via SSH, é mais simples. Faça o download do PuTTY em sua máquina física Windows, usando a URL informada acima. Em seguida, apenas abra o programa e digite na caixa _Host Name_ o endereço IP da máquina remota descoberto acima. Em seguida, clique em _Open_.
++
+.Login via SSH usando o PuTTY, parte 1
+[#img-ssh1]
+image::ssh1.png[align="center"]
++
+Será mostrado um alerta de segurança avisando que a chave do _host_ remoto não se encontra na _cache_ local, o que pode configurar um risco de segurança. Clique em _Yes_ para prosseguir com a tentativa de login.
++
+Em seguida, será solicitado o nome de usuário com o qual efetuar a conexão. Como, por padrão, o _daemon_ `sshd` do Debian não permite logins remotos usando o `root`, escolha o usuário `aluno`. Para a senha, informe `rnpesr`. Em caso de sucesso, você verá a tela a seguir:
++
+.Login via SSH usando o PuTTY, parte 2
+[#img-ssh2]
+image::ssh2.png[align="center"]
++
+Para tornar-se o superusuário `root`, agora, basta executar o comando `su -` e informar a senha correta, como se segue:
++
+....
+$ su -
+Senha:
+....
++
+....
+# whoami
+root
+....
++
+Para copiar/colar comandos no PuTTY, basta selecionar o texto desejado no ambiente da máquina física e digitar `CTRL + C`, e em seguida clicar com o botão direito na janela do PuTTY. O texto selecionado será colado na posição do cursor.
+
+4. O uso do Cygwin é um pouco mais envolvido, já que seu objetivo é mais complexo: prover, em ambiente Windows, funcionalidade equivalente à que temos disponível em uma distribuição Linux. Para começar, faça o download e execute o instalador do Cygwin em sua máquina física Windows.
++
+A instalação é, em grande parte, bastante similar à de qualquer aplicativo Windows. Na tela inicial, clique em _Next_. Em _Choose a Download Source_, mantenha marcada a caixa _Install from Internet_ e clique em _Next_. Em _Select Root Install Directory_, os valores padrão estão apropriados -- clique em _Next_. Na tela _Select Local Package Directory_, novamente, mantenha o valor padrão e clique em _Next_.
++
+Agora, vamos selecionar a fonte de pacotes. Em _Select Your Internet Connection_, a menos que haja um _proxy_ na rede local (informe-se com seu instrutor), mantenha marcada a caixa _Direct Connection_ e clique em _Next_. Será feito o download da lista de espelhos disponíveis para o Cygwin. Em _Choose A Download Site_, qualquer espelho irá funcionar, mas evidentemente é desejável que escolhamos um que possua maior velocidade de download -- o site http://linorg.usp.br é provavelmente uma boa opção, nesse caso. Clique em _Next_, e o instalador irá baixar a lista de pacotes disponíveis.
++
+Em adição ao sistema-base padrão, é necessário instalar o OpenSSH para efetuar logins remotos. Na caixa de busca _Search_, no topo da tela, digite o termo de busca `openssh`. Expanda a árvore `Net` e clique na palavra _Skip_ na linha do pacote `openssh: The OpenSSH server and client programs` -- ela irá alterar para a versão a ser instalada, `7.9p1-1` no caso da figura mostrada abaixo:
++
+.Instalação do OpenSSH no Cygwin
+[#img-ssh3]
+image::ssh3.png[align="center"]
++
+Clique em _Next_. Em _Review and confirm changes_, verifique que o Cygwin irá instalar o OpenSSH e todas as demais dependências do sistema-base Linux, como o _shell_ `bash` ou ferramentas como o `grep`, e clique em _Next_. O instalador irá fazer o download e instalação dos pacotes selecionados.
++
+Concluído o processo, procure pelo programa `Cygwin Terminal` no menu iniciar da sua máquina física Windows, e execute-o. Agora, tente fazer login via SSH normalmente, como se estivesse em um _shell_ Linux:
++
+.Login via SSH usando o Cygwin
+[#img-ssh4]
+image::ssh4.png[align="center"]
++
+Para copiar/colar comandos no Cygwin, basta selecionar o texto desejado no ambiente da máquina física e digitar `CTRL + C`, e em seguida mudar o foco para a janela do Cygwin e digitar a combinação `SHIFT + Insert`. Para copiar texto a partir da janela do Cygwin, selecione-o e use a combinação de teclas `CTRL + Insert`. Para encontrar os arquivos localizados em sua máquina física, o diretório `/cygdrive/X` pode ser usado para mapear para os discos da máquina local -- por exemplo, o diretório `/cygdrive/c` mapeia diretamente para o `C:\` da máquina Windows.
+
+5. Voltemos à configuração da rede. Ainda na máquina _FWGW1-G_, edite o arquivo `/etc/network/interfaces` como se segue, reinicie a rede e verifique o funcionamento:
 +
 ....
 # hostname
@@ -251,7 +312,7 @@ address 10.1.1.1/24
 +
 <<<
 
-4. Se você for membro do grupo `B`, altere o nome de _host_ da máquina _FWGW1-G_ para refletir corretamente seu grupo. Primeiro, altere o arquivo `/etc/hostname`:
+6. Se você for membro do grupo `B`, altere o nome de _host_ da máquina _FWGW1-G_ para refletir corretamente seu grupo. Primeiro, altere o arquivo `/etc/hostname`:
 +
 ....
 # nano /etc/hostname
@@ -313,7 +374,7 @@ Creating SSH2 ED25519 key; this may take some time ...
 # systemctl restart ssh
 ....
 
-5. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
+7. Ligue a máquina _LinServer-G_ e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade. Para alterar o _hostname_ da máquina, siga os passos da etapa (6).
 +
 A seguir, edite as configurações de rede no arquivo `/etc/network/interfaces`, de DNS no arquivo `/etc/resolv.conf`, reinicie a rede e verifique se tudo está funcionando:
 +
@@ -368,17 +429,26 @@ nameserver 8.8.4.4
 +
 <<<
 
-6. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, clique em `OK` para entrar com uma nova senha, e informe a senha `rnpesr`. Na próxima tela, escolha "_Activate Later_".
+8. Vamos para a máquina _WinServer-G_. Assim que a máquina terminar de ligar, deveremos definir uma senha para o usuário `Administrator` na tela _Customize settings_. Use uma senha forte, como `RnpEsr123!`:
 +
-Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais. Quando perguntado sobre o perfil da rede, escolha _Work_.
+.Definição de senha do administrador na máquina WinServer-G
+[#img-passwd-winserver]
+image::winserver-1.png[align="center"]
++
+Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
 +
 .Configuração de rede da máquina WinServer-G
 [#img-rede-winserver]
-image::Configuracao_Rede_WinServer.png[align="center"]
+image::winserver-2.png[align="center"]
 +
+Quando perguntado se deseja que o computador possa ser descoberto por outros dispositivos na rede, responda _Yes_.
++
+.Descoberta de rede da máquina WinServer-G
+[#img-discover-winserver]
+image::winserver-3.png[align="center"]
 <<<
 
-7. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade, e reinicie a VM. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
+9. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade, e reinicie a VM. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
 +
 Em seguida, edite as configurações de rede no arquivo `/etc/network/interfaces` e de DNS no arquivo `/etc/resolv.conf`. Reinicie a rede e verifique se tudo está correto:
 +
@@ -433,12 +503,71 @@ nameserver 8.8.4.4
 +
 <<<
 
-8. Finalmente, vamos configurar a máquina _WinClient-G_: faça login como usuário `aluno` e senha `rnpesr`. Acesse o _Control Panel_ ou use o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
+10. Finalmente, vamos configurar a máquina _WinClient-G_: o primeiro passo é concluir o processo de instalação, a começar pela escolha da região do sistema. Escolha _Brasil_ e prossiga:
++
+.Configuração de região da máquina WinClient-G
+[#img-region-winclient]
+image::winclient-1.png[align="center"]
++
+Em seguida, escolha o _layout_ de teclado -- provavelmente `Brasil-ABNT2`.
++
+.Configuração de teclado da máquina WinClient-G
+[#img-keyboard-winclient]
+image::winclient-2.png[align="center"]
++
+Quando perguntado se deseja adicionar um segundo _layout_ de teclado, escolha _Pular_.
++
+A seguir, o sistema irá tentar conectar-se automaticamente à rede, sem sucesso. No canto inferior esquerdo, clique em _Ignorar por enquanto_ -- iremos configurar a rede posteriormente.
++
+.Configuração preliminar de rede da máquina WinClient-G
+[#img-prenetwork-winclient]
+image::winclient-4.png[align="center"]
++
+O configurador irá pedir confirmação se você deseja prosseguir sem configurar a rede. Clique em _Não_ para continuar com o processo de configuração inicial.
++
+Agora, vamos criar uma conta de usuário. Escolha o nome `Aluno`:
++
+.Configuração de conta da máquina WinClient-G
+[#img-account-winclient]
+image::winclient-6.png[align="center"]
++
+Para a senha, defina `rnpesr` e confirme na tela posterior:
++
+.Configuração de senha da máquina WinClient-G
+[#img-password-winclient]
+image::winclient-7.png[align="center"]
++
+Agora o sistema irá solicitar a definição de três perguntas de segurança caso a senha seja esquecida. Defina qualquer conjunto de perguntas/respostas que preferir, e prossiga:
++
+.Configuração de perguntas secretas da máquina WinClient-G
+[#img-questions-winclient]
+image::winclient-9.png[align="center"]
++
+Quando perguntado se deseja que a Cortana se torne sua assistente pessoal, desmarque a caixa _Permitir que a Cortana responda "Ei Cortana"_ e clique em _Recusar_.
++
+.Configuração de assistente da máquina WinClient-G
+[#img-assistant-winclient]
+image::winclient-10.png[align="center"]
++
+Quando perguntado se deseja ativar o histórico de atividades, responda _Não_ e prossiga.
++
+Na escolha de configurações de privacidade do sistema, desmarque todas as opções como mostrado na figura a seguir, e clique em _Aceitar_.
++
+.Configuração de privacidade da máquina WinClient-G
+[#img-privacy-winclient]
+image::winclient-12.png[align="center"]
++
+Uma vez logado dentro do sistema, acesse o _Painel de Controle_ ou use o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
 +
 .Configuração de rede da máquina WinClient-G
 [#img-rede-winclient]
-image::Configuracao_Rede_WinClient.png[align="center"]
+image::winclient-13.png[align="center"]
 +
+Quando perguntado se deseja que o computador possa ser descoberto por outros dispositivos na rede, responda _Sim_.
++
+.Descoberta de rede da máquina WinClient-G
+[#img-discover-winclient]
+image::winclient-14.png[align="center"]
 <<<
 
 === 6) Configuração de firewall e NAT
@@ -463,7 +592,7 @@ exit 0
 2. Isto significa dizer que a tradução de endereços das redes privadas já está configurado. Verifique se o repasse de pacotes entre interfaces está habilitado -- cheque se a linha `net.ipv4.ip_forward=1` no arquivo `/etc/sysctl.conf` está descomentada e, posteriormente, execute `# sysctl -p`:
 +
 ....
-# nano/etc/sysctl.conf
+# nano /etc/sysctl.conf
 (...)
 ....
 +
@@ -531,25 +660,35 @@ rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms
 
 === 8) Instalação do *_Virtualbox Guest Additions_* nas VMs Windows
 
-Vamos agora instalar os adicionais de convidado para máquinas virtuais do Virtualbox, conhecido como _Virtualbox Guest Additions_. Esse adicionais consistem em _drivers_ de dispositivo e aplicações de sistema que otimizam o sistema para rodar no ambiente virtual, proporcionando maior performance e estabilidade. Nesta atividade, iremos instalar os adicionais apenas nas máquinas _WinServer-G_ e _WinClient-G_.
+Vamos agora instalar os adicionais de convidado para máquinas virtuais do Virtualbox, conhecido como _Virtualbox Guest Additions_. Esse adicionais consistem em _drivers_ de dispositivo e aplicações de sistema que otimizam o sistema para rodar no ambiente virtual, proporcionando maior performance e estabilidade. Nesta atividade, iremos instalar os adicionais nas máquinas _WinServer-G_ e _WinClient-G_.
 
 1. Na console da máquina _WinServer-G_, acesse o menu _Devices_ > _Insert Guest Additions CD image_. Após algum tempo, a janela de _autorun_ irá aparecer, como mostrado abaixo. Clique duas vezes na opção _Run VBoxWindowsAdditions.exe_.
 +
 .Janela de autorun do CD Virtualbox Guest Additions
 [#img-vboxguest-autorun]
-image::Vboxguest_autorun.png[align="center"]
+image::winserver-4.png[align="center"]
 +
 <<<
 
-2. No assistente de instalação, clique em _Next_, _Next_, e finalmente em _Install_. No meio da instalação o sistema irá avisar que a assinatura de quem publicou o software não é conhecida. Clique em _Install this driver software anyway_, como mostrado abaixo. A mesma janela irá aparecer logo depois, então escolha a mesma opção.
+2. No assistente de instalação, clique em _Next_, _Next_, e finalmente em _Install_. No meio da instalação o sistema irá avisar que a assinatura de quem publicou o software não é conhecida. Marque a caixa _Always trust software from "Oracle Corporation"_ e clique em _Install_, como mostrado abaixo.
 +
 .Aviso de publisher não verificado do Virtualbox Guest Additions
 [#img-vboxguest-publisher]
-image::Vboxguest_publisher.png[align="center"]
+image::winserver-8.png[align="center"]
 
 3. Ao final da instalação, o assistente irá solicitar que o computador seja reiniciado. Deixe a caixa _Reboot now_ marcada e clique em _Finish_.
++
+.Reiniciar sistema após instalação do Virtualbox Guest Additions
+[#img-vboxguest-reboot]
+image::winserver-9.png[align="center"]
 
-4. Após o reinício do sistema, maximize a janela do Virtualbox e faça login no sistema como o usuário `Administrator`. Observe que, agora, o _desktop_ do Windows Server 2008 ocupa toda extensão do monitor, e não apenas uma pequena janela -- indício de que a instalação do _Virtualbox Guest Additions_ foi realizada com sucesso.
+4. Após o reinício do sistema, maximize a janela do Virtualbox e faça login no sistema como o usuário `Administrator`. Observe que, agora, o _desktop_ do Windows Server 2019 ocupa toda extensão do monitor, e não apenas uma pequena janela -- indício de que a instalação do _Virtualbox Guest Additions_ foi realizada com sucesso.
++
+Caso queira confirmar o sucesso da instalação, abra o _Task Manager_ (via `SHIFT + CTRL + ESC` ou pelo menu Iniciar do Windows) e navegue até a aba _Details_. Note que o serviço `VboxService.exe` deverá estar operando, como mostrado abaixo:
++
+.Serviço do Virtualbox Guest Additions operacional
+[#img-vboxguest-service]
+image::winserver-10.png[align="center"]
 
 5. Repita o procedimento de instalação dos passos 1 - 4 na máquina _WinClient-G_.
 +
@@ -557,69 +696,62 @@ image::Vboxguest_publisher.png[align="center"]
 
 === 9) Instalação do *_Virtualbox Guest Additions_* nas VMs Linux
 
-A instalação do _Virtualbox Guest Additions_ nas VMs Linux é um pouco diferente, mais manual. Siga os passos a seguir:
+[NOTE]
+====
+Neste curso iremos utilizar imagens de máquina virtual que já possuem todos os pacotes necessários para realização do curso pré-instalados. Em um sistema Debian recém-preparado, no entanto, o administrador teria primeiramente que instalar os pacotes `build-essential` e `module-assistant`:
 
-1. Vamos começar pela máquina _FWGW1-G_. Primeiro, faça login como `root` apague o conteúdo do arquivo `/etc/apt/sources.list`:
-+
 ....
-# echo "" > /etc/apt/sources.list
-....
-+
-Em seguida, edite-o com o seguinte conteúdo:
-+
-....
-# cat /etc/apt/sources.list
-deb http://ftp.br.debian.org/debian/           stretch         main contrib non-free
-deb http://ftp.br.debian.org/debian/           stretch-updates main contrib non-free
-deb http://security.debian.org/debian-security stretch/updates main contrib non-free
-....
-
-2. Em seguida, atualize os repositórios com o comando `apt-get update` e depois instale os pacotes `build-essential` e `module-assistant`, sem incluir recomendações:
-+
-....
-# apt-get update
 # apt-get install --no-install-recommends build-essential module-assistant
 ....
 
-3. Agora, faça o download dos `headers` do kernel em execução no sistema:
-+
+Em seguida, deve-se instalar os `headers` do kernel em execução no sistema:
+
 ....
 # m-a prepare
 ....
 
-4. Na console do Virtualbox da máquina _FWGW1-G_, acesse o menu _Devices_ > _Insert Guest Additions CD image_. Em seguida, monte o dispositivo:
+Uma vez realizados os passos acima, pode-se proceder com os passos de instalação do _Virtualbox Guest Additions_ explicados abaixo.
+====
+
+A instalação do _Virtualbox Guest Additions_ nas VMs Linux é um pouco diferente, mais manual. Siga os passos a seguir:
+
+1. Na console do Virtualbox da máquina _FWGW1-G_, acesse o menu _Devices_ > _Insert Guest Additions CD image_. Em seguida, monte o dispositivo:
 +
 ....
-# mount /dev/cdrom /mnt/
+# mount /dev/cdrom /mnt/ && cd /mnt
 ....
 
-5. Agora, execute o instalador do _Virtualbox Guest Additions_, com o comando:
+2. Agora, execute o instalador do _Virtualbox Guest Additions_, com o comando:
 +
 ....
-# sh /mnt/VBoxLinuxAdditions.run
+# sh VBoxLinuxAdditions.run
 Verifying archive integrity... All good.
-Uncompressing VirtualBox 5.2.18 Guest Additions for Linux........
+Uncompressing VirtualBox 6.0.4 Guest Additions for Linux........
 VirtualBox Guest Additions installer
 Copying additional installer modules ...
 Installing additional modules ...
 VirtualBox Guest Additions: Building the VirtualBox Guest Additions kernel modules.  This may take a while.
+VirtualBox Guest Additions: To build modules for other installed kernels, run
+VirtualBox Guest Additions:   /sbin/rcvboxadd quicksetup <version>
+VirtualBox Guest Additions: Building the modules for kernel 4.9.0-8-amd64.
+update-initramfs: Generating /boot/initrd.img-4.9.0-8-amd64
 VirtualBox Guest Additions: Starting.
 ....
 
-6. Finalmente, reinicie a máquina. Após o _reboot_, verifique que os módulos do _Virtualbox Guest Additions_ estão operacionais:
+3. Finalmente, reinicie a máquina. Após o _reboot_, verifique que os módulos do _Virtualbox Guest Additions_ estão operacionais:
 +
 ....
 # reboot
-
-(...)
-
-# lsmod | grep '^vbox'
-vboxsf                 36413  0
-vboxvideo              34226  1
-vboxguest             221732  2 vboxsf
+....
++
+....
+# lsmod | grep '^vbox' | sort
+vboxguest             327680  2 vboxsf
+vboxsf                 45056  0
+vboxvideo              36864  0
 ....
 
-7. Instale os módulos do _Virtualbox Guest Additions_ na máquina _LinServer-G_. O procedimento é idêntico ao que fizemos nos passos 1 - 6.
+4. Instale os módulos do _Virtualbox Guest Additions_ na máquina _LinServer-G_. O procedimento é idêntico ao que fizemos nos passos 1 - 6.
 
 <<<
 
@@ -627,11 +759,11 @@ vboxguest             221732  2 vboxsf
 
 A máquina _WinServer-G_ demanda uma pequena configuração adicional antes que estejamos prontos para começar os trabalhos. Vamos a ela:
 
-1. Usando o 1) _Control Panel_, 2) clique direito em _Computer_ > _Properties_ no Windows Explorer ou 3) digitando `system` no menu iniciar, abra a tela de configuração do sistema como mostrado a seguir:
+1. Usando o 1) _Control Panel_, ou 2) clicando com o botão direito em _Computer_ > _Properties_ no Windows Explorer ou 3) digitando `system` no menu iniciar, abra a tela de configuração do sistema como mostrado a seguir:
 +
 .Tela de configuração do sistema do WinServer
 [#img-winserver-system]
-image::Winserver_system.png[align="center"]
+image::winserver-11.png[align="center"]
 +
 <<<
 
@@ -639,41 +771,55 @@ image::Winserver_system.png[align="center"]
 +
 .Alteração de nome de máquina do WinServer
 [#img-winserver-changename]
-image::Winserver_changename.png[align="center"]
+image::winserver-12.png[align="center"]
 <<<
 
-3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow Connections from computers running any version of Remote Desktop (less secure)_, como na imagem abaixo. Depois, clique em _Apply_ e em seguida em _Restart Later_.
+3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow remote connections to this computer_ e desmarque _Allow connections only from computers running Remote Desktop with Network Level Authentication_, como na imagem abaixo. Depois, clique em _Apply_ e em seguida em _Restart Later_.
 +
 .Configurações de Remote Desktop do WinServer
 [#img-winserver-rdesktop]
-image::Winserver_rdesktop.png[align="center"]
+image::winserver-13.png[align="center"]
 <<<
 
-4. Agora, desabilite o firewall do Windows. Digite `firewall` no menu _Start_ (alternativamente, clique em _Windows Firewall_ no _Control Panel_), em seguida em _Turn Windows Firewall on or off_, e finalmente marque a caixa _Off_, como se segue:
+4. Agora, desabilite o firewall do Windows. Digite `firewall` no menu _Start_ (alternativamente, clique em _Windows Defender Firewall_ no _Control Panel_), em seguida em _Turn Windows Defender Firewall on or off_, e finalmente marque as caixas _Turn off Windows Defender Firewall_ para ambas as rede Privada e Pública, como se segue:
 +
 .Desabilitar o firewall do WinServer
 [#img-winserver-firewall]
-image::Winserver_firewall.png[align="center"]
+image::winserver-14.png[align="center"]
 
 5. Clique em _OK_ e reinicie a máquina _WinServer-G_.
 +
 <<<
 
-6. Após o _reboot_, abra o _Server Manager_ (é o primeiro ícone à direta do botão _Start_), e em seguida clique com o botão direito em _Roles_, selecionando _Add Roles_. Na janela subsequente, clique em _Next_. Depois, marque a caixa da _role_ _Web Server (IIS)_, como se segue. Quando surgir a pergunta _Add features required for Web Server (IIS)?_, clique em _Add Required Features_, e depois em _Next_.
+6. Após o _reboot_, acesse o _Server Manager_ (que deverá ser iniciado automaticamente após o logon), e no canto superior direito clique em _Manage_ > _Add Roles and Features_.
 +
-.Instalando a role IIS no WinServer
-[#img-winserver-iis]
-image::Winserver_iis.png[align="center"]
+Na janela _Before you begin_, clique em _Next_ (opcionalmente, marque a caixa _Skip this page by default_).
 +
-<<<
+Em _Select installation type_, mantenha _Role-based or feature-based installation_ e clique em _Next_.
++
+.Instalação de roles e features no WinServer, parte 1
+[#img-winserver-role1]
+image::winserver-15.png[align="center"]
++
+Em _Select destination server_, mantenha _Select a server from the server pool_ marcado e garanta que a máquina _WinServer-G_ está selecionada na caixa _Server Pool_. Clique em _Next_.
++
+Em _Select server roles_, marque a caixa _Web Server (IIS)_. Quando surgir a pergunta _Add features that are required for Web Server (IIS)?_, clique em _Add Features_, e depois em _Next_.
++
+.Instalação de roles e features no WinServer, parte 2
+[#img-winserver-role2]
+image::winserver-16.png[align="center"]
++
+Em _Select features_, clique em _Next_.
++
+Em _Web Server Role (IIS)_, clique em _Next_ para prosseguir.
++
+A seguir, na janela _Select role services_, desça a barra de rolagem até o final e marque a caixa _FTP Server_, como se segue.
++
+.Instalação de roles e features no WinServer, parte 3
+[#img-winserver-role3]
+image::winserver-17.png[align="center"]
 
-7. Na janela _Introduction to Web Server (IIS)_, clique em _Next_. A seguir, na janela _Role services_, desça a barra de rolagem até o final e marque a caixa _FTP Publishing Service_, como se segue. Da mesma forma que antes, quando surgir a pergunta _Add features required for FTP Publishing Service?_, clique em _Add Required Features_, e depois em _Next_.
-+
-.Instalando a feature FTP Server no WinServer
-[#img-winserver-ftp]
-image::Winserver_ftp.png[align="center"]
-
-8. Finalmente, clique em _Install_ e aguarde. Ao final do processo, clique em _Close_.
+7. Finalmente, clique em _Install_ e aguarde. Ao final do processo, clique em _Close_.
 
 === 11) Exercitando os fundamentos de segurança
 
@@ -685,7 +831,7 @@ image::Winserver_ftp.png[align="center"]
 
 2. Associe cada um dos eventos abaixo a uma estratégia de segurança definida na parte teórica.
 +
-* Utilizar um servidor web Linux e outro Windows 2016 Server para servir um mesmo conteúdo, utilizando alguma técnica para redirecionar o tráfego para os dois servidores.
+* Utilizar um servidor web Linux e outro Windows 2019 Server para servir um mesmo conteúdo, utilizando alguma técnica para redirecionar o tráfego para os dois servidores.
 * Utilizar uma interface gráfica simplificada para configurar uma solução de segurança.
 * Configurar todos os acessos externos de modo que passem por um ponto único.
 * Um sistema de segurança em que caso falte energia elétrica, todos os acessos que passam por ele são bloqueados.
