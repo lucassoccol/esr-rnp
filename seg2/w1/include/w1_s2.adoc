@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 10-10-2018
+:revdate: 08-04-2018
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -34,13 +34,13 @@ Muito frequentemente teremos, neste curso, de mover programas e arquivos localiz
 +
 .Configuração de pasta compartilhada no Virtualbox
 [#img-sharedfolder]
-image::Vbox_sharedfolder.png[align="center"]
+image::virtualbox-1.png[align="center"]
 
-4. Agora, reinicie a máquina _WinServer-G_. Após o _reboot_, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome _SEG12_Semana2_Programas_.
+4. Agora, reinicie a máquina _WinServer-G_. Após o _reboot_, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome _shared_.
 +
 .Visualização de pasta compartilhada no Virtualbox
 [#img-sharedfolder-view]
-image::Vbox_sharedfolder_view.png[align="center"]
+image::virtualbox-2.png[align="center"]
 
 5. Pronto! Agora, basta fazer o download de programas e arquivos em sua máquina física, colocá-los dentro da pasta compartilhada, e suas VMs terão acesso imediato. Para concluir, repita o procedimento para a máquina _WinClient-G_.
 
@@ -51,34 +51,44 @@ image::Vbox_sharedfolder_view.png[align="center"]
 Esta atividade será realizada na máquina virtual _WinServer-G_.
 ====
 
-Primeiro, baixe e instale o _Microsoft Visual C++ Redistributable Packages for Visual Studio 2013_ (https://www.microsoft.com/en-US/download/details.aspx?id=40784), como usuário _Administrator_, na máquina _WinServer-G_. Se preferir, faça o download na máquina física e copie o arquivo via pasta compartilhada, como explicado na atividade 1.
+1. Como o usuário _Administrator_, copie o instalador do Wireshark (o arquivo `Wireshark-win64-3.0.0.exe` disponível na pasta _Programas_ do curso) para a máquina _WinServer-G_, usando a pasta compartilhada configurada anteriormente. Inicie sua instalação.
++
+.Instalação do Wireshark, parte 1
+[#img-wireshark-1]
+image::wireshark-1.png[align="center"]
++
+Aceite todas as opções padrão do instalador. Confirme também a instalação do Npcap, uma dependência do Wireshark, com suas opções padrão.
++
+.Instalação do Wireshark, parte 2
+[#img-wireshark-2]
+image::wireshark-2.png[align="center"]
++
+Ao final do processo, inicie o Wireshark -- você deverá ver uma janela como a que se segue:
++
+.Instalação do Wireshark, parte 3
+[#img-wireshark-3]
+image::wireshark-3.png[align="center"]
 
-Em seguida, faça o download do Wireshark (versão 32-bit) em https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.2.16.exe e, como usuário _Administrator_, instale-o na máquina _WinServer-G_. Iremos instalar a versão 2.2 porque é a última compatível com Windows Vista/Windows Server 2008, que é o sistema operacional da máquina _WinServer-G_.
+2. Ative a captura de pacotes da placa de rede conectada à DMZ (o nome da interface deve ser _Ethernet_). Clique na barbatana azul no canto superior esquerdo da janela que diz _Start capturing packets_.
 
-Em seguida:
+3. No campo _Apply a display filter_, digite `ftp` e pressione ENTER. A janela de captura deve ficar vazia, já que não há tráfego FTP acontecendo no momento.
 
-1. Ative a captura de pacotes da placa de rede ethernet -- o nome da interface deve ser _Local Area Connection_.
-
-2. No campo _Apply a display filter_, digite `ftp` e pressione ENTER. A janela de captura deve ficar vazia, já que não há tráfego FTP acontecendo no momento.
-
-3. Em outra janela, abra o _prompt_ de comando e digite `ftp linorg.usp.br` .
-
-4. A seguir, informe o usuário como sendo `aluno`, com senha `123456` .
+4. Em outra janela, abra o _prompt_ de comando do Windows (`cmd`) e digite o comando `ftp linorg.usp.br` . Em seguida, informe o usuário como sendo `aluno`, com senha `123456` .
 ifdef::gabarito[]
 +
 .Envio de usuário/senha por FTP
-[#img-ftp-wronguser]
-image::Wireshark_ftp_wronguser.png[align="center"]
+[#img-wireshark-4]
+image::wireshark-4.png[align="center"]
 endif::gabarito[]
 
 5. De volta ao Wireshark, pare a captura de pacotes e verifique se você consegue visualizar o usuário e a senha informados.
 ifdef::gabarito[]
 +
-Na imagem abaixo podemos confirmar que, de fato, o usuário e senha são passados em claro pela rede. Mais além, pode-se identificar o _banner_ do serviço (ProFTPD 1.3.5b).
+Na imagem abaixo podemos confirmar que, de fato, o usuário e senha são passados em claro pela rede.
 +
 .Captura de sessão FTP no Wireshark
-[#img-wireshark-ftp]
-image::Wireshark_ftp_capture.png[align="center"]
+[#img-wireshark-5]
+image::wireshark-5.png[align="center"]
 endif::gabarito[]
 
 === 3) Ataque SYN *_flood_*
@@ -88,7 +98,7 @@ endif::gabarito[]
 Esta atividade será realizada nas máquinas virtuais _FWGW1-G_ e _KaliLinux-G_.
 ====
 
-Agora, vamos identificar e compreender ataques DoS (_Denial of Service_) e fazer a análise com um sniffer (Wireshark e/ou `tcpdump`) para interpretar o modo como os pacotes são elaborados para o respectivo ataque DOS.
+Agora, vamos identificar e compreender ataques DoS (_Denial of Service_) e fazer a análise com um _sniffer_ (Wireshark e/ou `tcpdump`) para interpretar o modo como os pacotes são elaborados para o respectivo ataque DoS.
 
 Primeiro, vamos investigar o ataque _SYN flood_. Como tratado na parte teórica do curso, esse ataque consiste em enviar uma grande número de pacotes com a flag SYN ativa. Para realizar o ataque, iremos utilizar a ferramenta `hping3`.
 
@@ -98,22 +108,22 @@ ifdef::gabarito[]
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # cat /proc/sys/net/ipv4/tcp_syncookies
 1
-
+....
++
+....
 # echo 0 > /proc/sys/net/ipv4/tcp_syncookies
 ....
 endif::gabarito[]
 
-2. Agora, vamos iniciar uma captura de pacotes, aguardando o ataque. Ainda na máquina _FWGW1-G_, instale o `tcpdump` e monitore os pacotes vindos da DMZ, através da interface `enp0s8`.
+2. Agora, vamos iniciar uma captura de pacotes, aguardando o ataque. Ainda na máquina _FWGW1-G_, use o `tcpdump` para monitorar os pacotes vindos da DMZ -- através da interface `enp0s8`.
 ifdef::gabarito[]
 +
 ....
-# apt-get install tcpdump
-
-(...)
-
 # tcpdump ip -i enp0s8 -n host not 172.16.1.254
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on enp0s8, link-type EN10MB (Ethernet), capture size 262144 bytes
@@ -128,7 +138,9 @@ ifdef::gabarito[]
 ....
 # hostname
 KaliLinux-A
-
+....
++
+....
 # hping3 172.16.1.1 -S -p 22 --flood --rand-source
 HPING 172.16.1.1 (enp0s3 172.16.1.1): S set, 40 headers + 0 data bytes
 hping in flood mode, no replies will be shown
@@ -183,12 +195,12 @@ SYN-RECV   0      0      172.16.1.1:22                 14.55.146.26:18953
 Verificando a lista de conexões abertas e em espera pelo `ssh`, observamos o valor 128 no campo _Send-Q_:
 +
 ....
-# ss -nta | sed -n '1p;/^LISTEN/p' | grep -v ':::'
+# ss -nta | sed -n '1p;/^LISTEN.*:22/p' | grep -v ':::'
 State      Recv-Q Send-Q Local Address:Port               Peer Address:Port
 LISTEN     0      128          *:22                       *:*
 ....
 +
-Esse campo denota o número de bytes não confirmados como recebidos pelo receptor, efetivamente configurando a fila de envio do sistema. Para mais detalhes sobre esse campo em particular, instale o binário `netstat` (`apt-get install net-tools`) e verifique sua _manpage_ com o comando `man 8 netstat`.
+Esse campo denota o número de bytes não confirmados como recebidos pelo receptor, efetivamente configurando a fila de envio do sistema. Para mais detalhes sobre esse campo em particular, verifique a _manpage_ do comando `netstat` via `man 8 netstat`.
 +
 O número 128 é idêntico aos _sysctls_ `net.ipv4.tcp_max_syn_backlog` e `net.core.somaxconn`, como visualizado abaixo:
 +
@@ -220,7 +232,7 @@ FWGW1-A
 # echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 ....
 +
-Os SYN _cookies_ implementam uma proteção em que o servidor responde cada SYN inicial com um SYN-ACK contendo o hash criptográfico de um número de sequência construído a partir do endereço IP do cliente, número de porta e outras informações de identificação. Quando o cliente responde, esse hash deve ser incluído no pacote ACK. Finalmente, o servidor verifica esse ACK e só então aloca memória para a conexão.
+Os SYN _cookies_ implementam uma proteção em que o servidor responde cada SYN inicial com um SYN-ACK contendo o hash criptográfico de um número de sequência construído a partir do endereço IP do cliente, número de porta e outras informações de identificação. Quando o cliente responde, esse hash deve ser incluído no pacote ACK. Finalmente, o servidor verifica esse ACK e só então aloca memória para a conexão. Leia mais sobre os SYN _cookies_ em: https://cr.yp.to/syncookies.html .
 endif::gabarito[]
 
 === 4) Ataque *_Smurf_*
@@ -238,25 +250,27 @@ ifdef::gabarito[]
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-
-(...)
 ....
 +
 ....
 # hostname
 LinServer-A
-
+....
++
+....
 # echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-
-(...)
 ....
 +
 ....
 # hostname
 KaliLinux-A
-
+....
++
+....
 # echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 ....
 endif::gabarito[]
@@ -277,7 +291,9 @@ ifdef::gabarito[]
 ....
 # hostname
 KaliLinux-A
-
+....
++
+....
 # hping3 172.16.1.255 --icmp --flood --spoof 172.16.1.1
 HPING 172.16.1.255 (enp0s3 172.16.1.255): icmp mode set, 28 headers + 0 data bytes
 hping in flood mode, no replies will be shown
@@ -317,21 +333,27 @@ ifdef::gabarito[]
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-
-(...)
-
+....
++
+....
 # hostname
 LinServer-A
-
+....
++
+....
 # echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
-
-(...)
-
+....
++
+....
 # hostname
 KaliLinux-A
-
+....
++
+....
 # echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 ....
 endif::gabarito[]
@@ -345,43 +367,37 @@ Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _WinServer-G_ e
 
 Agora, vamos entender o funcionamento e utilidades da ferramenta `nmap`.
 
-1. Na máquina _WinServer-G_, inicie o Wireshark e faça-o escutar por pacotes vindos para a interface _Local Area Connection_. Em paralelo, na máquina _KaliLinux-G_, use o `nmap` para fazer um _scan_ _verbose_ da máquina _WinServer-G_. Analise e compare os resultados obtidos pelo `nmap` com o que foi observado no Wireshark.
+1. Na máquina _WinServer-G_, inicie o Wireshark e faça-o escutar por pacotes vindos para a interface _Ethernet_. Em paralelo, na máquina _KaliLinux-G_, use o `nmap` para fazer um _scan_ _verbose_ da máquina _WinServer-G_. Analise e compare os resultados obtidos pelo `nmap` com o que foi observado no Wireshark.
 ifdef::gabarito[]
 +
 Primeiro, vamos ver o que acontece na máquina _KaliLinux-G_:
 +
 ....
 # nmap -v 172.16.1.20
-Starting Nmap 7.70 ( https://nmap.org ) at 2018-10-10 18:28 -03
-Initiating ARP Ping Scan at 18:28
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-04-08 02:41 -03
+Initiating ARP Ping Scan at 02:41
 Scanning 172.16.1.20 [1 port]
-Completed ARP Ping Scan at 18:28, 0.00s elapsed (1 total hosts)
-Initiating Parallel DNS resolution of 1 host. at 18:28
-Completed Parallel DNS resolution of 1 host. at 18:28, 0.02s elapsed
-Initiating SYN Stealth Scan at 18:28
+Completed ARP Ping Scan at 02:41, 0.00s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 02:41
+Completed Parallel DNS resolution of 1 host. at 02:41, 0.02s elapsed
+Initiating SYN Stealth Scan at 02:41
 (...)
-Completed SYN Stealth Scan at 18:28, 2.51s elapsed (1000 total ports)
+Completed SYN Stealth Scan at 02:41, 3.07s elapsed (1000 total ports)
 Nmap scan report for 172.16.1.20
-Host is up (0.00010s latency).
-Not shown: 988 closed ports
-PORT      STATE SERVICE
-80/tcp    open  http
-135/tcp   open  msrpc
-139/tcp   open  netbios-ssn
-445/tcp   open  microsoft-ds
-3389/tcp  open  ms-wbt-server
-5357/tcp  open  wsdapi
-49152/tcp open  unknown
-49153/tcp open  unknown
-49154/tcp open  unknown
-49155/tcp open  unknown
-49156/tcp open  unknown
-49157/tcp open  unknown
-MAC Address: 08:00:27:3D:C8:B2 (Oracle VirtualBox virtual NIC)
+Host is up (0.000095s latency).
+Not shown: 994 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3389/tcp open  ms-wbt-server
+5357/tcp open  wsdapi
+MAC Address: 08:00:27:F6:50:68 (Oracle VirtualBox virtual NIC)
 
 Read data files from: /usr/bin/../share/nmap
-Nmap done: 1 IP address (1 host up) scanned in 2.62 seconds
-           Raw packets sent: 1153 (50.716KB) | Rcvd: 1001 (40.076KB)
+Nmap done: 1 IP address (1 host up) scanned in 3.18 seconds
+           Raw packets sent: 1189 (52.300KB) | Rcvd: 1001 (40.052KB)
 ....
 +
 Solicita-se um _scan_ _verbose_ da máquina _WinServer-G_. Após resolução ARP/DNS, o `nmap` escaneia as mil portas mais comuns para cada protocolo. Depois, ele relata quais portas foram detectadas como abertas, juntamente com o nome de serviço que usualmente escuta naquela porta.
@@ -410,8 +426,8 @@ Por exemplo, para descobrir quais são as dez portas mais populares, basta execu
 Finalmente, vamos ver o que aparece no Wireshark da máquina _WinServer-G_:
 +
 .Captura de scan nmap contra a máquina WinServer-G
-[#img-nmap-verbose]
-image::nmap-verbose.png[align="center"]
+[#img-nmap-1]
+image::nmap-1.png[align="center"]
 +
 Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o `nmap` não envia um SYN/ACK em resposta a esse pacote -- esse é o modo padrão de _scan_ do `nmap`, TCP SYN, também conhecido como _half-open scan_.
 endif::gabarito[]
@@ -420,7 +436,7 @@ endif::gabarito[]
 +
 [TIP]
 ====
-Recomenda-se a leitura da página de manual do `nmap`, via comando `$ man 1 nmap`, para estudar o que cada um desses tipos de _scan_ objetiva. A página de manual do `nmap` é extremamente detalhada e bem-escrita, e uma fonte valiosa de conhecimento relativo à enumeração e teste de vulnerabilidades de máquinas-alvo.
+Recomenda-se a leitura da página de manual do `nmap`, via comando `man 1 nmap`, para estudar o que cada um desses tipos de _scan_ objetiva. A página de manual do `nmap` é extremamente detalhada e bem-escrita, e uma fonte valiosa de conhecimento relativo à enumeração e teste de vulnerabilidades de máquinas-alvo.
 
 O guia de referência do `nmap` também possui um capítulo dedicado às diferentes técnicas para _port scanning_, acessível em https://nmap.org/book/man-port-scanning-techniques.html .
 ====
@@ -430,8 +446,17 @@ Respectivamente, os _scans_ do tipo _connect_, _NULL_, _FIN_ e _Xmas_ podem ser 
 +
 ....
 # nmap -sT 172.16.1.20
+....
++
+....
 # nmap -sN 172.16.1.20
+....
++
+....
 # nmap -sF 172.16.1.20
+....
++
+....
 # nmap -sX 172.16.1.20
 ....
 endif::gabarito[]
@@ -460,7 +485,9 @@ Detectou-se que o SO da máquina-alvo é um kernel Linux, versões 3.2 a 4.9. Va
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # uname -r
 4.9.0-8-amd64
 ....
@@ -471,23 +498,40 @@ Perfeito! Vamos partir para o _scan_ da máquina _WinServer-G_:
 # nmap -O 172.16.1.20
 
 (...)
-Device type: general purpose
-Running: Microsoft Windows 7|2008|8.1
-OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_server_2008::sp1 cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows_8.1
-OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+(...)
+
 Network Distance: 1 hop
 
 OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 7.04 seconds
+Nmap done: 1 IP address (1 host up) scanned in 16.04 seconds
 ....
 +
-Vamos verificar se a informação está correta:
+A detecção do `nmap` para o Windows Server 2019, ao que parece, não foi muito precisa. Podemos adicionar a opção `--fuzzy` à invocação do `nmap` para obter resultados mais representativos:
++
+....
+# nmap -O --fuzzy 172.16.1.20
+
+(...)
+Aggressive OS guesses: Microsoft Windows Server 2012 (93%), Microsoft Windows Longhorn (92%), Microsoft Windows Vista SP1 (92%), Microsoft Windows Server 2012 R2 Update 1 (91%), Microsoft Windows Server 2016 build 10586 - 14393 (91%), Microsoft Windows 7, Windows Server 2012, or Windows 8.1 Update 1 (91%), Microsoft Windows 10 1703 (91%), Microsoft Windows Server 2012 R2 (91%), Microsoft Windows 10 1511 (90%), Microsoft Windows Server 2008 R2 (90%)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+(...)
+
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 13.31 seconds
+....
++
+Em geral, a assinatura da máquina _WinServer-G_ assemelha-se a um sistema Windows Server 2012-2016. Vamos ver se isso procede:
 +
 .Versão do SO na máquina WinServer-G
-[#img-nmap-osdetect-windows]
-image::nmap-osdetect-windows.png[align="center"]
+[#img-nmap-2]
+image::nmap-2.png[align="center"]
 +
-Bastante próximo -- o `nmap` reporta Windows Server 2008 SP1, e o _WinServer-G_ é um Windows Server 2008 SP2.
+Como podemos observar, o _WinServer-G_ é um Windows Server 2019 Datacenter -- os resultados no `nmap` deixam um pouco a desejar, nesse caso.
 endif::gabarito[]
 
 === 6) Realizando um ataque com o Metasploit

