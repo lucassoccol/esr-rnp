@@ -446,6 +446,37 @@ Quando perguntado se deseja que o computador possa ser descoberto por outros dis
 .Descoberta de rede da máquina WinServer-G
 [#img-discover-winserver]
 image::winserver-3.png[align="center"]
++
+Vamos agora desabilitar o download automático de atualizações, potencialmente muito grandes, para o sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.
++
+A partir do menu Iniciar, invoque o Windows PowerShell. Em seguida, execute o comando `sconfig`:
++
+....
+PS C:\Users\Administrator> sconfig
+....
++
+O `sconfig` é o _Server Configuration Tool_, uma ferramenta de linha de comando para configuração de instalações do Windows Server Core. Escolha a opção `5`, para editar as configurações do Windows Update:
++
+....
+===============================================================================
+                         Server Configuration
+===============================================================================
+
+1) Domain/Workgroup:                    Workgroup:  GRUPO
+2) Computer Name:                       WINSERVER-A
+(...)
+
+Enter number to select an option: 5
+....
++
+Agora, marque as atualizações do sistema como `(M)anual` -- elas deverão ser expressamente baixadas e instaladas pelo administrador, quando desejado.
++
+....
+Windows Update currently set to: DownloadOnly
+Select (A)utomatic, (D)ownloadOnly or (M)anual updates: m
+
+Setting updates to Manual...
+....
 <<<
 
 9. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade, e reinicie a VM. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
@@ -568,6 +599,20 @@ Quando perguntado se deseja que o computador possa ser descoberto por outros dis
 .Descoberta de rede da máquina WinClient-G
 [#img-discover-winclient]
 image::winclient-14.png[align="center"]
++
+Finalmente, não se esqueça de desabilitar o serviço do Windows Update -- esse serviço irá fazer o download e instalação automática de atualizações, potencialmente muito grandes, no sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.
++
+Abra o _snap-in_ de configuração de serviços do Windows executando o comando `services.msc`. Em seguida, navegue até o serviço _Windows Update_ e clique com o botão direito em _Propriedades_.
++
+.Desabilitando o Windows Update na máquina WinClient-G, parte 1
+[#img-disableupdate1-winclient]
+image::winclient-15.png[align="center"]
++
+Em _Tipo de inicialização_, escolha _Desativado_. Clique em _Parar_ para encerrar a execução do serviço, e depois clique em _Aplicar_.
++
+.Desabilitando o Windows Update na máquina WinClient-G, parte 2
+[#img-disableupdate2-winclient]
+image::winclient-16.png[align="center"]
 <<<
 
 === 6) Configuração de firewall e NAT

