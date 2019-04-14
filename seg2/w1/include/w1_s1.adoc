@@ -435,49 +435,199 @@ nameserver 8.8.4.4
 [#img-passwd-winserver]
 image::winserver-1.png[align="center"]
 +
-Pelo _Control Panel_ ou usando o comando `ncpa.cpl`, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.
+Agora, abra o menu Iniciar e acesse o Windows PowerShell para iniciar a configuração do sistema:
 +
-.Configuração de rede da máquina WinServer-G
-[#img-rede-winserver]
-image::winserver-2.png[align="center"]
+.Iniciando o Windows PowerShell, parte 1
+[#img-ps1-winserver]
+image::winserver-18.png[align="center"]
 +
-Quando perguntado se deseja que o computador possa ser descoberto por outros dispositivos na rede, responda _Yes_.
+.Iniciando o Windows PowerShell, parte 2
+[#img-ps2-winserver]
+image::winserver-19.png[align="center"]
 +
-.Descoberta de rede da máquina WinServer-G
-[#img-discover-winserver]
-image::winserver-3.png[align="center"]
-+
-Vamos agora desabilitar o download automático de atualizações, potencialmente muito grandes, para o sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.
-+
-A partir do menu Iniciar, invoque o Windows PowerShell. Em seguida, execute o comando `sconfig`:
+Agora, invoque o `sconfig`: essa ferramenta é o _Server Configuration Tool_, uma ferramenta de linha de comando para configuração de instalações do Windows Server Core.
 +
 ....
 PS C:\Users\Administrator> sconfig
 ....
 +
-O `sconfig` é o _Server Configuration Tool_, uma ferramenta de linha de comando para configuração de instalações do Windows Server Core. Escolha a opção `5`, para editar as configurações do Windows Update:
+Você será recebido por uma interface orientada a menu que permite a rápida configuração dos aspectos mais importantes do servidor:
 +
 ....
 ===============================================================================
                          Server Configuration
 ===============================================================================
 
-1) Domain/Workgroup:                    Workgroup:  GRUPO
-2) Computer Name:                       WINSERVER-A
-(...)
+1) Domain/Workgroup:                    Workgroup:  WORKGROUP
+2) Computer Name:                       WIN-FTG1D5JAEL7
+3) Add Local Administrator
+4) Configure Remote Management          Enabled
 
+5) Windows Update Settings:             DownloadOnly
+6) Download and Install Updates
+7) Remote Desktop:                      Disabled
+
+8) Network Settings
+9) Date and Time
+10) Telemetry settings                  Unknown
+11) Windows Activation
+
+12) Log Off User
+13) Restart Server
+14) Shut Down Server
+15) Exit to Command Line
+....
++
+Vamos começar alterando o nome da máquina para `WinServer-G` -- selecione a opção `2`:
++
+....
+Enter number to select an option: 2
+
+Computer Name
+
+Enter new computer name (Blank=Cancel): WinServer-A
+Changing Computer name...
+....
++
+O configurador irá perguntar se deseja reiniciar a máquina -- não faça isso ainda. Prossiga configurando o _Workgroup_ da máquina para `GRUPO`, usando a opção `1`:
++
+....
+Enter number to select an option: 1
+
+
+Change Domain/Workgroup Membership
+
+Join (D)omain or (W)orkgroup? (Blank=Cancel) W
+Name of workgroup to join:  GRUPO
+
+Joining GRUPO...
+....
++
+Habilite a conexão remota ao servidor usando a opção `7` -- escolha _Allow clients running any version of Remote Desktop_, para autorizar quaisquer versões do _Remote Desktop_ a se conectarem:
++
+....
+Enter number to select an option: 7
+
+
+(E)nable or (D)isable Remote Desktop? (Blank=Cancel) E
+
+1) Allow only clients running Remote Desktop with Network Level Authentication (more secure)
+
+2) Allow clients running any version of Remote Desktop (less secure)
+
+Enter selection: 2
+
+Enabling Remote Desktop...
+....
++
+Vamos configurar a rede. Escolha a opção `8`, e em seguida o único adaptador de rede disponível:
++
+....
+Enter number to select an option: 8
+
+
+--------------------------------
+    Network settings
+--------------------------------
+
+
+Available Network Adapters
+
+Index#  IP address      Description
+
+  1     169.254.196.9   Intel(R) PRO/1000 MT Desktop Adapter
+
+Select Network Adapter Index# (Blank=Cancel):  1
+....
++
+No novo menu, configure o endereço IP da interface usando a opção `1`. Quando perguntado se deseja que o computador possa ser descoberto por outros dispositivos na rede, responda _Yes_.
++
+....
+1) Set Network Adapter Address
+2) Set DNS Servers
+3) Clear DNS Server Settings
+4) Return to Main Menu
+
+
+Select option:  1
+
+
+Select (D)HCP, (S)tatic IP (Blank=Cancel): S
+
+Set Static IP
+Enter static IP address: 172.16.1.20
+Enter subnet mask (Blank = Default 255.255.255.0):
+Enter default gateway: 172.16.1.1
+Setting NIC to static IP...
+....
++
+Agora, selecione `2` para configurar os servidores DNS:
++
+....
+Select option:  2
+DNS Servers
+
+Enter new preferred DNS server (Blank=Cancel): 8.8.8.8
+Enter alternate DNS server (Blank = none): 8.8.4.4
+Alternate DNS server set.
+....
++
+Tudo pronto! Selecione `4` para voltar ao menu principal:
++
+....
+1) Set Network Adapter Address
+2) Set DNS Servers
+3) Clear DNS Server Settings
+4) Return to Main Menu
+
+
+Select option:  4
+....
++
+Vamos agora desabilitar o download automático de atualizações, potencialmente muito grandes, para o sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.
++
+Escolha a opção `5`, para editar as configurações do Windows Update. Em seguida, marque as atualizações do sistema como `(M)anual` -- elas deverão ser expressamente baixadas e instaladas pelo administrador, quando desejado.
++
+....
 Enter number to select an option: 5
-....
-+
-Agora, marque as atualizações do sistema como `(M)anual` -- elas deverão ser expressamente baixadas e instaladas pelo administrador, quando desejado.
-+
-....
+
 Windows Update currently set to: DownloadOnly
 Select (A)utomatic, (D)ownloadOnly or (M)anual updates: m
 
 Setting updates to Manual...
 ....
-<<<
++
+Terminamos tudo o que tínhamos que fazer com o `sconfig`. Selecione a opção `15` para voltar à linha de comando.
++
+Agora, iremos desabilitar o firewall do Windows -- como faremos vários testes e experimentos com a rede durante o curso, o firewall poderá atrapalhar sua execução. No _prompt_ do Windows PowerShell, execute:
++
+....
+PS C:\Users\Administrator> Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+....
++
+Antes de prosseguir, devemos reiniciar a máquina _WinServer-G_. Execute:
++
+....
+PS C:\Users\Administrator> Restart-Computer
+....
++
+Uma vez concluído o _reboot_, iremos instalar o servidor web IIS (_Internet Information Services_) e o servidor FTP da Microsoft na máquina _WinServer-G_ para laboratórios futuros. No Windows PowerShell, execute:
++
+....
+PS C:\Users\Administrator> Install-WindowsFeature -name Web-Server -IncludeManagementTools
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {Common HTTP Features, Default Document, D...
+....
++
+....
+PS C:\Users\Administrator> Install-WindowsFeature Web-FTP-Server -IncludeAllSubFeature
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {FTP Extensibility, FTP Server, FTP Service}
+....
 
 9. Prossiga para a máquina _KaliLinux-G_, e faça login como usuário `root` e senha `rnpesr`. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade, e reinicie a VM. Para alterar o _hostname_ da máquina, siga os passos da etapa (4).
 +
@@ -798,75 +948,7 @@ vboxvideo              36864  0
 
 4. Instale os módulos do _Virtualbox Guest Additions_ na máquina _LinServer-G_. O procedimento é idêntico ao que fizemos nos passos 1 - 6.
 
-<<<
-
-=== 10) Configuração da VM *_WinServer-G_*
-
-A máquina _WinServer-G_ demanda uma pequena configuração adicional antes que estejamos prontos para começar os trabalhos. Vamos a ela:
-
-1. Usando o 1) _Control Panel_, ou 2) clicando com o botão direito em _Computer_ > _Properties_ no Windows Explorer ou 3) digitando `system` no menu iniciar, abra a tela de configuração do sistema como mostrado a seguir:
-+
-.Tela de configuração do sistema do WinServer
-[#img-winserver-system]
-image::winserver-11.png[align="center"]
-+
-<<<
-
-2. Clique em _Change Settings_, e na aba _Computer Name_, no botão _Change..._. Altere o nome do computador para `WinServer-G` e o _Workgroup_ para `GRUPO`, como se segue. Depois, clique em _OK_.
-+
-.Alteração de nome de máquina do WinServer
-[#img-winserver-changename]
-image::winserver-12.png[align="center"]
-<<<
-
-3. Não reinicie o computador ainda. Na aba _Remote_, marque a caixa _Allow remote connections to this computer_ e desmarque _Allow connections only from computers running Remote Desktop with Network Level Authentication_, como na imagem abaixo. Depois, clique em _Apply_ e em seguida em _Restart Later_.
-+
-.Configurações de Remote Desktop do WinServer
-[#img-winserver-rdesktop]
-image::winserver-13.png[align="center"]
-<<<
-
-4. Agora, desabilite o firewall do Windows. Digite `firewall` no menu _Start_ (alternativamente, clique em _Windows Defender Firewall_ no _Control Panel_), em seguida em _Turn Windows Defender Firewall on or off_, e finalmente marque as caixas _Turn off Windows Defender Firewall_ para ambas as rede Privada e Pública, como se segue:
-+
-.Desabilitar o firewall do WinServer
-[#img-winserver-firewall]
-image::winserver-14.png[align="center"]
-
-5. Clique em _OK_ e reinicie a máquina _WinServer-G_.
-+
-<<<
-
-6. Após o _reboot_, acesse o _Server Manager_ (que deverá ser iniciado automaticamente após o logon), e no canto superior direito clique em _Manage_ > _Add Roles and Features_.
-+
-Na janela _Before you begin_, clique em _Next_ (opcionalmente, marque a caixa _Skip this page by default_).
-+
-Em _Select installation type_, mantenha _Role-based or feature-based installation_ e clique em _Next_.
-+
-.Instalação de roles e features no WinServer, parte 1
-[#img-winserver-role1]
-image::winserver-15.png[align="center"]
-+
-Em _Select destination server_, mantenha _Select a server from the server pool_ marcado e garanta que a máquina _WinServer-G_ está selecionada na caixa _Server Pool_. Clique em _Next_.
-+
-Em _Select server roles_, marque a caixa _Web Server (IIS)_. Quando surgir a pergunta _Add features that are required for Web Server (IIS)?_, clique em _Add Features_, e depois em _Next_.
-+
-.Instalação de roles e features no WinServer, parte 2
-[#img-winserver-role2]
-image::winserver-16.png[align="center"]
-+
-Em _Select features_, clique em _Next_.
-+
-Em _Web Server Role (IIS)_, clique em _Next_ para prosseguir.
-+
-A seguir, na janela _Select role services_, desça a barra de rolagem até o final e marque a caixa _FTP Server_, como se segue.
-+
-.Instalação de roles e features no WinServer, parte 3
-[#img-winserver-role3]
-image::winserver-17.png[align="center"]
-
-7. Finalmente, clique em _Install_ e aguarde. Ao final do processo, clique em _Close_.
-
-=== 11) Exercitando os fundamentos de segurança
+=== 10) Exercitando os fundamentos de segurança
 
 1. Como vimos, o conceito de segurança mais básico apresentado consiste no CID (Confidencialidade, Integridade e Disponibilidade). Apresente três exemplos de quebra de segurança em cada um desses componentes, como por exemplo:
 +
@@ -883,7 +965,7 @@ image::winserver-17.png[align="center"]
 * Configurar um sistema para só ser acessível através de redes confiáveis, para solicitar uma senha de acesso e em seguida verificar se o sistema de origem possui antivírus instalado.
 * Configurar as permissões de um servidor web para apenas ler arquivos da pasta onde estão as páginas HTML, sem nenhuma permissão de execução ou gravação em qualquer arquivo do sistema.
 
-=== 12) Normas e políticas de segurança
+=== 11) Normas e políticas de segurança
 
 1. Acesse o site do DSIC em http://dsic.planalto.gov.br/assuntos/editoria-c/instrucoes-normativas e leia a Instrução Normativa GSI/PR nº 1, de 13 de junho de 2008 e as normas complementares indicadas. Elas são um bom ponto de partida para a criação de uma Política de Segurança, de uma Equipe de Tratamento de Incidentes de Segurança, de um Plano de Continuidade de Negócios e para a implementação da Gestão de Riscos de Segurança da Informação.
 

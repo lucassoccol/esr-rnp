@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 08-04-2018
+:revdate: 10-04-2019
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -810,7 +810,11 @@ root
 # cd ~/src/cve-2019-1003000-jenkins-rce-poc/sample-vuln/
 ....
 
-2. Nesse diretório, execute o _script_ `run.sh`.
+2. Inicie o _daemon_ do Docker, e em seguida execute o _script_ `run.sh`.
++
+....
+# systemctl start docker
+....
 +
 ....
 # ./run.sh

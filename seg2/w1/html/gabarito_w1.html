@@ -447,9 +447,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_7_teste_de_conectividade_das_vms">7) Teste de conectividade das VMs</a></li>
 <li><a href="#_8_instalação_do_virtualbox_guest_additions_nas_vms_windows">8) Instalação do <strong><em>Virtualbox Guest Additions</em></strong> nas VMs Windows</a></li>
 <li><a href="#_9_instalação_do_virtualbox_guest_additions_nas_vms_linux">9) Instalação do <strong><em>Virtualbox Guest Additions</em></strong> nas VMs Linux</a></li>
-<li><a href="#_10_configuração_da_vm_winserver_g">10) Configuração da VM <strong><em>WinServer-G</em></strong></a></li>
-<li><a href="#_11_exercitando_os_fundamentos_de_segurança">11) Exercitando os fundamentos de segurança</a></li>
-<li><a href="#_12_normas_e_políticas_de_segurança">12) Normas e políticas de segurança</a></li>
+<li><a href="#_10_exercitando_os_fundamentos_de_segurança">10) Exercitando os fundamentos de segurança</a></li>
+<li><a href="#_11_normas_e_políticas_de_segurança">11) Normas e políticas de segurança</a></li>
 </ul>
 </li>
 <li><a href="#_sessão_2_explorando_vulnerabilidades_em_redes">Sessão 2: Explorando vulnerabilidades em redes</a>
@@ -1325,28 +1324,22 @@ nameserver 8.8.4.4</pre>
 <div class="title">Figure 6. Definição de senha do administrador na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
-<p>Pelo <em>Control Panel</em> ou usando o comando <code>ncpa.cpl</code>, configure o endereço IP e servidores DNS de forma estática, como na foto abaixo, e verifique que suas configurações estão funcionais.</p>
+<p>Agora, abra o menu Iniciar e acesse o Windows PowerShell para iniciar a configuração do sistema:</p>
 </div>
-<div id="img-rede-winserver" class="imageblock" style="text-align: center">
+<div id="img-ps1-winserver" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/winserver-2.png" alt="winserver 2">
+<img src="./img/winserver-18.png" alt="winserver 18">
 </div>
-<div class="title">Figure 7. Configuração de rede da máquina WinServer-G</div>
+<div class="title">Figure 7. Iniciando o Windows PowerShell, parte 1</div>
 </div>
-<div class="paragraph">
-<p>Quando perguntado se deseja que o computador possa ser descoberto por outros dispositivos na rede, responda <em>Yes</em>.</p>
-</div>
-<div id="img-discover-winserver" class="imageblock" style="text-align: center">
+<div id="img-ps2-winserver" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/winserver-3.png" alt="winserver 3">
+<img src="./img/winserver-19.png" alt="winserver 19">
 </div>
-<div class="title">Figure 8. Descoberta de rede da máquina WinServer-G</div>
-</div>
-<div class="paragraph">
-<p>Vamos agora desabilitar o download automático de atualizações, potencialmente muito grandes, para o sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.</p>
+<div class="title">Figure 8. Iniciando o Windows PowerShell, parte 2</div>
 </div>
 <div class="paragraph">
-<p>A partir do menu Iniciar, invoque o Windows PowerShell. Em seguida, execute o comando <code>sconfig</code>:</p>
+<p>Agora, invoque o <code>sconfig</code>: essa ferramenta é o <em>Server Configuration Tool</em>, uma ferramenta de linha de comando para configuração de instalações do Windows Server Core.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -1354,7 +1347,7 @@ nameserver 8.8.4.4</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>O <code>sconfig</code> é o <em>Server Configuration Tool</em>, uma ferramenta de linha de comando para configuração de instalações do Windows Server Core. Escolha a opção <code>5</code>, para editar as configurações do Windows Update:</p>
+<p>Você será recebido por uma interface orientada a menu que permite a rápida configuração dos aspectos mais importantes do servidor:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -1362,25 +1355,202 @@ nameserver 8.8.4.4</pre>
                          Server Configuration
 ===============================================================================
 
-1) Domain/Workgroup:                    Workgroup:  GRUPO
-2) Computer Name:                       WINSERVER-A
-(...)
+1) Domain/Workgroup:                    Workgroup:  WORKGROUP
+2) Computer Name:                       WIN-FTG1D5JAEL7
+3) Add Local Administrator
+4) Configure Remote Management          Enabled
 
-Enter number to select an option: 5</pre>
+5) Windows Update Settings:             DownloadOnly
+6) Download and Install Updates
+7) Remote Desktop:                      Disabled
+
+8) Network Settings
+9) Date and Time
+10) Telemetry settings                  Unknown
+11) Windows Activation
+
+12) Log Off User
+13) Restart Server
+14) Shut Down Server
+15) Exit to Command Line</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Agora, marque as atualizações do sistema como <code>(M)anual</code>&#8201;&#8212;&#8201;elas deverão ser expressamente baixadas e instaladas pelo administrador, quando desejado.</p>
+<p>Vamos começar alterando o nome da máquina para <code>WinServer-G</code>&#8201;&#8212;&#8201;selecione a opção <code>2</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>Windows Update currently set to: DownloadOnly
+<pre>Enter number to select an option: 2
+
+Computer Name
+
+Enter new computer name (Blank=Cancel): WinServer-A
+Changing Computer name...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O configurador irá perguntar se deseja reiniciar a máquina&#8201;&#8212;&#8201;não faça isso ainda. Prossiga configurando o <em>Workgroup</em> da máquina para <code>GRUPO</code>, usando a opção <code>1</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Enter number to select an option: 1
+
+
+Change Domain/Workgroup Membership
+
+Join (D)omain or (W)orkgroup? (Blank=Cancel) W
+Name of workgroup to join:  GRUPO
+
+Joining GRUPO...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Habilite a conexão remota ao servidor usando a opção <code>7</code>&#8201;&#8212;&#8201;escolha <em>Allow clients running any version of Remote Desktop</em>, para autorizar quaisquer versões do <em>Remote Desktop</em> a se conectarem:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Enter number to select an option: 7
+
+
+(E)nable or (D)isable Remote Desktop? (Blank=Cancel) E
+
+1) Allow only clients running Remote Desktop with Network Level Authentication (more secure)
+
+2) Allow clients running any version of Remote Desktop (less secure)
+
+Enter selection: 2
+
+Enabling Remote Desktop...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos configurar a rede. Escolha a opção <code>8</code>, e em seguida o único adaptador de rede disponível:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Enter number to select an option: 8
+
+
+--------------------------------
+    Network settings
+--------------------------------
+
+
+Available Network Adapters
+
+Index#  IP address      Description
+
+  1     169.254.196.9   Intel(R) PRO/1000 MT Desktop Adapter
+
+Select Network Adapter Index# (Blank=Cancel):  1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>No novo menu, configure o endereço IP da interface usando a opção <code>1</code>. Quando perguntado se deseja que o computador possa ser descoberto por outros dispositivos na rede, responda <em>Yes</em>.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>1) Set Network Adapter Address
+2) Set DNS Servers
+3) Clear DNS Server Settings
+4) Return to Main Menu
+
+
+Select option:  1
+
+
+Select (D)HCP, (S)tatic IP (Blank=Cancel): S
+
+Set Static IP
+Enter static IP address: 172.16.1.20
+Enter subnet mask (Blank = Default 255.255.255.0):
+Enter default gateway: 172.16.1.1
+Setting NIC to static IP...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Agora, selecione <code>2</code> para configurar os servidores DNS:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Select option:  2
+DNS Servers
+
+Enter new preferred DNS server (Blank=Cancel): 8.8.8.8
+Enter alternate DNS server (Blank = none): 8.8.4.4
+Alternate DNS server set.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Tudo pronto! Selecione <code>4</code> para voltar ao menu principal:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>1) Set Network Adapter Address
+2) Set DNS Servers
+3) Clear DNS Server Settings
+4) Return to Main Menu
+
+
+Select option:  4</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vamos agora desabilitar o download automático de atualizações, potencialmente muito grandes, para o sistema local. Em um ambiente de laboratório como o que estamos usando isso pode gerar um grande volume de tráfego inesperado na rede.</p>
+</div>
+<div class="paragraph">
+<p>Escolha a opção <code>5</code>, para editar as configurações do Windows Update. Em seguida, marque as atualizações do sistema como <code>(M)anual</code>&#8201;&#8212;&#8201;elas deverão ser expressamente baixadas e instaladas pelo administrador, quando desejado.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Enter number to select an option: 5
+
+Windows Update currently set to: DownloadOnly
 Select (A)utomatic, (D)ownloadOnly or (M)anual updates: m
 
 Setting updates to Manual...</pre>
 </div>
 </div>
-<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>Terminamos tudo o que tínhamos que fazer com o <code>sconfig</code>. Selecione a opção <code>15</code> para voltar à linha de comando.</p>
+</div>
+<div class="paragraph">
+<p>Agora, iremos desabilitar o firewall do Windows&#8201;&#8212;&#8201;como faremos vários testes e experimentos com a rede durante o curso, o firewall poderá atrapalhar sua execução. No <em>prompt</em> do Windows PowerShell, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Antes de prosseguir, devemos reiniciar a máquina <em>WinServer-G</em>. Execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; Restart-Computer</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Uma vez concluído o <em>reboot</em>, iremos instalar o servidor web IIS (<em>Internet Information Services</em>) e o servidor FTP da Microsoft na máquina <em>WinServer-G</em> para laboratórios futuros. No Windows PowerShell, execute:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; Install-WindowsFeature -name Web-Server -IncludeManagementTools
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {Common HTTP Features, Default Document, D...</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; Install-WindowsFeature Web-FTP-Server -IncludeAllSubFeature
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {FTP Extensibility, FTP Server, FTP Service}</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Prossiga para a máquina <em>KaliLinux-G</em>, e faça login como usuário <code>root</code> e senha <code>rnpesr</code>. Se encontrar problemas com o teclado, aplique a mesma solução utilizada na etapa (1) desta atividade, e reinicie a VM. Para alterar o <em>hostname</em> da máquina, siga os passos da etapa (4).</p>
@@ -1832,108 +2002,9 @@ vboxvideo              36864  0</pre>
 </li>
 </ol>
 </div>
-<div style="page-break-after: always;"></div>
 </div>
 <div class="sect2">
-<h3 id="_10_configuração_da_vm_winserver_g">10) Configuração da VM <strong><em>WinServer-G</em></strong></h3>
-<div class="paragraph">
-<p>A máquina <em>WinServer-G</em> demanda uma pequena configuração adicional antes que estejamos prontos para começar os trabalhos. Vamos a ela:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Usando o 1) <em>Control Panel</em>, ou 2) clicando com o botão direito em <em>Computer</em> &gt; <em>Properties</em> no Windows Explorer ou 3) digitando <code>system</code> no menu iniciar, abra a tela de configuração do sistema como mostrado a seguir:</p>
-<div id="img-winserver-system" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-11.png" alt="winserver 11">
-</div>
-<div class="title">Figure 25. Tela de configuração do sistema do WinServer</div>
-</div>
-<div style="page-break-after: always;"></div>
-</li>
-<li>
-<p>Clique em <em>Change Settings</em>, e na aba <em>Computer Name</em>, no botão <em>Change&#8230;&#8203;</em>. Altere o nome do computador para <code>WinServer-G</code> e o <em>Workgroup</em> para <code>GRUPO</code>, como se segue. Depois, clique em <em>OK</em>.</p>
-<div id="img-winserver-changename" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-12.png" alt="winserver 12">
-</div>
-<div class="title">Figure 26. Alteração de nome de máquina do WinServer</div>
-</div>
-<div style="page-break-after: always;"></div>
-</li>
-<li>
-<p>Não reinicie o computador ainda. Na aba <em>Remote</em>, marque a caixa <em>Allow remote connections to this computer</em> e desmarque <em>Allow connections only from computers running Remote Desktop with Network Level Authentication</em>, como na imagem abaixo. Depois, clique em <em>Apply</em> e em seguida em <em>Restart Later</em>.</p>
-<div id="img-winserver-rdesktop" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-13.png" alt="winserver 13">
-</div>
-<div class="title">Figure 27. Configurações de Remote Desktop do WinServer</div>
-</div>
-<div style="page-break-after: always;"></div>
-</li>
-<li>
-<p>Agora, desabilite o firewall do Windows. Digite <code>firewall</code> no menu <em>Start</em> (alternativamente, clique em <em>Windows Defender Firewall</em> no <em>Control Panel</em>), em seguida em <em>Turn Windows Defender Firewall on or off</em>, e finalmente marque as caixas <em>Turn off Windows Defender Firewall</em> para ambas as rede Privada e Pública, como se segue:</p>
-<div id="img-winserver-firewall" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-14.png" alt="winserver 14">
-</div>
-<div class="title">Figure 28. Desabilitar o firewall do WinServer</div>
-</div>
-</li>
-<li>
-<p>Clique em <em>OK</em> e reinicie a máquina <em>WinServer-G</em>.</p>
-<div style="page-break-after: always;"></div>
-</li>
-<li>
-<p>Após o <em>reboot</em>, acesse o <em>Server Manager</em> (que deverá ser iniciado automaticamente após o logon), e no canto superior direito clique em <em>Manage</em> &gt; <em>Add Roles and Features</em>.</p>
-<div class="paragraph">
-<p>Na janela <em>Before you begin</em>, clique em <em>Next</em> (opcionalmente, marque a caixa <em>Skip this page by default</em>).</p>
-</div>
-<div class="paragraph">
-<p>Em <em>Select installation type</em>, mantenha <em>Role-based or feature-based installation</em> e clique em <em>Next</em>.</p>
-</div>
-<div id="img-winserver-role1" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-15.png" alt="winserver 15">
-</div>
-<div class="title">Figure 29. Instalação de roles e features no WinServer, parte 1</div>
-</div>
-<div class="paragraph">
-<p>Em <em>Select destination server</em>, mantenha <em>Select a server from the server pool</em> marcado e garanta que a máquina <em>WinServer-G</em> está selecionada na caixa <em>Server Pool</em>. Clique em <em>Next</em>.</p>
-</div>
-<div class="paragraph">
-<p>Em <em>Select server roles</em>, marque a caixa <em>Web Server (IIS)</em>. Quando surgir a pergunta <em>Add features that are required for Web Server (IIS)?</em>, clique em <em>Add Features</em>, e depois em <em>Next</em>.</p>
-</div>
-<div id="img-winserver-role2" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-16.png" alt="winserver 16">
-</div>
-<div class="title">Figure 30. Instalação de roles e features no WinServer, parte 2</div>
-</div>
-<div class="paragraph">
-<p>Em <em>Select features</em>, clique em <em>Next</em>.</p>
-</div>
-<div class="paragraph">
-<p>Em <em>Web Server Role (IIS)</em>, clique em <em>Next</em> para prosseguir.</p>
-</div>
-<div class="paragraph">
-<p>A seguir, na janela <em>Select role services</em>, desça a barra de rolagem até o final e marque a caixa <em>FTP Server</em>, como se segue.</p>
-</div>
-<div id="img-winserver-role3" class="imageblock" style="text-align: center">
-<div class="content">
-<img src="./img/winserver-17.png" alt="winserver 17">
-</div>
-<div class="title">Figure 31. Instalação de roles e features no WinServer, parte 3</div>
-</div>
-</li>
-<li>
-<p>Finalmente, clique em <em>Install</em> e aguarde. Ao final do processo, clique em <em>Close</em>.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_11_exercitando_os_fundamentos_de_segurança">11) Exercitando os fundamentos de segurança</h3>
+<h3 id="_10_exercitando_os_fundamentos_de_segurança">10) Exercitando os fundamentos de segurança</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1981,7 +2052,7 @@ vboxvideo              36864  0</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_12_normas_e_políticas_de_segurança">12) Normas e políticas de segurança</h3>
+<h3 id="_11_normas_e_políticas_de_segurança">11) Normas e políticas de segurança</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -2032,7 +2103,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/virtualbox-1.png" alt="virtualbox 1">
 </div>
-<div class="title">Figure 32. Configuração de pasta compartilhada no Virtualbox</div>
+<div class="title">Figure 25. Configuração de pasta compartilhada no Virtualbox</div>
 </div>
 </li>
 <li>
@@ -2041,7 +2112,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/virtualbox-2.png" alt="virtualbox 2">
 </div>
-<div class="title">Figure 33. Visualização de pasta compartilhada no Virtualbox</div>
+<div class="title">Figure 26. Visualização de pasta compartilhada no Virtualbox</div>
 </div>
 </li>
 <li>
@@ -2074,7 +2145,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-1.png" alt="wireshark 1">
 </div>
-<div class="title">Figure 34. Instalação do Wireshark, parte 1</div>
+<div class="title">Figure 27. Instalação do Wireshark, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Aceite todas as opções padrão do instalador. Confirme também a instalação do Npcap, uma dependência do Wireshark, com suas opções padrão.</p>
@@ -2083,7 +2154,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-2.png" alt="wireshark 2">
 </div>
-<div class="title">Figure 35. Instalação do Wireshark, parte 2</div>
+<div class="title">Figure 28. Instalação do Wireshark, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, inicie o Wireshark&#8201;&#8212;&#8201;você deverá ver uma janela como a que se segue:</p>
@@ -2092,7 +2163,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-3.png" alt="wireshark 3">
 </div>
-<div class="title">Figure 36. Instalação do Wireshark, parte 3</div>
+<div class="title">Figure 29. Instalação do Wireshark, parte 3</div>
 </div>
 </li>
 <li>
@@ -2107,7 +2178,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-4.png" alt="wireshark 4">
 </div>
-<div class="title">Figure 37. Envio de usuário/senha por FTP</div>
+<div class="title">Figure 30. Envio de usuário/senha por FTP</div>
 </div>
 </li>
 <li>
@@ -2119,7 +2190,7 @@ vboxvideo              36864  0</pre>
 <div class="content">
 <img src="./img/wireshark-5.png" alt="wireshark 5">
 </div>
-<div class="title">Figure 38. Captura de sessão FTP no Wireshark</div>
+<div class="title">Figure 31. Captura de sessão FTP no Wireshark</div>
 </div>
 </li>
 </ol>
@@ -2579,7 +2650,7 @@ Nmap done: 1 IP address (1 host up) scanned in 3.18 seconds
 <div class="content">
 <img src="./img/nmap-1.png" alt="nmap 1">
 </div>
-<div class="title">Figure 39. Captura de scan nmap contra a máquina WinServer-G</div>
+<div class="title">Figure 32. Captura de scan nmap contra a máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Note que uma série de pacotes SYN são enviados para diferentes portas do servidor Windows. Por sua vez, o Windows responde com um ACK se a porta estiver aberta, mas o <code>nmap</code> não envia um SYN/ACK em resposta a esse pacote&#8201;&#8212;&#8201;esse é o modo padrão de <em>scan</em> do <code>nmap</code>, TCP SYN, também conhecido como <em>half-open scan</em>.</p>
@@ -2707,7 +2778,7 @@ Nmap done: 1 IP address (1 host up) scanned in 13.31 seconds</pre>
 <div class="content">
 <img src="./img/nmap-2.png" alt="nmap 2">
 </div>
-<div class="title">Figure 40. Versão do SO na máquina WinServer-G</div>
+<div class="title">Figure 33. Versão do SO na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Como podemos observar, o <em>WinServer-G</em> é um Windows Server 2019 Datacenter&#8201;&#8212;&#8201;os resultados no <code>nmap</code> deixam um pouco a desejar, nesse caso.</p>
@@ -2866,7 +2937,7 @@ LPORT =&gt; 4444</pre>
 <div class="content">
 <img src="./img/metasploit-1.png" alt="metasploit 1">
 </div>
-<div class="title">Figure 41. Executável malicioso detectado pelo Windows Defender</div>
+<div class="title">Figure 34. Executável malicioso detectado pelo Windows Defender</div>
 </div>
 <div class="paragraph">
 <p>Evidentemente, fica clara facilidade de detecção por estarmos usando o <em>template</em> padrão do Metasploit para entregar o <em>payload</em>, bem como o fato de não termos usado nenhuma técnica de evasão de antivírus. Neste momento, teríamos que empregar técnicas de ofuscação, criptografia ou codificação do executável para dificultar a detecção do antivírus, e assim conseguir efetivar o ataque&#8201;&#8212;&#8201;esses temas, contudo, extrapolam o escopo desta atividade.</p>
@@ -3037,13 +3108,13 @@ No matching processes were found.</pre>
 <div class="content">
 <img src="./img/meterpreter-commands-p1.png" alt="meterpreter commands p1">
 </div>
-<div class="title">Figure 42. Comandos do meterpreter, parte 1</div>
+<div class="title">Figure 35. Comandos do meterpreter, parte 1</div>
 </div>
 <div id="img-meterpreter-commands-p2" class="imageblock" style="text-align: center">
 <div class="content">
 <img src="./img/meterpreter-commands-p2.png" alt="meterpreter commands p2">
 </div>
-<div class="title">Figure 43. Comandos do meterpreter, parte 2</div>
+<div class="title">Figure 36. Comandos do meterpreter, parte 2</div>
 </div>
 </li>
 </ol>
@@ -3094,7 +3165,12 @@ root</pre>
 </div>
 </li>
 <li>
-<p>Nesse diretório, execute o <em>script</em> <code>run.sh</code>.</p>
+<p>Inicie o <em>daemon</em> do Docker, e em seguida execute o <em>script</em> <code>run.sh</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start docker</pre>
+</div>
+</div>
 <div class="literalblock">
 <div class="content">
 <pre># ./run.sh
@@ -3536,8 +3612,12 @@ obsd3.srv.ualberta.ca: forward host lookup failed: Host name lookup failure : Re
 <p>Agora, crie uma regra na <em>chain</em> OUTPUT que permita a saída de pacotes na porta 80/HTTP (não se esqueça também de permitir consultas DNS à porta 53/UDP, se estiver utilizando um nome e não um endereço IP) e tente conectar-se novamente. Qual o resultado?</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
-# iptables -A OUTPUT -p udp --dport 53 -j ACCEPT</pre>
+<pre># iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A OUTPUT -p udp --dport 53 -j ACCEPT</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -3583,8 +3663,12 @@ listening on enp0s3, link-type EN10MB (Ethernet), capture size 262144 bytes
 <p>Finalmente, crie uma regra apropriada na <em>chain</em> INPUT e teste o sucesso na conexão HTTP.</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A INPUT -p tcp --sport 80 -j ACCEPT
-# iptables -A INPUT -p udp --sport 53 -j ACCEPT</pre>
+<pre># iptables -A INPUT -p tcp --sport 80 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -p udp --sport 53 -j ACCEPT</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -3770,8 +3854,12 @@ A política de filtro de pacotes será a mais restritiva possível, permitindo s
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -L -vn
-# iptables -t nat -L -vn</pre>
+<pre># iptables -L -vn</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -L -vn</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3779,8 +3867,12 @@ A política de filtro de pacotes será a mais restritiva possível, permitindo s
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -F
-# iptables -t nat -F</pre>
+<pre># iptables -F</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -F</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3794,9 +3886,17 @@ A política de filtro de pacotes será a mais restritiva possível, permitindo s
 <p>O primeiro passo, antes de mesmo começar a mexer no firewall, é ter uma maneira de gravar suas regras. Iremos instalar o pacote <code>iptables-persistent</code> para atingir esse objetivo; mas, antes de começar, garanta que seu firewall não possui regras e que as políticas de entrada/saída são permissivas:</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -P INPUT ACCEPT
-# iptables -P OUTPUT ACCEPT
-# iptables -F</pre>
+<pre># iptables -P INPUT ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P OUTPUT ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -F</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -3814,44 +3914,21 @@ target     prot opt source               destination</pre>
 </div>
 </li>
 <li>
-<p>Agora, instale o pacote <code>iptables-persistent</code> para tornar suas configurações de firewall permanentes mesmo após o <code>reboot</code> da máquina.</p>
+<p>Agora, habilite o <code>netfilter-persistent</code> para tornar suas configurações de firewall permanentes mesmo após o <code>reboot</code> da máquina.</p>
 <div class="literalblock">
 <div class="content">
-<pre># apt-get install iptables-persistent</pre>
+<pre># systemctl enable netfilter-persistent.service</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Na instalação do pacote, quando perguntado, responda:</p>
+<p>Note que o <code>netfilter-persistent</code> já está instalado na máquina <em>FWGW1-G</em>, assim como a maioria dos pacotes utilizados neste curso. Caso queira instalá-lo em uma máquina Debian recém-preparada, instale o pacote <code>iptables-persistent</code>.</p>
 </div>
-<table class="tableblock frame-all grid-all" style="width: 65%;">
-<caption class="title">Table 9. Configurações do iptables-persistent</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Pergunta</th>
-<th class="tableblock halign-left valign-top">Resposta</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Salvar as regras IPv4 atuais?</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sim</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Salvar as regras IPv6 atuais?</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sim</p></td>
-</tr>
-</tbody>
-</table>
 </li>
 <li>
 <p>Isso feito, basta dar início ao processo de configuração do firewall. Ao inserir um conjunto de regras com as quais você esteja satisfeito, é possível gravá-las de forma fácil com o comando:</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables-save &gt; /etc/iptables/rules.v4</pre>
+<pre># /etc/init.d/netfilter-persistent save</pre>
 </div>
 </div>
 </li>
@@ -3859,7 +3936,15 @@ target     prot opt source               destination</pre>
 <p>Se cometer qualquer erro durante o processo de configuração, você pode recarregar o conjunto de regras salvo no arquivo <code>/etc/iptables/rules.v4</code> com o comando:</p>
 <div class="literalblock">
 <div class="content">
-<pre># systemctl restart netfilter-persistent.service</pre>
+<pre># /etc/init.d/netfilter-persistent reload</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Para limpar todas as regras do firewall e iniciar do zero, ajustando também as políticas padrão das <em>chains</em> de sistema para ACCEPT, execute:</p>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent flush</pre>
 </div>
 </div>
 </li>
@@ -3877,8 +3962,12 @@ target     prot opt source               destination</pre>
 <p>Primeiro, torne as políticas do firewall restritivas, ajustando a política das <em>chains</em> INPUT e FORWARD para DROP.</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -P INPUT DROP
-# iptables -P FORWARD DROP</pre>
+<pre># iptables -P INPUT DROP</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -P FORWARD DROP</pre>
 </div>
 </div>
 </li>
@@ -3924,12 +4013,32 @@ PING 172.16.1.1 (172.16.1.1) 56(84) bytes of data.
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A INPUT -i lo -j ACCEPT
-# iptables -A INPUT -d 127.0.0.0/8 -i '!lo' -j REJECT --reject-with icmp-port-unreachable
-# iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-# iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
-# iptables -A INPUT -s 172.16.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT
-# iptables -A INPUT -s 10.1.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT</pre>
+<pre># iptables -A INPUT -i lo -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 127.0.0.0/8 -i '!lo' -j REJECT --reject-with icmp-port-unreachable</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 10.1.1.0/24 -p tcp -m tcp --dport 22 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 172.16.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A INPUT -s 10.1.1.0/24 -p icmp -m icmp --icmp-type any -j ACCEPT</pre>
 </div>
 </div>
 </li>
@@ -4011,24 +4120,32 @@ FWGW1-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p tcp -m multiport --dports 22,25,80,110,5432 -j ACCEPT
-# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT</pre>
+<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p tcp -m multiport --dports 22,25,80,110,5432 -j ACCEPT</pre>
 </div>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443,3389 -j ACCEPT
-# iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT</pre>
+<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443,3389 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 10.1.1.0/24 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT</pre>
 </div>
 </div>
 </li>
 <li>
 <p>Teste sua configuração acessando o servidor web IIS instalado na máquina <em>WinServer-G</em>, e acessando-o a partir da máquina <em>WinClient-G</em>.</p>
-<div id="img-fwd-iis-ok" class="imageblock" style="text-align: center">
+<div id="img-fw-1" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/firewall-fwd-iis-ok.png" alt="firewall fwd iis ok">
+<img src="./img/fw-1.png" alt="fw 1">
 </div>
-<div class="title">Figure 44. Acesso da Intranet para a DMZ</div>
+<div class="title">Figure 37. Acesso da Intranet para a DMZ</div>
 </div>
 </li>
 </ol>
@@ -4051,8 +4168,12 @@ FWGW1-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A FORWARD -s 172.16.1.0/24 -o enp0s3 -j ACCEPT
-# iptables -A FORWARD -s 10.1.1.0/24   -o enp0s3 -j ACCEPT</pre>
+<pre># iptables -A FORWARD -s 172.16.1.0/24 -o enp0s3 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -s 10.1.1.0/24   -o enp0s3 -j ACCEPT</pre>
 </div>
 </div>
 </li>
@@ -4086,7 +4207,7 @@ obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
 <p>Como dois serviços das máquinas <em>LinServer-G</em> e <em>WinServer-G</em> operam nas mesmas portas (80/TCP e 123/UDP), teremos que fazer uma técnica de PAT (<em>port address translation</em>) para que ambos possam ser atingidos. O primeiro passo será feito aqui, nas regras da <em>chain</em> FORWARD; na próxima atividade, em que configuraremos o DNAT, será realizada a parte de tradução de portas.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 10. Serviços publicados pela DMZ para a Internet</caption>
+<caption class="title">Table 9. Serviços publicados pela DMZ para a Internet</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -4201,10 +4322,22 @@ FWGW1-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT
-# iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT
-# iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443 -j ACCEPT
-# iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT</pre>
+<pre># iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p tcp -m multiport --dports 25,80,110 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -i enp0s3 -d 172.16.1.10/32 -p udp -m multiport --dports 53,123 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p tcp -m multiport --dports 21,80,443 -j ACCEPT</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -A FORWARD -i enp0s3 -d 172.16.1.20/32 -p udp -m multiport --dports 123 -j ACCEPT</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4234,6 +4367,9 @@ FWGW1-A</pre>
 <pre>iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>Pode-se usar, por exemplo, o comando:</p>
+</div>
 <div class="literalblock">
 <div class="content">
 <pre># sed -i 's/\(iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE\)/#\1/' /etc/rc.local</pre>
@@ -4250,6 +4386,9 @@ num   pkts bytes target     prot opt in     out     source               destina
 1       70  5922 MASQUERADE  all  --  *      enp0s3    0.0.0.0/0            0.0.0.0/0</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>Basta executar:</p>
+</div>
 <div class="literalblock">
 <div class="content">
 <pre># iptables -t nat -D POSTROUTING 1</pre>
@@ -4260,8 +4399,12 @@ num   pkts bytes target     prot opt in     out     source               destina
 <p>Agora sim, tudo pronto. Insira uma regra no firewall que faça tradução dos endereços das redes DMZ/Intranet via <em>masquerading</em>, permitindo assim seu acesso à Internet.</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE
-# iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE</pre>
+<pre># iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE</pre>
 </div>
 </div>
 </li>
@@ -4270,9 +4413,12 @@ num   pkts bytes target     prot opt in     out     source               destina
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-LinServer-A
-
-# nc -z -w5 -v obsd3.srv.ualberta.ca 80
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># nc -z -w5 -v obsd3.srv.ualberta.ca 80
 obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
 </div>
 </div>
@@ -4288,22 +4434,29 @@ obsd3.srv.ualberta.ca [129.128.5.194] 80 (http) open</pre>
 <p>Agora, vamos configurar o DNAT, que irá permitir acesso pela Internet aos serviços publicados pela DMZ. Comece fazendo as regras para a máquina <em>LinServer-G</em>, que não exige PAT.</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
-# iptables -t nat -A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10</pre>
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10</pre>
 </div>
 </div>
 </li>
 <li>
-<p>Agora, teste sua configuração. Primeiro, instale o servidor web Apache na máquina <em>LinServer-G</em>; a seguir, em sua máquina física, acesso o IP público da máquina <em>FWGW1-G</em> na porta 80/TCP e verifique que de fato é exibida no navegador a página web instalada no <em>LinServer-G</em>.</p>
+<p>Agora, teste sua configuração. Primeiro, inicie o servidor web Apache na máquina <em>LinServer-G</em>; a seguir, em sua máquina física, acesso o IP público da máquina <em>FWGW1-G</em> na porta 80/TCP e verifique que de fato é exibida no navegador a página web instalada no <em>LinServer-G</em>.</p>
 <div class="paragraph">
-<p>Primeiro, vamos instalar o servidor web Apache na máquina <em>LinServer-G</em>:</p>
+<p>Primeiro, vamos iniciar o servidor web Apache na máquina <em>LinServer-G</em>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-LinServer-A
-
-# apt-get install --no-install-recommends apache2</pre>
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start apache2</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4332,11 +4485,11 @@ FWGW1-A</pre>
 <div class="paragraph">
 <p>Finalmente, vamos acessar esse IP na porta 80 a partir da máquina física:</p>
 </div>
-<div id="img-firewall-dnat-linserver" class="imageblock" style="text-align: center">
+<div id="img-fw-2" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/firewall-dnat-linserver.png" alt="firewall dnat linserver">
+<img src="./img/fw-2.png" alt="fw 2">
 </div>
-<div class="title">Figure 45. Teste DNAT do acesso Internet &gt; LinServer</div>
+<div class="title">Figure 38. Teste DNAT do acesso Internet &gt; LinServer</div>
 </div>
 <div class="paragraph">
 <p>Voltando ao monitoramento do log de acessos do Apache na máquina <em>LinServer-G</em>, vemos que o acesso de fato se concretizou:</p>
@@ -4344,9 +4497,12 @@ FWGW1-A</pre>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-LinServer-A
-
-# tail -f -n0 /var/log/apache2/access.log
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -f -n0 /var/log/apache2/access.log
 192.168.29.102 - - [25/Aug/2018:15:19:57 -0400] "GET / HTTP/1.1" 200 3380 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
 192.168.29.102 - - [25/Aug/2018:15:19:57 -0400] "GET /icons/openlogo-75.png HTTP/1.1" 200 6040 "http://192.168.29.103/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"</pre>
 </div>
@@ -4356,9 +4512,17 @@ LinServer-A
 <p>Faça o mesmo processo para a configuração do DNAT da máquina <em>WinServer-G</em>. Atente-se para o fato de que duas portas internat, 80/TCP e 123/UDP, serão acessadas através das portas externas 8080/TCP e 8123/UDP respectivamente. Configure o PAT de acordo.</p>
 <div class="literalblock">
 <div class="content">
-<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
-# iptables -t nat -A PREROUTING -i enp0s3 -p tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
-# iptables -t nat -A PREROUTING -i enp0s3 -p udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123</pre>
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># iptables -t nat -A PREROUTING -i enp0s3 -p udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123</pre>
 </div>
 </div>
 </li>
@@ -4367,11 +4531,11 @@ LinServer-A
 <div class="paragraph">
 <p>Utilizando o mesmo IP público descoberto anteriormente, basta acessá-lo na porta 8080 como solicitado:</p>
 </div>
-<div id="img-firewall-dnat-winserver" class="imageblock" style="text-align: center">
+<div id="img-fw-3" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/firewall-dnat-winserver.png" alt="firewall dnat winserver">
+<img src="./img/fw-3.png" alt="fw 3">
 </div>
-<div class="title">Figure 46. Teste DNAT do acesso Internet &gt; WinServer</div>
+<div class="title">Figure 39. Teste DNAT do acesso Internet &gt; WinServer</div>
 </div>
 </li>
 </ol>
@@ -4386,10 +4550,17 @@ LinServer-A
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-FWGW1-A
-
-# iptables-save &gt; /etc/iptables/rules.v4
-# systemctl restart netfilter-persistent.service</pre>
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent save</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># /etc/init.d/netfilter-persistent reload</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4400,11 +4571,27 @@ FWGW1-A
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># Generated by iptables-save v1.6.0 on Thu Oct 11 10:17:13 2018
+<pre class="highlight"><code class="language-bash" data-lang="bash"># Generated by iptables-save v1.6.0 on Thu Apr 11 02:50:12 2019
+*nat
+:PREROUTING ACCEPT [282:77147]
+:INPUT ACCEPT [1:52]
+:OUTPUT ACCEPT [14:1010]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
+-A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10
+-A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
+-A PREROUTING -i enp0s3 -p tcp -m tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
+-A PREROUTING -i enp0s3 -p udp -m udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123
+-A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE
+-A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE
+-A POSTROUTING -o enp0s3 -j MASQUERADE
+COMMIT
+# Completed on Thu Apr 11 02:50:12 2019
+# Generated by iptables-save v1.6.0 on Thu Apr 11 02:50:12 2019
 *filter
-:INPUT DROP [57:15290]
+:INPUT DROP [288:78592]
 :FORWARD DROP [0:0]
-:OUTPUT ACCEPT [75:8092]
+:OUTPUT ACCEPT [169:15515]
 -A INPUT -i lo -j ACCEPT
 -A INPUT -d 127.0.0.0/8 -i !lo -j REJECT --reject-with icmp-port-unreachable
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -4423,22 +4610,7 @@ FWGW1-A
 -A FORWARD -d 172.16.1.20/32 -i enp0s3 -p tcp -m multiport --dports 21,443,80 -j ACCEPT
 -A FORWARD -d 172.16.1.20/32 -i enp0s3 -p udp -m multiport --dports 123 -j ACCEPT
 COMMIT
-# Completed on Thu Oct 11 10:17:13 2018
-# Generated by iptables-save v1.6.0 on Thu Oct 11 10:17:13 2018
-*nat
-:PREROUTING ACCEPT [2:84]
-:INPUT ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
-:POSTROUTING ACCEPT [0:0]
--A PREROUTING -i enp0s3 -p tcp -m multiport --dports 25,80,110 -j DNAT --to-destination 172.16.1.10
--A PREROUTING -i enp0s3 -p udp -m multiport --dports 53,123 -j DNAT --to-destination 172.16.1.10
--A PREROUTING -i enp0s3 -p tcp -m multiport --dports 21,443 -j DNAT --to-destination 172.16.1.20
--A PREROUTING -i enp0s3 -p tcp -m tcp --dport 8080 -j DNAT --to-destination 172.16.1.20:80
--A PREROUTING -i enp0s3 -p udp -m udp --dport 8123 -j DNAT --to-destination 172.16.1.20:123
--A POSTROUTING -s 10.1.1.0/24 -o enp0s3 -j MASQUERADE
--A POSTROUTING -s 172.16.1.0/24 -o enp0s3 -j MASQUERADE
-COMMIT
-# Completed on Thu Oct 11 10:17:13 2018</code></pre>
+# Completed on Thu Apr 11 02:50:12 2019</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
@@ -4470,13 +4642,32 @@ COMMIT
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Primeiro, vamos configurar o concentrador de logs. Acesse a máquina <em>LinServer-G</em> e instale o pacote <code>syslog-ng</code>.</p>
+<p>Primeiro, acesse a máquina <em>LinServer-G</em>. Verifique que o gerenciador de logs <code>syslog-ng</code> está instalado e operacional.</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-LinServer-A
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dpkg -l | grep 'ii *syslog-ng '
+ii  syslog-ng                          3.8.1-10                       all          Enhanced system logging daemon (metapackage)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl status syslog-ng
+● syslog-ng.service - System Logger Daemon
+   Loaded: loaded (/lib/systemd/system/syslog-ng.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2019-04-13 01:59:05 -03; 2min 46s ago
+     Docs: man:syslog-ng(8)
+ Main PID: 358 (syslog-ng)
+   CGroup: /system.slice/syslog-ng.service
+           └─358 /usr/sbin/syslog-ng -F
 
-# apt-get install --no-install-recommends syslog-ng</pre>
+abr 13 01:58:16 LinServer-A systemd[1]: Starting System Logger Daemon...
+abr 13 01:59:05 LinServer-A syslog-ng[358]: [2019-04-13T01:59:05.123631] WARNING: Default value changed for the prefiabr 13 01:59:05 LinServer-A systemd[1]: Started System Logger Daemon.</pre>
 </div>
 </div>
 </li>
@@ -4511,13 +4702,32 @@ log { source(s_net); destination(d_rhost); };</code></pre>
 </div>
 </li>
 <li>
-<p>Agora, na máquina <em>FWGW1-G</em>, instale o <code>syslog-ng</code> e configure-o como um cliente Syslog. Crie um arquivo de configuração na pasta <code>/etc/syslog-ng/conf.d</code> que envie todos os eventos de log locais para a máquina <em>LinServer-G</em> na porta 514/UDP.</p>
+<p>Agora, na máquina <em>FWGW1-G</em>, verifique que o gerenciador de logs <code>syslog-ng</code> está instalado e operacional. Crie um arquivo de configuração na pasta <code>/etc/syslog-ng/conf.d</code> que envie todos os eventos de log locais para a máquina <em>LinServer-G</em> na porta 514/UDP.</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-FWGW1-A
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># dpkg -l | grep 'ii *syslog-ng '
+ii  syslog-ng                            3.8.1-10                       all          Enhanced system logging daemon (metapackage)</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl status syslog-ng
+● syslog-ng.service - System Logger Daemon
+   Loaded: loaded (/lib/systemd/system/syslog-ng.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2019-04-13 01:57:01 -03; 8min ago
+     Docs: man:syslog-ng(8)
+ Main PID: 338 (syslog-ng)
+   CGroup: /system.slice/syslog-ng.service
+           └─338 /usr/sbin/syslog-ng -F
 
-# apt-get install --no-install-recommends syslog-ng</pre>
+abr 13 01:57:00 FWGW1-A systemd[1]: Starting System Logger Daemon...
+abr 13 01:57:01 FWGW1-A syslog-ng[338]: [2019-04-13T01:57:01.338976] WARNING: Default value changed for the prefix()abr 13 01:57:01 FWGW1-A systemd[1]: Started System Logger Daemon.</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4546,9 +4756,12 @@ log { source(s_src); destination(d_rserver); };</code></pre>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-FWGW1-A
-
-# logger -p error Teste</pre>
+FWGW1-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># logger -p error Teste</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4557,10 +4770,13 @@ FWGW1-A
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-LinServer-A
-
-# tail -n1 /var/log/172.16.1.1.log
-Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n1 /var/log/172.16.1.1.log
+Apr 13 02:07:07 172.16.1.1 aluno[1615]: Teste</pre>
 </div>
 </div>
 </li>
@@ -4570,7 +4786,7 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <p>Na ferramenta, acesse a seção <em>Computer Configuration</em> &gt; <em>Windows Settings</em> &gt; <em>Security Settings</em> &gt; <em>Local Policies</em> &gt; <em>Audit Policy</em> e habilite os seguintes eventos como "Sucesso" e "Falha":</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 11. Políticas de auditoria para o WinServer-G</caption>
+<caption class="title">Table 10. Políticas de auditoria para o WinServer-G</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -4623,11 +4839,11 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <div class="paragraph">
 <p>A tela ficaria, portanto, desta forma:</p>
 </div>
-<div id="img-syslog-gpedit" class="imageblock" style="text-align: center">
+<div id="img-syslog-1" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/syslog-gpedit.png" alt="syslog gpedit">
+<img src="./img/syslog-1.png" alt="syslog 1">
 </div>
-<div class="title">Figure 47. Tela de políticas de auditoria para o WinServer-G</div>
+<div class="title">Figure 40. Tela de políticas de auditoria para o WinServer-G</div>
 </div>
 </li>
 <li>
@@ -4636,7 +4852,7 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <p>Durante a instalação, responda todas as perguntas com as opções padrão, exceto:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 12. Opções de instalação do Snare</caption>
+<caption class="title">Table 11. Opções de instalação do Snare</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -4665,32 +4881,38 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 </li>
 <li>
 <p>Após a instalação, abra o Snare. Clique em <em>Start</em> e digite "snare", escolhendo a opção <code>Snare for Windows (Open Source)</code>, como se segue:</p>
-<div id="img-syslog-snare-start" class="imageblock" style="text-align: center">
+<div id="img-syslog-2" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/syslog-snare-start.png" alt="syslog snare start">
+<img src="./img/syslog-2.png" alt="syslog 2">
 </div>
-<div class="title">Figure 48. Inicialização do Snare</div>
+<div class="title">Figure 41. Inicialização do Snare</div>
 </div>
 <div class="paragraph">
 <p>Irá ser lançada uma janela do navegador. Informe o usuário <code>snare</code>, e senha <code>rnpesr</code>, como se segue:</p>
 </div>
-<div id="img-syslog-snare-password" class="imageblock" style="text-align: center">
+<div id="img-syslog-3" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/syslog-snare-password.png" alt="syslog snare password">
+<img src="./img/syslog-3.png" alt="syslog 3">
 </div>
-<div class="title">Figure 49. Login no Snare</div>
+<div class="title">Figure 42. Login no Snare</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Network Configuration</em>&#8201;&#8212;&#8201;informe o IP da máquina <em>LinServer-G</em> no campo <em>Destination Snare Server address</em>, e a porta 514 no campo <em>Destination Port</em>, como se segue. Em seguida, clique em <em>Change Configuration</em>.</p>
 </div>
-<div id="img-syslog-snare-config" class="imageblock" style="text-align: center">
+<div id="img-syslog-4" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/syslog-snare-config.png" alt="syslog snare config">
+<img src="./img/syslog-4.png" alt="syslog 4">
 </div>
-<div class="title">Figure 50. Configurações do Snare</div>
+<div class="title">Figure 43. Configurações do Snare</div>
 </div>
 <div class="paragraph">
 <p>Em seguida, clique em <em>Apply the Latest Audit Configuration</em> e depois em <em>Reload Settings</em>.</p>
+</div>
+<div id="img-syslog-5" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/syslog-5.png" alt="syslog 5">
+</div>
+<div class="title">Figure 44. Recarregando o Snare</div>
 </div>
 </li>
 <li>
@@ -4698,10 +4920,13 @@ Aug 26 06:49:30 172.16.1.1 aluno: Teste</pre>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
-LinServer-A
-
-# grep Logoff /var/log/172.16.1.20.log
-Aug 26 07:10:25 172.16.1.20 WinServer-A MSWinEventLog   1       Security        50      dom ago 26 08:10:23 2018  4647    Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit     WinServer-A     Logoff          User initiated logoff:    Subject:   Security ID:  S-1-5-21-1959434341-4039883546-812769935-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0x16898    This event is generated when a logoff is initiated but the token reference count is not zero and the logon session cannot be destroyed.  No further user-initiated activity can occur.  This event can be interpreted as a logoff event.  41</pre>
+LinServer-A</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># grep -a 'Administrator.*Logoff' /var/log/172.16.1.20.log
+Apr 13 02:40:32 172.16.1.20 WinServer-A MSWinEventLog   1       Security        283     sab abr 13 02:40:32 2019    4647     Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit   WinServer-A Logoff           User initiated logoff:    Subject:   Security ID:  S-1-5-21-970566664-513978616-1541136702-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0xD2798    This event is generated when a logoff is initiated. No further user-initiated activity can occur. This event can be interpreted as a logoff event.   229</pre>
 </div>
 </div>
 </li>
@@ -4730,7 +4955,7 @@ Aug 26 07:10:25 172.16.1.20 WinServer-A MSWinEventLog   1       Security        
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Primeiro, vamos configurar o servidor de hora. Acesse a máquina <em>LinServer-G</em> e instale o pacote <code>ntp</code>.</p>
+<p>Primeiro, vamos configurar o servidor de hora. Acesse a máquina <em>LinServer-G</em>, verifique que o pacote <code>ntp</code> está instalado e habilite-o durante o <em>boot</em>.</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
@@ -4739,7 +4964,15 @@ LinServer-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># apt-get install --no-install-recommends ntp</pre>
+<pre># dpkg -l | grep 'ii.*ntp '
+ii  ntp                                1:4.2.8p10+dfsg-3+deb9u2       amd64        Network Time Protocol daemon and utility programs</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl enable ntp
+ntp.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable ntp</pre>
 </div>
 </div>
 </li>
@@ -4770,13 +5003,24 @@ server c.ntp.br iburst</pre>
 <div class="literalblock">
 <div class="content">
 <pre># ntpd -gq
-ntpd: time slew +0.000090s</pre>
+13 Apr 02:48:10 ntpd[7164]: ntpd 4.2.8p10@1.3728-o Sun Feb 25 21:22:55 UTC 2018 (1): Starting
+13 Apr 02:48:10 ntpd[7164]: Command line: ntpd -gq
+13 Apr 02:48:10 ntpd[7164]: proto: precision = 0.060 usec (-24)
+13 Apr 02:48:10 ntpd[7164]: Listen and drop on 0 v6wildcard [::]:123
+13 Apr 02:48:10 ntpd[7164]: Listen and drop on 1 v4wildcard 0.0.0.0:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 2 lo 127.0.0.1:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 3 enp0s3 172.16.1.10:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 4 lo [::1]:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 5 enp0s3 [fe80::a00:27ff:fef2:7ba2%2]:123
+13 Apr 02:48:10 ntpd[7164]: Listening on routing socket on fd #22 for interface updates
+13 Apr 02:48:17 ntpd[7164]: ntpd: time slew +0.000514 s
+ntpd: time slew +0.000514s</pre>
 </div>
 </div>
 <div class="literalblock">
 <div class="content">
 <pre># date
-qui out 11 15:25:50 -03 2018</pre>
+sáb abr 13 02:48:41 -03 2019</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -4792,9 +5036,9 @@ qui out 11 15:25:50 -03 2018</pre>
 <pre># ntpq -c pe
      remote           refid      st t when poll reach   delay   offset  jitter
 ==============================================================================
-*a.ntp.br        200.160.7.186    2 u   48   64   77   16.623   -0.352   0.229
- b.ntp.br        200.160.7.186    2 u   51   64   77   57.992   -1.086   0.239
- c.ntp.br        200.160.7.186    2 u   50   64   77   40.497   -2.432   0.281</pre>
+ a.ntp.br        200.160.7.186    2 u    2   64    1   17.083   -0.090   0.115
+ b.ntp.br        200.160.7.186    2 u    1   64    1   59.400    0.346   0.493
+ c.ntp.br        200.160.7.186    2 u    2   64    1   32.332    1.893   0.000</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -4807,7 +5051,7 @@ udp        0      0 0.0.0.0:123             0.0.0.0:*                           
 </div>
 </li>
 <li>
-<p>Vamos configurar o cliente NTP Linux, na máquina <em>FWGW1-G</em>. Instale o pacote <code>ntp</code>; edite o arquivo <code>/etc/ntp.conf</code> para consultar o servidor de hora <em>LinServer-G</em>; pare o serviço <code>ntp</code>, sincronize a hora imediatamente e reinicie-o.</p>
+<p>Vamos configurar o cliente NTP Linux, na máquina <em>FWGW1-G</em>. Verifique que o pacote <code>ntp</code> está instalado, e habilite-o durante o <em>boot</em>; edite o arquivo <code>/etc/ntp.conf</code> para consultar o servidor de hora <em>LinServer-G</em>; pare o serviço <code>ntp</code>, sincronize a hora imediatamente e reinicie-o.</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
@@ -4816,7 +5060,15 @@ FWGW1-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># apt-get install --no-install-recommends ntp</pre>
+<pre># dpkg -l | grep 'ii.*ntp '
+ii  ntp                                  1:4.2.8p10+dfsg-3+deb9u2       amd64        Network Time Protocol daemon and utility programs</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl enable ntp
+ntp.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable ntp</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -4839,13 +5091,28 @@ server 172.16.1.10 iburst</pre>
 <div class="literalblock">
 <div class="content">
 <pre># ntpd -gq
-ntpd: time slew -0.000270s</pre>
+13 Apr 02:51:02 ntpd[2741]: ntpd 4.2.8p10@1.3728-o Sun Feb 25 21:22:55 UTC 2018 (1): Starting
+13 Apr 02:51:02 ntpd[2741]: Command line: ntpd -gq
+13 Apr 02:51:02 ntpd[2741]: proto: precision = 0.060 usec (-24)
+13 Apr 02:51:02 ntpd[2741]: Listen and drop on 0 v6wildcard [::]:123
+13 Apr 02:51:02 ntpd[2741]: Listen and drop on 1 v4wildcard 0.0.0.0:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 2 lo 127.0.0.1:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 3 enp0s3 192.168.29.104:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 4 enp0s8 172.16.1.1:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 5 enp0s9 10.1.1.1:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 6 lo [::1]:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 7 enp0s3 [fe80::a00:27ff:feae:71d3%2]:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 8 enp0s8 [fe80::a00:27ff:fe68:4fb%3]:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 9 enp0s9 [fe80::a00:27ff:feae:4cf%4]:123
+13 Apr 02:51:02 ntpd[2741]: Listening on routing socket on fd #26 for interface updates
+13 Apr 02:51:12 ntpd[2741]: ntpd: time set +0.218180 s
+ntpd: time set +0.218180s</pre>
 </div>
 </div>
 <div class="literalblock">
 <div class="content">
 <pre># date
-qui out 11 15:28:12 -03 2018</pre>
+sáb abr 13 02:51:23 -03 2019</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -4855,24 +5122,33 @@ qui out 11 15:28:12 -03 2018</pre>
 </div>
 </li>
 <li>
-<p>Finalmente, configure o cliente NTP na máquina <em>WinServer-G</em>. O Microsoft Windows possui uma forma simples de configurar o sincronismo de relógio com servidores de rede, desde de que não tenham o servidor de diretório <em>Microsoft Active Directory</em> como controlador de domínio, pois dessa forma o sincronismo é automático.</p>
+<p>Finalmente, configure o cliente NTP na máquina <em>WinServer-G</em>. O Microsoft Windows possui uma forma simples de configurar o sincronismo de relógio com servidores de rede, desde que não tenha o servidor de diretório <em>Microsoft Active Directory</em> como controlador de domínio&#8201;&#8212;&#8201;do contrário, o sincronismo é feito de forma automática.</p>
 <div class="paragraph">
-<p>Para a configuração do sincronismo automático do <em>host</em> Windows com o servidor de hora da rede, clique no relógio da barra de tarefas, e em seguida em <em>Change date and time settings&#8230;&#8203;</em>; logo depois, navegue até a aba <em>Internet Time</em>.</p>
+<p>Para a configuração do sincronismo automático do <em>host</em> Windows com o servidor de hora da rede, abra o Painel de Controle e busque por <em>Date and Time</em>; em seguida, clique na opção <em>Date and Time</em>.</p>
 </div>
-<div id="img-ntp-win-internettime" class="imageblock" style="text-align: center">
+<div id="img-ntp-1" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/ntp-win-internettime.png" alt="ntp win internettime">
+<img src="./img/ntp-1.png" alt="ntp 1">
 </div>
-<div class="title">Figure 51. Aba Internet Time do relógio do Windows</div>
+<div class="title">Figure 45. Configuração de hora do Windows Server</div>
+</div>
+<div class="paragraph">
+<p>Na nova janela, navegue até a aba <em>Internet Time</em>.</p>
+</div>
+<div id="img-ntp-2" class="imageblock" style="text-align: center">
+<div class="content">
+<img src="./img/ntp-2.png" alt="ntp 2">
+</div>
+<div class="title">Figure 46. Aba Internet Time do relógio do Windows</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Change Settings&#8230;&#8203;</em>, e informe o IP da máquina <em>LinServer-G</em> no campo <em>Server</em>. Em seguida, clique em <em>Update now</em> (se ocorrer um erro, clique uma segunda vez), e o relógio do sistema deverá ser atualizado.</p>
 </div>
-<div id="img-ntp-win-setserver" class="imageblock" style="text-align: center">
+<div id="img-ntp-3" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/ntp-win-setserver.png" alt="ntp win setserver">
+<img src="./img/ntp-3.png" alt="ntp 3">
 </div>
-<div class="title">Figure 52. Modificando o servidor NTP do Windows</div>
+<div class="title">Figure 47. Modificando o servidor NTP do Windows</div>
 </div>
 </li>
 </ol>
@@ -4900,21 +5176,7 @@ qui out 11 15:28:12 -03 2018</pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Primeiro, vamos instalar o Cacti. Acesse a máquina <em>LinServer-G</em> e instale o pacote <code>cacti</code>.</p>
-<div class="openblock">
-<div class="content">
-<div class="ulist">
-<ul>
-<li>
-<p>Quando perguntado sobre o <em>web server</em> para o qual o Cacti deve ser autoconfigurado, escolha <code>apache2</code>.</p>
-</li>
-<li>
-<p>Quando perguntado se a base de dados do Cacti deve ser configurada usando o <code>dbconfig-common</code>, responda <em>Yes</em>. Para a senha do usuário administrativo da base de dados e a senha do aplicativo Cacti no MySQL, informe <code>rnpesr123</code> para ambas as perguntas.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
+<p>O Cacti já está instalado na máquina <em>LinServer-G</em>. Para utilizá-lo, habilite os <em>daemons</em> <code>apache2</code> e <code>mysql</code> durante o <em>boot</em>, e inicie-os.</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
@@ -4923,8 +5185,26 @@ LinServer-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># apt-get install cacti
-(...)</pre>
+<pre># systemctl enable apache2
+Synchronizing state of apache2.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable apache2</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl enable mysql
+mysql.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable mysql</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start apache2</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start mysql</pre>
 </div>
 </div>
 </li>
@@ -4934,11 +5214,11 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/cacti-console.png" alt="cacti console">
 </div>
-<div class="title">Figure 53. Console do Cacti</div>
+<div class="title">Figure 48. Console do Cacti</div>
 </div>
 </li>
 <li>
-<p>Vamos instalar o agente SNMP na máquina <em>FWGW1-G</em>. Instale o pacote <code>snmpd</code>.</p>
+<p>Vamos habilitar o agente SNMP na máquina <em>FWGW1-G</em>. Habilite o <code>snmpd</code> durante o <em>boot</em>, e inicie-o.</p>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
@@ -4947,7 +5227,14 @@ FWGW1-A</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># apt-get install --no-install-recommends snmpd</pre>
+<pre># systemctl enable snmpd
+Synchronizing state of snmpd.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable snmpd</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start snmpd</pre>
 </div>
 </div>
 </li>
@@ -4987,35 +5274,47 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables-save &gt; /etc/iptables/rules.v4</pre>
+<pre># /etc/init.d/netfilter-persistent save</pre>
 </div>
 </div>
 </li>
 <li>
-<p>Agora, vamos instalar o agente SNMP na máquina <em>WinServer-G</em>. Acesse como usuário <em>Administrator</em> e, dentro do <em>Server Manager</em>, clique com o botão direito em <em>Features</em> &gt; <em>Add Features</em>. Desça a barra de rolagem, selecione a caixa <em>SNMP Services</em> e prossiga com o assistente.</p>
-<div id="img-snmp-wininstall" class="imageblock" style="text-align: center">
+<p>Agora, vamos instalar o agente SNMP na máquina <em>WinServer-G</em>. Usando o Windows PowerShell, execute os comandos:</p>
+<div class="literalblock">
 <div class="content">
-<img src="./img/snmp-wininstall.png" alt="snmp wininstall">
+<pre>PS C:\Users\Administrator&gt; Install-WindowsFeature SNMP-Service -IncludeAllSubFeature
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {SNMP Service, SNMP WMI Provider}</pre>
 </div>
-<div class="title">Figure 54. Instalação da feature SNMP</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>PS C:\Users\Administrator&gt; Install-WindowsFeature RSAT-SNMP
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {Remote Server Administration Tools, Featu...</pre>
+</div>
 </div>
 </li>
 <li>
-<p>Abra o gestor de serviços do Windows, via menu <em>Start</em> &gt; <em>Run&#8230;&#8203;</em> &gt; <code>services.msc</code>. Encontre o serviço <em>SNMP Service</em> e clique com o botão direto &gt; <em>Properties</em>.</p>
-<div id="img-snmp-winprop" class="imageblock" style="text-align: center">
+<p>Vamos configurar o SNMP: abra o gestor de serviços do Windows, via menu <em>Start</em> &gt; <em>Run&#8230;&#8203;</em> &gt; <code>services.msc</code>. Encontre o serviço <em>SNMP Service</em> e clique com o botão direto &gt; <em>Properties</em>.</p>
+<div id="img-snmp-1" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/snmp-winprop.png" alt="snmp winprop">
+<img src="./img/snmp-1.png" alt="snmp 1">
 </div>
-<div class="title">Figure 55. Propriedades do serviço SNMP</div>
+<div class="title">Figure 49. Propriedades do serviço SNMP</div>
 </div>
 <div class="paragraph">
 <p>Na aba <em>Security</em>, caixa <em>Accepted community names</em>, clique em <em>Add&#8230;&#8203;</em> e adicione a comunidade <code>public</code> com permissões <em>READ ONLY</em>. Logo abaixo, na caixa <em>Accept SNMP packets from these hosts</em>, clique em <em>Add&#8230;&#8203;</em> e adicione o IP da máquina <em>LinServer-G</em>. Sua janela deverá ficar assim:</p>
 </div>
-<div id="img-snmp-winconfig" class="imageblock" style="text-align: center">
+<div id="img-snmp-2" class="imageblock" style="text-align: center">
 <div class="content">
-<img src="./img/snmp-winconfig.png" alt="snmp winconfig">
+<img src="./img/snmp-2.png" alt="snmp 2">
 </div>
-<div class="title">Figure 56. Configurações do serviço SNMP</div>
+<div class="title">Figure 50. Configurações do serviço SNMP</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, clique com o botão direito no serviço <em>SNMP Service</em> e em seguida em <em>Restart</em>.</p>
@@ -5027,7 +5326,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-adddevice.png" alt="cacti adddevice">
 </div>
-<div class="title">Figure 57. Adicionando device no Cacti, parte 1</div>
+<div class="title">Figure 51. Adicionando device no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, informe o nome da máquina <em>FWGW1-G</em> no campo <em>Description</em>, seu IP exposto à DMZ no campo <em>Hostname</em>, e escolha a opção <em>Local Linux Machine</em> no campo <em>Host Template</em>. Verifique se sua janela está como se segue, e clique em <em>Create</em>.</p>
@@ -5036,7 +5335,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-adddevice2.png" alt="cacti adddevice2">
 </div>
-<div class="title">Figure 58. Adicionando device no Cacti, parte 2</div>
+<div class="title">Figure 52. Adicionando device no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Verifique que as informações SNMP do <em>host</em> <em>FWGW1-G</em> figuram corretamente na seção <em>SNMP Information</em> no topo da tela. Em seguida, clique em <em>Create Graphs for this Host</em>.</p>
@@ -5045,7 +5344,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-cgraphs.png" alt="cacti cgraphs">
 </div>
-<div class="title">Figure 59. Adicionando gráficos no Cacti, parte 1</div>
+<div class="title">Figure 53. Adicionando gráficos no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, selecione todos os <em>Graph Templates</em> e <em>Data Queries</em> disponíveis e clique em <em>Create</em>. Na janela que se segue, clique novamente em <em>Create</em>.</p>
@@ -5054,7 +5353,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-cgraphs2.png" alt="cacti cgraphs2">
 </div>
-<div class="title">Figure 60. Adicionando gráficos no Cacti, parte 2</div>
+<div class="title">Figure 54. Adicionando gráficos no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Agora, o passo final é adicionar os gráficos a uma árvore de gráficos. No menu à esquerda, clique em <em>Graph Trees</em>, e em seguida em <em>Default Tree</em>.</p>
@@ -5063,7 +5362,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-addtree.png" alt="cacti addtree">
 </div>
-<div class="title">Figure 61. Adicionando gráficos a árvores no Cacti, parte 1</div>
+<div class="title">Figure 55. Adicionando gráficos a árvores no Cacti, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, em <em>Tree Items</em>, clique em <em>Add</em>.</p>
@@ -5072,7 +5371,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-addtree2.png" alt="cacti addtree2">
 </div>
-<div class="title">Figure 62. Adicionando gráficos a árvores no Cacti, parte 2</div>
+<div class="title">Figure 56. Adicionando gráficos a árvores no Cacti, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Na nova janela, em <em>Tree Item Type</em>, altere o valor para <em>Host</em>. Novas opções irão surgir. Em <em>Host</em>, selecione a máquina <em>FWGW1-G</em>, e depois clique em <em>Create</em>.</p>
@@ -5081,7 +5380,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-addtree3.png" alt="cacti addtree3">
 </div>
-<div class="title">Figure 63. Adicionando gráficos a árvores no Cacti, parte 3</div>
+<div class="title">Figure 57. Adicionando gráficos a árvores no Cacti, parte 3</div>
 </div>
 <div class="paragraph">
 <p>Para visualizar os gráficos recém-criados, no menu superior acesse <em>graphs</em>, expanda a <em>Default Tree</em> e clique no <em>host</em> <em>FWGW1-G</em>. Pode demorar algum tempo para que os gráficos sejam populados.</p>
@@ -5090,7 +5389,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-viewgraph.png" alt="cacti viewgraph">
 </div>
-<div class="title">Figure 64. Visualizando gráficos no Cacti, máquina <em>FWGW1-G</em></div>
+<div class="title">Figure 58. Visualizando gráficos no Cacti, máquina <em>FWGW1-G</em></div>
 </div>
 </li>
 <li>
@@ -5099,7 +5398,7 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <div class="content">
 <img src="./img/cacti-viewgraph2.png" alt="cacti viewgraph2">
 </div>
-<div class="title">Figure 65. Visualizando gráficos no Cacti, máquina <em>WinServer-G</em></div>
+<div class="title">Figure 59. Visualizando gráficos no Cacti, máquina <em>WinServer-G</em></div>
 </div>
 </li>
 </ol>
@@ -5132,17 +5431,12 @@ udp        0      0 0.0.0.0:161             0.0.0.0:*                           
 <li>
 <p>A seção 1.5 do manual oficial do Snort, <em>Packet Acquisition</em>, alerta para o fato que duas características de placas de rede e de processamento do kernel Linux podem afetar negativamente o funcionamento do IDS: LRO (<em>large receive offload</em>) e GRO (<em>generic receive offload</em>). Em particular, o fato de que as placas de rede podem remontar pacotes antes do processamento do kernel pode ser problemático, pois o Snort trunca pacotes maiores que o <em>snaplen</em> de 1518 bytes; em adição a isso, essas <em>features</em> podem causar problemas com a remontagem de fluxo orientada a alvo [1] do Snort.</p>
 <div class="paragraph">
-<p>Na máquina <em>FWGW1-G</em>, instale o pacote <code>ethtool</code> e desative as <em>features</em> <code>lro</code> e <code>gro</code> da interface <code>enp0s3</code>. Se houver algum erro desativando as características, não se preocupe; siga para o próximo passo.</p>
+<p>Na máquina <em>FWGW1-G</em>, use o pacote <code>ethtool</code> para desativar as <em>features</em> <code>lro</code> e <code>gro</code> da interface <code>enp0s3</code>. Se houver algum erro desativando as características, não se preocupe; siga para o próximo passo.</p>
 </div>
 <div class="literalblock">
 <div class="content">
 <pre># hostname
 FWGW1-A</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># apt-get install ethtool</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -5154,38 +5448,7 @@ Cannot change large-receive-offload</pre>
 </div>
 </li>
 <li>
-<p>Agora, vamos instalar o Snort. Execute:</p>
-<div class="literalblock">
-<div class="content">
-<pre># apt-get install snort</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Durante a configuração do pacote, responda as perguntas como se segue. Se sua máquina for do grupo <code>B</code>, customize as faixas de endereços IP mostradas na tabela.</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 13. Configurações do Snort durante a instalação</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Pergunta</th>
-<th class="tableblock halign-left valign-top">Parâmetro</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Interface(s) que o Snort deve escutar</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">enp0s3</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Gama de endereços para a rede local</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">172.16.1.0/24,10.1.1.0/24</p></td>
-</tr>
-</tbody>
-</table>
+<p>Assim como os demais pacotes utilizados neste curso, o Snort já encontra-se instalado na VM <em>FWGW1-A</em>. Caso deseje instalá-lo em uma máquina recém-preparada, execute <code>apt-get install snort</code>.</p>
 <div class="paragraph">
 <p>O arquivo de configuração principal do Snort é o <code>/etc/snort/snort.conf</code>. No Debian, em particular, há também o arquivo <code>/etc/snort/snort.debian.conf</code> que define algumas variáveis em particular, como mostrado abaixo:</p>
 </div>
@@ -5201,6 +5464,9 @@ DEBIAN_SNORT_SEND_STATS="true"
 DEBIAN_SNORT_STATS_RCPT="root"
 DEBIAN_SNORT_STATS_THRESHOLD="1"</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Note que a variável <code>DEBIAN_SNORT_HOME_NET</code> está pré-configurada para membros do grupo <code>A</code>. Caso você pertença ao grupo <code>B</code>, altere os endereços IP das duas redes representadas.</p>
 </div>
 </li>
 <li>
@@ -5282,7 +5548,13 @@ Snort exiting</pre>
 <p>Vamos criar uma regra customizada no Snort para testar se tudo está a contento. No arquivo <code>/etc/snort/rules/local.rules</code>, insira a linha:</p>
 <div class="literalblock">
 <div class="content">
-<pre>alert icmp any any -&gt; any any (msg:"ICMP packet from all, to all"; sid:10000001; rev:001;)</pre>
+<pre># echo 'alert icmp any any -&gt; any any (msg:"ICMP packet from all, to all"; sid:10000001; rev:001;)' &gt;&gt; /etc/snort/rules/local.rules</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># tail -n1 /etc/snort/rules/local.rules
+alert icmp any any -&gt; any any (msg:"ICMP packet from all, to all"; sid:10000001; rev:001;)</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5327,10 +5599,10 @@ Ping statistics for 192.168.29.103:
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>09/04-09:10:33.691493  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -&gt; 192.168.29.103
-09/04-09:10:38.278164  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -&gt; 192.168.29.103
-09/04-09:10:43.279523  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -&gt; 192.168.29.103
-09/04-09:10:48.283261  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.102 -&gt; 192.168.29.103</pre>
+<pre>04/14-01:20:48.726510  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.109 -&gt; 192.168.29.103
+04/14-01:20:53.415164  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.109 -&gt; 192.168.29.103
+04/14-01:20:58.416004  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.109 -&gt; 192.168.29.103
+04/14-01:21:03.415692  [**] [1:10000001:1] ICMP packet from all, to all [**] [Priority: 0] {ICMP} 192.168.29.109 -&gt; 192.168.29.103</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5353,12 +5625,66 @@ Ping statistics for 192.168.29.103:
 </div>
 <div class="sect2">
 <h3 id="_3_configurando_atualizações_de_regras_de_forma_automática_com_o_pulledpork">3) Configurando atualizações de regras de forma automática com o PulledPork</h3>
+<div class="paragraph">
+<p>Esta é uma atividade <strong>opcional</strong>. Caso você deseje utilizar um conjunto de regras pré-configuradas para este curso, execute os passos (1) e (2) desta atividade e prossiga para a próxima atividade&#8201;&#8212;&#8201;do contrário, comece a partir do passo (3).</p>
+</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>O programa PulledPork nos permite receber definições de regras atualizadas periodicamente pela Internet, sempre que novas vulnerabilidade e <em>exploits</em> forem descobertos e divulgados.</p>
+<p>Copie as regras pré-configuradas para o diretório apropriado com os comandos:</p>
+<div class="literalblock">
+<div class="content">
+<pre># cp /root/cfg/snort/snort.rules /etc/snort/rules</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cp /root/cfg/snort/default.blacklist /etc/snort/rules/iplists/</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cp /root/cfg/snort/IPRVersion.dat /etc/snort/rules/iplists/</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Em seguida, indique ao Snort que essas regras sejam usadas em sua inicialização. Insira a linha <code>include $RULE_PATH/snort.rules</code> ao final do arquivo <code>/etc/snort/snort.conf</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre># echo 'include $RULE_PATH/snort.rules' &gt;&gt; /etc/snort/snort.conf</pre>
+</div>
+</div>
 <div class="paragraph">
-<p>Primeiro, vamos instalar as dependências do PulledPork:</p>
+<p>Pare todas as instâncias do Snort, e remova os arquivos de log antigos. Em seguida, inicie-o, e verifique seu uso de memória.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl stop snort
+# ps auxwm | grep '^snort'</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># rm /var/log/snort/snort.log*</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># systemctl start snort</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ps -eo 'rss,comm' | grep 'snort$'
+713156 snort</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Se não houver quaisquer problemas de Internet e acesso no laboratório, ou se você estiver realizando esta atividade posteriormente, ignore os passos acima. Vamos proceder com a instalação e configuração do PulledPork, um programa que nos permite receber definições de regras atualizadas periodicamente pela Internet, sempre que novas vulnerabilidade e <em>exploits</em> forem descobertos e divulgados.</p>
+<div class="paragraph">
+<p>Primeiro, instale as dependências do PulledPork&#8201;&#8212;&#8201;note que a VM <em>FWGW1-G</em> já possui esses pacotes pré-instalados.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -5369,7 +5695,7 @@ Ping statistics for 192.168.29.103:
 </div>
 </li>
 <li>
-<p>Crie o diretório <code>/root/src</code>, se não existir, e faça o download do código-fonte do PulledPork. Em seguida, copie seus binários e arquivos de configuração para os locais apropriados.</p>
+<p>Crie o diretório <code>/root/src</code>, se não existir, e faça o download do código-fonte do PulledPork. Em seguida, copie seus binários e arquivos de configuração para os locais apropriados. Observe que a VM <em>FWGW1-G</em> já possui o código-fonte do PulledPork, localizado em <code>/root/src/pulledpork</code>.</p>
 <div class="literalblock">
 <div class="content">
 <pre># mkdir ~/src
@@ -5389,7 +5715,7 @@ Checking connectivity... done.</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># cd pulledpork/</pre>
+<pre># cd ~/src/pulledpork/</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -5471,8 +5797,7 @@ rule_url=https://www.snort.org/reg-rules/|snortrules-snapshot.tar.gz|13eba036f37
 </div>
 </div>
 <div class="paragraph">
-<p>+rm /
-Substitua todas as instâncias de <code>/usr/local/etc</code> por <code>/etc</code>, e <code>/usr/local/lib</code> por <code>/usr/lib</code>, para refletir corretamente o diretório de armazenamento de configurações e bibliotecas do Snort:</p>
+<p>Substitua todas as instâncias de <code>/usr/local/etc</code> por <code>/etc</code>, e <code>/usr/local/lib</code> por <code>/usr/lib</code>, para refletir corretamente o diretório de armazenamento de configurações e bibliotecas do Snort:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -5558,40 +5883,10 @@ Fly Piggy Fly!</pre>
 </div>
 </li>
 <li>
-<p>Finalmente, basta indicar ao Snort que esse arquivo seja usado em sua inicialização. Insira a linha <code>include $RULE_PATH/snort.rules</code> ao final do arquivo <code>/etc/snort/snort.conf</code>.</p>
-<div class="literalblock">
-<div class="content">
-<pre># echo 'include $RULE_PATH/snort.rules' &gt;&gt; /etc/snort/snort.conf</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Pare todas as instâncias do Snort, e remova os arquivos de log antigos. Em seguida, inicie-o, e verifique seu uso de memória.</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># systemctl stop snort
-# ps auxwm | grep '^snort'</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># rm /var/log/snort/snort.log*</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># systemctl start snort</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># ps -eo 'rss,comm' | grep 'snort$'
-995976 snort</pre>
-</div>
-</div>
+<p>Com o download das regras realizado, volte ao passo (2) desta atividade e realize os procedimentos indicados.</p>
 </li>
 <li>
-<p>Para que as regras se mantenham atualizadas, é necessário atualizá-las periodicamente. Crie um novo arquivo no diretório <code>/etc/cron.daily</code> que atualize as regras diariamente, com o seguinte conteúdo:</p>
+<p>Para que as regras se mantenham atualizadas, é necessário atualizá-las periodicamente. Crie o arquivo novo <code>/etc/cron.daily/pulledpork</code> para realizar a atualização diária de regras, com o seguinte conteúdo:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">#!/bin/sh
@@ -5630,50 +5925,10 @@ output unified2: filename snort.log, limit 128, mpls_event_types, vlan_event_typ
 </div>
 </li>
 <li>
-<p>Iremos instalar e configurar o <em>Barnyard2</em> para lidar com esses arquivos de log. Como de costume, o primeiro passo é instalar as dependências do pacote:</p>
+<p>Iremos usar o <em>Barnyard2</em> para lidar com esses arquivos de log. Como de costume, as dependências de instalação e o código-fonte do programa já estão preparados na VM <em>FWGW1-G</em>. Entre no diretório apropriado (<code>/root/src/barnyard2</code>), compile-o e instale:</p>
 <div class="literalblock">
 <div class="content">
-<pre># apt-get install autoconf              \
-                  build-essential       \
-                  libdaq-dev            \
-                  libdumbnet-dev        \
-                  libmariadb-dev        \
-                  libmariadb-dev-compat \
-                  libpcap-dev           \
-                  libprelude-dev        \
-                  libtool               \
-                  mariadb-server</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Em adição a isso, é necessário criar um link simbólico para a biblioteca <code>dumbnet.n</code>, como se segue:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># ln -s /usr/include/dumbnet.h /usr/include/dnet.h</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># ldconfig</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Agora, volte ao diretório de download de códigos-fonte (<code>/root/src</code>), baixe o Barnyard2, compile-o e instale:</p>
-<div class="literalblock">
-<div class="content">
-<pre># cd ~/src</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># git clone --depth 1 https://github.com/firnsy/barnyard2.git</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># cd barnyard2/</pre>
+<pre># cd /root/src/barnyard2/</pre>
 </div>
 </div>
 <div class="literalblock">
@@ -5736,59 +5991,73 @@ output database: log, mysql, user=snorby password=snorby dbname=snorby host=loca
 </li>
 </ol>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Caso deseje instalar o Barnyard2 em uma máquina Debian recém-preparada, é necessário primeiramente instalar e configurar suas dependências com os comandos:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install autoconf              \
+                  build-essential       \
+                  libdaq-dev            \
+                  libdumbnet-dev        \
+                  libmariadb-dev        \
+                  libmariadb-dev-compat \
+                  libpcap-dev           \
+                  libprelude-dev        \
+                  libtool               \
+                  mariadb-server</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ln -s /usr/include/dumbnet.h /usr/include/dnet.h</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ldconfig</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, clone o código-fonte do programa a partir de seu repositório oficial usando o <code>git</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># git clone --depth 1 https://github.com/firnsy/barnyard2.git</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Tudo pronto! Prossiga com os demais passos de configuração apontados nesta atividade.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_5_visualizando_eventos_com_o_snorby">5) Visualizando eventos com o Snorby</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Precisamos de um método conveniente para visualizar e tratar os eventos registrados pelo Snort. Iremos instalar e configurar o <em>Snorby</em>, uma aplicação web criada em <em>Ruby on Rails</em> para auxiliar no trabalho de monitoramento de ferramentas IDS populares como o Snort, Suricata e Sagan. Como de costume, o primeiro passo é instalar as dependências do pacote:</p>
-<div class="literalblock">
-<div class="content">
-<pre># apt-get install --no-install-recommends   \
-                bundler                     \
-                imagemagick                 \
-                libmariadbclient-dev        \
-                libmariadbclient-dev-compat \
-                libpq-dev                   \
-                libreadline-dev             \
-                libssl-dev                  \
-                libxml2-dev                 \
-                libxslt1-dev                \
-                libyaml-dev                 \
-                postgresql-server-dev-9.6   \
-                ruby                        \
-                ruby-dev                    \
-                wkhtmltopdf                 \
-                zlib1g-dev</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Agora, volte ao diretório de download de códigos-fonte (<code>/root/src</code>), baixe o Snorby e instale suas dependências (no Ruby, conhecidas como <em>gems</em>):</p>
-<div class="literalblock">
-<div class="content">
-<pre># cd ~/src</pre>
-</div>
+<p>Precisamos de um método conveniente para visualizar e tratar os eventos registrados pelo Snort. Iremos instalar e configurar o <em>Snorby</em>, uma aplicação web criada em <em>Ruby on Rails</em> para auxiliar no trabalho de monitoramento de ferramentas IDS populares como o Snort, Suricata e Sagan.</p>
+<div class="paragraph">
+<p>Como de costume, as dependências de instalação e o código-fonte do programa já estão preparados na VM <em>FWGW1-G</em>. Entre no diretório apropriado (<code>/root/src/snorby</code>) para iniciar a configuração do Snorby.</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># git clone --depth 1 https://github.com/Snorby/snorby.git</pre>
+<pre># cd /root/src/snorby</pre>
 </div>
 </div>
-<div class="literalblock">
-<div class="content">
-<pre># cd snorby/</pre>
+<div class="paragraph">
+<p>Copie e renomeie os arquivos de configuração de conexão com o banco de dados (<code>config/database.yml</code>). Em seguida edite-o, configurando usuário e senha para acesso ao SGBD MySQL nos campos <code>username</code> e <code>password</code>, como se segue:</p>
 </div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># bundle install</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Vamos agora proceder à configuração do Snorby. Copie e renomeie os arquivos de configuração de conexão com o banco de dados (<code>config/database.yml</code>), editando-o como se segue:</p>
 <div class="literalblock">
 <div class="content">
 <pre># cp config/database.yml.example config/database.yml</pre>
@@ -5808,7 +6077,7 @@ output database: log, mysql, user=snorby password=snorby dbname=snorby host=loca
 </div>
 </div>
 <div class="paragraph">
-<p>Faça o mesmo para a configuração principal do Snorby (<code>config/snorby_config.yml</code>), como mostrado abaixo:</p>
+<p>Faça o mesmo para a configuração principal do Snorby (<code>config/snorby_config.yml</code>), editando as variáveis <code>baseuri</code>, <code>domain</code>, <code>wkhtmltopdf</code>, <code>mailer_sender</code> e <code>time_zone</code> como mostrado abaixo:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -5883,11 +6152,66 @@ Bye</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># iptables-save &gt; /etc/iptables/rules.v4</pre>
+<pre># /etc/init.d/netfilter-persistent save</pre>
 </div>
 </div>
 </li>
 </ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Caso deseje instalar o Snorby em uma máquina Debian recém-preparada, é necessário primeiramente instalar suas dependências com o comando:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># apt-get install --no-install-recommends   \
+                bundler                     \
+                imagemagick                 \
+                libmariadbclient-dev        \
+                libmariadbclient-dev-compat \
+                libpq-dev                   \
+                libreadline-dev             \
+                libssl-dev                  \
+                libxml2-dev                 \
+                libxslt1-dev                \
+                libyaml-dev                 \
+                postgresql-server-dev-9.6   \
+                ruby                        \
+                ruby-dev                    \
+                wkhtmltopdf                 \
+                zlib1g-dev</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, clone o código-fonte do programa a partir de seu repositório oficial usando o <code>git</code>, entre no diretório e instale as bibliotecas das quais o Snorby depende para funcionar (no Ruby, conhecidas como <em>gems</em>):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># git clone --depth 1 https://github.com/Snorby/snorby.git</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># cd snorby/</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># bundle install</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Tudo pronto! Prossiga com os demais passos de configuração apontados nesta atividade.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -5991,7 +6315,7 @@ out 15 16:25:53 FWGW1-A barnyard2[3739]: Waiting for new data</pre>
 <div class="content">
 <img src="./img/snorby1.png" alt="snorby1">
 </div>
-<div class="title">Figure 66. Dashboard do Snorby</div>
+<div class="title">Figure 60. Dashboard do Snorby</div>
 </div>
 </li>
 </ol>
@@ -6051,7 +6375,7 @@ iface eth0 inet dhcp</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># nmap -sX 192.168.29.103 -p1-65535</pre>
+<pre># nmap -vv -sX 192.168.29.103 -p1-65535</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6059,7 +6383,7 @@ iface eth0 inet dhcp</pre>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre># nmap -Pn -sS -A -f 192.168.29.103</pre>
+<pre># nmap -vv -Pn -sS -A -f 192.168.29.103</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6072,7 +6396,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/snorby2.png" alt="snorby2">
 </div>
-<div class="title">Figure 67. Listagem de eventos no Snorby</div>
+<div class="title">Figure 61. Listagem de eventos no Snorby</div>
 </div>
 </li>
 <li>
@@ -6081,7 +6405,7 @@ iface eth0 inet dhcp</pre>
 <div class="content">
 <img src="./img/snorby3.png" alt="snorby3">
 </div>
-<div class="title">Figure 68. Listagem de eventos no Snorby</div>
+<div class="title">Figure 62. Listagem de eventos no Snorby</div>
 </div>
 </li>
 <li>
@@ -6820,7 +7144,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-addaccount.png" alt="thunderbird addaccount">
 </div>
-<div class="title">Figure 69. Adicionando uma conta de e-mail ao Thunderbird</div>
+<div class="title">Figure 63. Adicionando uma conta de e-mail ao Thunderbird</div>
 </div>
 <div class="paragraph">
 <p>Durante o processo de criação de conta, o <em>Thunderbird</em> irá abrir uma janela para autenticação no GMail, solicitando autorização para integração. Digite a senha da conta definida no passo (1) e garanta as permissões solicitadas.</p>
@@ -6858,7 +7182,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep1.png" alt="thunderbird pep1">
 </div>
-<div class="title">Figure 70. PeP habilitado no Thunderbird</div>
+<div class="title">Figure 64. PeP habilitado no Thunderbird</div>
 </div>
 <div class="paragraph">
 <p>Logo abaixo, você visualizará o estado da privacidade como "Inseguro". Isso se deve ao fato de que você e seu colega ainda não fizeram a troca de chaves. O <em>Enigmail/PeP</em> irá se encarregar de anexar sua chave pública automaticamente à mensagem. Envie o email.</p>
@@ -6870,7 +7194,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep2.png" alt="thunderbird pep2">
 </div>
-<div class="title">Figure 71. Mensagem segura, não confiável</div>
+<div class="title">Figure 65. Mensagem segura, não confiável</div>
 </div>
 </li>
 <li>
@@ -6879,7 +7203,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep3.png" alt="thunderbird pep3">
 </div>
-<div class="title">Figure 72. Verificação de palavras confiáveis</div>
+<div class="title">Figure 66. Verificação de palavras confiáveis</div>
 </div>
 <div class="paragraph">
 <p>Serão mostradas cinco palavras confiáveis, que devem ser confirmadas com o seu colega. Se corretas, significa que a chave pública anexada à mensagem original é, de fato, correspondente à chave privada sob posso do seu colega. Clique no botão <em>Confirme palavras-confiáveis</em> para autenticar a chave.</p>
@@ -6891,7 +7215,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/thunderbird-pep4.png" alt="thunderbird pep4">
 </div>
-<div class="title">Figure 73. Mensagem segura e confiável</div>
+<div class="title">Figure 67. Mensagem segura e confiável</div>
 </div>
 <div class="paragraph">
 <p>A partir desse momento, a chave pública do seu colega é conhecida pelo <em>Enigmail/PeP</em>, e é possível enviar mensagens criptografadas para ele e verificar mensagens assinadas. Envie um email-resposta para a mensagem original, e repita os passos (8) e (9) para autenticar a chave no sentido oposto. A partir desse momento, será possível trocar mensagens seguras entre as duas partes.</p>
@@ -6927,7 +7251,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt1.png" alt="veracrypt1">
 </div>
-<div class="title">Figure 74. Criação de volumes no VeraCrypt, parte 1</div>
+<div class="title">Figure 68. Criação de volumes no VeraCrypt, parte 1</div>
 </div>
 </li>
 <li>
@@ -6936,7 +7260,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt2.png" alt="veracrypt2">
 </div>
-<div class="title">Figure 75. Criação de volumes no VeraCrypt, parte 2</div>
+<div class="title">Figure 69. Criação de volumes no VeraCrypt, parte 2</div>
 </div>
 </li>
 <li>
@@ -6948,7 +7272,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt3.png" alt="veracrypt3">
 </div>
-<div class="title">Figure 76. Criação de volumes no VeraCrypt, parte 3</div>
+<div class="title">Figure 70. Criação de volumes no VeraCrypt, parte 3</div>
 </div>
 </li>
 <li>
@@ -6969,7 +7293,7 @@ teste assinatura e criptografia assimetrica</pre>
 <div class="content">
 <img src="./img/veracrypt4.png" alt="veracrypt4">
 </div>
-<div class="title">Figure 77. Criação de volumes no VeraCrypt, parte 4</div>
+<div class="title">Figure 71. Criação de volumes no VeraCrypt, parte 4</div>
 </div>
 </li>
 <li>
@@ -7095,7 +7419,7 @@ ChallengeResponseAuthentication yes</pre>
 <li>
 <p>Agora, na máquina <em>LinServer-G</em>, execute <strong>como um usuário não-privilegiado</strong> (como o usuário <code>aluno</code>) o comando <code>google-authenticator</code>.</p>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 14. Opções do google-authenticator</caption>
+<caption class="title">Table 12. Opções do google-authenticator</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -7312,7 +7636,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-dlcert.png" alt="mitmproxy dlcert">
 </div>
-<div class="title">Figure 78. Download do certificado do mitmproxy</div>
+<div class="title">Figure 72. Download do certificado do mitmproxy</div>
 </div>
 </li>
 <li>
@@ -7321,7 +7645,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-instcert1.png" alt="mitmproxy instcert1">
 </div>
-<div class="title">Figure 79. Instalação do certificado do mitmproxy, parte 1</div>
+<div class="title">Figure 73. Instalação do certificado do mitmproxy, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Avançar</em>. Em seguida, marque a caixa <em>Colocar todos os certificados no repositório a seguir</em>, clique em <em>Procurar&#8230;&#8203;</em> e selecione <em>Autoridades de Certificação Raiz Confiáveis</em>.</p>
@@ -7330,7 +7654,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-instcert2.png" alt="mitmproxy instcert2">
 </div>
-<div class="title">Figure 80. Instalação do certificado do mitmproxy, parte 2</div>
+<div class="title">Figure 74. Instalação do certificado do mitmproxy, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, clique em <em>Avançar</em> e em seguida em <em>Concluir</em>. Agora, o certificado do <code>mitmproxy</code> é reconhecido como um AC Raiz pelo sistema Windows. Num cenário real, o atacante teria que descobrir algum vetor de ataque <em>client-side</em> que permitisse a ele ter o acesso para copiar o certificado e instalá-lo na máquina da vítima. Aqui, como estamos em um ambiente simulado, pudemos contar com a "colaboração" do usuário-alvo.</p>
@@ -7380,7 +7704,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-password.png" alt="mitmproxy password">
 </div>
-<div class="title">Figure 81. Credenciais em claro no mitmweb</div>
+<div class="title">Figure 75. Credenciais em claro no mitmweb</div>
 </div>
 <div class="paragraph">
 <p>Em parelelo, na janela do navegador na máquina <em>WinClient-G</em>, o login no Facebook é concluído com sucesso:</p>
@@ -7389,7 +7713,7 @@ rtt min/avg/max/mdev = 0.451/0.451/0.451/0.000 ms</pre>
 <div class="content">
 <img src="./img/mitmproxy-fblogin.png" alt="mitmproxy fblogin">
 </div>
-<div class="title">Figure 82. Login no facebook através do mitmproxy</div>
+<div class="title">Figure 76. Login no facebook através do mitmproxy</div>
 </div>
 </li>
 <li>
@@ -7642,7 +7966,7 @@ refresh_pattern .                    0  20%    4320</code></pre>
 <div class="content">
 <img src="./img/squid-bump.png" alt="squid bump">
 </div>
-<div class="title">Figure 83. Acesso via Squid/Bump a <a href="https://twitter.com" class="bare">https://twitter.com</a></div>
+<div class="title">Figure 77. Acesso via Squid/Bump a <a href="https://twitter.com" class="bare">https://twitter.com</a></div>
 </div>
 <div class="paragraph">
 <p>Agora, acesse um dos websites cujo domínio consta no arquivo <code>/usr/local/etc/whitelist.txt</code>, e verifique sua cadeia certificadora: a AC que assina o certificado será a original, inalterada pelo proxy. Veja abaixo um acesso a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a> :</p>
@@ -7651,7 +7975,7 @@ refresh_pattern .                    0  20%    4320</code></pre>
 <div class="content">
 <img src="./img/squid-splice.png" alt="squid splice">
 </div>
-<div class="title">Figure 84. Acesso via Squid/Splice a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a></div>
+<div class="title">Figure 78. Acesso via Squid/Splice a <a href="https://www.bb.com.br" class="bare">https://www.bb.com.br</a></div>
 </div>
 </li>
 <li>
@@ -8068,7 +8392,7 @@ reneg-sec 60</code></pre>
 <div class="content">
 <img src="./img/ovpn-folder.png" alt="ovpn folder">
 </div>
-<div class="title">Figure 85. Estado final da pasta do OpenVPN na máquina WinClient-G</div>
+<div class="title">Figure 79. Estado final da pasta do OpenVPN na máquina WinClient-G</div>
 </div>
 </li>
 <li>
@@ -8536,7 +8860,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-console.png" alt="nessus console">
 </div>
-<div class="title">Figure 86. Console do Nessus</div>
+<div class="title">Figure 80. Console do Nessus</div>
 </div>
 </li>
 </ol>
@@ -8638,7 +8962,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver1.png" alt="nessus linserver1">
 </div>
-<div class="title">Figure 87. Scan inicial do LinServer-G-Debian8 no Nessus</div>
+<div class="title">Figure 81. Scan inicial do LinServer-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Aguarde o final do <em>scan</em>, e confira o resultado. Se quiser acompanhar o <em>scan</em> enquanto ele é realizado, clique na linha para expandi-la.</p>
@@ -8650,7 +8974,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver2.png" alt="nessus linserver2">
 </div>
-<div class="title">Figure 88. Primeiro scan do LinServer-G-Debian8 no Nessus</div>
+<div class="title">Figure 82. Primeiro scan do LinServer-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Veja que há um grande número de vulnerabilidades identificadas: 6 críticas, 43 de alto impacto, 34 de médio impacto, 4 de baixo impacto e 48 de cunho informativo. Entre na aba <em>Vulnerabilities</em> e explore algumas dessas vulnerabilidades&#8201;&#8212;&#8201;por exemplo, confira abaixo a vulnerabilidade DSA-3481-1, referente à <code>glibc</code>:</p>
@@ -8659,7 +8983,7 @@ Processing triggers for systemd (238-4) ...</pre>
 <div class="content">
 <img src="./img/nessus-linserver3.png" alt="nessus linserver3">
 </div>
-<div class="title">Figure 89. Vulnerabilidade crítica da glibc</div>
+<div class="title">Figure 83. Vulnerabilidade crítica da glibc</div>
 </div>
 <div class="paragraph">
 <p>O Nessus apresenta várias informações úteis, como a natureza da vulnerabilidade, quais CVEs (<em>Common Vulnerabilities and Exposures</em>) são relevantes, e quais são as soluções mais indicadas. Do ponto de vista de gestão de riscos e vulnerabilidades em um parque com um grande número de máquinas instaladas, essas informações são importantíssimas.</p>
@@ -8695,7 +9019,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-linserver4.png" alt="nessus linserver4">
 </div>
-<div class="title">Figure 90. Scan do LinServer-G-Debian8 após atualização</div>
+<div class="title">Figure 84. Scan do LinServer-G-Debian8 após atualização</div>
 </div>
 <div class="paragraph">
 <p>Temos uma melhora notável: apenas 1 vulnerabilidade crítica e 3 de alto impacto foram identificadas, um cenário muito menos preocupante que o que tínhamos anteriormente.</p>
@@ -8780,7 +9104,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver1.png" alt="nessus winserver1">
 </div>
-<div class="title">Figure 91. Primeiro scan do WinServer-G no Nessus</div>
+<div class="title">Figure 85. Primeiro scan do WinServer-G no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Veja que há um enorme número de vulnerabilidades identificadas: 25 críticas, 327 de alto impacto, 81 de médio impacto, 7 de baixo impacto e 159 de cunho informativo. Entre na aba <em>Vulnerabilities</em> e explore algumas dessas vulnerabilidades.</p>
@@ -8795,7 +9119,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver2.png" alt="nessus winserver2">
 </div>
-<div class="title">Figure 92. Scan do MBSA na máquina WinServer-G</div>
+<div class="title">Figure 86. Scan do MBSA na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Após o final do <em>scan</em>, vários apontamentos serão indicados pelo MBSA, como se segue:</p>
@@ -8804,7 +9128,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver3.png" alt="nessus winserver3">
 </div>
-<div class="title">Figure 93. Resultados do scan do MBSA na máquina WinServer-G</div>
+<div class="title">Figure 87. Resultados do scan do MBSA na máquina WinServer-G</div>
 </div>
 <div class="paragraph">
 <p>Desses, o mais preocupante é de longe o grande número de atualizações de segurança pendentes: 205. Ainda há alertas quanto à falta de atualizações automáticas, expiração de senhas de usuários e situação do <em>Windows Firewall</em>.</p>
@@ -8816,7 +9140,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver4.png" alt="nessus winserver4">
 </div>
-<div class="title">Figure 94. WinServer-G atualizado</div>
+<div class="title">Figure 88. WinServer-G atualizado</div>
 </div>
 <div class="paragraph">
 <p>Após o final do processo, a tela do <em>Windows Update</em> deve mostrar a mensagem acima.</p>
@@ -8828,7 +9152,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-winserver5.png" alt="nessus winserver5">
 </div>
-<div class="title">Figure 95. Scan final do WinServer-G no Nessus</div>
+<div class="title">Figure 89. Scan final do WinServer-G no Nessus</div>
 </div>
 <div class="paragraph">
 <p>A diferença para o panorama anterior é significativa: agora temos apenas 7 vulnerabilidades de médio impacto, 2 de baixo impacto e 27 de cunho informativo. De fato, as recomendações do MBSA e as atualizações de sistema fizeram uma diferença importante na segurança do sistema.</p>
@@ -8913,7 +9237,7 @@ LinServer-A</pre>
 <div class="content">
 <img src="./img/nessus-fwgw1.png" alt="nessus fwgw1">
 </div>
-<div class="title">Figure 96. Primeiro scan do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 90. Primeiro scan do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Um resultado impressionante: apenas 6 vulnerabilidades informativas. Mas, será mesmo?</p>
@@ -8956,7 +9280,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/nessus-fwgw2.png" alt="nessus fwgw2">
 </div>
-<div class="title">Figure 97. Segundo scan do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 91. Segundo scan do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Agora temos uma vulnerabilidade de alto impacto, duas de médio impacto e 23 informativas. Talvez o servidor não esteja tão seguro quando imaginávamos&#8230;&#8203; vamos tentar ir mais a fundo.</p>
@@ -9000,7 +9324,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/nessus-fwgw3.png" alt="nessus fwgw3">
 </div>
-<div class="title">Figure 98. Scan final do FWGW1-G-Debian8 no Nessus</div>
+<div class="title">Figure 92. Scan final do FWGW1-G-Debian8 no Nessus</div>
 </div>
 <div class="paragraph">
 <p>Com o login <code>ssh</code> ativado, o Nessus conseguiu, agora sim, encontrar 6 vulnerabilidades críticas, 44 de alto impacto, 36 de médio impacto, 4 de baixo impacto e 54 informativas. De fato, a segurança do servidor <em>FWGW1-G-Debian8</em> está no mesmo patamar da máquina <em>LinServer-G-Debian8</em> antes da sua atualização, o que seria esperado.</p>
@@ -9133,7 +9457,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad1.png" alt="ad1">
 </div>
-<div class="title">Figure 99. Tela inicial de configuração do AD DC</div>
+<div class="title">Figure 93. Tela inicial de configuração do AD DC</div>
 </div>
 <div class="paragraph">
 <p>Marque a opção <em>Use advanced mode installation</em> e clique em <em>Next</em>.</p>
@@ -9148,7 +9472,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad2.png" alt="ad2">
 </div>
-<div class="title">Figure 100. Escolha de tipo de instalação do AD DC</div>
+<div class="title">Figure 94. Escolha de tipo de instalação do AD DC</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -9158,7 +9482,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad3.png" alt="ad3">
 </div>
-<div class="title">Figure 101. Escolha do FQDN do AD DC</div>
+<div class="title">Figure 95. Escolha do FQDN do AD DC</div>
 </div>
 </li>
 <li>
@@ -9171,7 +9495,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad4.png" alt="ad4">
 </div>
-<div class="title">Figure 102. Escolha do nível funcional da floresta AD DC</div>
+<div class="title">Figure 96. Escolha do nível funcional da floresta AD DC</div>
 </div>
 <div style="page-break-after: always;"></div>
 </li>
@@ -9184,7 +9508,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad5.png" alt="ad5">
 </div>
-<div class="title">Figure 103. Erro na delegação DNS do AD DC</div>
+<div class="title">Figure 97. Erro na delegação DNS do AD DC</div>
 </div>
 <div class="paragraph">
 <p>Após ler a mensagem de aviso, clique em <em>Yes</em> para continuar.</p>
@@ -9200,7 +9524,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/ad6.png" alt="ad6">
 </div>
-<div class="title">Figure 104. Definição da senha do modo de recuperação do AD DC</div>
+<div class="title">Figure 98. Definição da senha do modo de recuperação do AD DC</div>
 </div>
 </li>
 <li>
@@ -9258,7 +9582,7 @@ Chain OUTPUT (policy ACCEPT 20 packets, 1568 bytes)
 <div class="content">
 <img src="./img/adports.png" alt="adports">
 </div>
-<div class="title">Figure 105. Portas conhecidas para liberação do AD no firewall</div>
+<div class="title">Figure 99. Portas conhecidas para liberação do AD no firewall</div>
 </div>
 <div class="paragraph">
 <p>Considerando o grande número de portas em questão, iremos permitir a faixa completa de conexão entre as máquinas <em>WinServer-G</em> e <em>WinClient-G</em>, para facilitar a configuração neste laboratório.</p>
@@ -9307,7 +9631,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient1.png" alt="adclient1">
 </div>
-<div class="title">Figure 106. Configuração DNS do cliente AD</div>
+<div class="title">Figure 100. Configuração DNS do cliente AD</div>
 </div>
 </li>
 <li>
@@ -9316,7 +9640,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient2.png" alt="adclient2">
 </div>
-<div class="title">Figure 107. Inserindo o cliente AD no domínio</div>
+<div class="title">Figure 101. Inserindo o cliente AD no domínio</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>. O sistema irá exigir autenticação&#8201;&#8212;&#8201;você deve usar um usuário com permissões <strong>administrativas</strong> no AD DC, como o usuário <code>Administrator</code>. Informe, também, o domínio de autenticação do usuário. Trocando em miúdos, autentique-se como:</p>
@@ -9342,7 +9666,7 @@ root</pre>
 <div class="content">
 <img src="./img/adclient3.png" alt="adclient3">
 </div>
-<div class="title">Figure 108. Inserção do cliente AD no domínio com sucesso</div>
+<div class="title">Figure 102. Inserção do cliente AD no domínio com sucesso</div>
 </div>
 <div class="paragraph">
 <p>Reinicie a máquina <em>WinClient-G</em> para concluir o processo.</p>
@@ -9375,7 +9699,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser1.png" alt="aduser1">
 </div>
-<div class="title">Figure 109. Interface de edição de usuários e máquinas do AD</div>
+<div class="title">Figure 103. Interface de edição de usuários e máquinas do AD</div>
 </div>
 </li>
 <li>
@@ -9384,7 +9708,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser2.png" alt="aduser2">
 </div>
-<div class="title">Figure 110. Visão de usuários e grupos existentes no AD</div>
+<div class="title">Figure 104. Visão de usuários e grupos existentes no AD</div>
 </div>
 <div class="paragraph">
 <p>De igual forma, para ver os computadores adicionados ao AD, basta clicar sobre a pasta <em>Computers</em>.</p>
@@ -9431,7 +9755,7 @@ root</pre>
 <div class="content">
 <img src="./img/aduser3.png" alt="aduser3">
 </div>
-<div class="title">Figure 111. Confirmação de adição de usuário ao AD</div>
+<div class="title">Figure 105. Confirmação de adição de usuário ao AD</div>
 </div>
 </li>
 <li>
@@ -9440,7 +9764,7 @@ root</pre>
 <div class="content">
 <img src="./img/adlogon1.png" alt="adlogon1">
 </div>
-<div class="title">Figure 112. Logon inicial no AD</div>
+<div class="title">Figure 106. Logon inicial no AD</div>
 </div>
 <div class="paragraph">
 <p>Imediatamente, o AD reporta que a senha deve ser alterada no primeiro logon&#8201;&#8212;&#8201;isso faz sentido, pois mantivemos a caixa <em>User must change password at next logon</em> marcada quando da criação do usuário no passo (4). Escolha uma nova senha, diferente da primeira e igualmente complexa (sugestão: <code>Seg2@rnp!</code>), e confirme o logon.</p>
@@ -9452,7 +9776,7 @@ root</pre>
 <div class="content">
 <img src="./img/adlogon2.png" alt="adlogon2">
 </div>
-<div class="title">Figure 113. Verificação de logon no AD</div>
+<div class="title">Figure 107. Verificação de logon no AD</div>
 </div>
 </li>
 </ol>
@@ -9507,7 +9831,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo1.png" alt="gpo1">
 </div>
-<div class="title">Figure 114. Detecção de certificado forjado não-confiável na máquina WinClient-G</div>
+<div class="title">Figure 108. Detecção de certificado forjado não-confiável na máquina WinClient-G</div>
 </div>
 </li>
 <li>
@@ -9519,7 +9843,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo2.png" alt="gpo2">
 </div>
-<div class="title">Figure 115. Cópia do certificado da CA do Squid para a máquina WinServer-G</div>
+<div class="title">Figure 109. Cópia do certificado da CA do Squid para a máquina WinServer-G</div>
 </div>
 </li>
 <li>
@@ -9528,7 +9852,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo3.png" alt="gpo3">
 </div>
-<div class="title">Figure 116. Ferramenta para gestão de políticas no AD</div>
+<div class="title">Figure 110. Ferramenta para gestão de políticas no AD</div>
 </div>
 </li>
 <li>
@@ -9537,7 +9861,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo4.png" alt="gpo4">
 </div>
-<div class="title">Figure 117. Criação de nova GPO</div>
+<div class="title">Figure 111. Criação de nova GPO</div>
 </div>
 </li>
 <li>
@@ -9546,7 +9870,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo5.png" alt="gpo5">
 </div>
-<div class="title">Figure 118. Navegando na tela de edição de políticas</div>
+<div class="title">Figure 112. Navegando na tela de edição de políticas</div>
 </div>
 </li>
 <li>
@@ -9555,7 +9879,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo6.png" alt="gpo6">
 </div>
-<div class="title">Figure 119. Certificado do Squid adicionado à GPO</div>
+<div class="title">Figure 113. Certificado do Squid adicionado à GPO</div>
 </div>
 </li>
 <li>
@@ -9564,7 +9888,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo7.png" alt="gpo7">
 </div>
-<div class="title">Figure 120. Forçando atualização de GPOs imediatamente</div>
+<div class="title">Figure 114. Forçando atualização de GPOs imediatamente</div>
 </div>
 </li>
 <li>
@@ -9573,7 +9897,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo8.png" alt="gpo8">
 </div>
-<div class="title">Figure 121. Detecção de certificado da CA do Squid como confiável</div>
+<div class="title">Figure 115. Detecção de certificado da CA do Squid como confiável</div>
 </div>
 </li>
 <li>
@@ -9582,7 +9906,7 @@ root</pre>
 <div class="content">
 <img src="./img/gpo9.png" alt="gpo9">
 </div>
-<div class="title">Figure 122. Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis</div>
+<div class="title">Figure 116. Certificado da CA do Squid adicionado à lista de certificadoras raiz confiáveis</div>
 </div>
 <div class="paragraph">
 <p>Com efeito, nossa configuração via GPO funcionou corretamente&#8201;&#8212;&#8201;em um cenário com dezenas de clientes Windows, ou mesmo centenas, você poderia usar um esquema de configuração como este para distribuir o certificado do seu <em>proxy</em> de forma imediata.</p>
@@ -9615,7 +9939,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus1.png" alt="wsus1">
 </div>
-<div class="title">Figure 123. Máquina WinServer-G atualizada</div>
+<div class="title">Figure 117. Máquina WinServer-G atualizada</div>
 </div>
 </li>
 <li>
@@ -9671,7 +9995,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus2.png" alt="wsus2">
 </div>
-<div class="title">Figure 124. Instalação das dependências do WSUS</div>
+<div class="title">Figure 118. Instalação das dependências do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Confirme que suas seleções estão corretas e clique em <em>Next</em>, e em seguida em <em>Install</em>.</p>
@@ -9692,7 +10016,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-disk1.png" alt="wsus disk1">
 </div>
-<div class="title">Figure 125. Inicialização do disco para o WSUS</div>
+<div class="title">Figure 119. Inicialização do disco para o WSUS</div>
 </div>
 <div class="paragraph">
 <p>Mantenha marcada a caixa <em>MBR (Master Boot Record)</em> e clique em <em>OK</em>. Em seguida, clique com o botão direito no novo disco (o nome dele deve ser <em>Disk 1</em>), e selecione <em>New Simple Volume&#8230;&#8203;</em>.</p>
@@ -9733,7 +10057,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-disk2.png" alt="wsus disk2">
 </div>
-<div class="title">Figure 126. Formatação do volume para o WSUS</div>
+<div class="title">Figure 120. Formatação do volume para o WSUS</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>Finish</em>. Ao final do processo, feche a janela do <em>Disk Management</em> e verifique que o novo volume <code>K:</code>, com <em>label</em> <code>WSUS</code>, está disponível no <em>Windows Explorer</em>.</p>
@@ -9745,7 +10069,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus3.png" alt="wsus3">
 </div>
-<div class="title">Figure 127. Instalação do WSUS</div>
+<div class="title">Figure 121. Instalação do WSUS</div>
 </div>
 </li>
 <li>
@@ -9763,7 +10087,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus4.png" alt="wsus4">
 </div>
-<div class="title">Figure 128. Pasta de download dos arquivos de update do WSUS</div>
+<div class="title">Figure 122. Pasta de download dos arquivos de update do WSUS</div>
 </div>
 </li>
 <li>
@@ -9778,7 +10102,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus5.png" alt="wsus5">
 </div>
-<div class="title">Figure 129. Revisão das opções de instalação do WSUS</div>
+<div class="title">Figure 123. Revisão das opções de instalação do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Aguarde o processo de instalação do WSUS. Ao final, clique em <em>Finish</em>.</p>
@@ -9790,7 +10114,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus6.png" alt="wsus6">
 </div>
-<div class="title">Figure 130. Configuração do WSUS</div>
+<div class="title">Figure 124. Configuração do WSUS</div>
 </div>
 </li>
 <li>
@@ -9808,7 +10132,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus7.png" alt="wsus7">
 </div>
-<div class="title">Figure 131. Atualização da base de updates do WSUS</div>
+<div class="title">Figure 125. Atualização da base de updates do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Ao final do procedimento, clique em <em>Next</em>.</p>
@@ -9823,7 +10147,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus8.png" alt="wsus8">
 </div>
-<div class="title">Figure 132. Escolha de produtos para download de atualizações</div>
+<div class="title">Figure 126. Escolha de produtos para download de atualizações</div>
 </div>
 </li>
 <li>
@@ -9844,7 +10168,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus9.png" alt="wsus9">
 </div>
-<div class="title">Figure 133. Console administrativa do WSUS</div>
+<div class="title">Figure 127. Console administrativa do WSUS</div>
 </div>
 <div class="paragraph">
 <p>Para verificar o estado da sincronização iniciada no passo (22), navegue para <em>WINSERVER-G</em> &gt; <em>Synchronizations</em>. Ao final da sincronização você deverá ver o processo concluído com sucesso, como se segue:</p>
@@ -9853,7 +10177,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus10.png" alt="wsus10">
 </div>
-<div class="title">Figure 134. Sincronização do WSUS realizada com sucesso</div>
+<div class="title">Figure 128. Sincronização do WSUS realizada com sucesso</div>
 </div>
 <div class="paragraph">
 <p>Finalmente, feche a console de configuração do <em>Windows Server Update Services</em>.</p>
@@ -9895,7 +10219,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo1.png" alt="wsus gpo1">
 </div>
-<div class="title">Figure 135. Criação de política para o WSUS</div>
+<div class="title">Figure 129. Criação de política para o WSUS</div>
 </div>
 </li>
 <li>
@@ -9924,7 +10248,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo2.png" alt="wsus gpo2">
 </div>
-<div class="title">Figure 136. Configuração de atualizações automáticas via GPO</div>
+<div class="title">Figure 130. Configuração de atualizações automáticas via GPO</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>.</p>
@@ -9953,7 +10277,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo3.png" alt="wsus gpo3">
 </div>
-<div class="title">Figure 137. Configuração de servidor remoto para download de atualizações</div>
+<div class="title">Figure 131. Configuração de servidor remoto para download de atualizações</div>
 </div>
 <div class="paragraph">
 <p>Clique em <em>OK</em>.</p>
@@ -9968,7 +10292,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo4.png" alt="wsus gpo4">
 </div>
-<div class="title">Figure 138. WinClient-G verificando se existem novas atualizações</div>
+<div class="title">Figure 132. WinClient-G verificando se existem novas atualizações</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, a máquina irá reportar-se como atualizada. Isso é parcialmente verdade, como veremos a seguir.</p>
@@ -9980,7 +10304,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo5.png" alt="wsus gpo5">
 </div>
-<div class="title">Figure 139. Status de atualização da máquina WinClient-G</div>
+<div class="title">Figure 133. Status de atualização da máquina WinClient-G</div>
 </div>
 <div class="paragraph">
 <p>Observe que a máquina <em>WinClient-G</em> possui 2369 atualizações realizadas e 273 ainda não aplicadas, e com o <em>service pack</em> 1 instalado. No WSUS, a gestão de atualizações é feita de forma centralizada pelo administrador&#8201;&#8212;&#8201;pode-se agrupar máquinas em grupos de trabalho, e habilitar/desabilitar atualizações pontualmente para essas máquinas e grupos. Para gerenciar a aprovação de atualizações, navegue para <em>WINSERVER-A</em> &gt; <em>Updates</em> &gt; <em>All Updates</em>. Ajuste o filtro para condição <em>Unapproved</em> e estado <em>Failed or Needed</em>, e clique em <em>Refresh</em>. Você deverá ver algo semelhante a tela a seguir:</p>
@@ -9989,7 +10313,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo6.png" alt="wsus gpo6">
 </div>
-<div class="title">Figure 140. Aprovação de atualizações no WSUS, parte 1</div>
+<div class="title">Figure 134. Aprovação de atualizações no WSUS, parte 1</div>
 </div>
 <div class="paragraph">
 <p>Aprove todas as atualizações. Selecione-as usando SHIFT e no painel direito, clique em <em>Actions</em> &gt; <em>Update</em> &gt; <em>Approve&#8230;&#8203;</em>. Na nova janela, clique no quadrado à esquerda de <em>All Computers</em> e marque <em>Approved for Install</em>; faça o mesmo para o grupo abaixo, <em>Unassigned Computers</em>, e clique em <em>OK</em>. O WSUS iniciará o processo de aprovação das atualizações, como mostrado abaixo:</p>
@@ -9998,7 +10322,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo7.png" alt="wsus gpo7">
 </div>
-<div class="title">Figure 141. Aprovação de atualizações no WSUS, parte 2</div>
+<div class="title">Figure 135. Aprovação de atualizações no WSUS, parte 2</div>
 </div>
 <div class="paragraph">
 <p>Ao final do processo, clique em <em>Close</em>.</p>
@@ -10010,7 +10334,7 @@ root</pre>
 <div class="content">
 <img src="./img/wsus-gpo8.png" alt="wsus gpo8">
 </div>
-<div class="title">Figure 142. Novas atualizações aprovadas pelo WSUS disponibilizadas</div>
+<div class="title">Figure 136. Novas atualizações aprovadas pelo WSUS disponibilizadas</div>
 </div>
 <div class="paragraph">
 <p>Um vez aprovadas na console administrativa do WSUS, as atualizações podem ser instaladas nas máquinas cliente. Assim, o administrador pode controlar de forma granular quais atualizações distribuir, para quais máquinas, e quando deseja que elas sejam instaladas, tornando o processo de gestão de segurança do parque computacional muito mais eficiente.</p>
@@ -10174,7 +10498,7 @@ done</pre>
 <div class="content">
 <img src="./img/grub-passwd1.png" alt="grub passwd1">
 </div>
-<div class="title">Figure 143. Edição de opções no GRUB</div>
+<div class="title">Figure 137. Edição de opções no GRUB</div>
 </div>
 <div class="paragraph">
 <p>Apertando <code>e</code> sobre a primeira opção, imediatamente o sistema requisita a combinação usuário/senha configurada anteriormente:</p>
@@ -10183,7 +10507,7 @@ done</pre>
 <div class="content">
 <img src="./img/grub-passwd2.png" alt="grub passwd2">
 </div>
-<div class="title">Figure 144. Inserção de usuário/senha no GRUB</div>
+<div class="title">Figure 138. Inserção de usuário/senha no GRUB</div>
 </div>
 <div class="paragraph">
 <p>Mediante a inserção da combinação correta, o menu de edição de opções de <em>boot</em> é mostrado, como se segue.</p>
@@ -10192,7 +10516,7 @@ done</pre>
 <div class="content">
 <img src="./img/grub-passwd3.png" alt="grub passwd3">
 </div>
-<div class="title">Figure 145. Edição de opções de boot no GRUB</div>
+<div class="title">Figure 139. Edição de opções de boot no GRUB</div>
 </div>
 <div class="paragraph">
 <p>Note, ainda, que mesmo o <em>boot</em> do sistema prossegue apenas se a combinação de usuário/senha correta é inserida no GRUB.</p>
@@ -10995,7 +11319,7 @@ lrwxrwxrwx 1 root root 9 Sep  8 19:17 /etc/systemd/system/ctrl-alt-del.target -&
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-04-08 02:24:02 -03
+Last updated 2019-04-14 01:13:09 -03
 </div>
 </div>
 </body>

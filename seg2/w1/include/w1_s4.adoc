@@ -8,7 +8,7 @@ ifdef::oneof[]
 :source-highlighter: rouge
 :listing-caption: Listing
 :pdf-page-size: A4
-:revdate: 11-10-2018
+:revdate: 13-04-2019
 :imagesdir: ../img
 :srcdir: ../src
 :icons: font
@@ -26,14 +26,31 @@ Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e
 
 Nesta atividade iremos configurar um repositório de logs em um servidor da DMZ (_LinServer-G_), e enviar os logs dos demais servidores para esse concentrador. O objetivo desta atividade é fazer o aluno aplicar os conceitos de repositório de logs de uma rede e preparar o ambiente para os serviços seguintes, que serão configurados durante o curso.
 
-1. Primeiro, vamos configurar o concentrador de logs. Acesse a máquina _LinServer-G_ e instale o pacote `syslog-ng`.
+1. Primeiro, acesse a máquina _LinServer-G_. Verifique que o gerenciador de logs `syslog-ng` está instalado e operacional.
 ifdef::gabarito[]
 +
 ....
 # hostname
 LinServer-A
+....
++
+....
+# dpkg -l | grep 'ii *syslog-ng '
+ii  syslog-ng                          3.8.1-10                       all          Enhanced system logging daemon (metapackage)
+....
++
+....
+# systemctl status syslog-ng
+● syslog-ng.service - System Logger Daemon
+   Loaded: loaded (/lib/systemd/system/syslog-ng.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2019-04-13 01:59:05 -03; 2min 46s ago
+     Docs: man:syslog-ng(8)
+ Main PID: 358 (syslog-ng)
+   CGroup: /system.slice/syslog-ng.service
+           └─358 /usr/sbin/syslog-ng -F
 
-# apt-get install --no-install-recommends syslog-ng
+abr 13 01:58:16 LinServer-A systemd[1]: Starting System Logger Daemon...
+abr 13 01:59:05 LinServer-A syslog-ng[358]: [2019-04-13T01:59:05.123631] WARNING: Default value changed for the prefiabr 13 01:59:05 LinServer-A systemd[1]: Started System Logger Daemon.
 ....
 endif::gabarito[]
 
@@ -61,14 +78,31 @@ Depois, basta reiniciar o serviço:
 ....
 endif::gabarito[]
 
-3. Agora, na máquina _FWGW1-G_, instale o `syslog-ng` e configure-o como um cliente Syslog. Crie um arquivo de configuração na pasta `/etc/syslog-ng/conf.d` que envie todos os eventos de log locais para a máquina _LinServer-G_ na porta 514/UDP.
+3. Agora, na máquina _FWGW1-G_, verifique que o gerenciador de logs `syslog-ng` está instalado e operacional. Crie um arquivo de configuração na pasta `/etc/syslog-ng/conf.d` que envie todos os eventos de log locais para a máquina _LinServer-G_ na porta 514/UDP.
 ifdef::gabarito[]
 +
 ....
 # hostname
 FWGW1-A
+....
++
+....
+# dpkg -l | grep 'ii *syslog-ng '
+ii  syslog-ng                            3.8.1-10                       all          Enhanced system logging daemon (metapackage)
+....
++
+....
+# systemctl status syslog-ng
+● syslog-ng.service - System Logger Daemon
+   Loaded: loaded (/lib/systemd/system/syslog-ng.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2019-04-13 01:57:01 -03; 8min ago
+     Docs: man:syslog-ng(8)
+ Main PID: 338 (syslog-ng)
+   CGroup: /system.slice/syslog-ng.service
+           └─338 /usr/sbin/syslog-ng -F
 
-# apt-get install --no-install-recommends syslog-ng
+abr 13 01:57:00 FWGW1-A systemd[1]: Starting System Logger Daemon...
+abr 13 01:57:01 FWGW1-A syslog-ng[338]: [2019-04-13T01:57:01.338976] WARNING: Default value changed for the prefix()abr 13 01:57:01 FWGW1-A systemd[1]: Started System Logger Daemon.
 ....
 +
 Crie o arquivo novo `/etc/syslog-ng/conf.d/rclient.conf`, que envia os logs locais para o servidor remoto, com o seguinte conteúdo:
@@ -93,7 +127,9 @@ Na máquina _FWGW1-G_, crie um evento de log qualquer usando o comando `logger`:
 ....
 # hostname
 FWGW1-A
-
+....
++
+....
 # logger -p error Teste
 ....
 +
@@ -102,9 +138,11 @@ Observando a máquina _LinServer-G_, perceba que foi criado um novo arquivo `/va
 ....
 # hostname
 LinServer-A
-
+....
++
+....
 # tail -n1 /var/log/172.16.1.1.log
-Aug 26 06:49:30 172.16.1.1 aluno: Teste
+Apr 13 02:07:07 172.16.1.1 aluno[1615]: Teste
 ....
 endif::gabarito[]
 
@@ -131,8 +169,8 @@ ifdef::gabarito[]
 A tela ficaria, portanto, desta forma:
 +
 .Tela de políticas de auditoria para o WinServer-G
-[#img-syslog-gpedit]
-image::syslog-gpedit.png[align="center"]
+[#img-syslog-1]
+image::syslog-1.png[align="center"]
 endif::gabarito[]
 
 6. O próximo passo é instalar o Snare, que permitirá envio dos registros de eventos do Windows para um servidor Syslog remoto. Faça o download em https://www.snaresolutions.com/products/snare-agents/open-source-agents/ ; será necessário cadastrar seu nome/email para receber o link de download. Alternativamente, solicite o instalador ao instrutor.
@@ -151,22 +189,26 @@ Durante a instalação, responda todas as perguntas com as opções padrão, exc
 7. Após a instalação, abra o Snare. Clique em _Start_ e digite "snare", escolhendo a opção `Snare for Windows (Open Source)`, como se segue:
 +
 .Inicialização do Snare
-[#img-syslog-snare-start]
-image::syslog-snare-start.png[align="center"]
+[#img-syslog-2]
+image::syslog-2.png[align="center"]
 +
 Irá ser lançada uma janela do navegador. Informe o usuário `snare`, e senha `rnpesr`, como se segue:
 +
 .Login no Snare
-[#img-syslog-snare-password]
-image::syslog-snare-password.png[align="center"]
+[#img-syslog-3]
+image::syslog-3.png[align="center"]
 +
 Clique em _Network Configuration_ -- informe o IP da máquina _LinServer-G_ no campo _Destination Snare Server address_, e a porta 514 no campo _Destination Port_, como se segue. Em seguida, clique em _Change Configuration_.
 +
 .Configurações do Snare
-[#img-syslog-snare-config]
-image::syslog-snare-config.png[align="center"]
+[#img-syslog-4]
+image::syslog-4.png[align="center"]
 +
 Em seguida, clique em _Apply the Latest Audit Configuration_ e depois em _Reload Settings_.
++
+.Recarregando o Snare
+[#img-syslog-5]
+image::syslog-5.png[align="center"]
 
 8. Faça logoff/logon no _WinServer-G_ para gerar registros de eventos. Em seguida, volte à máquina _LinServer-G_ e verifique que os logs estão de fato sendo enviados.
 ifdef::gabarito[]
@@ -174,9 +216,11 @@ ifdef::gabarito[]
 ....
 # hostname
 LinServer-A
-
-# grep Logoff /var/log/172.16.1.20.log
-Aug 26 07:10:25 172.16.1.20 WinServer-A MSWinEventLog   1       Security        50      dom ago 26 08:10:23 2018  4647    Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit     WinServer-A     Logoff          User initiated logoff:    Subject:   Security ID:  S-1-5-21-1959434341-4039883546-812769935-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0x16898    This event is generated when a logoff is initiated but the token reference count is not zero and the logon session cannot be destroyed.  No further user-initiated activity can occur.  This event can be interpreted as a logoff event.  41
+....
++
+....
+# grep -a 'Administrator.*Logoff' /var/log/172.16.1.20.log
+Apr 13 02:40:32 172.16.1.20 WinServer-A MSWinEventLog   1       Security        283     sab abr 13 02:40:32 2019    4647     Microsoft-Windows-Security-Auditing     WINSERVER-A\Administrator       N/A     Success Audit   WinServer-A Logoff           User initiated logoff:    Subject:   Security ID:  S-1-5-21-970566664-513978616-1541136702-500   Account Name:  Administrator   Account Domain:  WINSERVER-A   Logon ID:  0xD2798    This event is generated when a logoff is initiated. No further user-initiated activity can occur. This event can be interpreted as a logoff event.   229
 ....
 endif::gabarito[]
 
@@ -189,7 +233,7 @@ Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e
 
 Nesta atividade vamos configurar o serviço de sincronismo de relógio em um servidor da rede (_LinServer-G_) e configurar os demais _hosts_ da rede para sincronizar com o relógio desse servidor.
 
-1. Primeiro, vamos configurar o servidor de hora. Acesse a máquina _LinServer-G_ e instale o pacote `ntp`.
+1. Primeiro, vamos configurar o servidor de hora. Acesse a máquina _LinServer-G_, verifique que o pacote `ntp` está instalado e habilite-o durante o _boot_.
 ifdef::gabarito[]
 +
 ....
@@ -198,7 +242,14 @@ LinServer-A
 ....
 +
 ....
-# apt-get install --no-install-recommends ntp
+# dpkg -l | grep 'ii.*ntp '
+ii  ntp                                1:4.2.8p10+dfsg-3+deb9u2       amd64        Network Time Protocol daemon and utility programs
+....
++
+....
+# systemctl enable ntp
+ntp.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable ntp
 ....
 endif::gabarito[]
 
@@ -227,12 +278,23 @@ ifdef::gabarito[]
 +
 ....
 # ntpd -gq
-ntpd: time slew +0.000090s
+13 Apr 02:48:10 ntpd[7164]: ntpd 4.2.8p10@1.3728-o Sun Feb 25 21:22:55 UTC 2018 (1): Starting
+13 Apr 02:48:10 ntpd[7164]: Command line: ntpd -gq
+13 Apr 02:48:10 ntpd[7164]: proto: precision = 0.060 usec (-24)
+13 Apr 02:48:10 ntpd[7164]: Listen and drop on 0 v6wildcard [::]:123
+13 Apr 02:48:10 ntpd[7164]: Listen and drop on 1 v4wildcard 0.0.0.0:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 2 lo 127.0.0.1:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 3 enp0s3 172.16.1.10:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 4 lo [::1]:123
+13 Apr 02:48:10 ntpd[7164]: Listen normally on 5 enp0s3 [fe80::a00:27ff:fef2:7ba2%2]:123
+13 Apr 02:48:10 ntpd[7164]: Listening on routing socket on fd #22 for interface updates
+13 Apr 02:48:17 ntpd[7164]: ntpd: time slew +0.000514 s
+ntpd: time slew +0.000514s
 ....
 +
 ....
 # date
-qui out 11 15:25:50 -03 2018
+sáb abr 13 02:48:41 -03 2019
 ....
 +
 ....
@@ -247,9 +309,9 @@ ifdef::gabarito[]
 # ntpq -c pe
      remote           refid      st t when poll reach   delay   offset  jitter
 ==============================================================================
-*a.ntp.br        200.160.7.186    2 u   48   64   77   16.623   -0.352   0.229
- b.ntp.br        200.160.7.186    2 u   51   64   77   57.992   -1.086   0.239
- c.ntp.br        200.160.7.186    2 u   50   64   77   40.497   -2.432   0.281
+ a.ntp.br        200.160.7.186    2 u    2   64    1   17.083   -0.090   0.115
+ b.ntp.br        200.160.7.186    2 u    1   64    1   59.400    0.346   0.493
+ c.ntp.br        200.160.7.186    2 u    2   64    1   32.332    1.893   0.000
 ....
 +
 ....
@@ -260,7 +322,7 @@ udp        0      0 0.0.0.0:123             0.0.0.0:*                           
 ....
 endif::gabarito[]
 
-5. Vamos configurar o cliente NTP Linux, na máquina _FWGW1-G_. Instale o pacote `ntp`; edite o arquivo `/etc/ntp.conf` para consultar o servidor de hora _LinServer-G_; pare o serviço `ntp`, sincronize a hora imediatamente e reinicie-o.
+5. Vamos configurar o cliente NTP Linux, na máquina _FWGW1-G_. Verifique que o pacote `ntp` está instalado, e habilite-o durante o _boot_; edite o arquivo `/etc/ntp.conf` para consultar o servidor de hora _LinServer-G_; pare o serviço `ntp`, sincronize a hora imediatamente e reinicie-o.
 ifdef::gabarito[]
 +
 ....
@@ -269,7 +331,14 @@ FWGW1-A
 ....
 +
 ....
-# apt-get install --no-install-recommends ntp
+# dpkg -l | grep 'ii.*ntp '
+ii  ntp                                  1:4.2.8p10+dfsg-3+deb9u2       amd64        Network Time Protocol daemon and utility programs
+....
++
+....
+# systemctl enable ntp
+ntp.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable ntp
 ....
 +
 ....
@@ -288,12 +357,27 @@ server 172.16.1.10 iburst
 +
 ....
 # ntpd -gq
-ntpd: time slew -0.000270s
+13 Apr 02:51:02 ntpd[2741]: ntpd 4.2.8p10@1.3728-o Sun Feb 25 21:22:55 UTC 2018 (1): Starting
+13 Apr 02:51:02 ntpd[2741]: Command line: ntpd -gq
+13 Apr 02:51:02 ntpd[2741]: proto: precision = 0.060 usec (-24)
+13 Apr 02:51:02 ntpd[2741]: Listen and drop on 0 v6wildcard [::]:123
+13 Apr 02:51:02 ntpd[2741]: Listen and drop on 1 v4wildcard 0.0.0.0:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 2 lo 127.0.0.1:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 3 enp0s3 192.168.29.104:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 4 enp0s8 172.16.1.1:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 5 enp0s9 10.1.1.1:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 6 lo [::1]:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 7 enp0s3 [fe80::a00:27ff:feae:71d3%2]:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 8 enp0s8 [fe80::a00:27ff:fe68:4fb%3]:123
+13 Apr 02:51:02 ntpd[2741]: Listen normally on 9 enp0s9 [fe80::a00:27ff:feae:4cf%4]:123
+13 Apr 02:51:02 ntpd[2741]: Listening on routing socket on fd #26 for interface updates
+13 Apr 02:51:12 ntpd[2741]: ntpd: time set +0.218180 s
+ntpd: time set +0.218180s
 ....
 +
 ....
 # date
-qui out 11 15:28:12 -03 2018
+sáb abr 13 02:51:23 -03 2019
 ....
 +
 ....
@@ -301,19 +385,25 @@ qui out 11 15:28:12 -03 2018
 ....
 endif::gabarito[]
 
-6. Finalmente, configure o cliente NTP na máquina _WinServer-G_. O Microsoft Windows possui uma forma simples de configurar o sincronismo de relógio com servidores de rede, desde de que não tenham o servidor de diretório _Microsoft Active Directory_ como controlador de domínio, pois dessa forma o sincronismo é automático.
+6. Finalmente, configure o cliente NTP na máquina _WinServer-G_. O Microsoft Windows possui uma forma simples de configurar o sincronismo de relógio com servidores de rede, desde que não tenha o servidor de diretório _Microsoft Active Directory_ como controlador de domínio -- do contrário, o sincronismo é feito de forma automática.
 +
-Para a configuração do sincronismo automático do _host_ Windows com o servidor de hora da rede, clique no relógio da barra de tarefas, e em seguida em _Change date and time settings..._; logo depois, navegue até a aba _Internet Time_.
+Para a configuração do sincronismo automático do _host_ Windows com o servidor de hora da rede, abra o Painel de Controle e busque por _Date and Time_; em seguida, clique na opção _Date and Time_.
++
+.Configuração de hora do Windows Server
+[#img-ntp-1]
+image::ntp-1.png[align="center"]
++
+Na nova janela, navegue até a aba _Internet Time_.
 +
 .Aba Internet Time do relógio do Windows
-[#img-ntp-win-internettime]
-image::ntp-win-internettime.png[align="center"]
+[#img-ntp-2]
+image::ntp-2.png[align="center"]
 +
 Clique em _Change Settings..._, e informe o IP da máquina _LinServer-G_ no campo _Server_. Em seguida, clique em _Update now_ (se ocorrer um erro, clique uma segunda vez), e o relógio do sistema deverá ser atualizado.
 +
 .Modificando o servidor NTP do Windows
-[#img-ntp-win-setserver]
-image::ntp-win-setserver.png[align="center"]
+[#img-ntp-3]
+image::ntp-3.png[align="center"]
 
 === 3) Monitoramento de serviços
 
@@ -324,12 +414,7 @@ Esta atividade será realizada nas máquinas virtuais _FWGW1-G_, _LinServer-G_ e
 
 Nesta atividade prática, o software Cacti será configurado para monitorar os recursos dos servidores da rede. O Cacti e os pacotes necessários para o correto funcionamento serão instalados na máquina _LinServer-G_. Serão configurados agentes SNMP nos servidores _WinServer-G_ e _FWGW1-G_ para que o Cacti possa monitorar os recursos desses hosts.
 
-1. Primeiro, vamos instalar o Cacti. Acesse a máquina _LinServer-G_ e instale o pacote `cacti`.
-+
---
-* Quando perguntado sobre o _web server_ para o qual o Cacti deve ser autoconfigurado, escolha `apache2`.
-* Quando perguntado se a base de dados do Cacti deve ser configurada usando o `dbconfig-common`, responda _Yes_. Para a senha do usuário administrativo da base de dados e a senha do aplicativo Cacti no MySQL, informe `rnpesr123` para ambas as perguntas.
---
+1. O Cacti já está instalado na máquina _LinServer-G_. Para utilizá-lo, habilite os _daemons_ `apache2` e `mysql` durante o _boot_, e inicie-os.
 ifdef::gabarito[]
 +
 ....
@@ -338,8 +423,23 @@ LinServer-A
 ....
 +
 ....
-# apt-get install cacti
-(...)
+# systemctl enable apache2
+Synchronizing state of apache2.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable apache2
+....
++
+....
+# systemctl enable mysql
+mysql.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable mysql
+....
++
+....
+# systemctl start apache2
+....
++
+....
+# systemctl start mysql
 ....
 endif::gabarito[]
 
@@ -349,7 +449,7 @@ endif::gabarito[]
 [#img-cacti-console]
 image::cacti-console.png[align="center"]
 
-3. Vamos instalar o agente SNMP na máquina _FWGW1-G_. Instale o pacote `snmpd`.
+3. Vamos habilitar o agente SNMP na máquina _FWGW1-G_. Habilite o `snmpd` durante o _boot_, e inicie-o.
 ifdef::gabarito[]
 +
 ....
@@ -358,7 +458,13 @@ FWGW1-A
 ....
 +
 ....
-# apt-get install --no-install-recommends snmpd
+# systemctl enable snmpd
+Synchronizing state of snmpd.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable snmpd
+....
++
+....
+# systemctl start snmpd
 ....
 endif::gabarito[]
 
@@ -394,27 +500,39 @@ ifdef::gabarito[]
 ....
 +
 ....
-# iptables-save > /etc/iptables/rules.v4
+# /etc/init.d/netfilter-persistent save
 ....
 endif::gabarito[]
 
-6. Agora, vamos instalar o agente SNMP na máquina _WinServer-G_. Acesse como usuário _Administrator_ e, dentro do _Server Manager_, clique com o botão direito em _Features_ > _Add Features_. Desça a barra de rolagem, selecione a caixa _SNMP Services_ e prossiga com o assistente.
+6. Agora, vamos instalar o agente SNMP na máquina _WinServer-G_. Usando o Windows PowerShell, execute os comandos:
 +
-.Instalação da feature SNMP
-[#img-snmp-wininstall]
-image::snmp-wininstall.png[align="center"]
+....
+PS C:\Users\Administrator> Install-WindowsFeature SNMP-Service -IncludeAllSubFeature
 
-7. Abra o gestor de serviços do Windows, via menu _Start_ > _Run..._ > `services.msc`. Encontre o serviço _SNMP Service_ e clique com o botão direto > _Properties_.
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {SNMP Service, SNMP WMI Provider}
+....
++
+....
+PS C:\Users\Administrator> Install-WindowsFeature RSAT-SNMP
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             Success        {Remote Server Administration Tools, Featu...
+....
+
+7. Vamos configurar o SNMP: abra o gestor de serviços do Windows, via menu _Start_ > _Run..._ > `services.msc`. Encontre o serviço _SNMP Service_ e clique com o botão direto > _Properties_.
 +
 .Propriedades do serviço SNMP
-[#img-snmp-winprop]
-image::snmp-winprop.png[align="center"]
+[#img-snmp-1]
+image::snmp-1.png[align="center"]
 +
 Na aba _Security_, caixa _Accepted community names_, clique em _Add..._ e adicione a comunidade `public` com permissões _READ ONLY_. Logo abaixo, na caixa _Accept SNMP packets from these hosts_, clique em _Add..._ e adicione o IP da máquina _LinServer-G_. Sua janela deverá ficar assim:
 +
 .Configurações do serviço SNMP
-[#img-snmp-winconfig]
-image::snmp-winconfig.png[align="center"]
+[#img-snmp-2]
+image::snmp-2.png[align="center"]
 +
 Finalmente, clique com o botão direito no serviço _SNMP Service_ e em seguida em _Restart_.
 
