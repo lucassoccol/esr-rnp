@@ -1,8 +1,16 @@
 ---
+- name: Add Backports Repository
+  apt_repository:
+    repo='deb http://deb.debian.org/debian stretch-backports main'
+    state=present
+    filename=backports
+    update_cache=yes
+
 - name: Install OpenNTPD
   apt:
     name: openntpd
-    state: present
+    state: latest
+    default_release: stretch-backports
     update_cache: true
 
 - name: Copy OpenNTPD configuration

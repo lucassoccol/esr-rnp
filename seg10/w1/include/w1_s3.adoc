@@ -292,7 +292,7 @@ include::{srcdir}/s3/etc_rsyslog.d_slapd.conf[]
 5. Verifique que os registros de eventos do `slapd` estão sendo, de fato, enviados para o arquivo `/var/log/slapd.log`:
 +
 ....
-tail /var/log/slapd.log
+# tail /var/log/slapd.log
 [13-11-2018 18:35:18] slapd debug  daemon: shutdown requested and initiated.
 [13-11-2018 18:35:18] slapd debug  slapd shutdown: waiting for 0 operations/tasks to finish
 [13-11-2018 18:35:18] slapd debug  slapd stopped.

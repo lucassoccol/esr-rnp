@@ -342,10 +342,11 @@ Depois `fname`: esse variável define qual nome de arquivo será usado para conf
 include::{srcdir}/s6/ansible_roles_ntp_tasks_main.yml[]
 ----
 +
-Temos duas tarefas:
+Temos três tarefas:
 +
 --
-* _Install OpenNTPD_ se encarrega de instalar o pacote do OpenNTPD, usando o módulo `apt` do Ansible. Antes da instalação, atualizamos a _cache_ dos repositórios de forma análoga ao `apt-get update`.
+* _Add Backports Repository_ irá adicionar o repositório de _backports_ do Debian, permitindo a instalação da versão mais recente do OpenNTPD.
+* _Install OpenNTPD_ se encarrega de instalar o pacote do OpenNTPD, usando o módulo `apt` do Ansible, a partir do repositório `stretch-backports`. Antes da instalação, atualizamos a _cache_ dos repositórios de forma análoga ao `apt-get update`.
 * _Copy OpenNTPD configuration_ copia o arquivo de configuração apropriado para `/etc/openntpd/ntpd.conf`. Note que o arquivo-origem é definido a partir da variável `fname`, que discutimos no passo anterior. O arquivo é ajustado para usuário-dono `root` e grupo-dono `root`, e permissões `rw-r--r--`. Ao final da cópia, invocamos um _handler_ para reiniciar o OpenNTPD.
 --
 

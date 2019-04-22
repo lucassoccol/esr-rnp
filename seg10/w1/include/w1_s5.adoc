@@ -899,7 +899,7 @@ Perfeito, o Git foi instalado com sucesso, e apenas nas máquinas objetivadas.
 Primeiro, crie um repositório vazio de nome `ansible` em seu diretório _home_ local:
 +
 ....
-$ git init ansible
+$ cd ~ && git init ansible
 Initialized empty Git repository in /home/ansible/ansible/.git/
 ....
 +

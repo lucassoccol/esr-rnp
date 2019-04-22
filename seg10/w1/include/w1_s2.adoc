@@ -976,7 +976,7 @@ Note que é necessário substituir as variáveis `ZSKSTUB` e `KSKSTUB` com os va
 2. Teste a assinatura de zonas usando o _script_:
 +
 ....
-# bash scripts/signzone-intnet.sh
+# bash ~/scripts/signzone-intnet.sh
 reconfig start, read /etc/nsd/nsd.conf
 ok
 ok
